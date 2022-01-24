@@ -1,0 +1,27 @@
+.vertical {
+  margin: 0;
+  padding: 0;
+  cursor: row-resize;
+  width: 15px;
+  height: 100%;
+  background-size: 3px 5px !important;
+  background: linear-gradient(to bottom, #2c2c32 1px, transparent 1px) repeat-y;
+  user-select: none;
+}
+
+.vertical > li {
+  list-style-type: none;
+  padding-left: 6px;
+  width: 6px;
+  height: 51px;
+  list-style-type: none;
+  margin-bottom: 49px;
+  border-top: 1px solid #2c2c32;
+  border-bottom: 1px solid #2c2c32;
+}
+
+.vertical .ruler_value {
+  font-size: 12px;
+  transform: rotate(90deg) translate(-3px, -2px) scale(0.8);
+  display: block;
+}

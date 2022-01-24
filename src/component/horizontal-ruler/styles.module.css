@@ -1,0 +1,39 @@
+.horizontal {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  margin: 0px 0px 0px 15px;
+  height: 15px;
+  cursor: col-resize;
+  background-size: 5px 3px !important;
+  background: linear-gradient(to right, #2c2c32 1px, transparent 1px) repeat-x;
+  user-select: none;
+}
+
+.horizontal > li {
+  padding: 0px;
+  list-style-type: none;
+  height: 5px;
+  flex-grow: 0;
+  flex-shrink: 0;
+  flex-basis: 51px;
+  margin: 2px 49px 0 0px;
+  border-left: 1px solid #2c2c32;
+}
+
+.horizontal > li::before {
+  width: 1px;
+  height: 4px;
+  top: 0;
+  left: 0;
+  content: '';
+  box-sizing: border-box;
+  float: right;
+  background: #2c2c32;
+}
+
+.horizontal .ruler_value {
+  font-size: 12px;
+  float: left;
+  transform: translate(3px, -2px) scale(0.8);
+}
