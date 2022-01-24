@@ -1,10 +1,10 @@
 import React from 'react'
 
-import { ExampleComponent } from 'react-drag-layout'
+import { ReactDragLayout } from 'react-drag-layout'
 import 'react-drag-layout/dist/index.css'
 
 const App = () => {
-  return <ExampleComponent text="Create React Library Example 😄" />
+  return <ReactDragLayout />
 }
 
 export default App

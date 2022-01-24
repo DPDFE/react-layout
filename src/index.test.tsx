@@ -1,7 +1,7 @@
-import { ExampleComponent } from '.'
+import { ReactDragLayout } from '.'
 
-describe('ExampleComponent', () => {
+describe('ReactDragLayout', () => {
   it('is truthy', () => {
-    expect(ExampleComponent).toBeTruthy()
+    expect(ReactDragLayout).toBeTruthy()
   })
 })
