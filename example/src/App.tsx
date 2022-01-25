@@ -62,7 +62,7 @@ const App = () => {
         width={width}
         height={height}
         scale={scale}
-        mode={'edit' as LayoutType}
+        mode={LayoutType.edit}
       ></ReactDragLayout>
     </div>
   );

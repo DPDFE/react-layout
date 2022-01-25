@@ -1,20 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react';
-import HorizontalRuler from '../horizontal-ruler';
 import VerticalRuler from '../vertical-ruler';
+import HorizontalRuler from '../horizontal-ruler';
 import Canvas from '../canvas';
 import styles from './styles.module.css';
 import { getMaxWidgetsRange } from '@/utils/utils';
-import { ReactDragLayoutProps } from '@/interfaces';
+import { LayoutType, ReactDragLayoutProps } from '@/interfaces';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
-  const [l_offset, setLeftOffset] = useState<number>(0); // 画布偏移量
-  const [t_offset, setTopOffset] = useState<number>(0); // 画布偏移量
-
-  const canvas_viewport = useRef<any>(); // 画布视窗，可视区域
-  const canvas_wrapper = useRef<any>(); // canvas存放的画布，增加边距支持滚动
-
-  // 可视窗口位置坐标（{x, y, left, top}）
-  const wrapper_pos = canvas_viewport.current?.getBoundingClientRect();
+  const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
+  const canvas_wrapper = useRef<HTMLDivElement>(null); // canvas存放的画布，增加边距支持滚动
 
   const [wrapper_width, setCanvasWrapperWidth] = useState<number>(0); // 画板宽度
   const [wrapper_height, setCanvasWrapperHeight] = useState<number>(0); // 画板高度
@@ -32,8 +26,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     );
 
     // 视窗的宽、高度
-    const client_height = canvas_viewport.current?.clientHeight;
-    const client_width = canvas_viewport.current?.clientWidth;
+    const client_height = canvas_viewport.current?.clientHeight
+      ? canvas_viewport.current?.clientHeight
+      : 0;
+    const client_width = canvas_viewport.current?.clientWidth
+      ? canvas_viewport.current?.clientWidth
+      : 0;
 
     // 画板实际大小
     const wrapper_width =
@@ -60,14 +58,23 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
   return (
     <div className={styles.container}>
       {/* 水平标尺 */}
-      <HorizontalRuler
-        height={props.height}
-        scale={props.scale}
-      ></HorizontalRuler>
+      {props.mode === LayoutType.edit && canvas_viewport.current && (
+        <HorizontalRuler
+          {...props}
+          wrapper_width={wrapper_width}
+          canvas_viewport={canvas_viewport}
+        ></HorizontalRuler>
+      )}
 
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* 垂直标尺 */}
-        <VerticalRuler width={props.width} scale={props.scale}></VerticalRuler>
+        {props.mode === LayoutType.edit && canvas_viewport.current && (
+          <VerticalRuler
+            {...props}
+            wrapper_height={wrapper_width}
+            canvas_viewport={canvas_viewport}
+          ></VerticalRuler>
+        )}
 
         {/* 可视区域窗口 */}
         <div
