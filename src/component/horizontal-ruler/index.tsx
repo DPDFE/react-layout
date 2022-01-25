@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import styles from './styles.css';
+import styles from './styles.module.css';
 
 interface HorizontalRulerProps {
   height: number | string;

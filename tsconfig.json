@@ -15,7 +15,13 @@
     "suppressImplicitAnyIndexErrors": true,
     // "noUnusedLocals": true,
     // "noUnusedParameters": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "example"]

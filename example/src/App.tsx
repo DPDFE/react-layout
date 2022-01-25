@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Button, Input, Slider } from 'antd';
-import { ReactDragLayout } from 'react-drag-layout';
+import { ReactDragLayout, LayoutType } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 import 'antd/dist/antd.css';
 
 const App = () => {
-  const [width, setWidth] = useState<number | string>('100%');
-  const [height, setHeight] = useState<number | string>('100%');
-  const [scale, setScale] = useState<number>(0.5);
+  const [width, setWidth] = useState<number | string>(1980);
+  const [height, setHeight] = useState<number | string>(2000);
+  const [scale, setScale] = useState<number>(1);
 
   return (
     <div
@@ -31,26 +31,29 @@ const App = () => {
         <Button type='primary' style={{ marginRight: 10 }}>
           拖拽添加
         </Button>
-        <span>高度：</span>
+        <span>高度(px)：</span>
         <Input
           style={{ marginRight: 10, width: 150 }}
+          value={height}
           onChange={(e) => {
-            setHeight(e.target.value);
+            setHeight(parseInt(e.target.value));
           }}
         ></Input>
-        <span>宽度：</span>
+        <span>宽度(px)：</span>
         <Input
+          value={width}
           style={{ marginRight: 10, width: 150 }}
           onChange={(e) => {
-            setWidth(e.target.value);
+            setWidth(parseInt(e.target.value));
           }}
         ></Input>
         <span>缩放(100%)：</span>
         <Slider
+          value={scale}
           style={{ marginRight: 10, width: 150 }}
-          step={1}
+          step={0.04}
           min={0}
-          max={100}
+          max={2}
           onChange={setScale}
         />
       </div>
@@ -59,6 +62,7 @@ const App = () => {
         width={width}
         height={height}
         scale={scale}
+        mode={'edit' as LayoutType}
       ></ReactDragLayout>
     </div>
   );
