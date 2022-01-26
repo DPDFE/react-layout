@@ -45,14 +45,11 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
   };
 
   useEffect(() => {
+    changeCanvasAttrs();
     window.addEventListener('resize', changeCanvasAttrs, false);
     return () => {
       window.removeEventListener('resize', changeCanvasAttrs, false);
     };
-  }, []);
-
-  useEffect(() => {
-    changeCanvasAttrs();
   }, [props.height, props.width, props.scale]);
 
   return (
@@ -71,7 +68,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         {props.mode === LayoutType.edit && canvas_viewport.current && (
           <VerticalRuler
             {...props}
-            wrapper_height={wrapper_width}
+            wrapper_height={wrapper_height}
             canvas_viewport={canvas_viewport}
           ></VerticalRuler>
         )}

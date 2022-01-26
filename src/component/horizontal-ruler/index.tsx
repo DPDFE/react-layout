@@ -1,5 +1,10 @@
 import { HorizontalRulerProps } from '@/interfaces';
-import { fiveMultipleIntergral, reciprocalNum, RULER_GAP } from '@/utils/utils';
+import {
+  fiveMultipleIntergral,
+  reciprocalNum,
+  RULER_GAP,
+  TOP_RULER_LEFT_MARGIN
+} from '@/utils/utils';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import styles from './styles.module.css';
@@ -44,10 +49,6 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
 
   useEffect(() => {
     calcHorizontalRulerPos();
-  }, [props.width, props.scale]);
-
-  useEffect(() => {
-    console.log('scroll', props.canvas_viewport.current);
     props.canvas_viewport.current!.addEventListener(
       'scroll',
       calcHorizontalRulerPos,
@@ -60,7 +61,7 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
         false
       );
     };
-  }, []);
+  }, [props.width, props.scale, props.wrapper_width]);
 
   return (
     <div>
@@ -68,7 +69,7 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
         className={styles.horizontal}
         style={{
           paddingLeft: ruler_offset_left,
-          marginLeft: 15 + ruler_align_left
+          marginLeft: TOP_RULER_LEFT_MARGIN + ruler_align_left
         }}
         // onMouseMove={(e) => {
         //   e.persist();

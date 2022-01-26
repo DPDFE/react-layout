@@ -1,6 +1,7 @@
 import { LayoutType } from '@/interfaces';
 
-export const RULER_GAP = 100;
+export const RULER_GAP = 100; // 标尺间隔大小
+export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
 
 // 生成从0开始的数组
 export const reciprocalNum = (count1: number, count2: number) => {
@@ -37,10 +38,10 @@ export const getMaxWidgetsRange = (
   };
 
   // 当有元素被拖出视窗外，延长画布宽高，进行展示
-  let max_left = 0,
-    max_right = canvas_width,
-    max_top = 0,
-    max_bottom = canvas_height;
+  // let max_left = 0,
+  //   max_right = canvas_width,
+  //   max_top = 0,
+  //   max_bottom = canvas_height;
 
   // if (widgets) {
   //   widgets.map((w) => {

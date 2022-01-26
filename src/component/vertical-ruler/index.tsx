@@ -31,9 +31,7 @@ const VerticalRuler = (props: VerticalRulerProps) => {
          通过margin更新整个尺子的位置，抵消掉为了映射刻度5，多带来的padding偏移量。*/
     const ruler_offset_top = canvas_offset_top - ruler_backward_y * RULER_GAP;
 
-    const ruler_offset_correct_top = fiveMultipleIntergral(
-      canvas_offset_top - ruler_backward_y * RULER_GAP
-    );
+    const ruler_offset_correct_top = fiveMultipleIntergral(ruler_offset_top);
     const ruler_align_top = ruler_offset_top - ruler_offset_correct_top;
 
     setRulerOffsetTop(ruler_offset_correct_top);
@@ -43,17 +41,12 @@ const VerticalRuler = (props: VerticalRulerProps) => {
   };
 
   useEffect(() => {
-    console.log('init');
-    calcVerticalRulerPos();
-  }, [props.height, props.scale]);
-
-  useEffect(() => {
-    console.log('scroll', props.canvas_viewport.current);
     props.canvas_viewport.current!.addEventListener(
       'scroll',
       calcVerticalRulerPos,
       false
     );
+    calcVerticalRulerPos();
     return () => {
       props.canvas_viewport.current!.removeEventListener(
         'scroll',
@@ -61,7 +54,7 @@ const VerticalRuler = (props: VerticalRulerProps) => {
         false
       );
     };
-  }, []);
+  }, [props.wrapper_height, props.height, props.scale]);
 
   return (
     <div>
