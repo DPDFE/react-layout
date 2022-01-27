@@ -13,6 +13,9 @@
   "files": [
     "lib"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/pearone/react-drag-layout.git"
@@ -23,5 +26,5 @@
   "bugs": {
     "url": "https://github.com/pearone/react-drag-layout/issues"
   },
-  "gitHead": "e715d363113587f8b5b776c13e60ae06bfbb1a51"
+  "gitHead": "3cc6fdd264aed92c69290b2fd3cc21f5e03e3bb2"
 }
