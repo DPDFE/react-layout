@@ -1,35 +1,36 @@
 {
     "compilerOptions": {
-        "outDir": "lib",
-        "module": "esnext",
+        "target": "es6",
+        "declaration": true,
+        "declarationDir": "./lib",
+        "emitDeclarationOnly": false,
+        "outDir": "./lib/",
         "lib": [
-            "dom",
+            "DOM",
+            "DOM.Iterable",
             "esnext"
         ],
-        "moduleResolution": "node",
-        "sourceMap": true,
-        "declaration": true,
+        "skipDefaultLibCheck": true,
+        "skipLibCheck": true,
         "esModuleInterop": true,
-        "noImplicitReturns": true,
-        "noImplicitThis": true,
-        "noImplicitAny": true,
-        "strictNullChecks": true,
-        "suppressImplicitAnyIndexErrors": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
         "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "forceConsistentCasingInFileNames": true,
+        "module": "es6",
+        "moduleResolution": "Node",
+        "resolveJsonModule": true,
+        "isolatedModules": true,
         "baseUrl": ".",
         "paths": {
             "@/*": [
                 "./src/*"
             ]
-        },
+        }
     },
     "include": [
         "src"
     ],
     "exclude": [
         "node_modules",
-        "dist"
     ]
 }

@@ -7,6 +7,7 @@
   "repository": "https://github.com/pearone/react-drag-layout.git/react-drag-layout",
   "main": "dist/index.js",
   "module": "dist/index.modern.js",
+  "style": "dist/index.css",
   "source": "src/index.tsx",
   "engines": {
     "node": ">=10"
@@ -62,7 +63,7 @@
     "dist"
   ],
   "dependencies": {
-    "@pearone/event-utils": "file:../packages/event-utils",
+    "@pearone/event-utils": "^0.0.4",
     "@pearone/react-draggable": "file:../packages/react-draggable",
     "@pearone/react-resizable": "file:../packages/react-resizable",
     "clsx": "^1.1.1"
