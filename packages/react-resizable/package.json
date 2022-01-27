@@ -1,0 +1,26 @@
+{
+  "name": "react-resizable",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "pearone",
+  "homepage": "https://github.com/pearone/react-drag-layout#readme",
+  "license": "ISC",
+  "main": "lib/resizable.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pearone/react-drag-layout.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/pearone/react-drag-layout/issues"
+  }
+}

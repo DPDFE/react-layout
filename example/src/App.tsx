@@ -5,19 +5,19 @@ import 'react-drag-layout/dist/index.css';
 import 'antd/dist/antd.css';
 
 const App = () => {
-    const [width, setWidth] = useState<number | string>(2000);
-    const [height, setHeight] = useState<number | string>(2000);
+    const [width, setWidth] = useState<number | string>(600);
+    const [height, setHeight] = useState<number | string>(600);
     const [scale, setScale] = useState<number>(1);
     const widgets: DragItem[] = generateLayout();
 
     function generateLayout() {
         return Array.from({ length: 10 }).map((_, i) => {
-            var y = Math.ceil(Math.random() * 4) + 1;
+            var y = Math.ceil(Math.random()) + 1;
             return {
-                x: Math.round(Math.random() * 5) * 2,
-                y: Math.floor(i / 6) * y,
-                w: 2,
-                h: y,
+                x: Math.round(Math.random() * 16) * 100,
+                y: Math.floor(i / 6) * y * 100,
+                w: 2 * 100,
+                h: y * 100,
                 i: i.toString(),
                 static: Math.random() < 0.05
             };
@@ -79,10 +79,12 @@ const App = () => {
                 scale={scale}
                 mode={LayoutType.edit}
             >
-                {widgets.map((w, i) => {
+                {widgets.map((w) => {
                     return (
-                        <div {...w} key={w.i}>
-                            {i}
+                        <div {...w} key={w.i} data-grid={w}>
+                            <div>
+                                我是第{w.i}个div, height: {w.h}, width:{w.w}
+                            </div>
                         </div>
                     );
                 })}

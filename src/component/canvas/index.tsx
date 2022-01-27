@@ -1,4 +1,4 @@
-import { CanvasProps } from '@/interfaces';
+import { CanvasProps, LayoutType } from '@/interfaces';
 import React from 'react';
 import styles from './styles.module.css';
 import DragItem from './drag-item';
@@ -6,11 +6,11 @@ import DragItem from './drag-item';
 const Canvas = (props: CanvasProps) => {
     return (
         <div
-            className={styles.draw_board}
+            className={styles.canvas}
             style={{
                 width: props.width * props.scale,
                 height: props.height * props.scale,
-                backgroundColor: '#bfadad'
+                overflow: props.mode === LayoutType.edit ? 'unset' : 'hidden'
             }}
         >
             {props.children.map((child) => {

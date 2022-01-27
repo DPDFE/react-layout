@@ -8,9 +8,9 @@
     "prettier/react",
     "plugin:@typescript-eslint/eslint-recommended"
   ],
-  "env": {
-    "node": true
-  },
+  // "env": {
+  //   "node": true
+  // },
   "parserOptions": {
     "ecmaVersion": 2020,
     "ecmaFeatures": {

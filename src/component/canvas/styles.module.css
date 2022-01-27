@@ -1,2 +1,11 @@
-.draw_board {
+.canvas {
+    position: relative;
+    background-color: #bfadad;
+}
+
+.drag_item {
+    background-color: #fff;
+    position: absolute;
+    overflow: hidden;
+    border: 1px solid #ddd;
 }

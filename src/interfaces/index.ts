@@ -36,8 +36,12 @@ export interface DragItem {
     y: number;
     w: number;
     h: number;
+    isDraggable?: boolean;
+    isResizable?: boolean;
 }
 
 export interface DragItemProps extends DragItem {
+    style: React.CSSProperties;
+    className: string;
     children: ReactElement;
 }
