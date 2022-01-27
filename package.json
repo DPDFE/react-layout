@@ -56,13 +56,15 @@
     "prettier": "^2.0.4",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "^3.4.1",
-    "typescript": "^3.7.5"
+    "react-scripts": "^3.4.1"
   },
   "files": [
     "dist"
   ],
   "dependencies": {
+    "@pearone/event-utils": "file:../packages/event-utils",
+    "@pearone/react-draggable": "file:../packages/react-draggable",
+    "@pearone/react-resizable": "file:../packages/react-resizable",
     "clsx": "^1.1.1"
   }
 }

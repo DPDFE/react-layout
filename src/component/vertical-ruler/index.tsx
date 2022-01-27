@@ -2,7 +2,7 @@ import { VerticalRulerProps } from '@/interfaces';
 import { fiveMultipleIntergral, reciprocalNum, RULER_GAP } from '@/utils/utils';
 import React, { useEffect, useState } from 'react';
 import styles from './styles.module.css';
-import { addEvent, removeEvent } from 'event-utils';
+import { addEvent, removeEvent } from '@pearone/event-utils';
 
 const VerticalRuler = (props: VerticalRulerProps) => {
     const [y_offset, setYOffset] = useState<number[]>([]); // 尺子垂直间隔

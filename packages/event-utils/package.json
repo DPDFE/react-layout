@@ -6,6 +6,7 @@
   "homepage": "https://github.com/pearone/react-drag-layout#readme",
   "license": "ISC",
   "main": "lib/event-utils.js",
+  "types": "lib/event-utils.d.ts",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
@@ -21,10 +22,14 @@
     "url": "git+https://github.com/pearone/react-drag-layout.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "build": "tsc --build",
+    "perpare": "npm run build"
   },
   "bugs": {
     "url": "https://github.com/pearone/react-drag-layout/issues"
   },
-  "gitHead": "3cc6fdd264aed92c69290b2fd3cc21f5e03e3bb2"
+  "gitHead": "3cc6fdd264aed92c69290b2fd3cc21f5e03e3bb2",
+  "dependencies": {
+    "typescript": "^4.5.5"
+  }
 }

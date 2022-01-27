@@ -5,7 +5,7 @@ import Canvas from '../canvas';
 import styles from './styles.module.css';
 import { getMaxWidgetsRange } from '@/utils/utils';
 import { LayoutType, ReactDragLayoutProps } from '@/interfaces';
-import { addEvent, removeEvent } from 'event-utils';
+import { addEvent, removeEvent } from '@pearone/event-utils';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
