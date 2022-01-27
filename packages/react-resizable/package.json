@@ -1,5 +1,5 @@
 {
-  "name": "react-resizable",
+  "name": "@pearone/react-resizable",
   "version": "0.0.1",
   "description": "> TODO: description",
   "author": "pearone",
@@ -22,5 +22,6 @@
   },
   "bugs": {
     "url": "https://github.com/pearone/react-drag-layout/issues"
-  }
+  },
+  "gitHead": "e715d363113587f8b5b776c13e60ae06bfbb1a51"
 }
