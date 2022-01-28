@@ -17,33 +17,45 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const [t_offset, setTopOffset] = useState<number>(0); //垂直偏移量
     const [l_offset, setLeftOffset] = useState<number>(0); //水平偏移量
 
-    const [max_left, setMaxLeft] = useState<number>(0); // 左
-    const [max_right, setMaxRight] = useState<number>(0); // 右
-    const [max_top, setMaxTop] = useState<number>(0); // 上
-    const [max_bottom, setMaxBottom] = useState<number>(0); // 下
+    // 让画布位于视窗中间
+    const [t_scroll, setTopScroll] = useState<number>(0); //垂直滚动偏移量
+    const [l_scroll, setLeftScroll] = useState<number>(0); //水平滚动偏移量
+    const [init_scroll, setInitScroll] = useState<boolean>(false); //在初始状态时滚动
+
     /**
      * 更改画布宽高属性
      */
     const changeCanvasAttrs = () => {
         // 画板计算大小
-        const { wrapper_calc_width, wrapper_calc_height, t_offset, l_offset } =
-            getMaxWidgetsRange(
-                {
-                    ...props
-                },
-                canvas_viewport
-            );
+        const {
+            wrapper_calc_width,
+            wrapper_calc_height,
+            t_offset,
+            l_offset,
+            t_scroll,
+            l_scroll
+        } = getMaxWidgetsRange(
+            {
+                ...props
+            },
+            canvas_viewport
+        );
 
         setCanvasWrapperWidth(wrapper_calc_width);
         setCanvasWrapperHeight(wrapper_calc_height);
         setTopOffset(t_offset);
         setLeftOffset(l_offset);
-
-        setMaxLeft(max_left);
-        setMaxRight(max_right);
-        setMaxTop(max_top);
-        setMaxBottom(max_bottom);
+        setTopScroll(t_scroll);
+        setLeftScroll(l_scroll);
+        setInitScroll(true);
     };
+
+    useEffect(() => {
+        setTimeout(() => {
+            canvas_viewport.current!.scrollLeft = l_scroll;
+            canvas_viewport.current!.scrollTop = t_scroll;
+        }, 0);
+    }, [init_scroll]);
 
     useEffect(() => {
         changeCanvasAttrs();

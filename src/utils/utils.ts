@@ -1,5 +1,5 @@
 import { LayoutType, ReactDragLayoutProps } from '@/interfaces';
-import { RefObject } from 'react';
+import { ReactElement, RefObject } from 'react';
 
 export const RULER_GAP = 100; // 标尺间隔大小
 export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
@@ -52,23 +52,12 @@ export const getMaxWidgetsRange = (
 
     // 计算水平、垂直偏移量
     if (mode === LayoutType.edit) {
-        // 元素计算大小
-        let max_left = 0,
-            max_right = width,
-            max_top = 0,
-            max_bottom = height;
+        const { max_left, max_right, max_top, max_bottom } = maxBorderPos(
+            width,
+            height,
+            children
+        );
 
-        if (children) {
-            children.map((child) => {
-                const { x, y, h, w } = child.props;
-                if (x) {
-                    max_left = max_left < x ? max_left : x; // 最左边最小值
-                    max_right = max_right < x + w ? x + w : max_right; // 最大值
-                    max_top = max_top < y ? max_top : y; // 最上边最小值
-                    max_bottom = max_bottom < y + h ? y + h : max_bottom; // 最大值
-                }
-            });
-        }
         const ele_width = max_right * scale - max_left * scale;
         const ele_height = max_bottom * scale - max_top * scale;
 
@@ -79,32 +68,60 @@ export const getMaxWidgetsRange = (
             calcOffset(client_height, calc_height + WRAPPER_PADDING) +
             WRAPPER_PADDING / 2;
 
+        const wrapper_calc_width = Math.max(
+            calc_width > ele_width
+                ? calc_width + WRAPPER_PADDING
+                : ele_width + 2 * l_offset,
+            client_width
+        );
+        const wrapper_calc_height = Math.max(
+            calc_height > ele_height
+                ? calc_height + WRAPPER_PADDING
+                : ele_height + 2 * t_offset,
+            client_height
+        );
+
         return {
-            wrapper_calc_width: Math.max(
-                calc_width > ele_width
-                    ? calc_width + WRAPPER_PADDING
-                    : ele_width + 2 * l_offset,
-                client_width
-            ),
-            wrapper_calc_height: Math.max(
-                calc_height > ele_height
-                    ? calc_height + WRAPPER_PADDING
-                    : ele_height + 2 * t_offset,
-                client_height
-            ),
+            wrapper_calc_width,
+            wrapper_calc_height,
             t_offset: t_offset + Math.abs(max_top) * scale,
-            l_offset: l_offset + Math.abs(max_left) * scale
+            l_offset: l_offset + Math.abs(max_left) * scale,
+            t_scroll: Math.abs(max_top) * scale,
+            l_scroll: Math.abs(max_left) * scale
         };
     } else {
         return {
             wrapper_calc_width: Math.max(calc_width, client_width),
             wrapper_calc_height: Math.max(calc_height, client_height),
             l_offset: calcOffset(client_width, calc_width),
-            t_offset: calcOffset(client_height, calc_height)
+            t_offset: calcOffset(client_height, calc_height),
+            t_scroll: 0,
+            l_scroll: 0
         };
     }
 };
 
 function calcOffset(client: number, calc: number) {
     return client - calc > 0 ? (client - calc) / 2 : 0;
+}
+
+function maxBorderPos(width: number, height: number, children: ReactElement[]) {
+    // 元素计算大小
+    let max_left = 0,
+        max_right = width,
+        max_top = 0,
+        max_bottom = height;
+
+    if (children) {
+        children.map((child) => {
+            const { x, y, h, w } = child.props;
+            if (x) {
+                max_left = max_left < x ? max_left : x; // 最左边最小值
+                max_right = max_right < x + w ? x + w : max_right; // 最大值
+                max_top = max_top < y ? max_top : y; // 最上边最小值
+                max_bottom = max_bottom < y + h ? y + h : max_bottom; // 最大值
+            }
+        });
+    }
+    return { max_left, max_right, max_top, max_bottom };
 }
