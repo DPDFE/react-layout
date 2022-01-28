@@ -89,7 +89,7 @@ const App = () => {
             >
                 {widgets.map((w) => {
                     return (
-                        <div {...w} key={w.i} data-grid={w}>
+                        <div {...w} key={w.i}>
                             <div>
                                 我是第{w.i}个div, height: {w.h}, width:{w.w}
                             </div>

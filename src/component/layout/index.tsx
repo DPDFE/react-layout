@@ -40,21 +40,19 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             },
             canvas_viewport
         );
+        setTopScroll(t_scroll);
+        setLeftScroll(l_scroll);
+        setInitScroll(true);
 
         setCanvasWrapperWidth(wrapper_calc_width);
         setCanvasWrapperHeight(wrapper_calc_height);
         setTopOffset(t_offset);
         setLeftOffset(l_offset);
-        setTopScroll(t_scroll);
-        setLeftScroll(l_scroll);
-        setInitScroll(true);
     };
 
     useEffect(() => {
-        setTimeout(() => {
-            canvas_viewport.current!.scrollLeft = l_scroll;
-            canvas_viewport.current!.scrollTop = t_scroll;
-        }, 0);
+        canvas_viewport.current!.scrollLeft = l_scroll;
+        canvas_viewport.current!.scrollTop = t_scroll;
     }, [init_scroll]);
 
     useEffect(() => {

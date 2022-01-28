@@ -1,4 +1,4 @@
-import { DragItemProps } from '@/interfaces';
+import { DragItemProps, LayoutType } from '@/interfaces';
 import React, { useRef } from 'react';
 import Draggable from './draggable';
 import Resizable from './resizable';
@@ -30,12 +30,12 @@ const DragItem = (props: DragItemProps) => {
 
     return (
         <React.Fragment>
-            {new_child ? (
+            {props.mode === LayoutType.edit ? (
                 <Resizable {...props}>
                     <Draggable {...props}>{new_child}</Draggable>
                 </Resizable>
             ) : (
-                <div></div>
+                new_child
             )}
         </React.Fragment>
     );

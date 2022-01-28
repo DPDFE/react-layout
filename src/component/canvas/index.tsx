@@ -19,7 +19,7 @@ const Canvas = (props: CanvasProps) => {
             {props.children.map((child) => {
                 return (
                     <DragItem
-                        scale={props.scale}
+                        {...props}
                         children={child}
                         {...child.props}
                         key={child.props.i}

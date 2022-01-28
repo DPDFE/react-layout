@@ -13,15 +13,15 @@ npm install --save react-drag-layout
 ## Usage
 
 ```tsx
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 
-import MyComponent from 'react-drag-layout'
-import 'react-drag-layout/dist/index.css'
+import ReactDragLayout from 'react-drag-layout';
+import 'react-drag-layout/dist/index.css';
 
 class Example extends Component {
-  render() {
-    return <MyComponent />
-  }
+    render() {
+        return <ReactDragLayout />;
+    }
 }
 ```
 
