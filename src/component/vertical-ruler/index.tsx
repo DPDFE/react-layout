@@ -6,7 +6,6 @@ import { addEvent, removeEvent } from '@pearone/event-utils';
 
 const VerticalRuler = (props: VerticalRulerProps) => {
     const [y_offset, setYOffset] = useState<number[]>([]); // 尺子垂直间隔
-    const [t_offset, setTopOffset] = useState<number>(0); // 垂直画布偏移量
     const [ruler_offset_top, setRulerOffsetTop] = useState<number>(0); // 尺子位移
     const [ruler_align_top, setRulerAlignTop] = useState<number>(0); // 尺子校准偏移量
 
@@ -15,13 +14,9 @@ const VerticalRuler = (props: VerticalRulerProps) => {
      */
     const calcVerticalRulerPos = () => {
         // 画布左上角偏移量（需要为5刻度的倍数）https://www.jianshu.com/p/a89732aa84af
-        const { wrapper_height, height, scale, canvas_viewport } = props;
+        const { wrapper_height, canvas_viewport, t_offset } = props;
 
-        const canvas_offset_top =
-            (wrapper_height - height * scale) / 2 -
-            canvas_viewport.current!.scrollTop;
-
-        setTopOffset(canvas_offset_top);
+        const canvas_offset_top = t_offset - canvas_viewport.current!.scrollTop;
 
         // 尺子0点偏移整数粒度计算
         const ruler_forward_y = Math.ceil(wrapper_height / RULER_GAP);

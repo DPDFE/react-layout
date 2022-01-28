@@ -3,7 +3,8 @@ import {
     fiveMultipleIntergral,
     reciprocalNum,
     RULER_GAP,
-    TOP_RULER_LEFT_MARGIN
+    TOP_RULER_LEFT_MARGIN,
+    WRAPPER_PADDING
 } from '@/utils/utils';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
@@ -12,7 +13,6 @@ import { addEvent, removeEvent } from '@pearone/event-utils';
 
 const HorizontalRuler = (props: HorizontalRulerProps) => {
     const [x_offset, setXOffset] = useState<number[]>([]); // 尺子水平间隔
-    const [l_offset, setLeftOffset] = useState<number>(0); // 画布偏移量
     const [ruler_offset_left, setRulerOffsetLeft] = useState<number>(0); // 尺子位移
     const [ruler_align_left, setRulerAlignLeft] = useState<number>(0); // 尺子校准偏移量
 
@@ -21,13 +21,10 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
      */
     const calcHorizontalRulerPos = () => {
         // 画布左上角偏移量（需要为5刻度的倍数）https://www.jianshu.com/p/a89732aa84af
-        const { wrapper_width, width, scale, canvas_viewport } = props;
+        const { wrapper_width, canvas_viewport, l_offset } = props;
 
         const canvas_offset_left =
-            (wrapper_width - width * scale) / 2 -
-            canvas_viewport.current!.scrollLeft;
-
-        setLeftOffset(canvas_offset_left);
+            l_offset - canvas_viewport.current!.scrollLeft;
 
         // 尺子0点偏移整数粒度计算
         const ruler_forward_x = Math.ceil(wrapper_width / RULER_GAP);

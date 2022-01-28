@@ -63,9 +63,7 @@
     "dist"
   ],
   "dependencies": {
-    "@pearone/event-utils": "^0.0.4",
-    "@pearone/react-draggable": "file:../packages/react-draggable",
-    "@pearone/react-resizable": "file:../packages/react-resizable",
+    "@pearone/event-utils": "^0.0.5",
     "clsx": "^1.1.1"
   }
 }

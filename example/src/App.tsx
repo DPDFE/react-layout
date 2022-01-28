@@ -9,18 +9,26 @@ const App = () => {
     const [height, setHeight] = useState<number | string>(600);
     const [scale, setScale] = useState<number>(1);
     const widgets: DragItem[] = generateLayout();
+    // console.log(widgets);
 
     function generateLayout() {
         return Array.from({ length: 10 }).map((_, i) => {
-            var y = Math.ceil(Math.random()) + 1;
             return {
-                x: Math.round(Math.random() * 16) * 100,
-                y: Math.floor(i / 6) * y * 100,
-                w: 2 * 100,
-                h: y * 100,
-                i: i.toString(),
-                static: Math.random() < 0.05
+                x: i * -100,
+                y: i * 100,
+                w: 100,
+                h: 100,
+                i: i.toString()
             };
+            // var y = Math.ceil(Math.random()) + 1;
+            // return {
+            //     x: Math.round(Math.random() * 16) * 100,
+            //     y: Math.floor(i / 6) * y * 100,
+            //     w: 2 * 100,
+            //     h: y * 100,
+            //     i: i.toString(),
+            //     static: Math.random() < 0.05
+            // };
         });
     }
 

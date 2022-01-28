@@ -1,9 +1,8 @@
 import { DragItemProps } from '@/interfaces';
 import React, { useRef } from 'react';
-// import { DraggableCore as Draggable } from 'react-draggable';
-// import { Resizable } from 'react-resizable';
+import Draggable from './draggable';
+import Resizable from './resizable';
 import clsx from 'clsx';
-// import 'react-resizable/css/styles.css';
 import styles from './styles.module.css';
 
 const DragItem = (props: DragItemProps) => {
@@ -12,10 +11,10 @@ const DragItem = (props: DragItemProps) => {
 
     const createStyle = () => {
         return {
-            width: props.w,
-            height: props.h,
-            top: props.y,
-            left: props.x
+            width: props.w * props.scale,
+            height: props.h * props.scale,
+            top: props.y * props.scale,
+            left: props.x * props.scale
         };
     };
 
@@ -30,11 +29,15 @@ const DragItem = (props: DragItemProps) => {
     });
 
     return (
-        // <Draggable>
-        //     <Resizable height={props.h} width={props.w}>
-        <div style={{ display: 'block' }}>{new_child}</div>
-        //     </Resizable>
-        // </Draggable>
+        <React.Fragment>
+            {new_child ? (
+                <Resizable {...props}>
+                    <Draggable {...props}>{new_child}</Draggable>
+                </Resizable>
+            ) : (
+                <div></div>
+            )}
+        </React.Fragment>
     );
 };
 
