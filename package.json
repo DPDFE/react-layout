@@ -25,7 +25,6 @@
     "deploy": "gh-pages -d example/build"
   },
   "peerDependencies": {
-    "clsx": "^1.1.1",
     "react": "^16.0.0"
   },
   "devDependencies": {
@@ -63,7 +62,6 @@
     "dist"
   ],
   "dependencies": {
-    "@pearone/event-utils": "^0.0.5",
-    "clsx": "^1.1.1"
+    "@pearone/event-utils": "^0.0.5"
   }
 }

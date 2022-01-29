@@ -5,10 +5,10 @@ const Draggable = (props: DraggableProps) => {
     const child = React.Children.only(props.children);
 
     const [drag_state, setDragState] = useState<States>(States.over);
-    const [history_x, setHistoryX] = useState<number>(0);
-    const [history_y, setHistoryY] = useState<number>(0);
-    const [style_left, setStyleLeft] = useState<number>(props.x);
-    const [style_top, setStyleTop] = useState<number>(props.y);
+    const [last_client_x, setLastClientX] = useState<number>(NaN);
+    const [last_client_y, setLastClientY] = useState<number>(NaN);
+    const [last_x, setLastX] = useState<number>(NaN); // 相对画布起始点
+    const [last_y, setLastY] = useState<number>(NaN); // 相对画布起始点
 
     const current = (
         (child as DOMElement<DragItem, Element>).ref as RefObject<HTMLElement>
@@ -16,18 +16,24 @@ const Draggable = (props: DraggableProps) => {
 
     const handleDragStop = (e: React.MouseEvent) => {
         e.persist();
+        props.onMouseUp?.(e);
         if (drag_state !== States.over) {
             setDragState(States.over);
-            setStyleLeft(parseInt(current!.style.left));
-            setStyleTop(parseInt(current!.style.top));
+            setLastClientX(NaN);
+            setLastClientY(NaN);
+            setLastX(NaN);
+            setLastY(NaN);
         }
     };
 
     const handleDragStart = (e: React.MouseEvent) => {
         e.persist();
+        props.onMouseDown?.(e);
         setDragState(States.ready);
-        setHistoryX(e.clientX);
-        setHistoryY(e.clientY);
+        setLastClientX(e.clientX);
+        setLastClientY(e.clientY);
+        setLastX(props.position.x);
+        setLastY(props.position.y);
     };
 
     const handleDrag = (e: React.MouseEvent) => {
@@ -35,23 +41,17 @@ const Draggable = (props: DraggableProps) => {
         if (drag_state !== States.over) {
             setDragState(States.progress);
 
-            const left = style_left + (e.clientX - history_x) / props.scale;
-            const top = style_top + (e.clientY - history_y) / props.scale;
-
-            current!.style.left = left + 'px';
-            current!.style.top = top + 'px';
+            const left = last_x + (e.clientX - last_client_x) / props.scale;
+            const top = last_y + (e.clientY - last_client_y) / props.scale;
+            console.log(left + ' ' + top);
+            props.setPosition({ x: left, y: top });
         }
     };
 
-    console.log(child);
     const new_child = React.cloneElement(child, {
         onMouseUp: handleDragStop,
-        onMouseDown: (e: React.MouseEvent<Element, MouseEvent>) => {
-            props.onMouseDown(e);
-            handleDragStart(e);
-        },
+        onMouseDown: handleDragStart,
         onMouseMove: handleDrag,
-        onMouseOut: handleDragStop,
         style: {
             ...props.style,
             ...child.props.style

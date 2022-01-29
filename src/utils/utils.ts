@@ -50,9 +50,6 @@ export const getMaxWidgetsRange = (
     const calc_width = width * scale;
     const calc_height = height * scale;
 
-    const l_offset = calcOffset(client_width, calc_width);
-    const t_offset = calcOffset(client_height, calc_height);
-
     // 计算水平、垂直偏移量
     if (mode === LayoutType.edit) {
         const { max_left, max_right, max_top, max_bottom } = maxBorderPos(
@@ -63,6 +60,13 @@ export const getMaxWidgetsRange = (
 
         const ele_width = max_right * scale - max_left * scale;
         const ele_height = max_bottom * scale - max_top * scale;
+
+        const l_offset =
+            calcOffset(client_width, calc_width + WRAPPER_PADDING) +
+            WRAPPER_PADDING / 2;
+        const t_offset =
+            calcOffset(client_height, calc_height + WRAPPER_PADDING) +
+            WRAPPER_PADDING / 2;
 
         const wrapper_calc_width = Math.max(
             calc_width > ele_width
@@ -86,6 +90,9 @@ export const getMaxWidgetsRange = (
             l_scroll: Math.abs(max_left) * scale
         };
     } else {
+        const l_offset = calcOffset(client_width, calc_width);
+        const t_offset = calcOffset(client_height, calc_height);
+
         return {
             wrapper_calc_width: Math.max(calc_width, client_width),
             wrapper_calc_height: Math.max(calc_height, client_height),

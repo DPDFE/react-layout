@@ -17,6 +17,11 @@ export interface ReactDragLayoutProps {
     width: number;
     height: number;
     mode: LayoutType;
+    onDrop?: (item: any) => void;
+    onDragStart?: () => void;
+    onDragStop?: (layout: any) => void;
+    onResizeStart?: () => void;
+    onResizeStop?: (layout: any) => void;
     children: ReactElement[];
 }
 
@@ -47,22 +52,27 @@ export interface DragItem {
     y: number;
     w: number;
     h: number;
-    isDraggable?: boolean;
-    isResizable?: boolean;
+    is_draggable?: boolean;
+    is_resizable?: boolean;
 }
 
 /** 子元素 */
 export interface DragItemProps extends DragItem {
     scale: number;
-    mode: LayoutType;
     style: React.CSSProperties;
     className: string;
     children: ReactElement;
 }
 
 /** 拖拽 */
-export interface DraggableProps extends DragItemProps {
-    onMouseDown: (e: React.MouseEvent<Element, MouseEvent>) => void;
+export interface DraggableProps {
+    scale: number;
+    children: ReactElement;
+    style: React.CSSProperties;
+    position: { x: number; y: number };
+    setPosition: ({ x, y }: { x: number; y: number }) => void;
+    onMouseUp?: (e: React.MouseEvent<Element, MouseEvent>) => void;
+    onMouseDown?: (e: React.MouseEvent<Element, MouseEvent>) => void;
 }
 
 /** 缩放 */

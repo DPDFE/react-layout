@@ -5,6 +5,24 @@ import DragItem from './drag-item';
 
 /** 画布 */
 const Canvas = (props: CanvasProps) => {
+    const event_callbacks = {
+        onDrop: (item: any) => {
+            props.onDrop?.(item);
+        },
+        onDragStart: () => {
+            props.onDragStart?.();
+        },
+        onDragStop: (layout: any) => {
+            props.onDragStop?.(layout);
+        },
+        onResizeStart: () => {
+            props.onResizeStart?.();
+        },
+        onResizeStop: (layout: any) => {
+            props.onResizeStop?.(layout);
+        }
+    };
+
     return (
         <div
             className={styles.canvas}
@@ -19,10 +37,11 @@ const Canvas = (props: CanvasProps) => {
             {props.children.map((child) => {
                 return (
                     <DragItem
-                        {...props}
+                        scale={props.scale}
                         children={child}
                         {...child.props}
                         key={child.props.i}
+                        {...event_callbacks}
                     ></DragItem>
                 );
             })}

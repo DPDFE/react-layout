@@ -11,6 +11,24 @@ const App = () => {
     const widgets: DragItem[] = generateLayout();
     // console.log(widgets);
 
+    const drag_config = {
+        onDrop: (item: any) => {
+            console.log('onDrop');
+        },
+        onDragStart: () => {
+            console.log('onDragStart');
+        },
+        onDragStop: (layout: any) => {
+            console.log('onDragStop');
+        },
+        onResizeStart: () => {
+            console.log('onResizeStart');
+        },
+        onResizeStop: (layout: any) => {
+            console.log('onResizeStop');
+        }
+    };
+
     function generateLayout() {
         return Array.from({ length: 10 }).map((_, i) => {
             return {
@@ -18,7 +36,9 @@ const App = () => {
                 y: i * 100,
                 w: 100,
                 h: 100,
-                i: i.toString()
+                i: i.toString(),
+                is_resizable: true,
+                is_draggable: true
             };
             // var y = Math.ceil(Math.random()) + 1;
             // return {
@@ -86,11 +106,12 @@ const App = () => {
                 height={height}
                 scale={scale}
                 mode={LayoutType.edit}
+                {...drag_config}
             >
                 {widgets.map((w) => {
                     return (
-                        <div {...w} key={w.i}>
-                            <div>
+                        <div {...w} key={w.i} data-drag={w}>
+                            <div className='test'>
                                 我是第{w.i}个div, height: {w.h}, width:{w.w}
                             </div>
                         </div>
