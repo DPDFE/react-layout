@@ -52,7 +52,6 @@ const Draggable = (props: DraggableProps) => {
     /** 结束 */
     const handleDragStop = () => {
         setDragState(DragStates.draged);
-        addEvent(window, 'mousemove', handleDrag);
     };
 
     /**
@@ -88,6 +87,7 @@ const Draggable = (props: DraggableProps) => {
             handleDragStart(e as unknown as MouseEvent);
         },
         onMouseUp: (e: React.MouseEvent) => {
+            props.onMouseUp?.(e);
             handleDragStop();
         },
 
