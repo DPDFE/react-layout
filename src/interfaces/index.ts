@@ -1,11 +1,5 @@
 import React, { ReactElement, RefObject } from 'react';
 
-export enum States {
-    ready = 'ready',
-    progress = 'progress',
-    over = 'over'
-}
-
 export enum LayoutType {
     edit = 'edit',
     view = 'view'
@@ -60,19 +54,19 @@ export interface DragItem {
 export interface DragItemProps extends DragItem {
     scale: number;
     style: React.CSSProperties;
-    className: string;
+    className?: string;
     children: ReactElement;
 }
 
 /** 拖拽 */
 export interface DraggableProps {
+    x: number;
+    y: number;
     scale: number;
     children: ReactElement;
     style: React.CSSProperties;
-    position: { x: number; y: number };
-    setPosition: ({ x, y }: { x: number; y: number }) => void;
-    onMouseUp?: (e: React.MouseEvent<Element, MouseEvent>) => void;
-    onMouseDown?: (e: React.MouseEvent<Element, MouseEvent>) => void;
+    onMouseUp?: (e: React.MouseEvent) => void;
+    onMouseDown?: (e: React.MouseEvent) => void;
 }
 
 /** 缩放 */

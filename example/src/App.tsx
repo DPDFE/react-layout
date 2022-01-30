@@ -32,7 +32,7 @@ const App = () => {
     function generateLayout() {
         return Array.from({ length: 10 }).map((_, i) => {
             return {
-                x: i * -100,
+                x: i * 30,
                 y: i * 100,
                 w: 100,
                 h: 100,
