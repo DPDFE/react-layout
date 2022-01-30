@@ -50,24 +50,27 @@ export interface DragItem {
     is_resizable?: boolean;
 }
 
-/** 子元素 */
-export interface DragItemProps extends DragItem {
+interface EventBaseProps extends DragItem {
     scale: number;
     style: React.CSSProperties;
-    className?: string;
     children: ReactElement;
+    className?: string;
 }
 
-/** 拖拽 */
-export interface DraggableProps {
-    x: number;
-    y: number;
-    scale: number;
-    children: ReactElement;
-    style: React.CSSProperties;
+/** 子元素 */
+export interface DragItemProps extends EventBaseProps {
+    checked_index: string;
+    setCurrentChecked: (idx: string) => void;
+}
+
+/** drag */
+export interface DraggableProps extends EventBaseProps {
     onMouseUp?: (e: React.MouseEvent) => void;
     onMouseDown?: (e: React.MouseEvent) => void;
 }
 
-/** 缩放 */
-export interface ResizableProps extends DragItemProps {}
+/** resize */
+export interface ResizableProps extends EventBaseProps {
+    onMouseUp?: (e: React.MouseEvent) => void;
+    onMouseDown?: (e: React.MouseEvent) => void;
+}

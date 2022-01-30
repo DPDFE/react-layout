@@ -1,26 +1,55 @@
 import { ResizableProps } from '@/interfaces';
-import React, { useState } from 'react';
+import { addEvent, removeEvent } from '@pearone/event-utils';
+import React, { memo, useEffect, useState } from 'react';
 
 const Resizable = (props: ResizableProps) => {
     const child = React.Children.only(props.children);
 
+    // /** 不选中当前节点 */
+    // const unchecked = (e: MouseEvent) => {
+    //     if (!(e.target === child.props.children.ref.current)) {
+    //         setChecked(false);
+    //     }
+    // };
+
+    // console.log(props);
+
+    /** 开始 */
+    const handleResizeStart = () => {
+        if (!props.is_resizable) {
+            return;
+        }
+    };
+
+    const handleResize = () => {};
+
+    const handleResizeStop = () => {};
+
+    // useEffect(() => {
+    //     addEvent(window, 'mouseup', unchecked);
+    //     return () => {
+    //         removeEvent(window, 'mouseup', unchecked);
+    //     };
+    // }, []);
+
     const new_child = React.cloneElement(child, {
-        // onMouseDown: () => {
-        //     console.log('resizable');
-        //     setSelected(true);
-        // },
-        // onMouseUp: () => {
-        //     setSelected(false);
+        // onMouseDown: (e: React.MouseEvent) => {
+        //     props.onMouseDown?.(e);
+        //     handleResizeStart();
         // },
         style: {
-            ...props.style,
-            ...child.props.style
-            // border: selected ? '1px dashed #a19e9e' : '1px solid transparent',
-            // zIndex: selected ? 100 : 'inherit'
+            // border: props.is_resizable
+            //     ? '1px dashed #a19e9e'
+            //     : '1px solid transparent'
         }
     });
 
-    return props.is_resizable ? new_child : child;
+    return new_child;
 };
 
-export default Resizable;
+Resizable.defaultProps = {
+    scale: 1,
+    style: {}
+};
+
+export default memo(Resizable);

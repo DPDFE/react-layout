@@ -1,11 +1,18 @@
 import { CanvasProps, LayoutType } from '@/interfaces';
-import React from 'react';
+import React, { memo, useState } from 'react';
 import styles from './styles.module.css';
-import DragItem from './drag-item';
+import LayoutItem from './layout-item';
 
 /** 画布 */
 const Canvas = (props: CanvasProps) => {
-    const event_callbacks = {
+    const [checked_index, setCurrentChecked] = useState<string>();
+
+    const layout_item_config = {
+        scale: props.scale,
+
+        checked_index: checked_index,
+        setCurrentChecked: setCurrentChecked,
+
         onDrop: (item: any) => {
             props.onDrop?.(item);
         },
@@ -36,17 +43,16 @@ const Canvas = (props: CanvasProps) => {
         >
             {props.children.map((child) => {
                 return (
-                    <DragItem
-                        scale={props.scale}
-                        children={child}
-                        {...child.props}
+                    <LayoutItem
                         key={child.props.i}
-                        {...event_callbacks}
-                    ></DragItem>
+                        {...child.props}
+                        {...layout_item_config}
+                        children={child}
+                    ></LayoutItem>
                 );
             })}
         </div>
     );
 };
 
-export default Canvas;
+export default memo(Canvas);

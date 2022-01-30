@@ -41,6 +41,9 @@ const Draggable = (props: DraggableProps) => {
 
     /** 开始 */
     const handleDragStart = (e: MouseEvent) => {
+        if (!props.is_draggable) {
+            return;
+        }
         setDragState(DragStates.dragging);
 
         const { x, y } = offsetXYFromParent(e);
@@ -90,13 +93,13 @@ const Draggable = (props: DraggableProps) => {
             props.onMouseUp?.(e);
             handleDragStop();
         },
-
         style: {
             ...props.style,
             ...child.props.style,
             transform: `translate(${current_pos.x * props.scale}px, ${
                 current_pos.y * props.scale
             }px)`,
+            cursor: drag_state === DragStates.draged ? 'inherit' : 'move',
             userSelect: drag_state === DragStates.draged ? 'inherit' : 'none'
         }
     });
@@ -105,6 +108,7 @@ const Draggable = (props: DraggableProps) => {
 };
 
 Draggable.defaultProps = {
+    is_draggable: false,
     scale: 1,
     style: {}
 };

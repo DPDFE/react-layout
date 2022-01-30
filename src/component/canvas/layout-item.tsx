@@ -1,15 +1,15 @@
 import { DragItemProps } from '@/interfaces';
-import React, { memo, useRef } from 'react';
+import React, { memo, useRef, useState } from 'react';
 import Draggable from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
 
-const DragItem = (props: DragItemProps) => {
-    const itemRef = useRef<HTMLDivElement>(null);
+const LayoutItem = (props: DragItemProps) => {
+    const item_ref = useRef<HTMLDivElement>(null);
     const child = React.Children.only(props.children);
 
     const new_child = React.cloneElement(child, {
-        ref: itemRef,
+        ref: item_ref,
         className: `${child.props.className} ${styles.drag_item}`,
         style: {
             ...child.props.style,
@@ -18,32 +18,23 @@ const DragItem = (props: DragItemProps) => {
             }px)`,
             width: props.w * props.scale,
             height: props.h * props.scale
+        },
+        onMouseDown: () => {
+            console.log('check');
+            props.setCurrentChecked(props.i);
         }
     });
-
+    console.log(props);
     return (
         <Resizable {...props}>
-            {props.is_draggable ? (
-                <Draggable
-                    x={props.x}
-                    y={props.y}
-                    style={props.style}
-                    scale={props.scale}
-                >
-                    {new_child}
-                </Draggable>
-            ) : (
-                new_child
-            )}
+            <Draggable {...props}>{new_child}</Draggable>
         </Resizable>
     );
 };
 
-DragItem.defaultProps = {
-    isDraggable: false,
-    isResizable: false,
+LayoutItem.defaultProps = {
     scale: 1,
     style: {}
 };
 
-export default memo(DragItem);
+export default memo(LayoutItem);
