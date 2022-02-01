@@ -3,8 +3,18 @@
     background-color: #bfadad;
 }
 
-.drag_item {
+.layout_item {
     background-color: #fff;
     position: absolute;
     overflow: hidden;
+}
+
+.resize-handler {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    margin: -5px 0 0 -5px;
+    border: 1px solid #a19e9e;
+    background-color: #fff;
+    border-radius: 1px;
 }

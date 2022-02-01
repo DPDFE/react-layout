@@ -5,30 +5,7 @@ import LayoutItem from './layout-item';
 
 /** 画布 */
 const Canvas = (props: CanvasProps) => {
-    const [checked_index, setCurrentChecked] = useState<string>();
-
-    const layout_item_config = {
-        scale: props.scale,
-
-        checked_index: checked_index,
-        setCurrentChecked: setCurrentChecked,
-
-        onDrop: (item: any) => {
-            props.onDrop?.(item);
-        },
-        onDragStart: () => {
-            props.onDragStart?.();
-        },
-        onDragStop: (layout: any) => {
-            props.onDragStop?.(layout);
-        },
-        onResizeStart: () => {
-            props.onResizeStart?.();
-        },
-        onResizeStop: (layout: any) => {
-            props.onResizeStop?.(layout);
-        }
-    };
+    const [checked_index, setCurrentChecked] = useState<string>('');
 
     return (
         <div
@@ -44,10 +21,27 @@ const Canvas = (props: CanvasProps) => {
             {props.children.map((child) => {
                 return (
                     <LayoutItem
-                        key={child.props.i}
+                        key={child.props['data-drag'].i}
                         {...child.props}
-                        {...layout_item_config}
                         children={child}
+                        scale={props.scale}
+                        checked_index={checked_index}
+                        setCurrentChecked={setCurrentChecked}
+                        onDragStart={() => {
+                            props.onDragStart?.();
+                        }}
+                        onDrag={() => {
+                            props.onDrag?.();
+                        }}
+                        onDragStop={() => {
+                            props.onDragStop?.();
+                        }}
+                        onResizeStart={() => {
+                            props.onResizeStart?.();
+                        }}
+                        onResizeStop={(layout: any) => {
+                            props.onResizeStop?.();
+                        }}
                     ></LayoutItem>
                 );
             })}

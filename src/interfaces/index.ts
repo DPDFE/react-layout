@@ -5,6 +5,13 @@ export enum LayoutType {
     view = 'view'
 }
 
+export enum CursorType {
+    nw = 'nw-resize',
+    ne = 'ne-resize',
+    sw = 'sw-resize',
+    se = 'se-resize'
+}
+
 /** 画板props */
 export interface ReactDragLayoutProps {
     scale: number;
@@ -13,9 +20,10 @@ export interface ReactDragLayoutProps {
     mode: LayoutType;
     onDrop?: (item: any) => void;
     onDragStart?: () => void;
-    onDragStop?: (layout: any) => void;
+    onDrag?: () => void;
+    onDragStop?: () => void;
     onResizeStart?: () => void;
-    onResizeStop?: (layout: any) => void;
+    onResizeStop?: () => void;
     children: ReactElement[];
 }
 
@@ -50,27 +58,45 @@ export interface DragItem {
     is_resizable?: boolean;
 }
 
-interface EventBaseProps extends DragItem {
-    scale: number;
-    style: React.CSSProperties;
-    children: ReactElement;
+interface EventBaseProps {
+    id?: string;
     className?: string;
+    style?: React.CSSProperties;
+    children: ReactElement;
 }
 
 /** 子元素 */
 export interface DragItemProps extends EventBaseProps {
-    checked_index: string;
+    scale: number;
+    ['data-drag']: DragItem;
+    checked_index?: string;
     setCurrentChecked: (idx: string) => void;
+    onDrag?: () => void;
+    onDragStart?: () => void;
+    onDragStop?: () => void;
+    // onResizeStart?: () => void;
+    // onResizeStop?: ({ x, y, i }: { x: number; y: number; i: string }) => void;
 }
 
 /** drag */
 export interface DraggableProps extends EventBaseProps {
-    onMouseUp?: (e: React.MouseEvent) => void;
-    onMouseDown?: (e: React.MouseEvent) => void;
+    x: number;
+    y: number;
+    scale: number;
+    is_draggable?: boolean;
+    onDragStart?: () => void;
+    onDrag?: ({ x, y }: { x: number; y: number }) => void;
+    onDragStop?: ({ x, y }: { x: number; y: number }) => void;
 }
 
 /** resize */
 export interface ResizableProps extends EventBaseProps {
-    onMouseUp?: (e: React.MouseEvent) => void;
-    onMouseDown?: (e: React.MouseEvent) => void;
+    x: number;
+    y: number;
+    h: number;
+    w: number;
+    scale: number;
+    is_resizable?: boolean;
+    onResizeStart?: () => void;
+    onResizeStop?: () => void;
 }

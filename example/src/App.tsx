@@ -15,12 +15,15 @@ const App = () => {
         onDrop: (item: any) => {
             console.log('onDrop');
         },
-        onDragStart: () => {
-            console.log('onDragStart');
-        },
-        onDragStop: (layout: any) => {
-            console.log('onDragStop');
-        },
+        // onDragStart: () => {
+        //     console.log('onDragStart');
+        // },
+        // onDrag: () => {
+        //     console.log('onDrag');
+        // },
+        // onDragStop: (layout: any) => {
+        //     console.log('onDragStop');
+        // },
         onResizeStart: () => {
             console.log('onResizeStart');
         },
@@ -30,15 +33,15 @@ const App = () => {
     };
 
     function generateLayout() {
-        return Array.from({ length: 3 }).map((_, i) => {
+        return Array.from({ length: 1 }).map((_, i) => {
             return {
-                x: i * 30,
-                y: i * 100,
+                x: i * 30 + 130,
+                y: i * 100 + 300,
                 w: 100,
                 h: 100,
                 i: i.toString(),
                 is_resizable: true,
-                is_draggable: true
+                is_draggable: false
             };
             // var y = Math.ceil(Math.random()) + 1;
             // return {
@@ -110,7 +113,13 @@ const App = () => {
             >
                 {widgets.map((w) => {
                     return (
-                        <div {...w} key={w.i} data-drag={w}>
+                        <div
+                            key={w.i}
+                            data-drag={w}
+                            // className={'app_class'}
+                            id={`app_id_${w.i}`}
+                            style={{ background: '#efefef' }}
+                        >
                             <div className='test'>
                                 我是第{w.i}个div, height: {w.h}, width:{w.w}
                             </div>

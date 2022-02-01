@@ -1,6 +1,6 @@
 import { DraggableProps, DragItem } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
-import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
+import React, { DOMElement, RefObject, useEffect, useState } from 'react';
 
 interface Pos {
     x: number;
@@ -25,12 +25,12 @@ const Draggable = (props: DraggableProps) => {
     const [current_pos, setCurrentPosition] = useState<Pos>(pos); //实际动态坐标
     const [start_pos, setStartPosition] = useState<Pos>(pos); // 放置当前坐标
 
-    const current = (
-        (child as DOMElement<DragItem, Element>).ref as RefObject<HTMLElement>
-    ).current;
-
     /** 获取相对父元素偏移量 */
     const offsetXYFromParent = (e: MouseEvent) => {
+        const current = (
+            (child as DOMElement<DragItem, Element>)
+                .ref as RefObject<HTMLElement>
+        ).current;
         const parent = current?.parentElement as HTMLElement;
 
         const { left, top } = parent?.getBoundingClientRect();
@@ -44,6 +44,8 @@ const Draggable = (props: DraggableProps) => {
         if (!props.is_draggable) {
             return;
         }
+        props.onDragStart?.();
+
         setDragState(DragStates.dragging);
 
         const { x, y } = offsetXYFromParent(e);
@@ -54,7 +56,12 @@ const Draggable = (props: DraggableProps) => {
 
     /** 结束 */
     const handleDragStop = () => {
-        setDragState(DragStates.draged);
+        if (!props.is_draggable) {
+            return;
+        }
+        if (drag_state === DragStates.dragging) {
+            setDragState(DragStates.draged);
+        }
     };
 
     /**
@@ -67,16 +74,22 @@ const Draggable = (props: DraggableProps) => {
         const delta_x = x - mouse_pos.x;
         const delta_y = y - mouse_pos.y;
 
-        setCurrentPosition({
+        const pos = {
             x: start_pos.x + delta_x,
             y: start_pos.y + delta_y
-        });
+        };
+
+        setCurrentPosition(pos);
+        props.onDrag?.(pos);
     };
 
     useEffect(() => {
         if (drag_state === DragStates.dragging) {
             addEvent(window, 'mousemove', handleDrag);
             addEvent(window, 'mouseup', handleDragStop);
+        }
+        if (drag_state === DragStates.draged) {
+            props.onDragStop?.(current_pos);
         }
         return () => {
             removeEvent(window, 'mousemove', handleDrag);
@@ -86,21 +99,25 @@ const Draggable = (props: DraggableProps) => {
 
     const new_child = React.cloneElement(child, {
         onMouseDown: (e: React.MouseEvent) => {
-            props.onMouseDown?.(e);
+            console.log('dragstart');
+            child.props.onMouseDown?.(e);
             handleDragStart(e as unknown as MouseEvent);
         },
         onMouseUp: (e: React.MouseEvent) => {
-            props.onMouseUp?.(e);
+            child.props.onMouseUp?.(e);
             handleDragStop();
         },
+        className: `${props.className ? props.className : ''} ${
+            child.props.className ? child.props.className : ''
+        }`,
         style: {
-            ...props.style,
-            ...child.props.style,
             transform: `translate(${current_pos.x * props.scale}px, ${
                 current_pos.y * props.scale
             }px)`,
-            cursor: drag_state === DragStates.draged ? 'inherit' : 'move',
-            userSelect: drag_state === DragStates.draged ? 'inherit' : 'none'
+            cursor: props.is_draggable ? 'move' : 'inherit',
+            userSelect: drag_state === DragStates.draged ? 'inherit' : 'none',
+            ...props.style,
+            ...child.props.style
         }
     });
 
@@ -113,4 +130,4 @@ Draggable.defaultProps = {
     style: {}
 };
 
-export default memo(Draggable);
+export default Draggable;
