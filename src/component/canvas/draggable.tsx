@@ -22,7 +22,6 @@ const Draggable = (props: DraggableProps) => {
 
     const [drag_state, setDragState] = useState<DragStates>();
     const [mouse_pos, setMousePos] = useState<Pos>({ x: NaN, y: NaN }); // 鼠标点击坐标
-    const [current_pos, setCurrentPosition] = useState<Pos>(pos); //实际动态坐标
     const [start_pos, setStartPosition] = useState<Pos>(pos); // 放置当前坐标
 
     /** 获取相对父元素偏移量 */
@@ -50,7 +49,7 @@ const Draggable = (props: DraggableProps) => {
 
         const { x, y } = offsetXYFromParent(e);
 
-        setStartPosition(current_pos);
+        setStartPosition({ x: props.x, y: props.y });
         setMousePos({ x, y });
     };
 
@@ -69,6 +68,7 @@ const Draggable = (props: DraggableProps) => {
      * 新坐标 = 放置当前坐标 + 鼠标偏移量
      */
     const handleDrag = (e: MouseEvent) => {
+        e.stopPropagation();
         const { x, y } = offsetXYFromParent(e);
 
         const delta_x = x - mouse_pos.x;
@@ -79,7 +79,17 @@ const Draggable = (props: DraggableProps) => {
             y: start_pos.y + delta_y
         };
 
-        setCurrentPosition(pos);
+        if (props.bound) {
+            const { min_x, max_x, min_y, max_y } = props.bound;
+            if (
+                (min_x && pos.x < min_x) ||
+                (max_x && pos.x > max_x) ||
+                (min_y && pos.y < min_y) ||
+                (max_y && pos.y > max_y)
+            ) {
+                return;
+            }
+        }
         props.onDrag?.(pos);
     };
 
@@ -89,7 +99,7 @@ const Draggable = (props: DraggableProps) => {
             addEvent(window, 'mouseup', handleDragStop);
         }
         if (drag_state === DragStates.draged) {
-            props.onDragStop?.(current_pos);
+            props.onDragStop?.({ x: props.x, y: props.y });
         }
         return () => {
             removeEvent(window, 'mousemove', handleDrag);
@@ -99,11 +109,12 @@ const Draggable = (props: DraggableProps) => {
 
     const new_child = React.cloneElement(child, {
         onMouseDown: (e: React.MouseEvent) => {
-            console.log('dragstart');
+            e.stopPropagation();
             child.props.onMouseDown?.(e);
             handleDragStart(e as unknown as MouseEvent);
         },
         onMouseUp: (e: React.MouseEvent) => {
+            e.stopPropagation();
             child.props.onMouseUp?.(e);
             handleDragStop();
         },
@@ -111,8 +122,8 @@ const Draggable = (props: DraggableProps) => {
             child.props.className ? child.props.className : ''
         }`,
         style: {
-            transform: `translate(${current_pos.x * props.scale}px, ${
-                current_pos.y * props.scale
+            transform: `translate(${props.x * props.scale}px, ${
+                props.y * props.scale
             }px)`,
             cursor: props.is_draggable ? 'move' : 'inherit',
             userSelect: drag_state === DragStates.draged ? 'inherit' : 'none',

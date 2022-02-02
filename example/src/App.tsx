@@ -41,7 +41,7 @@ const App = () => {
                 h: 100,
                 i: i.toString(),
                 is_resizable: true,
-                is_draggable: false
+                is_draggable: true
             };
             // var y = Math.ceil(Math.random()) + 1;
             // return {

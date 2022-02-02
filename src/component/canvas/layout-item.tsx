@@ -1,4 +1,4 @@
-import { DragItemProps } from '@/interfaces';
+import { LayoutItemProps } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import React, { memo, useEffect, useRef, useState } from 'react';
 import Draggable from './draggable';
@@ -19,7 +19,7 @@ import styles from './styles.module.css';
  * child: draggable
  * props: LayoutItem props
  */
-const LayoutItem = (props: DragItemProps) => {
+const LayoutItem = (props: LayoutItemProps) => {
     const item_ref = useRef<HTMLDivElement>(null);
 
     const child = React.Children.only(props.children);
@@ -71,6 +71,28 @@ const LayoutItem = (props: DragItemProps) => {
             w={w}
             is_resizable={is_resizable && props.checked_index === i}
             scale={props.scale}
+            onResizeStart={() => {
+                props.onResizeStart?.();
+            }}
+            onResize={({
+                x,
+                y,
+                h,
+                w
+            }: {
+                x: number;
+                y: number;
+                h: number;
+                w: number;
+            }) => {
+                setXY({ x, y });
+                setW(w);
+                setH(h);
+                props.onResize?.();
+            }}
+            onResizeStop={() => {
+                props.onResizeStop?.();
+            }}
         >
             <Draggable
                 {...xy}

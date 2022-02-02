@@ -66,7 +66,7 @@ interface EventBaseProps {
 }
 
 /** 子元素 */
-export interface DragItemProps extends EventBaseProps {
+export interface LayoutItemProps extends EventBaseProps {
     scale: number;
     ['data-drag']: DragItem;
     checked_index?: string;
@@ -74,8 +74,9 @@ export interface DragItemProps extends EventBaseProps {
     onDrag?: () => void;
     onDragStart?: () => void;
     onDragStop?: () => void;
-    // onResizeStart?: () => void;
-    // onResizeStop?: ({ x, y, i }: { x: number; y: number; i: string }) => void;
+    onResizeStart?: () => void;
+    onResize?: () => void;
+    onResizeStop?: () => void;
 }
 
 /** drag */
@@ -87,6 +88,34 @@ export interface DraggableProps extends EventBaseProps {
     onDragStart?: () => void;
     onDrag?: ({ x, y }: { x: number; y: number }) => void;
     onDragStop?: ({ x, y }: { x: number; y: number }) => void;
+    bound?: Partial<{
+        min_x: number;
+        max_x: number;
+        min_y: number;
+        max_y: number;
+    }>;
+}
+
+export interface CursorProps extends Omit<DraggableProps, 'children'> {
+    cursor: CursorType;
+    onDrag?: ({
+        x,
+        y,
+        cursor
+    }: {
+        x: number;
+        y: number;
+        cursor: CursorType;
+    }) => void;
+    onDragStop?: ({
+        x,
+        y,
+        cursor
+    }: {
+        x: number;
+        y: number;
+        cursor: CursorType;
+    }) => void;
 }
 
 /** resize */
@@ -98,5 +127,16 @@ export interface ResizableProps extends EventBaseProps {
     scale: number;
     is_resizable?: boolean;
     onResizeStart?: () => void;
+    onResize?: ({
+        x,
+        y,
+        h,
+        w
+    }: {
+        x: number;
+        y: number;
+        h: number;
+        w: number;
+    }) => void;
     onResizeStop?: () => void;
 }
