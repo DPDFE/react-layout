@@ -22,6 +22,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const [l_scroll, setLeftScroll] = useState<number>(0); //水平滚动偏移量
     const [init_scroll, setInitScroll] = useState<boolean>(false); //在初始状态时滚动
 
+    const [fresh_count, setFreshCount] = useState<number>(0); // 刷新
+
     /**
      * 更改画布宽高属性
      */
@@ -61,7 +63,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         return () => {
             removeEvent(window, 'resize', changeCanvasAttrs);
         };
-    }, [props.height, props.width, props.scale]);
+    }, [props.height, props.width, props.scale, fresh_count]);
 
     return (
         <div className={`react-drag-layout ${styles.container}`}>
@@ -102,6 +104,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                         {/* 实际画布区域 */}
                         <Canvas
                             {...props}
+                            fresh_count={fresh_count}
+                            setFreshCount={setFreshCount}
                             t_offset={t_offset}
                             l_offset={l_offset}
                         ></Canvas>

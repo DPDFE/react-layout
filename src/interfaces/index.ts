@@ -20,10 +20,11 @@ export interface ReactDragLayoutProps {
     mode: LayoutType;
     onDrop?: ({ x, y }: { x: number; y: number }) => string;
     onDragStart?: () => void;
-    onDrag?: () => void;
-    onDragStop?: () => void;
+    onDrag?: (layout: DragItem[]) => void;
+    onDragStop?: (layout: DragItem[]) => void;
     onResizeStart?: () => void;
-    onResizeStop?: () => void;
+    onResize?: (layout: DragItem[]) => void;
+    onResizeStop?: (layout: DragItem[]) => void;
     children: ReactElement[];
 }
 
@@ -45,6 +46,8 @@ export interface VerticalRulerProps extends ReactDragLayoutProps {
 export interface CanvasProps extends ReactDragLayoutProps {
     t_offset: number;
     l_offset: number;
+    fresh_count: number;
+    setFreshCount: (count: number) => void;
 }
 
 /** 单节点属性 */
@@ -71,12 +74,12 @@ export interface LayoutItemProps extends EventBaseProps {
     ['data-drag']: DragItem;
     checked_index?: string;
     setCurrentChecked: (idx: string) => void;
-    onDrag?: () => void;
     onDragStart?: () => void;
-    onDragStop?: () => void;
+    onDrag?: (item: DragItem) => void;
+    onDragStop?: (item: DragItem) => void;
     onResizeStart?: () => void;
-    onResize?: () => void;
-    onResizeStop?: () => void;
+    onResize?: (item: DragItem) => void;
+    onResizeStop?: (item: DragItem) => void;
 }
 
 /** drag */

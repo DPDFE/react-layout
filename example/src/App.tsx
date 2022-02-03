@@ -14,40 +14,6 @@ const App = () => {
         setWidgets(generateLayout());
     }, []);
 
-    const drag_config = {
-        onDrop: ({ x, y }: any) => {
-            console.log('onDrop');
-
-            const drop_element = {
-                x: x,
-                y: y,
-                w: 100,
-                h: 100,
-                i: widgets.length.toString(),
-                is_resizable: true,
-                is_draggable: true
-            } as DragItem;
-
-            setWidgets(widgets.concat([drop_element]));
-            return drop_element.i;
-        },
-        onDragStart: () => {
-            console.log('onDragStart');
-        },
-        // onDrag: () => {
-        //     console.log('onDrag');
-        // },
-        onDragStop: (layout: any) => {
-            console.log('onDragStop');
-        },
-        onResizeStart: () => {
-            console.log('onResizeStart');
-        },
-        onResizeStop: (layout: any) => {
-            console.log('onResizeStop');
-        }
-    };
-
     function generateLayout() {
         return Array.from({ length: 3 }).map((_, i) => {
             return {
@@ -129,7 +95,40 @@ const App = () => {
                 height={height}
                 scale={scale}
                 mode={LayoutType.edit}
-                {...drag_config}
+                onDrop={({ x, y }: any) => {
+                    console.log('onDrop');
+
+                    const drop_element = {
+                        x: x,
+                        y: y,
+                        w: 100,
+                        h: 100,
+                        i: widgets.length.toString(),
+                        is_resizable: true,
+                        is_draggable: true
+                    } as DragItem;
+
+                    setWidgets(widgets.concat([drop_element]));
+                    return drop_element.i;
+                }}
+                onDragStart={() => {
+                    console.log('onDragStart');
+                }}
+                onDrag={(layout: DragItem[]) => {
+                    console.log('onDrag');
+                    setWidgets(layout);
+                }}
+                onDragStop={(layout: DragItem[]) => {
+                    console.log('onDragStop');
+                    setWidgets(layout);
+                }}
+                onResizeStart={() => {
+                    console.log('onResizeStart');
+                }}
+                onResizeStop={(layout: DragItem[]) => {
+                    console.log('onResizeStop');
+                    setWidgets(layout);
+                }}
             >
                 {widgets.map((w) => {
                     return (

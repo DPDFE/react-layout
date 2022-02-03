@@ -117,7 +117,7 @@ function maxBorderPos(width: number, height: number, children: ReactElement[]) {
 
     if (children) {
         children.map((child) => {
-            const { x, y, h, w } = child.props;
+            const { x, y, h, w } = child.props['data-drag'];
             if (x) {
                 max_left = max_left < x ? max_left : x; // 最左边最小值
                 max_right = max_right < x + w ? x + w : max_right; // 最大值

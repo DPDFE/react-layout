@@ -74,7 +74,8 @@ const LayoutItem = (props: LayoutItemProps) => {
                 setXY({ x, y });
                 setW(w);
                 setH(h);
-                props.onResize?.();
+                const item = Object.assign(props['data-drag'], { x, y, w, h });
+                props.onResize?.(item);
             }}
             onResizeStop={({
                 x,
@@ -90,7 +91,8 @@ const LayoutItem = (props: LayoutItemProps) => {
                 setXY({ x, y });
                 setW(w);
                 setH(h);
-                props.onResizeStop?.();
+                const item = Object.assign(props['data-drag'], { x, y, w, h });
+                props.onResizeStop?.(item);
             }}
         >
             <Draggable
@@ -102,11 +104,13 @@ const LayoutItem = (props: LayoutItemProps) => {
                 }}
                 onDrag={({ x, y }: { x: number; y: number }) => {
                     setXY({ x, y });
-                    props.onDrag?.();
+                    const item = Object.assign(props['data-drag'], { x, y });
+                    props.onDrag?.(item);
                 }}
                 onDragStop={({ x, y }: { x: number; y: number }) => {
                     setXY({ x, y });
-                    props.onDragStop?.();
+                    const item = Object.assign(props['data-drag'], { x, y });
+                    props.onDragStop?.(item);
                 }}
             >
                 {new_child}

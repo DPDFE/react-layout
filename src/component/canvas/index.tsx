@@ -1,4 +1,4 @@
-import { CanvasProps, LayoutType } from '@/interfaces';
+import { CanvasProps, DragItem, LayoutType } from '@/interfaces';
 import React, { memo, useEffect, useState } from 'react';
 import styles from './styles.module.css';
 import LayoutItem from './layout-item';
@@ -8,8 +8,32 @@ import { addEvent, removeEvent } from '@pearone/event-utils';
 const Canvas = (props: CanvasProps) => {
     const [checked_index, setCurrentChecked] = useState<string>();
 
+    /** 清空选中 */
     const clearChecked = (e: MouseEvent) => {
         setCurrentChecked(undefined);
+    };
+
+    /** 拖拽添加 */
+    const onDrop = (e: React.MouseEvent) => {
+        const current = e.target as HTMLElement;
+
+        const { left, top } = current?.getBoundingClientRect();
+        const x = (e.clientX + current.scrollLeft - left) / props.scale;
+        const y = (e.clientY + current.scrollTop - top) / props.scale;
+
+        setCurrentChecked(props.onDrop?.({ x, y }));
+
+        props.setFreshCount(props.fresh_count + 1);
+    };
+
+    /** 获取当前状态下的layout */
+    const getCurrentLayoutByItem = (item: DragItem) => {
+        return props.children.map(
+            (child) =>
+                [item].find(
+                    (_item) => _item.i === child.props['data-drag'].i
+                ) || child.props['data-drag']
+        );
     };
 
     useEffect(() => {
@@ -20,6 +44,7 @@ const Canvas = (props: CanvasProps) => {
             removeEvent(dom, 'mouseup', clearChecked, { capture: false });
         };
     }, []);
+
     return (
         <div
             className={styles.canvas}
@@ -31,15 +56,9 @@ const Canvas = (props: CanvasProps) => {
                 overflow: props.mode === LayoutType.edit ? 'unset' : 'hidden'
             }}
             /** 阻止了onDragOver以后，onDrop事件才生效 */
+            onDrop={onDrop}
             onDragOver={(e) => {
                 e.preventDefault();
-            }}
-            onDrop={(e) => {
-                const current = e.target as HTMLElement;
-                const { left, top } = current?.getBoundingClientRect();
-                const x = (e.clientX + current.scrollLeft - left) / props.scale;
-                const y = (e.clientY + current.scrollTop - top) / props.scale;
-                setCurrentChecked(props.onDrop?.({ x, y }));
             }}
         >
             {props.children.map((child) => {
@@ -54,17 +73,22 @@ const Canvas = (props: CanvasProps) => {
                         onDragStart={() => {
                             props.onDragStart?.();
                         }}
-                        onDrag={() => {
-                            props.onDrag?.();
+                        onDrag={(item) => {
+                            props.onDrag?.(getCurrentLayoutByItem(item));
                         }}
-                        onDragStop={() => {
-                            props.onDragStop?.();
+                        onDragStop={(item) => {
+                            props.onDragStop?.(getCurrentLayoutByItem(item));
+                            props.setFreshCount(props.fresh_count + 1);
                         }}
                         onResizeStart={() => {
                             props.onResizeStart?.();
                         }}
-                        onResizeStop={(layout: any) => {
-                            props.onResizeStop?.();
+                        onResize={(item) => {
+                            props.onResize?.(getCurrentLayoutByItem(item));
+                        }}
+                        onResizeStop={(item) => {
+                            props.onResizeStop?.(getCurrentLayoutByItem(item));
+                            props.setFreshCount(props.fresh_count + 1);
                         }}
                     ></LayoutItem>
                 );
