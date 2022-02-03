@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Input, Slider } from 'antd';
 import { ReactDragLayout, LayoutType, DragItem } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
@@ -8,22 +8,38 @@ const App = () => {
     const [width, setWidth] = useState<number | string>(600);
     const [height, setHeight] = useState<number | string>(600);
     const [scale, setScale] = useState<number>(1);
-    const widgets: DragItem[] = generateLayout();
-    // console.log(widgets);
+    const [widgets, setWidgets] = useState<DragItem[]>([]);
+
+    useEffect(() => {
+        setWidgets(generateLayout());
+    }, []);
 
     const drag_config = {
-        onDrop: (item: any) => {
+        onDrop: ({ x, y }: any) => {
             console.log('onDrop');
+
+            const drop_element = {
+                x: x,
+                y: y,
+                w: 100,
+                h: 100,
+                i: widgets.length.toString(),
+                is_resizable: true,
+                is_draggable: true
+            } as DragItem;
+
+            setWidgets(widgets.concat([drop_element]));
+            return drop_element.i;
         },
-        // onDragStart: () => {
-        //     console.log('onDragStart');
-        // },
+        onDragStart: () => {
+            console.log('onDragStart');
+        },
         // onDrag: () => {
         //     console.log('onDrag');
         // },
-        // onDragStop: (layout: any) => {
-        //     console.log('onDragStop');
-        // },
+        onDragStop: (layout: any) => {
+            console.log('onDragStop');
+        },
         onResizeStart: () => {
             console.log('onResizeStart');
         },
@@ -33,10 +49,10 @@ const App = () => {
     };
 
     function generateLayout() {
-        return Array.from({ length: 1 }).map((_, i) => {
+        return Array.from({ length: 3 }).map((_, i) => {
             return {
                 x: i * 30 + 130,
-                y: i * 100 + 300,
+                y: i * 120 + 130,
                 w: 100,
                 h: 100,
                 i: i.toString(),
@@ -74,7 +90,11 @@ const App = () => {
                     marginBottom: 10
                 }}
             >
-                <Button type='primary' style={{ marginRight: 10 }}>
+                <Button
+                    type='primary'
+                    style={{ marginRight: 10 }}
+                    draggable={true}
+                >
                     拖拽添加
                 </Button>
                 <span>高度(px)：</span>

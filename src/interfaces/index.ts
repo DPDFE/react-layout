@@ -18,7 +18,7 @@ export interface ReactDragLayoutProps {
     width: number;
     height: number;
     mode: LayoutType;
-    onDrop?: (item: any) => void;
+    onDrop?: ({ x, y }: { x: number; y: number }) => string;
     onDragStart?: () => void;
     onDrag?: () => void;
     onDragStop?: () => void;
@@ -80,7 +80,7 @@ export interface LayoutItemProps extends EventBaseProps {
 }
 
 /** drag */
-export interface DraggableProps extends EventBaseProps {
+export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
     x: number;
     y: number;
     scale: number;
@@ -96,7 +96,7 @@ export interface DraggableProps extends EventBaseProps {
     }>;
 }
 
-export interface CursorProps extends Omit<DraggableProps, 'children'> {
+export interface CursorProps extends DraggableProps {
     cursor: CursorType;
     onDrag?: ({
         x,
@@ -138,5 +138,15 @@ export interface ResizableProps extends EventBaseProps {
         h: number;
         w: number;
     }) => void;
-    onResizeStop?: () => void;
+    onResizeStop?: ({
+        x,
+        y,
+        h,
+        w
+    }: {
+        x: number;
+        y: number;
+        h: number;
+        w: number;
+    }) => void;
 }

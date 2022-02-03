@@ -1,6 +1,5 @@
 import { LayoutItemProps } from '@/interfaces';
-import { addEvent, removeEvent } from '@pearone/event-utils';
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useRef, useState } from 'react';
 import Draggable from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -51,19 +50,6 @@ const LayoutItem = (props: LayoutItemProps) => {
         }
     });
 
-    const clearChecked = (e: MouseEvent) => {
-        if (!item_ref.current?.contains(e.target as Node)) {
-            props.setCurrentChecked('');
-        }
-    };
-
-    useEffect(() => {
-        addEvent(window, 'mouseup', clearChecked);
-        return () => {
-            removeEvent(window, 'mouseup', clearChecked);
-        };
-    }, []);
-
     return (
         <Resizable
             {...xy}
@@ -90,7 +76,20 @@ const LayoutItem = (props: LayoutItemProps) => {
                 setH(h);
                 props.onResize?.();
             }}
-            onResizeStop={() => {
+            onResizeStop={({
+                x,
+                y,
+                h,
+                w
+            }: {
+                x: number;
+                y: number;
+                h: number;
+                w: number;
+            }) => {
+                setXY({ x, y });
+                setW(w);
+                setH(h);
                 props.onResizeStop?.();
             }}
         >

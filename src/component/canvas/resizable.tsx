@@ -1,5 +1,5 @@
 import { CursorType, ResizableProps } from '@/interfaces';
-import React, { useState } from 'react';
+import React from 'react';
 import Cursor from './cursor';
 
 const Resizable = (props: ResizableProps) => {
@@ -74,8 +74,7 @@ const Resizable = (props: ResizableProps) => {
         y: number;
         cursor: CursorType;
     }) => {
-        calcPositionByCursor({ x, y, cursor });
-        props.onResizeStop?.();
+        props.onResizeStop?.(calcPositionByCursor({ x, y, cursor }));
     };
 
     const new_child = React.cloneElement(child, {

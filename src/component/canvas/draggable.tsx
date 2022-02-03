@@ -1,4 +1,4 @@
-import { DraggableProps, DragItem } from '@/interfaces';
+import { DraggableProps } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import React, { DOMElement, RefObject, useEffect, useState } from 'react';
 
@@ -12,8 +12,15 @@ export enum DragStates {
     draged = 'draged'
 }
 
-const Draggable = (props: DraggableProps) => {
-    const child = React.Children.only(props.children);
+interface Props extends DraggableProps {
+    children: any;
+}
+
+const Draggable = (props: Props) => {
+    const child = React.Children.only(props.children) as DOMElement<
+        Props['children'],
+        Element
+    >;
 
     const pos = {
         x: props.x,
@@ -26,10 +33,7 @@ const Draggable = (props: DraggableProps) => {
 
     /** 获取相对父元素偏移量 */
     const offsetXYFromParent = (e: MouseEvent) => {
-        const current = (
-            (child as DOMElement<DragItem, Element>)
-                .ref as RefObject<HTMLElement>
-        ).current;
+        const current = (child.ref as RefObject<HTMLElement>).current;
         const parent = current?.parentElement as HTMLElement;
 
         const { left, top } = parent?.getBoundingClientRect();
@@ -68,7 +72,6 @@ const Draggable = (props: DraggableProps) => {
      * 新坐标 = 放置当前坐标 + 鼠标偏移量
      */
     const handleDrag = (e: MouseEvent) => {
-        e.stopPropagation();
         const { x, y } = offsetXYFromParent(e);
 
         const delta_x = x - mouse_pos.x;
@@ -107,16 +110,30 @@ const Draggable = (props: DraggableProps) => {
         };
     }, [drag_state]);
 
+    /**
+     * react的事件机制是由react重写的绑定在document上完成的，和原生事件为两套响应机制
+     * 所以在react内部调用stopPropagation阻止冒泡的时候，只能阻止到document自己或者以上的事件
+     * 为了阻止其他非document元素上的冒泡事件，在此处使用原生处理
+     */
+    const CurrentMouseUp = (e: MouseEvent) => {
+        child.props.onMouseUp?.(e);
+        handleDragStop();
+        e.stopPropagation();
+    };
+
+    useEffect(() => {
+        const current = (child.ref as RefObject<HTMLElement>).current;
+        addEvent(current, 'mouseup', CurrentMouseUp);
+        return () => {
+            const current = (child.ref as RefObject<HTMLElement>).current;
+            removeEvent(current, 'mouseup', CurrentMouseUp);
+        };
+    }, [child]);
+
     const new_child = React.cloneElement(child, {
         onMouseDown: (e: React.MouseEvent) => {
-            e.stopPropagation();
             child.props.onMouseDown?.(e);
             handleDragStart(e as unknown as MouseEvent);
-        },
-        onMouseUp: (e: React.MouseEvent) => {
-            e.stopPropagation();
-            child.props.onMouseUp?.(e);
-            handleDragStop();
         },
         className: `${props.className ? props.className : ''} ${
             child.props.className ? child.props.className : ''
