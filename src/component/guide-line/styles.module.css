@@ -1,0 +1,39 @@
+.horizontal_pointer {
+    border: 1px dashed rgb(167, 21, 21);
+    position: fixed;
+    cursor: col-resize;
+    transform: scaleX(0.5);
+}
+
+.horizontal_pointer .word {
+    position: absolute;
+    background: rgb(167, 21, 21);
+    padding: 3px 5px;
+    color: rgb(255, 255, 255);
+    border-radius: 8px;
+    font-size: 12px;
+    margin: 3px;
+    cursor: default;
+    transform: scaleX(2);
+    transform-origin: left;
+}
+
+.vertical_pointer {
+    border: 1px dashed rgb(167, 21, 21);
+    position: fixed;
+    cursor: row-resize;
+    transform: scaleY(0.5); /*处理border太宽的问题*/
+}
+
+.vertical_pointer .word {
+    position: absolute;
+    background: rgb(167, 21, 21);
+    padding: 3px 5px;
+    color: rgb(255, 255, 255);
+    border-radius: 8px;
+    font-size: 12px;
+    margin: 3px;
+    cursor: default;
+    transform: scaleY(2);
+    transform-origin: top;
+}

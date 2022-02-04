@@ -1,4 +1,4 @@
-import { VerticalRulerProps } from '@/interfaces';
+import { DirectionType, VerticalRulerProps } from '@/interfaces';
 import { fiveMultipleIntergral, reciprocalNum, RULER_GAP } from '@/utils/utils';
 import React, { useEffect, useState } from 'react';
 import styles from './styles.module.css';
@@ -9,13 +9,20 @@ const VerticalRuler = (props: VerticalRulerProps) => {
     const [ruler_offset_top, setRulerOffsetTop] = useState<number>(0); // 尺子位移
     const [ruler_align_top, setRulerAlignTop] = useState<number>(0); // 尺子校准偏移量
 
+    const {
+        wrapper_height,
+        canvas_viewport,
+        t_offset,
+        setRulerHoverPos,
+        addGuideLine
+    } = props;
+
+    const viewport_pos = canvas_viewport.current?.getBoundingClientRect();
     /**
      * 计算垂直方向尺子位置
      */
     const calcVerticalRulerPos = () => {
         // 画布左上角偏移量（需要为5刻度的倍数）https://www.jianshu.com/p/a89732aa84af
-        const { wrapper_height, canvas_viewport, t_offset } = props;
-
         const canvas_offset_top = t_offset - canvas_viewport.current!.scrollTop;
 
         // 尺子0点偏移整数粒度计算
@@ -58,33 +65,31 @@ const VerticalRuler = (props: VerticalRulerProps) => {
                     paddingTop: ruler_offset_top,
                     marginTop: ruler_align_top
                 }}
-                // onMouseMove={(e) => {
-                //   e.persist();
-                //   setHoverPos({
-                //     x: 0,
-                //     y: e.clientY - wrapper_pos.y
-                //   });
-                // }}
-                // onMouseEnter={() => {
-                //   if (!show_hover_pos) {
-                //     setShowHoverPos(true);
-                //   }
-                // }}
-                // onMouseLeave={() => {
-                //   setShowHoverPos(false);
-                // }}
-                // onMouseDown={() => {
-                //   if (hover_pos) {
-                //     props.store.ruler_lines.push({
-                //       x: 0,
-                //       y: parseInt(
-                //         ((hover_pos.y - t_offset) / props.store.scale).toFixed(0)
-                //       ),
-                //       direction: 'vertical'
-                //     });
-                //     props.store.savePageStyles();
-                //   }
-                // }}
+                onMouseMove={(e) => {
+                    setRulerHoverPos({
+                        x: 0,
+                        y:
+                            e.clientY -
+                            t_offset +
+                            canvas_viewport.current!.scrollTop -
+                            Math.floor(viewport_pos!.y),
+                        direction: DirectionType.vertical
+                    });
+                }}
+                onMouseOut={() => {
+                    setRulerHoverPos(undefined);
+                }}
+                onMouseDown={(e) => {
+                    addGuideLine?.({
+                        x: 0,
+                        y:
+                            e.clientY -
+                            t_offset +
+                            canvas_viewport.current!.scrollTop -
+                            Math.floor(viewport_pos!.y),
+                        direction: DirectionType.vertical
+                    });
+                }}
             >
                 {y_offset.map((y) => {
                     return (

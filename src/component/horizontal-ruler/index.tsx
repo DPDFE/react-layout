@@ -1,10 +1,9 @@
-import { HorizontalRulerProps } from '@/interfaces';
+import { DirectionType, HorizontalRulerProps } from '@/interfaces';
 import {
     fiveMultipleIntergral,
     reciprocalNum,
     RULER_GAP,
-    TOP_RULER_LEFT_MARGIN,
-    WRAPPER_PADDING
+    TOP_RULER_LEFT_MARGIN
 } from '@/utils/utils';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
@@ -16,13 +15,21 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
     const [ruler_offset_left, setRulerOffsetLeft] = useState<number>(0); // 尺子位移
     const [ruler_align_left, setRulerAlignLeft] = useState<number>(0); // 尺子校准偏移量
 
+    const {
+        wrapper_width,
+        canvas_viewport,
+        l_offset,
+        setRulerHoverPos,
+        addGuideLine
+    } = props;
+
+    const viewport_pos = canvas_viewport.current?.getBoundingClientRect();
+
     /**
      * 计算水平方向尺子位置
      */
     const calcHorizontalRulerPos = () => {
         // 画布左上角偏移量（需要为5刻度的倍数）https://www.jianshu.com/p/a89732aa84af
-        const { wrapper_width, canvas_viewport, l_offset } = props;
-
         const canvas_offset_left =
             l_offset - canvas_viewport.current!.scrollLeft;
 
@@ -71,33 +78,31 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
                     paddingLeft: ruler_offset_left,
                     marginLeft: TOP_RULER_LEFT_MARGIN + ruler_align_left
                 }}
-                // onMouseMove={(e) => {
-                //   e.persist();
-                //   setHoverPos({
-                //     x: e.clientX - wrapper_pos.x,
-                //     y: 0
-                //   });
-                // }}
-                // onMouseEnter={() => {
-                //   if (!show_hover_pos) {
-                //     setShowHoverPos(true);
-                //   }
-                // }}
-                // onMouseLeave={() => {
-                //   setShowHoverPos(false);
-                // }}
-                // onMouseDown={() => {
-                //   if (hover_pos) {
-                //     props.store.ruler_lines.push({
-                //       x: parseInt(
-                //         ((hover_pos.x - l_offset) / props.store.scale).toFixed(0)
-                //       ),
-                //       y: 0,
-                //       direction: 'horizontal'
-                //     });
-                //     props.store.savePageStyles();
-                //   }
-                // }}
+                onMouseMove={(e) => {
+                    setRulerHoverPos({
+                        x:
+                            e.clientX -
+                            l_offset +
+                            canvas_viewport.current!.scrollLeft -
+                            Math.floor(viewport_pos!.x),
+                        y: 0,
+                        direction: DirectionType.horizontal
+                    });
+                }}
+                onMouseLeave={() => {
+                    setRulerHoverPos(undefined);
+                }}
+                onMouseDown={(e) => {
+                    addGuideLine?.({
+                        x:
+                            e.clientX -
+                            l_offset +
+                            canvas_viewport.current!.scrollLeft -
+                            Math.floor(viewport_pos!.x),
+                        y: 0,
+                        direction: DirectionType.horizontal
+                    });
+                }}
             >
                 {x_offset.map((x) => {
                     return (

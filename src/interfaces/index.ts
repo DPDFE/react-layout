@@ -12,12 +12,24 @@ export enum CursorType {
     se = 'se-resize'
 }
 
+export enum DirectionType {
+    horizontal = 'horizontal',
+    vertical = 'vertical'
+}
+
+export interface RulerPointer {
+    x: number;
+    y: number;
+    direction: DirectionType;
+}
+
 /** 画板props */
 export interface ReactDragLayoutProps {
     scale: number;
     width: number;
     height: number;
     mode: LayoutType;
+    guide_lines?: RulerPointer[];
     onDrop?: ({ x, y }: { x: number; y: number }) => string;
     onDragStart?: () => void;
     onDrag?: (layout: DragItem[]) => void;
@@ -25,6 +37,7 @@ export interface ReactDragLayoutProps {
     onResizeStart?: () => void;
     onResize?: (layout: DragItem[]) => void;
     onResizeStop?: (layout: DragItem[]) => void;
+    addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
     children: ReactElement[];
 }
 
@@ -32,6 +45,8 @@ export interface ReactDragLayoutProps {
 export interface HorizontalRulerProps extends ReactDragLayoutProps {
     wrapper_width: number;
     l_offset: number;
+    setRulerHoverPos: ({ x, y, direction }?: RulerPointer) => void;
+    addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
     canvas_viewport: RefObject<HTMLDivElement>;
 }
 
@@ -39,6 +54,18 @@ export interface HorizontalRulerProps extends ReactDragLayoutProps {
 export interface VerticalRulerProps extends ReactDragLayoutProps {
     wrapper_height: number;
     t_offset: number;
+    setRulerHoverPos: ({ x, y, direction }?: RulerPointer) => void;
+    addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
+    canvas_viewport: RefObject<HTMLDivElement>;
+}
+
+/** 辅助线 */
+export interface GuideLineProps {
+    scale: number;
+    l_offset: number;
+    t_offset: number;
+    guide_lines?: RulerPointer[];
+    ruler_hover_pos?: RulerPointer;
     canvas_viewport: RefObject<HTMLDivElement>;
 }
 
