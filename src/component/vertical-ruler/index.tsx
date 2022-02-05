@@ -55,7 +55,7 @@ const VerticalRuler = (props: VerticalRulerProps) => {
                 calcVerticalRulerPos
             );
         };
-    }, [props.wrapper_height, props.height, props.scale]);
+    }, [props.wrapper_height, props.height, props.scale, props.t_offset]);
 
     return (
         <div>
@@ -83,10 +83,11 @@ const VerticalRuler = (props: VerticalRulerProps) => {
                     addGuideLine?.({
                         x: 0,
                         y:
-                            e.clientY -
-                            t_offset +
-                            canvas_viewport.current!.scrollTop -
-                            Math.floor(viewport_pos!.y),
+                            (e.clientY -
+                                t_offset +
+                                canvas_viewport.current!.scrollTop -
+                                Math.floor(viewport_pos!.y)) /
+                            props.scale,
                         direction: DirectionType.vertical
                     });
                 }}

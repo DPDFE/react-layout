@@ -1,5 +1,5 @@
 import { DirectionType, GuideLineProps } from '@/interfaces';
-import { TOP_RULER_LEFT_MARGIN } from '@/utils/utils';
+import { fomatFloatNumber } from '@/utils/utils';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import React, { useEffect, useState } from 'react';
 import styles from './styles.module.css';
@@ -16,30 +16,28 @@ const GuideLine = (props: GuideLineProps) => {
         guide_lines
     } = props;
 
-    const viewport_pos = canvas_viewport.current
-        ? canvas_viewport.current.getBoundingClientRect()
-        : { height: 0, width: 0, x: 0, y: 0 };
-
-    console.log(canvas_viewport);
-
     const [scroll_left, setScrollLeft] = useState<number>(0);
     const [scroll_top, setScrollTop] = useState<number>(0);
 
+    const viewport_pos = canvas_viewport.current?.getBoundingClientRect()
+        ? canvas_viewport.current?.getBoundingClientRect()
+        : ({
+              height: 0,
+              width: 0,
+              x: 0,
+              y: 0,
+              bottom: 0,
+              left: 0,
+              right: 0,
+              top: 0
+          } as DOMRect);
+
     const calcGuidePose = () => {
-        console.log(
-            l_offset,
-            viewport_pos.x,
-            canvas_viewport.current!.scrollLeft,
-            TOP_RULER_LEFT_MARGIN
-        );
         const scroll_left =
-            l_offset + viewport_pos.x - canvas_viewport.current!.scrollLeft;
+            l_offset + viewport_pos!.x - canvas_viewport.current!.scrollLeft;
 
         const scroll_top =
-            t_offset +
-            viewport_pos.y -
-            canvas_viewport.current!.scrollTop +
-            TOP_RULER_LEFT_MARGIN;
+            t_offset + viewport_pos!.y - canvas_viewport.current!.scrollTop;
 
         setScrollLeft(scroll_left);
         setScrollTop(scroll_top);
@@ -51,10 +49,15 @@ const GuideLine = (props: GuideLineProps) => {
         return () => {
             removeEvent(props.canvas_viewport.current, 'scroll', calcGuidePose);
         };
-    }, [props.l_offset, props.t_offset, props.scale]);
+    }, [props.l_offset, props.t_offset, props.scale, viewport_pos]);
 
     /** 垂直配置 */
-    const VerticalLine = (num: number, props?: Object, style?: Object) => {
+    const VerticalLine = (
+        num: number,
+        scale_num: number,
+        props?: Object,
+        style?: Object
+    ) => {
         return (
             <div
                 {...props}
@@ -62,9 +65,9 @@ const GuideLine = (props: GuideLineProps) => {
                 style={{
                     ...style,
                     height: 0,
-                    width: viewport_pos.width + GUIDE_OFFSET,
-                    left: viewport_pos.x - GUIDE_OFFSET,
-                    top: num + scroll_top
+                    width: viewport_pos!.width + GUIDE_OFFSET,
+                    left: viewport_pos!.x - GUIDE_OFFSET,
+                    top: scale_num + scroll_top
                 }}
             >
                 <span
@@ -80,8 +83,12 @@ const GuideLine = (props: GuideLineProps) => {
     };
 
     /** 水平配置 */
-    const HorizontalLine = (num: number, props?: Object, style?: Object) => {
-        console.log(num, scroll_left);
+    const HorizontalLine = (
+        num: number,
+        scale_num: number,
+        props?: Object,
+        style?: Object
+    ) => {
         return (
             <div
                 {...props}
@@ -89,9 +96,9 @@ const GuideLine = (props: GuideLineProps) => {
                 style={{
                     ...style,
                     width: 0,
-                    height: viewport_pos.height + GUIDE_OFFSET,
-                    left: num + scroll_left,
-                    top: viewport_pos.y - GUIDE_OFFSET
+                    height: viewport_pos!.height + GUIDE_OFFSET,
+                    left: scale_num + scroll_left,
+                    top: viewport_pos!.y - GUIDE_OFFSET
                 }}
             >
                 <span
@@ -111,10 +118,20 @@ const GuideLine = (props: GuideLineProps) => {
         if (ruler_hover_pos) {
             switch (ruler_hover_pos.direction) {
                 case DirectionType.horizontal:
-                    return HorizontalLine(ruler_hover_pos.x);
+                    return HorizontalLine(
+                        fomatFloatNumber(ruler_hover_pos.x / props.scale, 2),
+                        ruler_hover_pos.x,
+                        {},
+                        { zIndex: 1 }
+                    );
 
                 case DirectionType.vertical:
-                    return VerticalLine(ruler_hover_pos.y);
+                    return VerticalLine(
+                        fomatFloatNumber(ruler_hover_pos.y / props.scale, 2),
+                        ruler_hover_pos.y,
+                        {},
+                        { zIndex: 1 }
+                    );
             }
         } else {
             return <React.Fragment></React.Fragment>;
@@ -124,34 +141,36 @@ const GuideLine = (props: GuideLineProps) => {
     /** 渲染辅助线 */
     const renderGuideLines = () => {
         return guide_lines?.map((line) => {
-            const x = line.x * props.scale;
-
             switch (line.direction) {
                 case DirectionType.horizontal:
+                    const x = line.x * props.scale;
                     return HorizontalLine(
+                        fomatFloatNumber(line.x, 2),
                         x,
                         { key: `${line.direction}-${line.x}-${line.y}` },
                         {
                             borderStyle: 'solid',
                             display:
-                                scroll_left + x < viewport_pos.x ||
+                                scroll_left + x < viewport_pos!.x ||
                                 x + l_offset >
-                                    viewport_pos.width +
+                                    viewport_pos!.width +
                                         canvas_viewport.current!.scrollLeft
                                     ? 'none'
                                     : 'block'
                         }
                     );
                 case DirectionType.vertical:
+                    const y = line.y * props.scale;
                     return VerticalLine(
-                        line.y,
+                        fomatFloatNumber(line.y, 2),
+                        y,
                         { key: `${line.direction}-${line.x}-${line.y}` },
                         {
                             borderStyle: 'solid',
                             display:
-                                scroll_top + line.y < viewport_pos.y ||
-                                line.y + t_offset >
-                                    viewport_pos.height +
+                                scroll_top + y < viewport_pos!.y ||
+                                y + t_offset >
+                                    viewport_pos!.height +
                                         canvas_viewport.current!.scrollTop
                                     ? 'none'
                                     : 'block'

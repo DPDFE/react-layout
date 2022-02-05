@@ -68,7 +68,7 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
                 calcHorizontalRulerPos
             );
         };
-    }, [props.width, props.scale, props.wrapper_width]);
+    }, [props.width, props.scale, props.wrapper_width, props.l_offset]);
 
     return (
         <div>
@@ -95,10 +95,11 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
                 onMouseDown={(e) => {
                     addGuideLine?.({
                         x:
-                            e.clientX -
-                            l_offset +
-                            canvas_viewport.current!.scrollLeft -
-                            Math.floor(viewport_pos!.x),
+                            (e.clientX -
+                                l_offset +
+                                canvas_viewport.current!.scrollLeft -
+                                Math.floor(viewport_pos!.x)) /
+                            props.scale,
                         y: 0,
                         direction: DirectionType.horizontal
                     });

@@ -4,7 +4,12 @@ import HorizontalRuler from '../horizontal-ruler';
 import Canvas from '../canvas';
 import styles from './styles.module.css';
 import { getMaxWidgetsRange } from '@/utils/utils';
-import { DirectionType, LayoutType, ReactDragLayoutProps } from '@/interfaces';
+import {
+    DirectionType,
+    LayoutType,
+    ReactDragLayoutProps,
+    RulerPointer
+} from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import GuideLine from '../guide-line';
 
@@ -23,11 +28,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const [l_scroll, setLeftScroll] = useState<number>(0); //水平滚动偏移量
     const [init_scroll, setInitScroll] = useState<boolean>(false); //在初始状态时滚动
 
-    const [ruler_hover_pos, setRulerHoverPos] = useState<{
-        x: number;
-        y: number;
-        direction: DirectionType;
-    }>(); //尺子hover坐标
+    const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
     const [fresh_count, setFreshCount] = useState<number>(0); // 刷新
 
     /**
@@ -77,8 +78,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             {props.mode === LayoutType.edit && canvas_viewport.current && (
                 <HorizontalRuler
                     {...props}
-                    wrapper_width={wrapper_width}
                     l_offset={l_offset}
+                    wrapper_width={wrapper_width}
                     setRulerHoverPos={setRulerHoverPos}
                     canvas_viewport={canvas_viewport}
                 ></HorizontalRuler>
@@ -89,8 +90,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 {props.mode === LayoutType.edit && canvas_viewport.current && (
                     <VerticalRuler
                         {...props}
-                        wrapper_height={wrapper_height}
                         t_offset={t_offset}
+                        wrapper_height={wrapper_height}
                         setRulerHoverPos={setRulerHoverPos}
                         canvas_viewport={canvas_viewport}
                     ></VerticalRuler>
