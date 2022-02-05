@@ -1,7 +1,7 @@
 import { DirectionType, GuideLineProps, RulerPointer } from '@/interfaces';
 import { fomatFloatNumber } from '@/utils/utils';
 import { addEvent, removeEvent } from '@pearone/event-utils';
-import React, { useEffect, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import styles from './styles.module.css';
 
 const GuideLine = (props: GuideLineProps) => {
@@ -224,11 +224,11 @@ const GuideLine = (props: GuideLineProps) => {
                     className={styles.delete_menu}
                     style={{
                         left:
-                            guide_menu_pos.x +
-                            +canvas_viewport.current!.scrollLeft,
+                            guide_menu_pos.x -
+                            canvas_viewport.current!.scrollLeft,
                         top:
-                            guide_menu_pos.y +
-                            +canvas_viewport.current!.scrollTop
+                            guide_menu_pos.y -
+                            canvas_viewport.current!.scrollTop
                     }}
                     onClick={(e) => {
                         e.nativeEvent.stopImmediatePropagation();
@@ -243,4 +243,4 @@ const GuideLine = (props: GuideLineProps) => {
     );
 };
 
-export default GuideLine;
+export default memo(GuideLine);
