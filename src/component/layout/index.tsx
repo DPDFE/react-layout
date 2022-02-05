@@ -73,7 +73,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     }, [props.height, props.width, props.scale, fresh_count]);
 
     return (
-        <div className={`react-drag-layout ${styles.container}`}>
+        <div
+            className={`react-drag-layout ${styles.container}`}
+            onContextMenu={(e) => {
+                e.preventDefault();
+            }}
+        >
             {/* 水平标尺 */}
             {props.mode === LayoutType.edit && canvas_viewport.current && (
                 <HorizontalRuler
@@ -118,17 +123,21 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             t_offset={t_offset}
                             l_offset={l_offset}
                         ></Canvas>
-                        <GuideLine
-                            scale={props.scale}
-                            t_offset={t_offset}
-                            l_offset={l_offset}
-                            guide_lines={props.guide_lines}
-                            canvas_viewport={canvas_viewport}
-                            ruler_hover_pos={ruler_hover_pos}
-                        ></GuideLine>
                     </div>
                 </div>
             </div>
+
+            {props.mode === LayoutType.edit && canvas_viewport.current && (
+                <GuideLine
+                    scale={props.scale}
+                    t_offset={t_offset}
+                    l_offset={l_offset}
+                    guide_lines={props.guide_lines}
+                    canvas_viewport={canvas_viewport}
+                    ruler_hover_pos={ruler_hover_pos}
+                    removeGuideLine={props.removeGuideLine}
+                ></GuideLine>
+            )}
         </div>
     );
 };

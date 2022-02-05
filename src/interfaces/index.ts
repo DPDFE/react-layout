@@ -38,6 +38,7 @@ export interface ReactDragLayoutProps {
     onResize?: (layout: DragItem[]) => void;
     onResizeStop?: (layout: DragItem[]) => void;
     addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
+    removeGuideLine?: ({ x, y, direction }: RulerPointer) => void;
     children: ReactElement[];
 }
 
@@ -67,6 +68,7 @@ export interface GuideLineProps {
     guide_lines?: RulerPointer[];
     ruler_hover_pos?: RulerPointer;
     canvas_viewport: RefObject<HTMLDivElement>;
+    removeGuideLine?: ({ x, y, direction }: RulerPointer) => void;
 }
 
 /** 画布props */

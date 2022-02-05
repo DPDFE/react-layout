@@ -1,4 +1,4 @@
-import { DirectionType, GuideLineProps } from '@/interfaces';
+import { DirectionType, GuideLineProps, RulerPointer } from '@/interfaces';
 import { fomatFloatNumber } from '@/utils/utils';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import React, { useEffect, useState } from 'react';
@@ -13,11 +13,14 @@ const GuideLine = (props: GuideLineProps) => {
         l_offset,
         t_offset,
         canvas_viewport,
-        guide_lines
+        guide_lines,
+        removeGuideLine
     } = props;
 
     const [scroll_left, setScrollLeft] = useState<number>(0);
     const [scroll_top, setScrollTop] = useState<number>(0);
+    const [guide_menu_pos, setDeleteGuideMenuPos] =
+        useState<{ x: number; y: number; line: RulerPointer }>();
 
     const viewport_pos = canvas_viewport.current?.getBoundingClientRect()
         ? canvas_viewport.current?.getBoundingClientRect()
@@ -42,6 +45,18 @@ const GuideLine = (props: GuideLineProps) => {
         setScrollLeft(scroll_left);
         setScrollTop(scroll_top);
     };
+
+    const clearGuideMenuPos = () => {
+        console.log('clear');
+        setDeleteGuideMenuPos(undefined);
+    };
+
+    useEffect(() => {
+        addEvent(document, 'click', clearGuideMenuPos, { capture: false });
+        return () => {
+            addEvent(document, 'click', clearGuideMenuPos, { capture: false });
+        };
+    }, []);
 
     useEffect(() => {
         calcGuidePose();
@@ -147,7 +162,17 @@ const GuideLine = (props: GuideLineProps) => {
                     return HorizontalLine(
                         fomatFloatNumber(line.x, 2),
                         x,
-                        { key: `${line.direction}-${line.x}-${line.y}` },
+                        {
+                            key: `${line.direction}-${line.x}-${line.y}`,
+                            onClick: (e: React.MouseEvent) => {
+                                e.nativeEvent.stopImmediatePropagation();
+                                setDeleteGuideMenuPos({
+                                    x: e.clientX,
+                                    y: e.clientY,
+                                    line: line
+                                });
+                            }
+                        },
                         {
                             borderStyle: 'solid',
                             display:
@@ -164,7 +189,17 @@ const GuideLine = (props: GuideLineProps) => {
                     return VerticalLine(
                         fomatFloatNumber(line.y, 2),
                         y,
-                        { key: `${line.direction}-${line.x}-${line.y}` },
+                        {
+                            key: `${line.direction}-${line.x}-${line.y}`,
+                            onClick: (e: React.MouseEvent) => {
+                                e.nativeEvent.stopImmediatePropagation();
+                                setDeleteGuideMenuPos({
+                                    x: e.clientX,
+                                    y: e.clientY,
+                                    line: line
+                                });
+                            }
+                        },
                         {
                             borderStyle: 'solid',
                             display:
@@ -184,6 +219,26 @@ const GuideLine = (props: GuideLineProps) => {
         <React.Fragment>
             {renderDynamicGuideLine()}
             {renderGuideLines()}
+            {guide_menu_pos && (
+                <div
+                    className={styles.delete_menu}
+                    style={{
+                        left:
+                            guide_menu_pos.x +
+                            +canvas_viewport.current!.scrollLeft,
+                        top:
+                            guide_menu_pos.y +
+                            +canvas_viewport.current!.scrollTop
+                    }}
+                    onClick={(e) => {
+                        e.nativeEvent.stopImmediatePropagation();
+                        removeGuideLine?.(guide_menu_pos.line);
+                        setDeleteGuideMenuPos(undefined);
+                    }}
+                >
+                    删除
+                </div>
+            )}
         </React.Fragment>
     );
 };

@@ -163,6 +163,27 @@ const App = () => {
                         console.log(x, y, direction);
                         setGuideLine(guide_line.concat([{ x, y, direction }]));
                     }}
+                    removeGuideLine={({
+                        x,
+                        y,
+                        direction
+                    }: {
+                        x: number;
+                        y: number;
+                        direction: DirectionType;
+                    }) => {
+                        console.log(x, y, direction);
+                        setGuideLine(
+                            guide_line.filter(
+                                (line) =>
+                                    !(
+                                        line.x === x &&
+                                        line.y === y &&
+                                        line.direction === direction
+                                    )
+                            )
+                        );
+                    }}
                 >
                     {widgets.map((w) => {
                         return (
