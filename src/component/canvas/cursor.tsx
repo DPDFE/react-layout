@@ -1,5 +1,5 @@
 import { CursorProps } from '@/interfaces';
-import React, { useRef } from 'react';
+import React, { memo, useRef } from 'react';
 import Draggable from './draggable';
 import styles from './styles.module.css';
 
@@ -33,4 +33,4 @@ const Cursor = (props: CursorProps) => {
     );
 };
 
-export default Cursor;
+export default memo(Cursor);

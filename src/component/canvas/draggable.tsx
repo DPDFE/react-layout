@@ -1,6 +1,6 @@
 import { DraggableProps } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
-import React, { DOMElement, RefObject, useEffect, useState } from 'react';
+import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
 
 interface Pos {
     x: number;
@@ -161,4 +161,4 @@ Draggable.defaultProps = {
     style: {}
 };
 
-export default Draggable;
+export default memo(Draggable);

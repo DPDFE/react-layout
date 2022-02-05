@@ -23,6 +23,19 @@ export interface RulerPointer {
     direction: DirectionType;
 }
 
+export interface CursorPointer {
+    x: number;
+    y: number;
+    cursor: CursorType;
+}
+
+export interface ItemPos {
+    x: number;
+    y: number;
+    h: number;
+    w: number;
+}
+
 /** 画板props */
 export interface ReactDragLayoutProps {
     scale: number;
@@ -80,12 +93,8 @@ export interface CanvasProps extends ReactDragLayoutProps {
 }
 
 /** 单节点属性 */
-export interface DragItem {
+export interface DragItem extends ItemPos {
     i: string;
-    x: number;
-    y: number;
-    w: number;
-    h: number;
     is_draggable?: boolean;
     is_resizable?: boolean;
 }
@@ -130,55 +139,15 @@ export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
 
 export interface CursorProps extends DraggableProps {
     cursor: CursorType;
-    onDrag?: ({
-        x,
-        y,
-        cursor
-    }: {
-        x: number;
-        y: number;
-        cursor: CursorType;
-    }) => void;
-    onDragStop?: ({
-        x,
-        y,
-        cursor
-    }: {
-        x: number;
-        y: number;
-        cursor: CursorType;
-    }) => void;
+    onDrag?: ({ x, y, cursor }: CursorPointer) => void;
+    onDragStop?: ({ x, y, cursor }: CursorPointer) => void;
 }
 
 /** resize */
-export interface ResizableProps extends EventBaseProps {
-    x: number;
-    y: number;
-    h: number;
-    w: number;
+export interface ResizableProps extends EventBaseProps, ItemPos {
     scale: number;
     is_resizable?: boolean;
     onResizeStart?: () => void;
-    onResize?: ({
-        x,
-        y,
-        h,
-        w
-    }: {
-        x: number;
-        y: number;
-        h: number;
-        w: number;
-    }) => void;
-    onResizeStop?: ({
-        x,
-        y,
-        h,
-        w
-    }: {
-        x: number;
-        y: number;
-        h: number;
-        w: number;
-    }) => void;
+    onResize?: ({ x, y, h, w }: ItemPos) => void;
+    onResizeStop?: ({ x, y, h, w }: ItemPos) => void;
 }

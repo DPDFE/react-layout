@@ -37,15 +37,6 @@ const App = () => {
                 is_resizable: true,
                 is_draggable: true
             };
-            // var y = Math.ceil(Math.random()) + 1;
-            // return {
-            //     x: Math.round(Math.random() * 16) * 100,
-            //     y: Math.floor(i / 6) * y * 100,
-            //     w: 2 * 100,
-            //     h: y * 100,
-            //     i: i.toString(),
-            //     static: Math.random() < 0.05
-            // };
         });
     }
 
@@ -146,6 +137,9 @@ const App = () => {
                     }}
                     onResizeStart={() => {
                         console.log('onResizeStart');
+                    }}
+                    onResize={() => {
+                        console.log('onResize');
                     }}
                     onResizeStop={(layout: DragItem[]) => {
                         console.log('onResizeStop');

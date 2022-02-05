@@ -1,5 +1,5 @@
-import { CursorType, ResizableProps } from '@/interfaces';
-import React from 'react';
+import { CursorPointer, CursorType, ResizableProps } from '@/interfaces';
+import React, { memo } from 'react';
 import Cursor from './cursor';
 
 const Resizable = (props: ResizableProps) => {
@@ -12,15 +12,7 @@ const Resizable = (props: ResizableProps) => {
         props.onResizeStart?.();
     };
 
-    const calcPositionByCursor = ({
-        x,
-        y,
-        cursor
-    }: {
-        x: number;
-        y: number;
-        cursor: CursorType;
-    }) => {
+    const calcPositionByCursor = ({ x, y, cursor }: CursorPointer) => {
         switch (cursor) {
             case CursorType.nw:
                 return {
@@ -53,27 +45,11 @@ const Resizable = (props: ResizableProps) => {
         }
     };
 
-    const handleResize = ({
-        x,
-        y,
-        cursor
-    }: {
-        x: number;
-        y: number;
-        cursor: CursorType;
-    }) => {
+    const handleResize = ({ x, y, cursor }: CursorPointer) => {
         props.onResize?.(calcPositionByCursor({ x, y, cursor }));
     };
 
-    const handleResizeStop = ({
-        x,
-        y,
-        cursor
-    }: {
-        x: number;
-        y: number;
-        cursor: CursorType;
-    }) => {
+    const handleResizeStop = ({ x, y, cursor }: CursorPointer) => {
         props.onResizeStop?.(calcPositionByCursor({ x, y, cursor }));
     };
 
@@ -157,4 +133,4 @@ Resizable.defaultProps = {
     style: {}
 };
 
-export default Resizable;
+export default memo(Resizable);
