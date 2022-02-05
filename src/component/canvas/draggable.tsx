@@ -57,16 +57,6 @@ const Draggable = (props: Props) => {
         setMousePos({ x, y });
     };
 
-    /** 结束 */
-    const handleDragStop = () => {
-        if (!props.is_draggable) {
-            return;
-        }
-        if (drag_state === DragStates.dragging) {
-            setDragState(DragStates.draged);
-        }
-    };
-
     /**
      * 拖拽计算逻辑：
      * 新坐标 = 放置当前坐标 + 鼠标偏移量
@@ -96,19 +86,15 @@ const Draggable = (props: Props) => {
         props.onDrag?.(pos);
     };
 
-    useEffect(() => {
-        if (drag_state === DragStates.dragging) {
-            addEvent(window, 'mousemove', handleDrag);
-            addEvent(window, 'mouseup', handleDragStop);
+    /** 结束 */
+    const handleDragStop = () => {
+        if (!props.is_draggable) {
+            return;
         }
-        if (drag_state === DragStates.draged) {
-            props.onDragStop?.({ x: props.x, y: props.y });
+        if (drag_state !== DragStates.draged) {
+            setDragState(DragStates.draged);
         }
-        return () => {
-            removeEvent(window, 'mousemove', handleDrag);
-            removeEvent(window, 'mouseup', handleDragStop);
-        };
-    }, [drag_state]);
+    };
 
     /**
      * react的事件机制是由react重写的绑定在document上完成的，和原生事件为两套响应机制
@@ -116,9 +102,9 @@ const Draggable = (props: Props) => {
      * 为了阻止其他非document元素上的冒泡事件，在此处使用原生处理
      */
     const CurrentMouseUp = (e: MouseEvent) => {
+        e.stopPropagation();
         child.props.onMouseUp?.(e);
         handleDragStop();
-        e.stopPropagation();
     };
 
     useEffect(() => {
@@ -129,6 +115,23 @@ const Draggable = (props: Props) => {
             removeEvent(current, 'mouseup', CurrentMouseUp);
         };
     }, [child]);
+
+    useEffect(() => {
+        if (drag_state === DragStates.dragging) {
+            addEvent(document, 'mousemove', handleDrag);
+            addEvent(document, 'mouseup', handleDragStop, { capture: false });
+        }
+        if (drag_state === DragStates.draged) {
+            props.onDragStop?.({ x: props.x, y: props.y });
+            setDragState(undefined);
+        }
+        return () => {
+            removeEvent(document, 'mousemove', handleDrag);
+            removeEvent(document, 'mouseup', handleDragStop, {
+                capture: false
+            });
+        };
+    }, [drag_state]);
 
     const new_child = React.cloneElement(child, {
         onMouseDown: (e: React.MouseEvent) => {

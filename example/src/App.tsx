@@ -105,7 +105,7 @@ const App = () => {
                         value={scale}
                         style={{ marginRight: 10, width: 150 }}
                         step={0.04}
-                        min={0}
+                        min={0.04}
                         max={2}
                         onChange={setScale}
                     />

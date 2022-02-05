@@ -47,7 +47,6 @@ const GuideLine = (props: GuideLineProps) => {
     };
 
     const clearGuideMenuPos = () => {
-        console.log('clear');
         setDeleteGuideMenuPos(undefined);
     };
 
@@ -219,7 +218,9 @@ const GuideLine = (props: GuideLineProps) => {
         <React.Fragment>
             {renderDynamicGuideLine()}
             {renderGuideLines()}
+
             {guide_menu_pos && (
+                /** 滚动时menu没有消失 */
                 <div
                     className={styles.delete_menu}
                     style={{
