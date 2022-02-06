@@ -27,9 +27,52 @@ const LayoutItem = (props: LayoutItemProps) => {
 
     const [pos, setPos] = useState<ItemPos>({ x: x, y: y, h: h, w: w });
 
+    /** 和当前选中元素有关 */
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        let _pos;
+        const keycode_step = 3;
+
+        switch (e.keyCode) {
+            case 37: // ArrowLeft
+                _pos = Object.assign({}, pos, {
+                    x: pos.x - keycode_step
+                });
+                return _pos;
+
+            case 38: // ArrowUp
+                _pos = Object.assign({}, pos, {
+                    y: pos.y - keycode_step
+                });
+                return _pos;
+
+            case 39: // ArrowRight
+                _pos = Object.assign({}, pos, {
+                    x: pos.x + keycode_step
+                });
+                return _pos;
+
+            case 40: // ArrowDown
+                _pos = Object.assign({}, pos, {
+                    y: pos.y + keycode_step
+                });
+                return _pos;
+        }
+        return undefined;
+    };
+
     const new_child = React.cloneElement(child, {
+        tabIndex: i,
         onMouseDown: () => {
             props.setCurrentChecked(i);
+        },
+        onKeyDown: (e: React.KeyboardEvent) => {
+            e.preventDefault();
+            const _pos = handleKeyDown(e);
+            if (_pos) {
+                setPos(_pos);
+                const item = Object.assign(child.props['data-drag'], _pos);
+                props.onPositionChange?.(item);
+            }
         },
         ref: item_ref,
         id: `${

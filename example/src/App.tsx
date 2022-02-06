@@ -145,6 +145,10 @@ const App = () => {
                         console.log('onResizeStop');
                         setWidgets(layout);
                     }}
+                    onPositionChange={(layout: DragItem[]) => {
+                        console.log('positionChange');
+                        setWidgets(layout);
+                    }}
                     addGuideLine={({
                         x,
                         y,
@@ -154,7 +158,6 @@ const App = () => {
                         y: number;
                         direction: DirectionType;
                     }) => {
-                        console.log(x, y, direction);
                         setGuideLine(guide_line.concat([{ x, y, direction }]));
                     }}
                     removeGuideLine={({
@@ -166,7 +169,6 @@ const App = () => {
                         y: number;
                         direction: DirectionType;
                     }) => {
-                        console.log(x, y, direction);
                         setGuideLine(
                             guide_line.filter(
                                 (line) =>

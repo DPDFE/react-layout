@@ -50,6 +50,7 @@ export interface ReactDragLayoutProps {
     onResizeStart?: () => void;
     onResize?: (layout: DragItem[]) => void;
     onResizeStop?: (layout: DragItem[]) => void;
+    onPositionChange?: (layout: DragItem[]) => void;
     addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
     removeGuideLine?: ({ x, y, direction }: RulerPointer) => void;
     children: ReactElement[];
@@ -118,6 +119,7 @@ export interface LayoutItemProps extends EventBaseProps {
     onResizeStart?: () => void;
     onResize?: (item: DragItem) => void;
     onResizeStop?: (item: DragItem) => void;
+    onPositionChange?: (item: DragItem) => void;
 }
 
 /** drag */
