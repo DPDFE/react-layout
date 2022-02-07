@@ -1,4 +1,4 @@
-import React, { ReactElement, RefObject } from 'react';
+import React, { ReactChild, ReactElement, RefObject } from 'react';
 
 export enum LayoutType {
     edit = 'edit',
@@ -153,4 +153,13 @@ export interface ResizableProps extends EventBaseProps, ItemPos {
     onResizeStart?: () => void;
     onResize?: ({ x, y, h, w }: ItemPos) => void;
     onResizeStop?: ({ x, y, h, w }: ItemPos) => void;
+}
+
+export interface MenuProps {
+    children: ReactElement;
+    // target: ReactElement; // 点击目标时目录显示，非目标不显示
+}
+
+export interface MenuItemProps {
+    children: ReactChild;
 }

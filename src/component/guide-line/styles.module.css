@@ -37,13 +37,3 @@
     transform: scaleY(2);
     transform-origin: top;
 }
-
-.delete_menu {
-    position: absolute;
-    background: #fff;
-    padding: 3px 10px;
-    white-space: nowrap;
-    font-size: 12px;
-    margin: 3px;
-    cursor: default;
-}

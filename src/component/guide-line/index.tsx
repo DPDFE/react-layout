@@ -2,6 +2,7 @@ import { DirectionType, GuideLineProps, RulerPointer } from '@/interfaces';
 import { fomatFloatNumber } from '@/utils/utils';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import React, { memo, useEffect, useState } from 'react';
+import Menus, { MenuItem } from '../menus';
 import styles from './styles.module.css';
 
 const GuideLine = (props: GuideLineProps) => {
@@ -220,25 +221,25 @@ const GuideLine = (props: GuideLineProps) => {
             {renderGuideLines()}
 
             {guide_menu_pos && (
-                /** 滚动时menu没有消失 */
-                <div
-                    className={styles.delete_menu}
-                    style={{
-                        left:
-                            guide_menu_pos.x -
-                            canvas_viewport.current!.scrollLeft,
-                        top:
-                            guide_menu_pos.y -
-                            canvas_viewport.current!.scrollTop
-                    }}
-                    onClick={(e) => {
-                        e.nativeEvent.stopImmediatePropagation();
-                        removeGuideLine?.(guide_menu_pos.line);
-                        setDeleteGuideMenuPos(undefined);
-                    }}
-                >
-                    删除
-                </div>
+                <Menus>
+                    <MenuItem
+                    // style={{
+                    //     left:
+                    //         guide_menu_pos.x -
+                    //         canvas_viewport.current!.scrollLeft,
+                    //     top:
+                    //         guide_menu_pos.y -
+                    //         canvas_viewport.current!.scrollTop
+                    // }}
+                    // onClick={(e) => {
+                    //     e.nativeEvent.stopImmediatePropagation();
+                    //     removeGuideLine?.(guide_menu_pos.line);
+                    //     setDeleteGuideMenuPos(undefined);
+                    // }}
+                    >
+                        删除
+                    </MenuItem>
+                </Menus>
             )}
         </React.Fragment>
     );

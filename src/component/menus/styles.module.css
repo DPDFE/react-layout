@@ -1,0 +1,10 @@
+.menus {
+    position: absolute;
+    background: #fff;
+    padding: 5px 22px;
+    white-space: nowrap;
+    font-size: 13px;
+    margin: 3px;
+    cursor: default;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+}

@@ -19,9 +19,8 @@ import styles from './styles.module.css';
  * props: LayoutItem props
  */
 const LayoutItem = (props: LayoutItemProps) => {
-    const item_ref = useRef<HTMLDivElement>(null);
-
     const child = React.Children.only(props.children);
+    const item_ref = useRef<HTMLDivElement>(null);
 
     const { x, y, h, w, i, is_resizable, is_draggable } = props['data-drag'];
 
