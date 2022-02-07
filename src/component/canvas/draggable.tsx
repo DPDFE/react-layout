@@ -102,7 +102,6 @@ const Draggable = (props: Props) => {
      * 为了阻止其他非document元素上的冒泡事件，在此处使用原生处理
      */
     const CurrentMouseUp = (e: MouseEvent) => {
-        e.stopPropagation();
         child.props.onMouseUp?.(e);
         handleDragStop();
     };
@@ -119,6 +118,7 @@ const Draggable = (props: Props) => {
     useEffect(() => {
         if (drag_state === DragStates.dragging) {
             addEvent(document, 'mousemove', handleDrag);
+            // 处理画布外的点击事件也能取消选中状态
             addEvent(document, 'mouseup', handleDragStop, { capture: false });
         }
         if (drag_state === DragStates.draged) {

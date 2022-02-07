@@ -118,6 +118,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                         {/* 实际画布区域 */}
                         <Canvas
                             {...props}
+                            canvas_wrapper={canvas_wrapper}
                             fresh_count={fresh_count}
                             setFreshCount={setFreshCount}
                             t_offset={t_offset}

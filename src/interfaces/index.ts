@@ -43,7 +43,7 @@ export interface ReactDragLayoutProps {
     height: number;
     mode: LayoutType;
     guide_lines?: RulerPointer[];
-    onDrop?: ({ x, y }: { x: number; y: number }) => string;
+    onDrop?: ({ x, y }: { x: number; y: number }) => DragItem;
     onDragStart?: () => void;
     onDrag?: (layout: DragItem[]) => void;
     onDragStop?: (layout: DragItem[]) => void;
@@ -91,6 +91,7 @@ export interface CanvasProps extends ReactDragLayoutProps {
     l_offset: number;
     fresh_count: number;
     setFreshCount: (count: number) => void;
+    canvas_wrapper: RefObject<HTMLDivElement>;
 }
 
 /** 单节点属性 */

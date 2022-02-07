@@ -1,11 +1,14 @@
-import { CanvasProps, DragItem, ItemPos, LayoutType } from '@/interfaces';
-import React, { memo, useEffect, useState } from 'react';
+import { CanvasProps, DragItem, LayoutType } from '@/interfaces';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.css';
 import LayoutItem from './layout-item';
 import { addEvent, removeEvent } from '@pearone/event-utils';
+import { copyObjectArray, diffObject } from '@/utils/utils';
 
 /** 画布 */
 const Canvas = (props: CanvasProps) => {
+    const canvas_ref = useRef<HTMLDivElement>(null);
+
     const [checked_index, setCurrentChecked] = useState<string>();
     const [operator_stack_pointer, setOperatorStackPointer] =
         useState<number>(-1);
@@ -13,7 +16,12 @@ const Canvas = (props: CanvasProps) => {
 
     /** 清空选中 */
     const clearChecked = (e: MouseEvent) => {
-        setCurrentChecked(undefined);
+        if (
+            e.target === canvas_ref.current ||
+            e.target === props.canvas_wrapper.current
+        ) {
+            setCurrentChecked(undefined);
+        }
     };
 
     /** 拖拽添加 */
@@ -23,8 +31,9 @@ const Canvas = (props: CanvasProps) => {
         const { left, top } = current?.getBoundingClientRect();
         const x = (e.clientX + current.scrollLeft - left) / props.scale;
         const y = (e.clientY + current.scrollTop - top) / props.scale;
-
-        setCurrentChecked(props.onDrop?.({ x, y }));
+        const item = props.onDrop?.({ x, y });
+        setCurrentChecked(item?.i);
+        pushPosStep(getCurrentLayoutByItem(item));
     };
 
     /** 获取当前状态下的layout */
@@ -39,61 +48,70 @@ const Canvas = (props: CanvasProps) => {
 
     useEffect(() => {
         // React合成事件和原生事件
-        const dom = document.querySelector('.react-drag-layout');
-        addEvent(dom, 'mouseup', clearChecked, { capture: false });
+        addEvent(document, 'mouseup', clearChecked, { capture: false });
         return () => {
-            removeEvent(dom, 'mouseup', clearChecked, { capture: false });
+            removeEvent(document, 'mouseup', clearChecked, { capture: false });
         };
     }, []);
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        let _layout;
+        console.log('onkeydown', operator_stack_pointer, operator_stack);
+        /** 撤销还原 */
+        const positionChange = (idx: number) => {
+            setCurrentChecked(undefined);
 
-        switch (e.keyCode) {
-            case 90: // ctrl+Z
-                console.log('canvas keydown');
-                if (operator_stack_pointer === 0) {
-                    return;
-                }
-                _layout = operator_stack[operator_stack_pointer - 1];
-                console.log(_layout);
-                props.onPositionChange?.(_layout);
-                props.setFreshCount(props.fresh_count + 1);
-                setOperatorStackPointer(operator_stack_pointer - 1);
-                return;
+            const copy_layout = copyObjectArray(operator_stack[idx]);
+            props.onPositionChange?.(copy_layout);
 
-            case 89: // ctrl+Z+Y
+            setOperatorStackPointer(idx);
+
+            props.setFreshCount(props.fresh_count + 1);
+        };
+
+        if (e.keyCode === 90) {
+            if (e.shiftKey) {
+                // ctrl+shift+Z
                 if (operator_stack_pointer === operator_stack.length - 1) {
                     return;
                 }
-                _layout = operator_stack[operator_stack_pointer + 1];
-                props.onPositionChange?.(_layout);
-                props.setFreshCount(props.fresh_count + 1);
-                setOperatorStackPointer(operator_stack_pointer + 1);
-                return;
+                positionChange(operator_stack_pointer + 1);
+            } else {
+                // ctrl+Z
+                if (operator_stack_pointer === 0) {
+                    return;
+                }
+                positionChange(operator_stack_pointer - 1);
+            }
         }
     };
 
-    const pushPosStep = (layout: DragItem[]) => {
-        const _layout = [].concat(JSON.parse(JSON.stringify(layout)));
-        setOperatorStack(operator_stack.concat([_layout]));
-        setOperatorStackPointer(operator_stack_pointer + 1);
-    };
+    const pushPosStep = (layout: DragItem[], force: boolean = false) => {
+        if (
+            diffObject(layout, operator_stack[operator_stack_pointer]) ||
+            force
+        ) {
+            const index = operator_stack_pointer + 1;
+            const copy_layout = operator_stack
+                .slice(0, index)
+                .concat([copyObjectArray(layout)]);
 
-    const popPosStep = () => {
-        setOperatorStack(operator_stack.splice(0, operator_stack_pointer + 1));
+            setOperatorStack(copy_layout);
+            setOperatorStackPointer(index);
+            props.setFreshCount(props.fresh_count + 1);
+        }
     };
 
     useEffect(() => {
         if (props.children.length > 0) {
             const init_layout = getCurrentLayoutByItem();
-            setOperatorStack([init_layout]);
+            pushPosStep(init_layout, true);
         }
     }, [props.children.length]);
 
     return (
         <div
+            ref={canvas_ref}
             className={styles.canvas}
             style={{
                 width: props.width * props.scale,
@@ -108,7 +126,6 @@ const Canvas = (props: CanvasProps) => {
                 e.preventDefault();
             }}
             onKeyDown={(e: React.KeyboardEvent) => {
-                e.preventDefault();
                 handleKeyDown(e);
             }}
         >
@@ -122,7 +139,6 @@ const Canvas = (props: CanvasProps) => {
                         checked_index={checked_index}
                         setCurrentChecked={setCurrentChecked}
                         onDragStart={() => {
-                            popPosStep();
                             props.onDragStart?.();
                         }}
                         onDrag={(item) => {
@@ -132,10 +148,8 @@ const Canvas = (props: CanvasProps) => {
                             const _layout = getCurrentLayoutByItem(item);
                             pushPosStep(_layout);
                             props.onDragStop?.(_layout);
-                            props.setFreshCount(props.fresh_count + 1);
                         }}
                         onResizeStart={() => {
-                            popPosStep();
                             props.onResizeStart?.();
                         }}
                         onResize={(item) => {
@@ -145,14 +159,11 @@ const Canvas = (props: CanvasProps) => {
                             const _layout = getCurrentLayoutByItem(item);
                             pushPosStep(_layout);
                             props.onResizeStop?.(_layout);
-                            props.setFreshCount(props.fresh_count + 1);
                         }}
                         onPositionChange={(item) => {
-                            popPosStep();
                             const _layout = getCurrentLayoutByItem(item);
                             pushPosStep(_layout);
                             props.onPositionChange?.(_layout);
-                            props.setFreshCount(props.fresh_count + 1);
                         }}
                     ></LayoutItem>
                 );

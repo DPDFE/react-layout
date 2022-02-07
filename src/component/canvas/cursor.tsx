@@ -22,6 +22,7 @@ const Cursor = (props: CursorProps) => {
             bound={props.bound}
         >
             <div
+                tabIndex={0}
                 ref={cursor_ref}
                 className={styles['resize-handler']}
                 style={{

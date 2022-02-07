@@ -122,31 +122,31 @@ const App = () => {
                         } as DragItem;
 
                         setWidgets(widgets.concat([drop_element]));
-                        return drop_element.i;
+                        return drop_element;
                     }}
                     onDragStart={() => {
-                        console.log('onDragStart');
+                        // console.log('onDragStart');
                     }}
                     // onDrag={(layout: DragItem[]) => {
                     //     console.log('onDrag');
                     //     setWidgets(layout);
                     // }}
                     onDragStop={(layout: DragItem[]) => {
-                        console.log('onDragStop');
+                        // console.log('onDragStop');
                         setWidgets(layout);
                     }}
                     onResizeStart={() => {
-                        console.log('onResizeStart');
+                        // console.log('onResizeStart');
                     }}
                     // onResize={() => {
                     //     console.log('onResize');
                     // }}
                     onResizeStop={(layout: DragItem[]) => {
-                        console.log('onResizeStop');
+                        // console.log('onResizeStop');
                         setWidgets(layout);
                     }}
                     onPositionChange={(layout: DragItem[]) => {
-                        console.log('positionChange', layout);
+                        // console.log('positionChange', layout);
                         setWidgets(layout);
                     }}
                     addGuideLine={({
