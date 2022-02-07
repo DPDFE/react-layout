@@ -1,5 +1,5 @@
 import { ItemPos, LayoutItemProps } from '@/interfaces';
-import React, { memo, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState } from 'react';
 import Draggable from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -25,7 +25,11 @@ const LayoutItem = (props: LayoutItemProps) => {
 
     const { x, y, h, w, i, is_resizable, is_draggable } = props['data-drag'];
 
-    const [pos, setPos] = useState<ItemPos>({ x: x, y: y, h: h, w: w });
+    const [pos, setPos] = useState<ItemPos>({ x, y, h, w });
+
+    useEffect(() => {
+        setPos({ x, y, h, w });
+    }, [x, y, h, w]);
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -66,7 +70,6 @@ const LayoutItem = (props: LayoutItemProps) => {
             props.setCurrentChecked(i);
         },
         onKeyDown: (e: React.KeyboardEvent) => {
-            e.preventDefault();
             const _pos = handleKeyDown(e);
             if (_pos) {
                 setPos(_pos);

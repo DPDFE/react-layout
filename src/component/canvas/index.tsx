@@ -9,7 +9,7 @@ const Canvas = (props: CanvasProps) => {
     const [checked_index, setCurrentChecked] = useState<string>();
     const [operator_stack_pointer, setOperatorStackPointer] =
         useState<number>(-1);
-    const [operator_stack, setOperatorStack] = useState<ItemPos[]>([]);
+    const [operator_stack, setOperatorStack] = useState<DragItem[][]>([]);
 
     /** 清空选中 */
     const clearChecked = (e: MouseEvent) => {
@@ -25,16 +25,14 @@ const Canvas = (props: CanvasProps) => {
         const y = (e.clientY + current.scrollTop - top) / props.scale;
 
         setCurrentChecked(props.onDrop?.({ x, y }));
-
-        props.setFreshCount(props.fresh_count + 1);
     };
 
     /** 获取当前状态下的layout */
-    const getCurrentLayoutByItem = (item: DragItem) => {
+    const getCurrentLayoutByItem = (item?: DragItem) => {
         return props.children.map(
             (child) =>
                 [item].find(
-                    (_item) => _item.i === child.props['data-drag'].i
+                    (_item) => _item && _item.i === child.props['data-drag'].i
                 ) || child.props['data-drag']
         );
     };
@@ -50,40 +48,49 @@ const Canvas = (props: CanvasProps) => {
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        let _pos;
+        let _layout;
 
         switch (e.keyCode) {
             case 90: // ctrl+Z
+                console.log('canvas keydown');
                 if (operator_stack_pointer === 0) {
                     return;
                 }
-                _pos = operator_stack[operator_stack_pointer - 1];
-                // setPos(_pos);
+                _layout = operator_stack[operator_stack_pointer - 1];
+                console.log(_layout);
+                props.onPositionChange?.(_layout);
+                props.setFreshCount(props.fresh_count + 1);
                 setOperatorStackPointer(operator_stack_pointer - 1);
-
-                return _pos;
+                return;
 
             case 89: // ctrl+Z+Y
                 if (operator_stack_pointer === operator_stack.length - 1) {
                     return;
                 }
-                _pos = operator_stack[operator_stack_pointer + 1];
-                // setPos(_pos);
+                _layout = operator_stack[operator_stack_pointer + 1];
+                props.onPositionChange?.(_layout);
+                props.setFreshCount(props.fresh_count + 1);
                 setOperatorStackPointer(operator_stack_pointer + 1);
-
-                return _pos;
+                return;
         }
-        return undefined;
     };
 
-    const pushPosStep = (pos: ItemPos) => {
-        setOperatorStack(operator_stack.concat([pos]));
+    const pushPosStep = (layout: DragItem[]) => {
+        const _layout = [].concat(JSON.parse(JSON.stringify(layout)));
+        setOperatorStack(operator_stack.concat([_layout]));
         setOperatorStackPointer(operator_stack_pointer + 1);
     };
 
     const popPosStep = () => {
         setOperatorStack(operator_stack.splice(0, operator_stack_pointer + 1));
     };
+
+    useEffect(() => {
+        if (props.children.length > 0) {
+            const init_layout = getCurrentLayoutByItem();
+            setOperatorStack([init_layout]);
+        }
+    }, [props.children.length]);
 
     return (
         <div
@@ -102,7 +109,7 @@ const Canvas = (props: CanvasProps) => {
             }}
             onKeyDown={(e: React.KeyboardEvent) => {
                 e.preventDefault();
-                const _pos = handleKeyDown(e);
+                handleKeyDown(e);
             }}
         >
             {props.children.map((child) => {
@@ -122,8 +129,9 @@ const Canvas = (props: CanvasProps) => {
                             props.onDrag?.(getCurrentLayoutByItem(item));
                         }}
                         onDragStop={(item) => {
-                            pushPosStep(item);
-                            props.onDragStop?.(getCurrentLayoutByItem(item));
+                            const _layout = getCurrentLayoutByItem(item);
+                            pushPosStep(_layout);
+                            props.onDragStop?.(_layout);
                             props.setFreshCount(props.fresh_count + 1);
                         }}
                         onResizeStart={() => {
@@ -134,8 +142,16 @@ const Canvas = (props: CanvasProps) => {
                             props.onResize?.(getCurrentLayoutByItem(item));
                         }}
                         onResizeStop={(item) => {
-                            pushPosStep(item);
-                            props.onResizeStop?.(getCurrentLayoutByItem(item));
+                            const _layout = getCurrentLayoutByItem(item);
+                            pushPosStep(_layout);
+                            props.onResizeStop?.(_layout);
+                            props.setFreshCount(props.fresh_count + 1);
+                        }}
+                        onPositionChange={(item) => {
+                            popPosStep();
+                            const _layout = getCurrentLayoutByItem(item);
+                            pushPosStep(_layout);
+                            props.onPositionChange?.(_layout);
                             props.setFreshCount(props.fresh_count + 1);
                         }}
                     ></LayoutItem>
