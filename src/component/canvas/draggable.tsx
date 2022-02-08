@@ -142,9 +142,7 @@ const Draggable = (props: Props) => {
             child.props.className ? child.props.className : ''
         }`,
         style: {
-            transform: `translate(${props.x * props.scale}px, ${
-                props.y * props.scale
-            }px)`,
+            transform: `translate(${props.x}px, ${props.y}px)`,
             cursor: props.is_draggable ? 'grab' : 'inherit',
             userSelect: drag_state === DragStates.draged ? 'inherit' : 'none',
             ...props.style,

@@ -84,11 +84,9 @@ const LayoutItem = (props: LayoutItemProps) => {
         }`,
         className: `${[child.props.className, styles.layout_item].join(' ')}`,
         style: {
-            transform: `translate(${pos.x * props.scale}px, ${
-                pos.y * props.scale
-            }px)`,
-            width: pos.w * props.scale,
-            height: pos.h * props.scale,
+            transform: `translate(${pos.x}px, ${pos.y}px)`,
+            width: pos.w,
+            height: pos.h,
             ...child.props.style
         }
     });
@@ -96,8 +94,8 @@ const LayoutItem = (props: LayoutItemProps) => {
     return (
         <Resizable
             {...pos}
-            is_resizable={is_resizable && props.checked_index === i}
             scale={props.scale}
+            is_resizable={is_resizable && props.checked_index === i}
             onResizeStart={() => {
                 props.onResizeStart?.();
             }}

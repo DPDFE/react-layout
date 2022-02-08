@@ -62,9 +62,7 @@ const Resizable = (props: ResizableProps) => {
                 : styles['no-border']
         ].join(' '),
         style: {
-            transform: `translate(${props.x * props.scale}px, ${
-                props.y * props.scale
-            }px)`,
+            transform: `translate(${props.x}px, ${props.y}px)`,
             width: props.w,
             height: props.h
         }
@@ -76,10 +74,10 @@ const Resizable = (props: ResizableProps) => {
             {props.is_resizable && (
                 <React.Fragment>
                     <Cursor
+                        scale={props.scale}
                         cursor={CursorType.nw}
                         x={props.x}
                         y={props.y}
-                        scale={props.scale}
                         onDragStart={handleResizeStart}
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
@@ -89,10 +87,10 @@ const Resizable = (props: ResizableProps) => {
                         }}
                     ></Cursor>
                     <Cursor
+                        scale={props.scale}
                         cursor={CursorType.ne}
                         x={props.x + props.w}
                         y={props.y}
-                        scale={props.scale}
                         onDragStart={handleResizeStart}
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
@@ -102,10 +100,10 @@ const Resizable = (props: ResizableProps) => {
                         }}
                     ></Cursor>
                     <Cursor
+                        scale={props.scale}
                         cursor={CursorType.sw}
                         x={props.x}
                         y={props.y + props.h}
-                        scale={props.scale}
                         onDragStart={handleResizeStart}
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
@@ -115,10 +113,10 @@ const Resizable = (props: ResizableProps) => {
                         }}
                     ></Cursor>
                     <Cursor
+                        scale={props.scale}
                         cursor={CursorType.se}
                         x={props.x + props.w}
                         y={props.y + props.h}
-                        scale={props.scale}
                         onDragStart={handleResizeStart}
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}

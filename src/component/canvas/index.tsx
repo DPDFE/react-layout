@@ -114,10 +114,12 @@ const Canvas = (props: CanvasProps) => {
             ref={canvas_ref}
             className={styles.canvas}
             style={{
-                width: props.width * props.scale,
-                height: props.height * props.scale,
+                width: props.width,
+                height: props.height,
                 top: props.t_offset,
                 left: props.l_offset,
+                transform: `scale(${props.scale})`,
+                transformOrigin: '0 0',
                 overflow: props.mode === LayoutType.edit ? 'unset' : 'hidden'
             }}
             onContextMenu={(e) => {

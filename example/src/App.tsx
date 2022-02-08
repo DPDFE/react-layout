@@ -10,8 +10,8 @@ import 'react-drag-layout/dist/index.css';
 import 'antd/dist/antd.css';
 
 const App = () => {
-    const [width, setWidth] = useState<number | string>(1200);
-    const [height, setHeight] = useState<number | string>(600);
+    const [width, setWidth] = useState<number | string>(800);
+    const [height, setHeight] = useState<number | string>(400);
     const [scale, setScale] = useState<number>(1);
     const [widgets, setWidgets] = useState<DragItem[]>([]);
     const [guide_line, setGuideLine] = useState<
