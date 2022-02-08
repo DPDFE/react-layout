@@ -1,5 +1,6 @@
 import { CursorPointer, CursorType, ResizableProps } from '@/interfaces';
 import React, { memo } from 'react';
+import styles from './styles.module.css';
 import Cursor from './cursor';
 
 const Resizable = (props: ResizableProps) => {
@@ -54,11 +55,13 @@ const Resizable = (props: ResizableProps) => {
     };
 
     const new_child = React.cloneElement(child, {
-        className: `react-resizable`,
+        className: [
+            `react-resizable`,
+            props.is_resizable
+                ? styles['light-theme-border']
+                : styles['no-border']
+        ].join(' '),
         style: {
-            border: props.is_resizable
-                ? '1px dashed #a19e9e'
-                : '1px solid transparent',
             transform: `translate(${props.x * props.scale}px, ${
                 props.y * props.scale
             }px)`,

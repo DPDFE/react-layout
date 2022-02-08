@@ -44,6 +44,7 @@ export interface ReactDragLayoutProps {
     mode: LayoutType;
     guide_lines?: RulerPointer[];
     onDrop?: ({ x, y }: { x: number; y: number }) => DragItem;
+    onRemove?: (i: string) => void;
     onDragStart?: () => void;
     onDrag?: (layout: DragItem[]) => void;
     onDragStop?: (layout: DragItem[]) => void;

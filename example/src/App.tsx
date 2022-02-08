@@ -193,6 +193,13 @@ const App = () => {
                                 <div className='test'>
                                     我是第{w.i}个div, height: {w.h}, width:{w.w}
                                 </div>
+                                <Button
+                                    type='primary'
+                                    style={{ marginRight: 10 }}
+                                    draggable={true}
+                                >
+                                    删除我自己
+                                </Button>
                             </div>
                         );
                     })}

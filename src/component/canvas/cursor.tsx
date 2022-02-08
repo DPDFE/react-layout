@@ -24,10 +24,12 @@ const Cursor = (props: CursorProps) => {
             <div
                 tabIndex={0}
                 ref={cursor_ref}
-                className={styles['resize-handler']}
+                className={[
+                    styles['resize-handler'],
+                    styles['light-theme']
+                ].join(' ')}
                 style={{
-                    cursor: props.cursor,
-                    background: '#ddd'
+                    cursor: props.cursor
                 }}
             ></div>
         </Draggable>

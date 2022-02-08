@@ -120,6 +120,9 @@ const Canvas = (props: CanvasProps) => {
                 left: props.l_offset,
                 overflow: props.mode === LayoutType.edit ? 'unset' : 'hidden'
             }}
+            onContextMenu={(e) => {
+                e.preventDefault();
+            }}
             /** 阻止了onDragOver以后，onDrop事件才生效 */
             onDrop={onDrop}
             onDragOver={(e) => {

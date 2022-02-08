@@ -1,6 +1,9 @@
+@value colors: "../../style/theme.css";
+@value light_theme, black_theme, light_theme_border, dark_theme_border from colors;
+
 .canvas {
     position: absolute;
-    background-color: #bfadad;
+    background-color: #fff;
 }
 
 .layout_item {
@@ -10,12 +13,37 @@
     outline: none;
 }
 
+.layout_item:hover {
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+
+.dark-theme {
+    background-color: black_theme;
+    color: #fff;
+}
+
+.light-theme {
+    background-color: light_theme;
+    color: #fff;
+}
+
+.light-theme-border {
+    border: 1px dashed light_theme_border;
+}
+
+.dark-theme-border {
+    border: 1px dashed dark_theme_border;
+}
+
+.no-border {
+    border: 1px solid transparent;
+}
+
 .resize-handler {
     position: absolute;
-    width: 10px;
-    height: 10px;
-    margin: -5px 0 0 -5px;
-    border: 1px solid #a19e9e;
-    background-color: #fff;
-    border-radius: 1px;
+    width: 6px;
+    height: 6px;
+    margin: -3px 0 0 -3px;
+    border-radius: 3px;
+    display: block !important;
 }

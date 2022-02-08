@@ -4,12 +4,7 @@ import HorizontalRuler from '../horizontal-ruler';
 import Canvas from '../canvas';
 import styles from './styles.module.css';
 import { getMaxWidgetsRange } from '@/utils/utils';
-import {
-    DirectionType,
-    LayoutType,
-    ReactDragLayoutProps,
-    RulerPointer
-} from '@/interfaces';
+import { LayoutType, ReactDragLayoutProps, RulerPointer } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import GuideLine from '../guide-line';
 
@@ -73,12 +68,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     }, [props.height, props.width, props.scale, fresh_count]);
 
     return (
-        <div
-            className={`react-drag-layout ${styles.container}`}
-            onContextMenu={(e) => {
-                e.preventDefault();
-            }}
-        >
+        <div className={`react-drag-layout ${styles.container}`}>
             {/* 水平标尺 */}
             {props.mode === LayoutType.edit && canvas_viewport.current && (
                 <HorizontalRuler
