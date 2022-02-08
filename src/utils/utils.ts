@@ -7,6 +7,10 @@ export function copyObjectArray(arr: Object[]) {
     return [].concat(JSON.parse(JSON.stringify(arr)));
 }
 
+export function copyObject(obj: Object): Object {
+    return JSON.parse(JSON.stringify(obj));
+}
+
 export function diffObject(obj1: Object, obj2: Object) {
     if (JSON.stringify(obj1) !== JSON.stringify(obj2)) {
         return true;

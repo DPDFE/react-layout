@@ -42,6 +42,7 @@ export interface ReactDragLayoutProps {
     width?: number;
     height?: number;
     mode: LayoutType;
+    margin?: [number, number?, number?, number?];
     guide_lines?: RulerPointer[];
     onDrop?: ({ x, y }: { x: number; y: number }) => DragItem;
     onRemove?: (i: string) => void;
@@ -114,7 +115,10 @@ interface EventBaseProps {
 
 /** 子元素 */
 export interface LayoutItemProps extends EventBaseProps {
+    width: number;
+    height: number;
     scale: number;
+    bound?: [number, number?, number?, number?];
     ['data-drag']: DragItem;
     checked_index?: string;
     setCurrentChecked: (idx: string) => void;

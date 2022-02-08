@@ -1,5 +1,6 @@
 import { ItemPos, LayoutItemProps } from '@/interfaces';
 import React, { memo, useEffect, useRef, useState } from 'react';
+import { calcBoundBorder } from './calc';
 import Draggable from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -22,7 +23,8 @@ const LayoutItem = (props: LayoutItemProps) => {
     const child = React.Children.only(props.children);
     const item_ref = useRef<HTMLDivElement>(null);
 
-    const { x, y, h, w, i, is_resizable, is_draggable } = props['data-drag'];
+    const { x, y, h, w, i, is_resizable, is_draggable, is_float } =
+        props['data-drag'];
 
     const [pos, setPos] = useState<ItemPos>({ x, y, h, w });
 
@@ -91,6 +93,10 @@ const LayoutItem = (props: LayoutItemProps) => {
         }
     });
 
+    const bound_border = calcBoundBorder(props.bound);
+
+    console.log('render', props['data-drag']);
+
     return (
         <Resizable
             {...pos}
@@ -126,6 +132,16 @@ const LayoutItem = (props: LayoutItemProps) => {
                     setPos({ x, y, w: pos.w, h: pos.h });
                     const item = Object.assign(props['data-drag'], { x, y });
                     props.onDragStop?.(item);
+                }}
+                bound={{
+                    max_x: is_float
+                        ? undefined
+                        : props.width - w - bound_border[1],
+                    min_x: is_float ? undefined : bound_border[3],
+                    min_y: is_float ? undefined : bound_border[0],
+                    max_y: is_float
+                        ? undefined
+                        : props.height - h - bound_border[2]
                 }}
             >
                 {new_child}

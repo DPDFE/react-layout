@@ -132,6 +132,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
 ReactDragLayout.defaultProps = {
     scale: 1,
+    margin: [10],
     mode: LayoutType.view
 };
 

@@ -1,5 +1,7 @@
 @value colors: "../../style/theme.css";
 @value light_theme, black_theme, light_theme_border, dark_theme_border from colors;
+@value transition_time: none;
+/* @value transition_time: all 0.01s linear; */
 
 .canvas {
     position: absolute;
@@ -11,10 +13,12 @@
     position: absolute;
     overflow: hidden;
     outline: none;
+    transition: transition_time;
 }
 
 .layout_item:hover {
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    transition: transition_time;
 }
 
 .dark-theme {
@@ -46,4 +50,5 @@
     margin: -3px 0 0 -3px;
     border-radius: 3px;
     display: block !important;
+    transition: transition_time;
 }

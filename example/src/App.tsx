@@ -35,7 +35,8 @@ const App = () => {
                 h: 100,
                 i: i.toString(),
                 is_resizable: true,
-                is_draggable: true
+                is_draggable: true,
+                is_float: false
             };
         });
     }
@@ -103,8 +104,8 @@ const App = () => {
                 </div>
 
                 <ReactDragLayout
-                    width={width}
-                    height={height}
+                    // width={width}
+                    // height={height}
                     scale={scale}
                     guide_lines={guide_line}
                     mode={LayoutType.edit}
@@ -188,7 +189,7 @@ const App = () => {
                                 data-drag={w}
                                 // className={'app_class'}
                                 id={`app_id_${w.i}`}
-                                style={{ background: '#efefef' }}
+                                style={{ background: 'transform' }}
                             >
                                 <div className='test'>
                                     我是第{w.i}个div, height: {w.h}, width:{w.w}

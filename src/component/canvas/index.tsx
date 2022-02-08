@@ -140,6 +140,9 @@ const Canvas = (props: CanvasProps) => {
                         key={child.props['data-drag'].i}
                         {...child.props}
                         children={child}
+                        bound={props.margin}
+                        width={props.width}
+                        height={props.height}
                         scale={props.scale}
                         checked_index={checked_index}
                         setCurrentChecked={setCurrentChecked}
