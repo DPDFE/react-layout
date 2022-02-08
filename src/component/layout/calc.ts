@@ -84,9 +84,6 @@ export const getMaxWidgetsRange = (
         ? canvas_viewport.current?.clientWidth
         : 0;
 
-    const calc_width = current_width * scale;
-    const calc_height = current_height * scale;
-
     // 如果没有宽高就是自适应模式
     if (props.width === undefined || props.height === undefined) {
         return {
@@ -100,6 +97,9 @@ export const getMaxWidgetsRange = (
             l_scroll: 0
         };
     }
+
+    const calc_width = current_width * scale;
+    const calc_height = current_height * scale;
 
     // 计算水平、垂直偏移量
     if (mode === LayoutType.edit) {
@@ -131,8 +131,8 @@ export const getMaxWidgetsRange = (
             wrapper_calc_height,
             t_offset: t_offset + Math.abs(max_top) * scale,
             l_offset: l_offset + Math.abs(max_left) * scale,
-            current_height: calc_height,
-            current_width: calc_width,
+            current_height,
+            current_width,
             t_scroll: Math.abs(max_top) * scale,
             l_scroll: Math.abs(max_left) * scale
         };
@@ -143,8 +143,8 @@ export const getMaxWidgetsRange = (
         return {
             wrapper_calc_width: Math.max(calc_width, client_width),
             wrapper_calc_height: Math.max(calc_height, client_height),
-            current_height: calc_height,
-            current_width: calc_width,
+            current_height,
+            current_width,
             l_offset,
             t_offset,
             t_scroll: 0,
