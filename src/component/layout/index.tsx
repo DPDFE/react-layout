@@ -2,26 +2,25 @@ import React, { useEffect, useRef, useState } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
 import Canvas from '../canvas';
+import { getMaxWidgetsRange } from './calc';
 import styles from './styles.module.css';
-import { getMaxWidgetsRange } from '@/utils/utils';
 import { LayoutType, ReactDragLayoutProps, RulerPointer } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import GuideLine from '../guide-line';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
+    const container_ref = useRef<HTMLDivElement>(null);
     const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
     const canvas_wrapper = useRef<HTMLDivElement>(null); // canvas存放的画布，增加边距支持滚动
 
     const [wrapper_width, setCanvasWrapperWidth] = useState<number>(0); // 画板宽度
     const [wrapper_height, setCanvasWrapperHeight] = useState<number>(0); // 画板高度
 
+    const [current_width, setCurrentWidth] = useState<number>(0); //宽度
+    const [current_height, setCurrentHeight] = useState<number>(0); //高度
+
     const [t_offset, setTopOffset] = useState<number>(0); //垂直偏移量
     const [l_offset, setLeftOffset] = useState<number>(0); //水平偏移量
-
-    // 让画布位于视窗中间
-    const [t_scroll, setTopScroll] = useState<number>(0); //垂直滚动偏移量
-    const [l_scroll, setLeftScroll] = useState<number>(0); //水平滚动偏移量
-    const [init_scroll, setInitScroll] = useState<boolean>(false); //在初始状态时滚动
 
     const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
     const [fresh_count, setFreshCount] = useState<number>(0); // 刷新
@@ -36,28 +35,17 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             wrapper_calc_height,
             t_offset,
             l_offset,
-            t_scroll,
-            l_scroll
-        } = getMaxWidgetsRange(
-            {
-                ...props
-            },
-            canvas_viewport
-        );
-        setTopScroll(t_scroll);
-        setLeftScroll(l_scroll);
-        setInitScroll(true);
+            current_height,
+            current_width
+        } = getMaxWidgetsRange(canvas_viewport, container_ref, props);
 
         setCanvasWrapperWidth(wrapper_calc_width);
         setCanvasWrapperHeight(wrapper_calc_height);
+        setCurrentHeight(current_height);
+        setCurrentWidth(current_width);
         setTopOffset(t_offset);
         setLeftOffset(l_offset);
     };
-
-    useEffect(() => {
-        canvas_viewport.current!.scrollLeft = l_scroll;
-        canvas_viewport.current!.scrollTop = t_scroll;
-    }, [init_scroll]);
 
     useEffect(() => {
         changeCanvasAttrs();
@@ -68,11 +56,15 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     }, [props.height, props.width, props.scale, fresh_count]);
 
     return (
-        <div className={`react-drag-layout ${styles.container}`}>
+        <div
+            className={`react-drag-layout ${styles.container}`}
+            ref={container_ref}
+        >
             {/* 水平标尺 */}
             {props.mode === LayoutType.edit && canvas_viewport.current && (
                 <HorizontalRuler
                     {...props}
+                    width={current_width}
                     l_offset={l_offset}
                     wrapper_width={wrapper_width}
                     setRulerHoverPos={setRulerHoverPos}
@@ -85,6 +77,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 {props.mode === LayoutType.edit && canvas_viewport.current && (
                     <VerticalRuler
                         {...props}
+                        height={current_height}
                         t_offset={t_offset}
                         wrapper_height={wrapper_height}
                         setRulerHoverPos={setRulerHoverPos}
@@ -96,9 +89,11 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 <div
                     style={{ overflow: 'auto', position: 'relative', flex: 1 }}
                     ref={canvas_viewport}
+                    id={'canvas_viewport'}
                 >
                     {/* 画板区域 */}
                     <div
+                        id={'canvas_wrapper'}
                         ref={canvas_wrapper}
                         style={{
                             width: wrapper_width,
@@ -108,6 +103,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                         {/* 实际画布区域 */}
                         <Canvas
                             {...props}
+                            width={current_width}
+                            height={current_height}
                             canvas_wrapper={canvas_wrapper}
                             fresh_count={fresh_count}
                             setFreshCount={setFreshCount}

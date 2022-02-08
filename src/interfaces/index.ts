@@ -39,8 +39,8 @@ export interface ItemPos {
 /** 画板props */
 export interface ReactDragLayoutProps {
     scale: number;
-    width: number;
-    height: number;
+    width?: number;
+    height?: number;
     mode: LayoutType;
     guide_lines?: RulerPointer[];
     onDrop?: ({ x, y }: { x: number; y: number }) => DragItem;
@@ -88,6 +88,8 @@ export interface GuideLineProps {
 
 /** 画布props */
 export interface CanvasProps extends ReactDragLayoutProps {
+    width: number;
+    height: number;
     t_offset: number;
     l_offset: number;
     fresh_count: number;
@@ -100,6 +102,7 @@ export interface DragItem extends ItemPos {
     i: string;
     is_draggable?: boolean;
     is_resizable?: boolean;
+    is_float?: boolean;
 }
 
 interface EventBaseProps {

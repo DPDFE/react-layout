@@ -1,5 +1,9 @@
 import { DirectionType, VerticalRulerProps } from '@/interfaces';
-import { fiveMultipleIntergral, reciprocalNum, RULER_GAP } from '@/utils/utils';
+import {
+    fiveMultipleIntergral,
+    reciprocalNum,
+    RULER_GAP
+} from '@/component/layout/calc';
 import React, { useEffect, useState } from 'react';
 import styles from './styles.module.css';
 import { addEvent, removeEvent } from '@pearone/event-utils';
