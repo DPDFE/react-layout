@@ -1,6 +1,11 @@
 import { ItemPos, LayoutItemProps } from '@/interfaces';
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { calcBoundBorder, calcBoundStatus } from './calc';
+import {
+    calcBoundBorder,
+    calcBoundPositions,
+    calcBoundStatus,
+    snapToGrid
+} from './calc';
 import Draggable from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -27,19 +32,37 @@ const LayoutItem = (props: LayoutItemProps) => {
         props['data-drag'];
 
     const [pos, setPos] = useState<ItemPos>({ x, y, h, w });
+
     const [calc_pos, setCalcPosition] = useState<{
         x: number;
         y: number;
-    }>(pos); // 计算位置
+    }>({ x: x, y: y }); // 计算位置
 
     const [bound_border, setBoundBorder] = useState<
-        [number, number, number, number]
-    >([0, 0, 0, 0]);
+        Partial<{
+            min_x: number;
+            max_x: number;
+            min_y: number;
+            max_y: number;
+        }>
+    >({
+        max_x: undefined,
+        min_x: undefined,
+        min_y: undefined,
+        max_y: undefined
+    });
 
     useEffect(() => {
-        const bound_border = calcBoundBorder(props.bound);
-        setBoundBorder(bound_border);
-    }, [props.bound]);
+        setBoundBorder(calcBoundStatus(props, w, h, is_float));
+    }, [
+        props.bound,
+        props.width,
+        props.height,
+        props.layout_type,
+        is_float,
+        w,
+        h
+    ]);
 
     useEffect(() => {
         setPos({ x, y, h, w });
@@ -108,7 +131,7 @@ const LayoutItem = (props: LayoutItemProps) => {
 
     return (
         <React.Fragment>
-            {props.checked_index && !is_float && (
+            {props.checked_index === i && !is_float && (
                 <div
                     className={`placeholder ${styles.placeholder}`}
                     style={{
@@ -130,6 +153,11 @@ const LayoutItem = (props: LayoutItemProps) => {
                     setPos(data);
                     const item = Object.assign(props['data-drag'], data);
                     props.onResize?.(item);
+                    const _pos = calcBoundPositions(
+                        snapToGrid({ x, y }, props.grid),
+                        bound_border
+                    );
+                    setCalcPosition(_pos);
                 }}
                 onResizeStop={({ x, y, h, w }: ItemPos) => {
                     const data = { x: calc_pos.x, y: calc_pos.y, w, h };
@@ -145,20 +173,17 @@ const LayoutItem = (props: LayoutItemProps) => {
                     onDragStart={() => {
                         props.onDragStart?.();
                     }}
+                    bound={bound_border}
                     onDrag={({ x, y }: { x: number; y: number }) => {
                         const data = { x, y, w: pos.w, h: pos.h };
                         setPos(data);
                         const item = Object.assign(props['data-drag'], data);
                         props.onDrag?.(item);
-                    }}
-                    onDragCalcPosition={({
-                        x,
-                        y
-                    }: {
-                        x: number;
-                        y: number;
-                    }) => {
-                        setCalcPosition({ x, y });
+                        const _pos = calcBoundPositions(
+                            snapToGrid({ x, y }, props.grid),
+                            bound_border
+                        );
+                        setCalcPosition(_pos);
                     }}
                     onDragStop={({ x, y }: { x: number; y: number }) => {
                         const data = {
@@ -171,8 +196,6 @@ const LayoutItem = (props: LayoutItemProps) => {
                         const item = Object.assign(props['data-drag'], data);
                         props.onDragStop?.(item);
                     }}
-                    grid={is_float ? undefined : props.grid}
-                    bound={calcBoundStatus(props, bound_border, w, h, is_float)}
                 >
                     {new_child}
                 </Draggable>

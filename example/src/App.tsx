@@ -10,7 +10,7 @@ import 'react-drag-layout/dist/index.css';
 import 'antd/dist/antd.css';
 
 const App = () => {
-    const [width, setWidth] = useState<number | string>(800);
+    const [width, setWidth] = useState<number | string>(400);
     const [height, setHeight] = useState<number | string>(400);
     const [scale, setScale] = useState<number>(1);
     const [widgets, setWidgets] = useState<DragItem[]>([]);
@@ -29,7 +29,7 @@ const App = () => {
     function generateLayout() {
         return Array.from({ length: 3 }).map((_, i) => {
             return {
-                x: i * -30,
+                x: i * -30 + 130,
                 y: i * 120 + 130,
                 w: 100,
                 h: 100,
@@ -117,7 +117,7 @@ const App = () => {
                     width={width}
                     height={height}
                     row_height={8}
-                    cols={10}
+                    cols={2}
                     scale={scale}
                     guide_lines={guide_line}
                     mode={LayoutType.edit}

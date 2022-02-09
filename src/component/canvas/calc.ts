@@ -35,7 +35,6 @@ export function calcBoundBorder(
 
 export function calcBoundStatus(
     props: LayoutItemProps,
-    bound_border: [number, number, number, number],
     w: number,
     h: number,
     is_float?: boolean
@@ -45,7 +44,10 @@ export function calcBoundStatus(
     min_y: number;
     max_y: number;
 }> {
-    const { layout_type, width, height } = props;
+    const { layout_type, width, height, bound } = props;
+
+    const bound_border = calcBoundBorder(bound);
+
     if (layout_type === LayoutType.DRAG && is_float) {
         return {
             max_x: undefined,
@@ -91,13 +93,13 @@ export function calcBoundPositions(
 }
 
 export function snapToGrid(
-    pos: { delta_x: number; delta_y: number },
+    pos: { x: number; y: number },
     grid?: [number, number]
 ) {
     if (grid) {
-        const delta_grid_x = Math.round(pos.delta_x / grid[0]) * grid[0];
-        const delta_grid_y = Math.round(pos.delta_y / grid[1]) * grid[1];
-        return { delta_grid_x, delta_grid_y };
+        const x = Math.round(pos.x / grid[0]) * grid[0];
+        const y = Math.round(pos.y / grid[1]) * grid[1];
+        return { x, y };
     }
-    return { delta_grid_x: pos.delta_x, delta_grid_y: pos.delta_y };
+    return { x: pos.x, y: pos.y };
 }

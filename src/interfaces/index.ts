@@ -191,18 +191,16 @@ export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
     x: number;
     y: number;
     scale: number;
-    is_draggable?: boolean;
-    onDragStart?: () => void;
-    onDrag?: ({ x, y }: { x: number; y: number }) => void;
-    onDragCalcPosition?: ({ x, y }: { x: number; y: number }) => void;
-    onDragStop?: ({ x, y }: { x: number; y: number }) => void;
-    grid?: [number, number];
     bound?: Partial<{
         min_x: number;
         max_x: number;
         min_y: number;
         max_y: number;
     }>;
+    is_draggable?: boolean;
+    onDragStart?: () => void;
+    onDrag?: ({ x, y }: { x: number; y: number }) => void;
+    onDragStop?: ({ x, y }: { x: number; y: number }) => void;
 }
 
 export interface CursorProps extends DraggableProps {

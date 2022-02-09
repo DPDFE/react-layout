@@ -1,7 +1,7 @@
 import { DraggableProps } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
-import { calcBoundPositions, snapToGrid } from './calc';
+import { calcBoundPositions } from './calc';
 
 interface Pos {
     x: number;
@@ -77,21 +77,6 @@ const Draggable = (props: Props) => {
         );
 
         props.onDrag?.(pos);
-
-        const { delta_grid_x, delta_grid_y } = snapToGrid(
-            { delta_x: x - mouse_pos.x, delta_y: y - mouse_pos.y },
-            props.grid
-        );
-
-        const calc_pos = calcBoundPositions(
-            {
-                x: start_pos.x + delta_grid_x,
-                y: start_pos.y + delta_grid_y
-            },
-            props.bound
-        );
-
-        props.onDragCalcPosition?.(calc_pos);
     };
 
     /** 结束 */
