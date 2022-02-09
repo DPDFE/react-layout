@@ -171,7 +171,7 @@ const LayoutItem = (props: LayoutItemProps) => {
                         const item = Object.assign(props['data-drag'], data);
                         props.onDragStop?.(item);
                     }}
-                    grid={props.grid}
+                    grid={is_float ? undefined : props.grid}
                     bound={calcBoundStatus(props, bound_border, w, h, is_float)}
                 >
                     {new_child}

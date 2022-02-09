@@ -83,10 +83,13 @@ const Draggable = (props: Props) => {
             props.grid
         );
 
-        const calc_pos = calcBoundPositions({
-            x: start_pos.x + delta_grid_x,
-            y: start_pos.y + delta_grid_y
-        });
+        const calc_pos = calcBoundPositions(
+            {
+                x: start_pos.x + delta_grid_x,
+                y: start_pos.y + delta_grid_y
+            },
+            props.bound
+        );
 
         props.onDragCalcPosition?.(calc_pos);
     };

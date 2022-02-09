@@ -32,20 +32,22 @@ export const calcCurrentWH = (
     current_width: number;
     current_height: number;
 } => {
-    const { width, height, mode } = props as DragLayoutProps;
+    const { mode, layout_type } = props;
 
     const offset_width = mode === LayoutType.edit ? TOP_RULER_LEFT_MARGIN : 0;
 
-    const current_width = width
-        ? width
-        : container_ref.current?.clientWidth
-        ? container_ref.current?.clientWidth - offset_width
-        : 0;
-    const current_height = height
-        ? height
-        : container_ref.current?.clientHeight
-        ? container_ref.current?.clientHeight - offset_width
-        : 0;
+    const current_width =
+        layout_type === LayoutType.DRAG
+            ? (props as DragLayoutProps).width
+            : container_ref.current?.clientWidth
+            ? container_ref.current?.clientWidth - offset_width
+            : 0;
+    const current_height =
+        layout_type === LayoutType.DRAG
+            ? (props as DragLayoutProps).height
+            : container_ref.current?.clientHeight
+            ? container_ref.current?.clientHeight - offset_width
+            : 0;
 
     return { current_width, current_height };
 };
@@ -67,7 +69,7 @@ export const getMaxWidgetsRange = (
     container_ref: RefObject<HTMLDivElement>,
     props: ReactDragLayoutProps
 ) => {
-    const { mode, scale, children } = props;
+    const { layout_type, mode, scale, children } = props;
 
     const { current_width, current_height } = calcCurrentWH(
         container_ref,
@@ -89,10 +91,7 @@ export const getMaxWidgetsRange = (
         : 0;
 
     // 如果没有宽高就是自适应模式
-    if (
-        (props as DragLayoutProps).width === undefined ||
-        (props as DragLayoutProps).height === undefined
-    ) {
+    if (layout_type === LayoutType.GRID) {
         return {
             wrapper_calc_width: current_width,
             wrapper_calc_height: max_bottom,

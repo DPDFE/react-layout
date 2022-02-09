@@ -54,7 +54,7 @@
 }
 
 .placeholder {
-    background-color: #ddd;
+    background-color: #d9d9d9;
     position: absolute;
     will-change: 'transform';
 }
