@@ -2,7 +2,9 @@ import React, { ReactChild, ReactElement, RefObject } from 'react';
 
 export enum LayoutType {
     edit = 'edit',
-    view = 'view'
+    view = 'view',
+    DRAG = 'drag',
+    GRID = 'grid'
 }
 
 export enum CursorType {
@@ -55,6 +57,7 @@ type GuideLine = {
 };
 
 export type DragLayout = {
+    layout_type: LayoutType.DRAG;
     scale: number;
     width: number;
     height: number;
@@ -64,6 +67,7 @@ export type DragLayout = {
 
 export type DragEditLayout = EditLayoutBase &
     GuideLine & {
+        layout_type: LayoutType.DRAG;
         scale: number;
         width: number;
         height: number;
@@ -74,18 +78,22 @@ export type DragEditLayout = EditLayoutBase &
 export type DragLayoutProps = DragLayout | DragEditLayout;
 
 export type GridLayout = {
+    layout_type: LayoutType.GRID;
     scale: number;
     mode: LayoutType.view;
     cols: number;
+    row_height: number;
     container_margin?: [number, number?, number?, number?];
     children: ReactElement[];
 };
 
 export type GridEditLayout = EditLayoutBase &
     GuideLine & {
+        layout_type: LayoutType.GRID;
         scale: number;
         mode: LayoutType.edit;
         cols: number;
+        row_height: number;
         container_margin?: [number, number?, number?, number?];
         children: ReactElement[];
     };
@@ -163,7 +171,9 @@ export interface LayoutItemProps extends EventBaseProps {
     width: number;
     height: number;
     scale: number;
+    grid?: [number, number];
     bound?: [number, number?, number?, number?];
+    layout_type: LayoutType.DRAG | LayoutType.GRID;
     ['data-drag']: DragItem;
     checked_index?: string;
     setCurrentChecked: (idx: string) => void;
@@ -184,7 +194,9 @@ export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
     is_draggable?: boolean;
     onDragStart?: () => void;
     onDrag?: ({ x, y }: { x: number; y: number }) => void;
+    onDragCalcPosition?: ({ x, y }: { x: number; y: number }) => void;
     onDragStop?: ({ x, y }: { x: number; y: number }) => void;
+    grid?: [number, number];
     bound?: Partial<{
         min_x: number;
         max_x: number;

@@ -68,17 +68,27 @@ const Draggable = (props: Props) => {
         const delta_x = x - mouse_pos.x;
         const delta_y = y - mouse_pos.y;
 
-        const pos = snapToGrid(
-            calcBoundPositions(
-                {
-                    x: start_pos.x + delta_x,
-                    y: start_pos.y + delta_y
-                },
-                props.bound
-            )
+        const pos = calcBoundPositions(
+            {
+                x: start_pos.x + delta_x,
+                y: start_pos.y + delta_y
+            },
+            props.bound
         );
 
         props.onDrag?.(pos);
+
+        const { delta_grid_x, delta_grid_y } = snapToGrid(
+            { delta_x: x - mouse_pos.x, delta_y: y - mouse_pos.y },
+            props.grid
+        );
+
+        const calc_pos = calcBoundPositions({
+            x: start_pos.x + delta_grid_x,
+            y: start_pos.y + delta_grid_y
+        });
+
+        props.onDragCalcPosition?.(calc_pos);
     };
 
     /** 结束 */
@@ -140,6 +150,8 @@ const Draggable = (props: Props) => {
             transform: `translate(${props.x}px, ${props.y}px)`,
             cursor: props.is_draggable ? 'grab' : 'inherit',
             userSelect: drag_state === DragStates.draged ? 'inherit' : 'none',
+            willChange:
+                drag_state === DragStates.dragging ? 'transform' : 'none',
             ...props.style,
             ...child.props.style
         }

@@ -143,8 +143,18 @@ const Canvas = (props: CanvasProps) => {
             {props.children.map((child) => {
                 return (
                     <LayoutItem
+                        layout_type={props.layout_type}
                         key={child.props['data-drag'].i}
                         {...child.props}
+                        grid={
+                            (props as GridLayoutProps).cols
+                                ? [
+                                      props.width /
+                                          (props as GridLayoutProps).cols,
+                                      (props as GridLayoutProps).row_height
+                                  ]
+                                : undefined
+                        }
                         children={child}
                         bound={(props as GridLayoutProps).container_margin}
                         width={props.width}

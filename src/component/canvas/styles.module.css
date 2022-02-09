@@ -52,3 +52,9 @@
     display: block !important;
     transition: transition_time;
 }
+
+.placeholder {
+    background-color: #ddd;
+    position: absolute;
+    will-change: 'transform';
+}

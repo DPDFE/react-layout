@@ -1,3 +1,5 @@
+import { LayoutItemProps, LayoutType } from '@/interfaces';
+
 export function calcBoundBorder(
     bound?: [number, number?, number?, number?]
 ): [number, number, number, number] {
@@ -31,6 +33,36 @@ export function calcBoundBorder(
     return [0, 0, 0, 0];
 }
 
+export function calcBoundStatus(
+    props: LayoutItemProps,
+    bound_border: [number, number, number, number],
+    w: number,
+    h: number,
+    is_float?: boolean
+): Partial<{
+    min_x: number;
+    max_x: number;
+    min_y: number;
+    max_y: number;
+}> {
+    const { layout_type, width, height } = props;
+    if (layout_type === LayoutType.DRAG && is_float) {
+        return {
+            max_x: undefined,
+            min_x: undefined,
+            min_y: undefined,
+            max_y: undefined
+        };
+    }
+
+    return {
+        max_x: width - w - bound_border[1],
+        min_x: bound_border[3],
+        min_y: bound_border[0],
+        max_y: height - h - bound_border[2]
+    };
+}
+
 export function calcBoundPositions(
     pos: { x: number; y: number },
     bound?: Partial<{
@@ -58,6 +90,14 @@ export function calcBoundPositions(
     return pos;
 }
 
-export function snapToGrid(pos: { x: number; y: number }) {
-    return pos;
+export function snapToGrid(
+    pos: { delta_x: number; delta_y: number },
+    grid?: [number, number]
+) {
+    if (grid) {
+        const delta_grid_x = Math.round(pos.delta_x / grid[0]) * grid[0];
+        const delta_grid_y = Math.round(pos.delta_y / grid[1]) * grid[1];
+        return { delta_grid_x, delta_grid_y };
+    }
+    return { delta_grid_x: pos.delta_x, delta_grid_y: pos.delta_y };
 }

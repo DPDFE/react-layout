@@ -113,8 +113,11 @@ const App = () => {
                     ></div>
                 </ReactDragLayout> */}
                 <ReactDragLayout
-                    // width={width}
-                    // height={height}
+                    layout_type={LayoutType.DRAG}
+                    width={width}
+                    height={height}
+                    row_height={8}
+                    cols={10}
                     scale={scale}
                     guide_lines={guide_line}
                     mode={LayoutType.edit}

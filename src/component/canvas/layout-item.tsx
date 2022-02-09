@@ -1,6 +1,6 @@
 import { ItemPos, LayoutItemProps } from '@/interfaces';
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { calcBoundBorder } from './calc';
+import { calcBoundBorder, calcBoundStatus } from './calc';
 import Draggable from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -27,6 +27,11 @@ const LayoutItem = (props: LayoutItemProps) => {
         props['data-drag'];
 
     const [pos, setPos] = useState<ItemPos>({ x, y, h, w });
+    const [calc_pos, setCalcPosition] = useState<{
+        x: number;
+        y: number;
+    }>(pos); // 计算位置
+
     const [bound_border, setBoundBorder] = useState<
         [number, number, number, number]
     >([0, 0, 0, 0]);
@@ -102,55 +107,77 @@ const LayoutItem = (props: LayoutItemProps) => {
     });
 
     return (
-        <Resizable
-            {...pos}
-            scale={props.scale}
-            is_resizable={is_resizable && props.checked_index === i}
-            onResizeStart={() => {
-                props.onResizeStart?.();
-            }}
-            onResize={({ x, y, h, w }: ItemPos) => {
-                setPos({ x, y, w, h });
-                const item = Object.assign(props['data-drag'], { x, y, w, h });
-                props.onResize?.(item);
-            }}
-            onResizeStop={({ x, y, h, w }: ItemPos) => {
-                setPos({ x, y, w, h });
-                const item = Object.assign(props['data-drag'], { x, y, w, h });
-                props.onResizeStop?.(item);
-            }}
-        >
-            <Draggable
+        <React.Fragment>
+            {props.checked_index && !is_float && (
+                <div
+                    className={`placeholder ${styles.placeholder}`}
+                    style={{
+                        transform: `translate(${calc_pos.x}px, ${calc_pos.y}px)`,
+                        width: pos.w,
+                        height: pos.h
+                    }}
+                ></div>
+            )}
+            <Resizable
                 {...pos}
                 scale={props.scale}
-                is_draggable={is_draggable}
-                onDragStart={() => {
-                    props.onDragStart?.();
+                is_resizable={is_resizable && props.checked_index === i}
+                onResizeStart={() => {
+                    props.onResizeStart?.();
                 }}
-                onDrag={({ x, y }: { x: number; y: number }) => {
-                    setPos({ x, y, w: pos.w, h: pos.h });
-                    const item = Object.assign(props['data-drag'], { x, y });
-                    props.onDrag?.(item);
+                onResize={({ x, y, h, w }: ItemPos) => {
+                    const data = { x, y, w, h };
+                    setPos(data);
+                    const item = Object.assign(props['data-drag'], data);
+                    props.onResize?.(item);
                 }}
-                onDragStop={({ x, y }: { x: number; y: number }) => {
-                    setPos({ x, y, w: pos.w, h: pos.h });
-                    const item = Object.assign(props['data-drag'], { x, y });
-                    props.onDragStop?.(item);
-                }}
-                bound={{
-                    max_x: is_float
-                        ? undefined
-                        : props.width - w - bound_border[1],
-                    min_x: is_float ? undefined : bound_border[3],
-                    min_y: is_float ? undefined : bound_border[0],
-                    max_y: is_float
-                        ? undefined
-                        : props.height - h - bound_border[2]
+                onResizeStop={({ x, y, h, w }: ItemPos) => {
+                    const data = { x: calc_pos.x, y: calc_pos.y, w, h };
+                    setPos(data);
+                    const item = Object.assign(props['data-drag'], data);
+                    props.onResizeStop?.(item);
                 }}
             >
-                {new_child}
-            </Draggable>
-        </Resizable>
+                <Draggable
+                    {...pos}
+                    scale={props.scale}
+                    is_draggable={is_draggable}
+                    onDragStart={() => {
+                        props.onDragStart?.();
+                    }}
+                    onDrag={({ x, y }: { x: number; y: number }) => {
+                        const data = { x, y, w: pos.w, h: pos.h };
+                        setPos(data);
+                        const item = Object.assign(props['data-drag'], data);
+                        props.onDrag?.(item);
+                    }}
+                    onDragCalcPosition={({
+                        x,
+                        y
+                    }: {
+                        x: number;
+                        y: number;
+                    }) => {
+                        setCalcPosition({ x, y });
+                    }}
+                    onDragStop={({ x, y }: { x: number; y: number }) => {
+                        const data = {
+                            x: calc_pos.x,
+                            y: calc_pos.y,
+                            w: pos.w,
+                            h: pos.h
+                        };
+                        setPos(data);
+                        const item = Object.assign(props['data-drag'], data);
+                        props.onDragStop?.(item);
+                    }}
+                    grid={props.grid}
+                    bound={calcBoundStatus(props, bound_border, w, h, is_float)}
+                >
+                    {new_child}
+                </Draggable>
+            </Resizable>
+        </React.Fragment>
     );
 };
 
