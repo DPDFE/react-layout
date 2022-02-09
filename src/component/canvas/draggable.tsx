@@ -74,13 +74,17 @@ const Draggable = (props: Props) => {
 
         if (props.bound) {
             const { min_x, max_x, min_y, max_y } = props.bound;
-            if (
-                (min_x != undefined && pos.x < min_x) ||
-                (max_x != undefined && pos.x > max_x) ||
-                (min_y != undefined && pos.y < min_y) ||
-                (max_y != undefined && pos.y > max_y)
-            ) {
-                return;
+            if (min_x != undefined && pos.x < min_x) {
+                pos.x = min_x;
+            }
+            if (max_x != undefined && pos.x > max_x) {
+                pos.x = max_x;
+            }
+            if (min_y != undefined && pos.y < min_y) {
+                pos.y = min_y;
+            }
+            if (max_y != undefined && pos.y > max_y) {
+                pos.y = max_y;
             }
         }
 

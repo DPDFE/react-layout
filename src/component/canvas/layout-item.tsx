@@ -27,6 +27,14 @@ const LayoutItem = (props: LayoutItemProps) => {
         props['data-drag'];
 
     const [pos, setPos] = useState<ItemPos>({ x, y, h, w });
+    const [bound_border, setBoundBorder] = useState<
+        [number, number, number, number]
+    >([0, 0, 0, 0]);
+
+    useEffect(() => {
+        const bound_border = calcBoundBorder(props.bound);
+        setBoundBorder(bound_border);
+    }, [props.bound]);
 
     useEffect(() => {
         setPos({ x, y, h, w });
@@ -92,10 +100,6 @@ const LayoutItem = (props: LayoutItemProps) => {
             ...child.props.style
         }
     });
-
-    const bound_border = calcBoundBorder(props.bound);
-
-    console.log('render', props['data-drag']);
 
     return (
         <Resizable
