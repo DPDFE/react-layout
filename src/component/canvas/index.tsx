@@ -1,4 +1,10 @@
-import { CanvasProps, DragItem, LayoutType } from '@/interfaces';
+import {
+    CanvasProps,
+    DragItem,
+    EditLayoutProps,
+    GridLayoutProps,
+    LayoutType
+} from '@/interfaces';
 import React, { memo, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.css';
 import LayoutItem from './layout-item';
@@ -31,7 +37,7 @@ const Canvas = (props: CanvasProps) => {
         const { left, top } = current?.getBoundingClientRect();
         const x = (e.clientX + current.scrollLeft - left) / props.scale;
         const y = (e.clientY + current.scrollTop - top) / props.scale;
-        const item = props.onDrop?.({ x, y });
+        const item = (props as EditLayoutProps).onDrop?.({ x, y });
         setCurrentChecked(item?.i);
         pushPosStep(getCurrentLayoutByItem(item));
     };
@@ -62,7 +68,7 @@ const Canvas = (props: CanvasProps) => {
             setCurrentChecked(undefined);
 
             const copy_layout = copyObjectArray(operator_stack[idx]);
-            props.onPositionChange?.(copy_layout);
+            (props as EditLayoutProps).onPositionChange?.(copy_layout);
 
             setOperatorStackPointer(idx);
 
@@ -140,38 +146,44 @@ const Canvas = (props: CanvasProps) => {
                         key={child.props['data-drag'].i}
                         {...child.props}
                         children={child}
-                        bound={props.margin}
+                        bound={(props as GridLayoutProps).container_margin}
                         width={props.width}
                         height={props.height}
                         scale={props.scale}
                         checked_index={checked_index}
                         setCurrentChecked={setCurrentChecked}
                         onDragStart={() => {
-                            props.onDragStart?.();
+                            (props as EditLayoutProps).onDragStart?.();
                         }}
                         onDrag={(item) => {
-                            props.onDrag?.(getCurrentLayoutByItem(item));
+                            (props as EditLayoutProps).onDrag?.(
+                                getCurrentLayoutByItem(item)
+                            );
                         }}
                         onDragStop={(item) => {
                             const _layout = getCurrentLayoutByItem(item);
                             pushPosStep(_layout);
-                            props.onDragStop?.(_layout);
+                            (props as EditLayoutProps).onDragStop?.(_layout);
                         }}
                         onResizeStart={() => {
-                            props.onResizeStart?.();
+                            (props as EditLayoutProps).onResizeStart?.();
                         }}
                         onResize={(item) => {
-                            props.onResize?.(getCurrentLayoutByItem(item));
+                            (props as EditLayoutProps).onResize?.(
+                                getCurrentLayoutByItem(item)
+                            );
                         }}
                         onResizeStop={(item) => {
                             const _layout = getCurrentLayoutByItem(item);
                             pushPosStep(_layout);
-                            props.onResizeStop?.(_layout);
+                            (props as EditLayoutProps).onResizeStop?.(_layout);
                         }}
                         onPositionChange={(item) => {
                             const _layout = getCurrentLayoutByItem(item);
                             pushPosStep(_layout);
-                            props.onPositionChange?.(_layout);
+                            (props as EditLayoutProps).onPositionChange?.(
+                                _layout
+                            );
                         }}
                     ></LayoutItem>
                 );

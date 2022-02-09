@@ -30,3 +30,34 @@ export function calcBoundBorder(
     }
     return [0, 0, 0, 0];
 }
+
+export function calcBoundPositions(
+    pos: { x: number; y: number },
+    bound?: Partial<{
+        min_x: number;
+        max_x: number;
+        min_y: number;
+        max_y: number;
+    }>
+) {
+    if (bound) {
+        const { min_x, max_x, min_y, max_y } = bound;
+        if (min_x != undefined && pos.x < min_x) {
+            pos.x = min_x;
+        }
+        if (max_x != undefined && pos.x > max_x) {
+            pos.x = max_x;
+        }
+        if (min_y != undefined && pos.y < min_y) {
+            pos.y = min_y;
+        }
+        if (max_y != undefined && pos.y > max_y) {
+            pos.y = max_y;
+        }
+    }
+    return pos;
+}
+
+export function snapToGrid(pos: { x: number; y: number }) {
+    return pos;
+}

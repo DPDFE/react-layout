@@ -17,33 +17,26 @@ export enum DirectionType {
     vertical = 'vertical'
 }
 
-export interface RulerPointer {
+export type RulerPointer = {
     x: number;
     y: number;
     direction: DirectionType;
-}
+};
 
-export interface CursorPointer {
+export type CursorPointer = {
     x: number;
     y: number;
     cursor: CursorType;
-}
+};
 
-export interface ItemPos {
+export type ItemPos = {
     x: number;
     y: number;
     h: number;
     w: number;
-}
+};
 
-/** 画板props */
-export interface ReactDragLayoutProps {
-    scale: number;
-    width?: number;
-    height?: number;
-    mode: LayoutType;
-    margin?: [number, number?, number?, number?];
-    guide_lines?: RulerPointer[];
+type EditLayoutBase = {
     onDrop?: ({ x, y }: { x: number; y: number }) => DragItem;
     onRemove?: (i: string) => void;
     onDragStart?: () => void;
@@ -53,28 +46,80 @@ export interface ReactDragLayoutProps {
     onResize?: (layout: DragItem[]) => void;
     onResizeStop?: (layout: DragItem[]) => void;
     onPositionChange?: (layout: DragItem[]) => void;
+};
+
+type GuideLine = {
+    guide_lines?: RulerPointer[];
     addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
     removeGuideLine?: ({ x, y, direction }: RulerPointer) => void;
+};
+
+export type DragLayout = {
+    scale: number;
+    width: number;
+    height: number;
+    mode: LayoutType.view;
     children: ReactElement[];
-}
+};
+
+export type DragEditLayout = EditLayoutBase &
+    GuideLine & {
+        scale: number;
+        width: number;
+        height: number;
+        mode: LayoutType.edit;
+        children: ReactElement[];
+    };
+
+export type DragLayoutProps = DragLayout | DragEditLayout;
+
+export type GridLayout = {
+    scale: number;
+    mode: LayoutType.view;
+    cols: number;
+    container_margin?: [number, number?, number?, number?];
+    children: ReactElement[];
+};
+
+export type GridEditLayout = EditLayoutBase &
+    GuideLine & {
+        scale: number;
+        mode: LayoutType.edit;
+        cols: number;
+        container_margin?: [number, number?, number?, number?];
+        children: ReactElement[];
+    };
+
+export type GridLayoutProps = GridLayout | GridEditLayout;
+
+export type EditLayoutProps = DragEditLayout | GridEditLayout;
+
+/** 画板props */
+export type ReactDragLayoutProps =
+    | DragLayout
+    | GridLayout
+    | DragEditLayout
+    | GridEditLayout;
 
 /** 水平标尺props */
-export interface HorizontalRulerProps extends ReactDragLayoutProps {
+export type HorizontalRulerProps = ReactDragLayoutProps & {
+    width: number;
     wrapper_width: number;
     l_offset: number;
     setRulerHoverPos: ({ x, y, direction }?: RulerPointer) => void;
     addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
     canvas_viewport: RefObject<HTMLDivElement>;
-}
+};
 
 /** 垂直标尺props */
-export interface VerticalRulerProps extends ReactDragLayoutProps {
+export type VerticalRulerProps = ReactDragLayoutProps & {
+    height: number;
     wrapper_height: number;
     t_offset: number;
     setRulerHoverPos: ({ x, y, direction }?: RulerPointer) => void;
     addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
     canvas_viewport: RefObject<HTMLDivElement>;
-}
+};
 
 /** 辅助线 */
 export interface GuideLineProps {
@@ -88,7 +133,7 @@ export interface GuideLineProps {
 }
 
 /** 画布props */
-export interface CanvasProps extends ReactDragLayoutProps {
+export type CanvasProps = ReactDragLayoutProps & {
     width: number;
     height: number;
     t_offset: number;
@@ -96,7 +141,7 @@ export interface CanvasProps extends ReactDragLayoutProps {
     fresh_count: number;
     setFreshCount: (count: number) => void;
     canvas_wrapper: RefObject<HTMLDivElement>;
-}
+};
 
 /** 单节点属性 */
 export interface DragItem extends ItemPos {

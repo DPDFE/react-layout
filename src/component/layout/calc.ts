@@ -1,4 +1,8 @@
-import { LayoutType, ReactDragLayoutProps } from '@/interfaces';
+import {
+    DragLayoutProps,
+    LayoutType,
+    ReactDragLayoutProps
+} from '@/interfaces';
 import { ReactElement, RefObject } from 'react';
 
 export const RULER_GAP = 100; // 标尺间隔大小
@@ -28,7 +32,7 @@ export const calcCurrentWH = (
     current_width: number;
     current_height: number;
 } => {
-    const { width, height, mode } = props;
+    const { width, height, mode } = props as DragLayoutProps;
 
     const offset_width = mode === LayoutType.edit ? TOP_RULER_LEFT_MARGIN : 0;
 
@@ -85,7 +89,10 @@ export const getMaxWidgetsRange = (
         : 0;
 
     // 如果没有宽高就是自适应模式
-    if (props.width === undefined || props.height === undefined) {
+    if (
+        (props as DragLayoutProps).width === undefined ||
+        (props as DragLayoutProps).height === undefined
+    ) {
         return {
             wrapper_calc_width: current_width,
             wrapper_calc_height: max_bottom,

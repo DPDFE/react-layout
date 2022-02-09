@@ -4,7 +4,12 @@ import HorizontalRuler from '../horizontal-ruler';
 import Canvas from '../canvas';
 import { getMaxWidgetsRange } from './calc';
 import styles from './styles.module.css';
-import { LayoutType, ReactDragLayoutProps, RulerPointer } from '@/interfaces';
+import {
+    DragLayoutProps,
+    LayoutType,
+    ReactDragLayoutProps,
+    RulerPointer
+} from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import GuideLine from '../guide-line';
 
@@ -53,7 +58,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         return () => {
             removeEvent(window, 'resize', changeCanvasAttrs);
         };
-    }, [props.height, props.width, props.scale, fresh_count]);
+    }, [
+        (props as DragLayoutProps).height,
+        (props as DragLayoutProps).width,
+        props.scale,
+        fresh_count
+    ]);
 
     return (
         <div
@@ -117,7 +127,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
             {props.mode === LayoutType.edit && canvas_viewport.current && (
                 <GuideLine
-                    scale={props.scale}
+                    scale={(props as DragLayoutProps).scale}
                     t_offset={t_offset}
                     l_offset={l_offset}
                     guide_lines={props.guide_lines}
@@ -132,7 +142,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
 ReactDragLayout.defaultProps = {
     scale: 1,
-    margin: [10],
+    container_margin: [10],
     mode: LayoutType.view
 };
 

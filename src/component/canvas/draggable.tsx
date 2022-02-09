@@ -1,6 +1,7 @@
 import { DraggableProps } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
+import { calcBoundPositions, snapToGrid } from './calc';
 
 interface Pos {
     x: number;
@@ -67,26 +68,15 @@ const Draggable = (props: Props) => {
         const delta_x = x - mouse_pos.x;
         const delta_y = y - mouse_pos.y;
 
-        const pos = {
-            x: start_pos.x + delta_x,
-            y: start_pos.y + delta_y
-        };
-
-        if (props.bound) {
-            const { min_x, max_x, min_y, max_y } = props.bound;
-            if (min_x != undefined && pos.x < min_x) {
-                pos.x = min_x;
-            }
-            if (max_x != undefined && pos.x > max_x) {
-                pos.x = max_x;
-            }
-            if (min_y != undefined && pos.y < min_y) {
-                pos.y = min_y;
-            }
-            if (max_y != undefined && pos.y > max_y) {
-                pos.y = max_y;
-            }
-        }
+        const pos = snapToGrid(
+            calcBoundPositions(
+                {
+                    x: start_pos.x + delta_x,
+                    y: start_pos.y + delta_y
+                },
+                props.bound
+            )
+        );
 
         props.onDrag?.(pos);
     };
