@@ -141,12 +141,14 @@ const LayoutItem = (props: LayoutItemProps) => {
                     bound={
                         props.layout_type === LayoutType.DRAG && is_float
                             ? undefined
-                            : {
+                            : props.bound
+                            ? {
                                   max_x: props.bound.max_x - w,
                                   min_x: props.bound.min_x,
                                   min_y: props.bound.min_y,
                                   max_y: props.bound.max_y - h
                               }
+                            : undefined
                     }
                     onDrag={({ x, y }) => {
                         setPos({ x, y, w: pos.w, h: pos.h });

@@ -34,8 +34,10 @@ const Canvas = (props: CanvasProps) => {
     );
 
     useEffect(() => {
-        const grid_bound = calcBoundRange(props);
-        setGridBound(grid_bound);
+        if (props.width && props.height) {
+            const grid_bound = calcBoundRange(props);
+            setGridBound(grid_bound);
+        }
     }, [
         (props as GridLayoutProps).container_margin,
         props.width,
@@ -134,31 +136,31 @@ const Canvas = (props: CanvasProps) => {
         const layout = props.children.map((child) => {
             const { i, x, y, w, h, is_float } = child.props['data-drag'];
 
-            if (child.props['data-drag'].i === item_idx) {
-                const shadow_pos = snapToGrid({ x: item!.x, y: item!.y }, grid);
+            const getXY = (x: number, y: number) => {
+                const shadow_pos = snapToGrid({ x, y }, grid);
                 const bound_pos = calcBoundPositions(shadow_pos, grid_bound);
-                widgets_mapping.set(i, {
+                const widget = {
                     ...bound_pos,
                     w,
                     h,
                     is_float
-                });
+                };
+                widgets_mapping.set(i, widget);
+                return bound_pos;
+            };
+
+            if (i === item_idx) {
+                const final_pos = getXY(item!.x, item!.y);
                 return Object.assign(
                     child.props['data-drag'],
                     item,
-                    is_save ? bound_pos : {}
+                    is_save ? final_pos : {}
                 );
             } else {
-                widgets_mapping.set(i, {
-                    ...snapToGrid({ x, y }, grid),
-                    w,
-                    h,
-                    is_float
-                });
+                getXY(x, y);
                 return child.props['data-drag'];
             }
         });
-
         setShadowWidgets(widgets_mapping);
         return layout;
     };
@@ -171,12 +173,14 @@ const Canvas = (props: CanvasProps) => {
     }, [props.children.length]);
 
     useEffect(() => {
-        const grid = (props as GridLayoutProps).cols
-            ? ([
-                  props.width / (props as GridLayoutProps).cols,
-                  (props as GridLayoutProps).row_height
-              ] as [number, number])
-            : undefined;
+        const grid =
+            (props as GridLayoutProps).cols && props.width
+                ? ([
+                      props.width / (props as GridLayoutProps).cols,
+                      (props as GridLayoutProps).row_height
+                  ] as [number, number])
+                : undefined;
+
         setGrid(grid);
     }, [
         (props as GridLayoutProps).cols,
