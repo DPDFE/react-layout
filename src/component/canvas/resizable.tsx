@@ -2,6 +2,7 @@ import { CursorPointer, CursorType, ResizableProps } from '@/interfaces';
 import React, { memo } from 'react';
 import styles from './styles.module.css';
 import Cursor from './cursor';
+import { calcBoundPositions } from './calc';
 
 const Resizable = (props: ResizableProps) => {
     const child = React.Children.only(props.children);
@@ -14,35 +15,52 @@ const Resizable = (props: ResizableProps) => {
     };
 
     const calcPositionByCursor = ({ x, y, cursor }: CursorPointer) => {
+        let pos;
         switch (cursor) {
             case CursorType.nw:
-                return {
-                    x: x,
-                    y: y,
-                    w: props.x - x + props.w,
-                    h: props.y - y + props.h
-                };
+                pos = calcBoundPositions(
+                    {
+                        x,
+                        y,
+                        w: props.x - x + props.w,
+                        h: props.y - y + props.h
+                    },
+                    props.bound
+                );
+                return pos;
             case CursorType.ne:
-                return {
-                    x: props.x,
-                    y: y,
-                    w: x - props.x,
-                    h: props.y - y + props.h
-                };
+                pos = calcBoundPositions(
+                    {
+                        x: props.x,
+                        y: y,
+                        w: x - props.x,
+                        h: props.y - y + props.h
+                    },
+                    props.bound
+                );
+                return pos;
             case CursorType.sw:
-                return {
-                    x: x,
-                    y: props.y,
-                    w: props.x - x + props.w,
-                    h: y - props.y
-                };
+                pos = calcBoundPositions(
+                    {
+                        x: x,
+                        y: props.y,
+                        w: props.x - x + props.w,
+                        h: y - props.y
+                    },
+                    props.bound
+                );
+                return pos;
             case CursorType.se:
-                return {
-                    x: props.x,
-                    y: props.y,
-                    w: x - props.x,
-                    h: y - props.y
-                };
+                pos = calcBoundPositions(
+                    {
+                        x: props.x,
+                        y: props.y,
+                        w: x - props.x,
+                        h: y - props.y
+                    },
+                    props.bound
+                );
+                return pos;
         }
     };
 

@@ -33,7 +33,37 @@ export function calcBoundBorder(
     return [0, 0, 0, 0];
 }
 
-export function calcBoundStatus(
+export function calcResizableBoundRange(
+    props: LayoutItemProps,
+    is_float?: boolean
+): Partial<{
+    min_x: number;
+    max_x: number;
+    min_y: number;
+    max_y: number;
+}> {
+    const { layout_type, width, height, bound } = props;
+
+    const bound_border = calcBoundBorder(bound);
+
+    if (layout_type === LayoutType.DRAG && is_float) {
+        return {
+            max_x: undefined,
+            min_x: undefined,
+            min_y: undefined,
+            max_y: undefined
+        };
+    }
+
+    return {
+        max_x: width - bound_border[1],
+        min_x: bound_border[3],
+        min_y: bound_border[0],
+        max_y: height - bound_border[2]
+    };
+}
+
+export function calcDraggableBoundRange(
     props: LayoutItemProps,
     w: number,
     h: number,
@@ -66,7 +96,7 @@ export function calcBoundStatus(
 }
 
 export function calcBoundPositions(
-    pos: { x: number; y: number },
+    pos: { x: number; y: number; w?: number; h?: number },
     bound?: Partial<{
         min_x: number;
         max_x: number;
@@ -87,6 +117,22 @@ export function calcBoundPositions(
         }
         if (max_y != undefined && pos.y > max_y) {
             pos.y = max_y;
+        }
+        if (
+            max_x != undefined &&
+            min_x != undefined &&
+            pos.w &&
+            pos.w > max_x - min_x
+        ) {
+            pos.w = max_x - min_x;
+        }
+        if (
+            max_y != undefined &&
+            min_y != undefined &&
+            pos.h &&
+            pos.h > max_y - min_y
+        ) {
+            pos.h = max_y - min_y;
         }
     }
     return pos;

@@ -1,9 +1,9 @@
 import { ItemPos, LayoutItemProps } from '@/interfaces';
 import React, { memo, useEffect, useRef, useState } from 'react';
 import {
-    calcBoundBorder,
     calcBoundPositions,
-    calcBoundStatus,
+    calcDraggableBoundRange,
+    calcResizableBoundRange,
     snapToGrid
 } from './calc';
 import Draggable from './draggable';
@@ -38,7 +38,7 @@ const LayoutItem = (props: LayoutItemProps) => {
         y: number;
     }>({ x: x, y: y }); // 计算位置
 
-    const [bound_border, setBoundBorder] = useState<
+    const [grid_bound_border, setGridBoundBorder] = useState<
         Partial<{
             min_x: number;
             max_x: number;
@@ -53,7 +53,8 @@ const LayoutItem = (props: LayoutItemProps) => {
     });
 
     useEffect(() => {
-        setBoundBorder(calcBoundStatus(props, w, h, is_float));
+        const draggable_bound = calcDraggableBoundRange(props, w, h, is_float);
+        setGridBoundBorder(draggable_bound);
     }, [
         props.bound,
         props.width,
@@ -129,6 +130,18 @@ const LayoutItem = (props: LayoutItemProps) => {
         }
     });
 
+    function gridCalcPosition(x: number, y: number) {
+        if (!is_float) {
+            const _pos = calcBoundPositions(
+                snapToGrid({ x, y }, props.grid),
+                grid_bound_border
+            );
+            setCalcPosition(_pos);
+        } else {
+            setCalcPosition({ x, y });
+        }
+    }
+
     return (
         <React.Fragment>
             {props.checked_index === i && !is_float && (
@@ -153,12 +166,9 @@ const LayoutItem = (props: LayoutItemProps) => {
                     setPos(data);
                     const item = Object.assign(props['data-drag'], data);
                     props.onResize?.(item);
-                    const _pos = calcBoundPositions(
-                        snapToGrid({ x, y }, props.grid),
-                        bound_border
-                    );
-                    setCalcPosition(_pos);
+                    gridCalcPosition(x, y);
                 }}
+                bound={calcResizableBoundRange(props, is_float)}
                 onResizeStop={({ x, y, h, w }: ItemPos) => {
                     const data = { x: calc_pos.x, y: calc_pos.y, w, h };
                     setPos(data);
@@ -173,19 +183,15 @@ const LayoutItem = (props: LayoutItemProps) => {
                     onDragStart={() => {
                         props.onDragStart?.();
                     }}
-                    bound={bound_border}
+                    bound={grid_bound_border}
                     onDrag={({ x, y }: { x: number; y: number }) => {
                         const data = { x, y, w: pos.w, h: pos.h };
                         setPos(data);
                         const item = Object.assign(props['data-drag'], data);
                         props.onDrag?.(item);
-                        const _pos = calcBoundPositions(
-                            snapToGrid({ x, y }, props.grid),
-                            bound_border
-                        );
-                        setCalcPosition(_pos);
+                        gridCalcPosition(x, y);
                     }}
-                    onDragStop={({ x, y }: { x: number; y: number }) => {
+                    onDragStop={() => {
                         const data = {
                             x: calc_pos.x,
                             y: calc_pos.y,

@@ -212,6 +212,12 @@ export interface CursorProps extends DraggableProps {
 /** resize */
 export interface ResizableProps extends EventBaseProps, ItemPos {
     scale: number;
+    bound?: Partial<{
+        min_x: number;
+        max_x: number;
+        min_y: number;
+        max_y: number;
+    }>;
     is_resizable?: boolean;
     onResizeStart?: () => void;
     onResize?: ({ x, y, h, w }: ItemPos) => void;
