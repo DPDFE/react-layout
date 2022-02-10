@@ -106,8 +106,8 @@ export function snapToGrid(
     grid?: [number, number]
 ) {
     if (grid) {
-        const x = grid[0] ? Math.round(pos.x / grid[0]) * grid[0] : pos.x;
-        const y = grid[1] ? Math.round(pos.y / grid[1]) * grid[1] : pos.y;
+        const x = Math.round(pos.x / grid[0]) * grid[0];
+        const y = Math.round(pos.y / grid[1]) * grid[1];
         return { x, y };
     }
     return { x: pos.x, y: pos.y };

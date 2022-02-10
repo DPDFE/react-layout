@@ -34,6 +34,24 @@ const Canvas = (props: CanvasProps) => {
     );
 
     useEffect(() => {
+        const grid =
+            (props as GridLayoutProps).cols &&
+            props.width &&
+            (props as GridLayoutProps).row_height
+                ? ([
+                      props.width / (props as GridLayoutProps).cols,
+                      (props as GridLayoutProps).row_height
+                  ] as [number, number])
+                : undefined;
+
+        setGrid(grid);
+    }, [
+        (props as GridLayoutProps).cols,
+        props.width,
+        (props as GridLayoutProps).row_height
+    ]);
+
+    useEffect(() => {
         if (props.width && props.height) {
             const grid_bound = calcBoundRange(props);
             setGridBound(grid_bound);
@@ -171,22 +189,6 @@ const Canvas = (props: CanvasProps) => {
             pushPosStep(init_layout, true);
         }
     }, [props.children.length]);
-
-    useEffect(() => {
-        const grid =
-            (props as GridLayoutProps).cols && props.width
-                ? ([
-                      props.width / (props as GridLayoutProps).cols,
-                      (props as GridLayoutProps).row_height
-                  ] as [number, number])
-                : undefined;
-
-        setGrid(grid);
-    }, [
-        (props as GridLayoutProps).cols,
-        props.width,
-        (props as GridLayoutProps).row_height
-    ]);
 
     return (
         <div
