@@ -1,4 +1,4 @@
-import { LayoutItemProps, LayoutType } from '@/interfaces';
+import { CanvasProps, GridLayoutProps } from '@/interfaces';
 
 export function calcBoundBorder(
     bound?: [number, number?, number?, number?]
@@ -33,65 +33,18 @@ export function calcBoundBorder(
     return [0, 0, 0, 0];
 }
 
-export function calcResizableBoundRange(
-    props: LayoutItemProps,
-    is_float?: boolean
-): Partial<{
-    min_x: number;
-    max_x: number;
-    min_y: number;
-    max_y: number;
-}> {
-    const { layout_type, width, height, bound } = props;
+export function calcBoundRange(props: CanvasProps) {
+    const { width, height } = props;
 
-    const bound_border = calcBoundBorder(bound);
-
-    if (layout_type === LayoutType.DRAG && is_float) {
-        return {
-            max_x: undefined,
-            min_x: undefined,
-            min_y: undefined,
-            max_y: undefined
-        };
-    }
+    const bound_border = calcBoundBorder(
+        (props as GridLayoutProps).container_margin
+    );
 
     return {
         max_x: width - bound_border[1],
         min_x: bound_border[3],
         min_y: bound_border[0],
         max_y: height - bound_border[2]
-    };
-}
-
-export function calcDraggableBoundRange(
-    props: LayoutItemProps,
-    w: number,
-    h: number,
-    is_float?: boolean
-): Partial<{
-    min_x: number;
-    max_x: number;
-    min_y: number;
-    max_y: number;
-}> {
-    const { layout_type, width, height, bound } = props;
-
-    const bound_border = calcBoundBorder(bound);
-
-    if (layout_type === LayoutType.DRAG && is_float) {
-        return {
-            max_x: undefined,
-            min_x: undefined,
-            min_y: undefined,
-            max_y: undefined
-        };
-    }
-
-    return {
-        max_x: width - w - bound_border[1],
-        min_x: bound_border[3],
-        min_y: bound_border[0],
-        max_y: height - h - bound_border[2]
     };
 }
 

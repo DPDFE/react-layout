@@ -172,7 +172,7 @@ export interface LayoutItemProps extends EventBaseProps {
     height: number;
     scale: number;
     grid?: [number, number];
-    bound?: [number, number?, number?, number?];
+    bound: BoundType;
     shadow_pos: { x: number; y: number };
     layout_type: LayoutType.DRAG | LayoutType.GRID;
     mode: LayoutType.edit | LayoutType.view;
@@ -188,17 +188,19 @@ export interface LayoutItemProps extends EventBaseProps {
     onPositionChange?: (item: ItemPos) => void;
 }
 
+export type BoundType = {
+    min_x: number;
+    max_x: number;
+    min_y: number;
+    max_y: number;
+};
+
 /** drag */
 export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
     x: number;
     y: number;
     scale: number;
-    bound?: Partial<{
-        min_x: number;
-        max_x: number;
-        min_y: number;
-        max_y: number;
-    }>;
+    bound?: Partial<BoundType>;
     is_draggable?: boolean;
     onDragStart?: () => void;
     onDrag?: ({ x, y }: { x: number; y: number }) => void;
@@ -214,12 +216,7 @@ export interface CursorProps extends DraggableProps {
 /** resize */
 export interface ResizableProps extends EventBaseProps, ItemPos {
     scale: number;
-    bound?: Partial<{
-        min_x: number;
-        max_x: number;
-        min_y: number;
-        max_y: number;
-    }>;
+    bound?: Partial<BoundType>;
     is_resizable?: boolean;
     onResizeStart?: () => void;
     onResize?: ({ x, y, h, w }: ItemPos) => void;

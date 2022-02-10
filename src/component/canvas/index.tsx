@@ -1,4 +1,5 @@
 import {
+    BoundType,
     CanvasProps,
     DragItem,
     EditLayoutProps,
@@ -11,7 +12,7 @@ import styles from './styles.module.css';
 import LayoutItem from './layout-item';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import { copyObjectArray, diffObject } from '@/utils/utils';
-import { snapToGrid } from './calc';
+import { calcBoundPositions, calcBoundRange, snapToGrid } from './calc';
 
 /** 画布 */
 const Canvas = (props: CanvasProps) => {
@@ -27,6 +28,19 @@ const Canvas = (props: CanvasProps) => {
     const [shadow_widgets, setShadowWidgets] = useState<
         Map<string, ItemPos & { is_float?: boolean }>
     >(new Map());
+
+    const [grid_bound, setGridBound] = useState<BoundType | undefined>(
+        undefined
+    );
+
+    useEffect(() => {
+        const grid_bound = calcBoundRange(props);
+        setGridBound(grid_bound);
+    }, [
+        (props as GridLayoutProps).container_margin,
+        props.width,
+        props.height
+    ]);
 
     /** 清空选中 */
     const clearChecked = (e: MouseEvent) => {
@@ -115,7 +129,6 @@ const Canvas = (props: CanvasProps) => {
         item?: ItemPos,
         is_save?: boolean
     ) => {
-        console.log('getCurrentLayoutByItem');
         const widgets_mapping = new Map();
 
         const layout = props.children.map((child) => {
@@ -123,8 +136,9 @@ const Canvas = (props: CanvasProps) => {
 
             if (child.props['data-drag'].i === item_idx) {
                 const shadow_pos = snapToGrid({ x: item!.x, y: item!.y }, grid);
+                const bound_pos = calcBoundPositions(shadow_pos, grid_bound);
                 widgets_mapping.set(i, {
-                    ...shadow_pos,
+                    ...bound_pos,
                     w,
                     h,
                     is_float
@@ -132,7 +146,7 @@ const Canvas = (props: CanvasProps) => {
                 return Object.assign(
                     child.props['data-drag'],
                     item,
-                    is_save ? shadow_pos : {}
+                    is_save ? bound_pos : {}
                 );
             } else {
                 widgets_mapping.set(i, {
@@ -205,7 +219,7 @@ const Canvas = (props: CanvasProps) => {
                             child.props['data-drag'].i
                         )}
                         children={child}
-                        bound={(props as GridLayoutProps).container_margin}
+                        bound={grid_bound}
                         width={props.width}
                         height={props.height}
                         scale={props.scale}

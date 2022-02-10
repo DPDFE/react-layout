@@ -1,6 +1,5 @@
-import { ItemPos, LayoutItemProps } from '@/interfaces';
+import { ItemPos, LayoutItemProps, LayoutType } from '@/interfaces';
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { calcDraggableBoundRange, calcResizableBoundRange } from './calc';
 import Draggable from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -28,32 +27,12 @@ const LayoutItem = (props: LayoutItemProps) => {
 
     const [pos, setPos] = useState<ItemPos>({ x, y, h, w });
 
-    const [grid_bound_border, setGridBoundBorder] = useState<
-        Partial<{
-            min_x: number;
-            max_x: number;
-            min_y: number;
-            max_y: number;
-        }>
-    >({
+    const default_bound = {
         max_x: undefined,
         min_x: undefined,
         min_y: undefined,
         max_y: undefined
-    });
-
-    useEffect(() => {
-        const draggable_bound = calcDraggableBoundRange(props, w, h, is_float);
-        setGridBoundBorder(draggable_bound);
-    }, [
-        props.bound,
-        props.width,
-        props.height,
-        props.layout_type,
-        is_float,
-        w,
-        h
-    ]);
+    };
 
     useEffect(() => {
         setPos({ x, y, h, w });
@@ -142,7 +121,11 @@ const LayoutItem = (props: LayoutItemProps) => {
                     setPos({ x, y, w, h });
                     props.onResize?.({ x, y, w, h });
                 }}
-                bound={calcResizableBoundRange(props, is_float)}
+                bound={
+                    props.layout_type === LayoutType.DRAG && is_float
+                        ? default_bound
+                        : props.bound
+                }
                 onResizeStop={({ x, y, h, w }) => {
                     setPos({ x, y, h, w });
                     props.onResizeStop?.({ x, y, h, w });
@@ -155,7 +138,16 @@ const LayoutItem = (props: LayoutItemProps) => {
                     onDragStart={() => {
                         props.onDragStart?.();
                     }}
-                    bound={grid_bound_border}
+                    bound={
+                        props.layout_type === LayoutType.DRAG && is_float
+                            ? undefined
+                            : {
+                                  max_x: props.bound.max_x - w,
+                                  min_x: props.bound.min_x,
+                                  min_y: props.bound.min_y,
+                                  max_y: props.bound.max_y - h
+                              }
+                    }
                     onDrag={({ x, y }) => {
                         setPos({ x, y, w: pos.w, h: pos.h });
                         props.onDrag?.({ x, y, w: pos.w, h: pos.h });
