@@ -173,17 +173,19 @@ export interface LayoutItemProps extends EventBaseProps {
     scale: number;
     grid?: [number, number];
     bound?: [number, number?, number?, number?];
+    shadow_pos: { x: number; y: number };
     layout_type: LayoutType.DRAG | LayoutType.GRID;
+    mode: LayoutType.edit | LayoutType.view;
     ['data-drag']: DragItem;
     checked_index?: string;
     setCurrentChecked: (idx: string) => void;
     onDragStart?: () => void;
-    onDrag?: (item: DragItem) => void;
-    onDragStop?: (item: DragItem) => void;
+    onDrag?: (item: ItemPos) => void;
+    onDragStop?: (item: ItemPos) => void;
     onResizeStart?: () => void;
-    onResize?: (item: DragItem) => void;
-    onResizeStop?: (item: DragItem) => void;
-    onPositionChange?: (item: DragItem) => void;
+    onResize?: (item: ItemPos) => void;
+    onResizeStop?: (item: ItemPos) => void;
+    onPositionChange?: (item: ItemPos) => void;
 }
 
 /** drag */

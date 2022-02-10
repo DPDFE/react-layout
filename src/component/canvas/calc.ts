@@ -95,15 +95,25 @@ export function calcDraggableBoundRange(
     };
 }
 
-export function calcBoundPositions(
-    pos: { x: number; y: number; w?: number; h?: number },
+interface Position {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+}
+
+// != undefined 处理一下 有0也是false的情况
+export function calcBoundPositions<
+    T extends Position | { x: number; y: number }
+>(
+    pos: T,
     bound?: Partial<{
         min_x: number;
         max_x: number;
         min_y: number;
         max_y: number;
     }>
-) {
+): T {
     if (bound) {
         const { min_x, max_x, min_y, max_y } = bound;
         if (min_x != undefined && pos.x < min_x) {
@@ -121,18 +131,18 @@ export function calcBoundPositions(
         if (
             max_x != undefined &&
             min_x != undefined &&
-            pos.w &&
-            pos.w > max_x - min_x
+            (pos as Position).w != undefined &&
+            (pos as Position).w > max_x - pos.x
         ) {
-            pos.w = max_x - min_x;
+            (pos as Position).w = max_x - pos.x;
         }
         if (
             max_y != undefined &&
             min_y != undefined &&
-            pos.h &&
-            pos.h > max_y - min_y
+            (pos as Position).h != undefined &&
+            (pos as Position).h > max_y - pos.y
         ) {
-            pos.h = max_y - min_y;
+            (pos as Position).h = max_y - pos.y;
         }
     }
     return pos;

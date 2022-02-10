@@ -1,11 +1,6 @@
 import { ItemPos, LayoutItemProps } from '@/interfaces';
 import React, { memo, useEffect, useRef, useState } from 'react';
-import {
-    calcBoundPositions,
-    calcDraggableBoundRange,
-    calcResizableBoundRange,
-    snapToGrid
-} from './calc';
+import { calcDraggableBoundRange, calcResizableBoundRange } from './calc';
 import Draggable from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -32,11 +27,6 @@ const LayoutItem = (props: LayoutItemProps) => {
         props['data-drag'];
 
     const [pos, setPos] = useState<ItemPos>({ x, y, h, w });
-
-    const [calc_pos, setCalcPosition] = useState<{
-        x: number;
-        y: number;
-    }>({ x: x, y: y }); // 计算位置
 
     const [grid_bound_border, setGridBoundBorder] = useState<
         Partial<{
@@ -108,11 +98,10 @@ const LayoutItem = (props: LayoutItemProps) => {
             props.setCurrentChecked(i);
         },
         onKeyDown: (e: React.KeyboardEvent) => {
-            const _pos = handleKeyDown(e);
-            if (_pos) {
-                setPos(_pos);
-                const item = Object.assign(child.props['data-drag'], _pos);
-                props.onPositionChange?.(item);
+            const keydown_pos = handleKeyDown(e);
+            if (keydown_pos) {
+                setPos(keydown_pos);
+                props.onPositionChange?.(keydown_pos);
             }
         },
         ref: item_ref,
@@ -130,25 +119,13 @@ const LayoutItem = (props: LayoutItemProps) => {
         }
     });
 
-    function gridCalcPosition(x: number, y: number) {
-        if (!is_float) {
-            const _pos = calcBoundPositions(
-                snapToGrid({ x, y }, props.grid),
-                grid_bound_border
-            );
-            setCalcPosition(_pos);
-        } else {
-            setCalcPosition({ x, y });
-        }
-    }
-
     return (
         <React.Fragment>
-            {props.checked_index === i && !is_float && (
+            {props.checked_index === i && props.shadow_pos && (
                 <div
                     className={`placeholder ${styles.placeholder}`}
                     style={{
-                        transform: `translate(${calc_pos.x}px, ${calc_pos.y}px)`,
+                        transform: `translate(${props.shadow_pos.x}px, ${props.shadow_pos.y}px)`,
                         width: pos.w,
                         height: pos.h
                     }}
@@ -161,19 +138,14 @@ const LayoutItem = (props: LayoutItemProps) => {
                 onResizeStart={() => {
                     props.onResizeStart?.();
                 }}
-                onResize={({ x, y, h, w }: ItemPos) => {
-                    const data = { x, y, w, h };
-                    setPos(data);
-                    const item = Object.assign(props['data-drag'], data);
-                    props.onResize?.(item);
-                    gridCalcPosition(x, y);
+                onResize={({ x, y, h, w }) => {
+                    setPos({ x, y, w, h });
+                    props.onResize?.({ x, y, w, h });
                 }}
                 bound={calcResizableBoundRange(props, is_float)}
-                onResizeStop={({ x, y, h, w }: ItemPos) => {
-                    const data = { x: calc_pos.x, y: calc_pos.y, w, h };
-                    setPos(data);
-                    const item = Object.assign(props['data-drag'], data);
-                    props.onResizeStop?.(item);
+                onResizeStop={({ x, y, h, w }) => {
+                    setPos({ x, y, h, w });
+                    props.onResizeStop?.({ x, y, h, w });
                 }}
             >
                 <Draggable
@@ -184,23 +156,13 @@ const LayoutItem = (props: LayoutItemProps) => {
                         props.onDragStart?.();
                     }}
                     bound={grid_bound_border}
-                    onDrag={({ x, y }: { x: number; y: number }) => {
-                        const data = { x, y, w: pos.w, h: pos.h };
-                        setPos(data);
-                        const item = Object.assign(props['data-drag'], data);
-                        props.onDrag?.(item);
-                        gridCalcPosition(x, y);
+                    onDrag={({ x, y }) => {
+                        setPos({ x, y, w: pos.w, h: pos.h });
+                        props.onDrag?.({ x, y, w: pos.w, h: pos.h });
                     }}
-                    onDragStop={() => {
-                        const data = {
-                            x: calc_pos.x,
-                            y: calc_pos.y,
-                            w: pos.w,
-                            h: pos.h
-                        };
-                        setPos(data);
-                        const item = Object.assign(props['data-drag'], data);
-                        props.onDragStop?.(item);
+                    onDragStop={({ x, y }) => {
+                        setPos({ x, y, w: pos.w, h: pos.h });
+                        props.onDragStop?.({ x, y, w: pos.w, h: pos.h });
                     }}
                 >
                     {new_child}

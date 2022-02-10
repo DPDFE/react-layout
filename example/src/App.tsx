@@ -27,7 +27,7 @@ const App = () => {
     }, []);
 
     function generateLayout() {
-        return Array.from({ length: 1 }).map((_, i) => {
+        return Array.from({ length: 3 }).map((_, i) => {
             return {
                 x: i * -30 + 230,
                 y: i * 120 + 230,
@@ -36,7 +36,7 @@ const App = () => {
                 i: i.toString(),
                 is_resizable: true,
                 is_draggable: true,
-                is_float: true
+                is_float: false
             };
         });
     }
