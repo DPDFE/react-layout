@@ -89,11 +89,10 @@ const Canvas = (props: CanvasProps) => {
     const onDrop = (e: React.MouseEvent) => {
         const item = gridToDrag(
             (props as EditLayoutProps).onDrop?.(
-                dragToGrid(snapToGrid(getDropPos(e, props, grid!), grid))
+                dragToGrid(snapToGrid(getDropPos(e, props, grid!), grid), grid)
             )!,
-            grid
+            grid!
         );
-        console.log(item);
 
         if (item && item.i) {
             setCurrentChecked(item.i);
@@ -184,7 +183,7 @@ const Canvas = (props: CanvasProps) => {
         });
     };
 
-    console.log('render canvas');
+    // console.log('render canvas');
 
     return (
         <div
@@ -215,67 +214,76 @@ const Canvas = (props: CanvasProps) => {
         >
             <ShadowItem {...shadow_widget} />
             {layout &&
-                layout.length === props.children.length &&
                 React.Children.map(props.children, (child, idx) => {
                     const widget = layout[idx];
-                    return (
-                        <LayoutItem
-                            layout_type={props.layout_type}
-                            key={widget.i}
-                            {...widget}
-                            {...child.props}
-                            grid={grid}
-                            bound={item_bound}
-                            children={child}
-                            width={props.width}
-                            height={props.height}
-                            scale={props.scale}
-                            is_resizable={
-                                widget.is_resizable &&
-                                checked_index === widget.i
-                            }
-                            setCurrentChecked={setCurrentChecked}
-                            onDragStart={() => {
-                                (props as EditLayoutProps).onDragStart?.();
-                            }}
-                            onDrag={(item) => {
-                                const layout = getCurrentLayoutByItem(item);
-                                (props as EditLayoutProps).onDrag?.(layout);
-                            }}
-                            onDragStop={(item) => {
-                                const layout = getCurrentLayoutByItem(
-                                    item,
-                                    true
-                                );
-                                (props as EditLayoutProps).onDragStop?.(layout);
-                            }}
-                            onResizeStart={() => {
-                                (props as EditLayoutProps).onResizeStart?.();
-                            }}
-                            onResize={(item) => {
-                                const layout = getCurrentLayoutByItem(item);
-                                (props as EditLayoutProps).onResize?.(layout);
-                            }}
-                            onResizeStop={(item) => {
-                                const layout = getCurrentLayoutByItem(
-                                    item,
-                                    true
-                                );
-                                (props as EditLayoutProps).onResizeStop?.(
-                                    layout
-                                );
-                            }}
-                            onPositionChange={(item) => {
-                                const layout = getCurrentLayoutByItem(
-                                    item,
-                                    true
-                                );
-                                (props as EditLayoutProps).onPositionChange?.(
-                                    layout
-                                );
-                            }}
-                        />
-                    );
+                    if (widget) {
+                        return (
+                            <LayoutItem
+                                layout_type={props.layout_type}
+                                key={widget.i}
+                                {...widget}
+                                {...child.props}
+                                grid={grid}
+                                bound={item_bound}
+                                children={child}
+                                width={props.width}
+                                height={props.height}
+                                scale={props.scale}
+                                is_resizable={
+                                    widget.is_resizable &&
+                                    checked_index === widget.i
+                                }
+                                setCurrentChecked={setCurrentChecked}
+                                onDragStart={() => {
+                                    (props as EditLayoutProps).onDragStart?.();
+                                }}
+                                onDrag={(item) => {
+                                    const layout = getCurrentLayoutByItem(item);
+                                    (props as EditLayoutProps).onDrag?.(layout);
+                                }}
+                                onDragStop={(item) => {
+                                    const layout = getCurrentLayoutByItem(
+                                        item,
+                                        true
+                                    );
+                                    (props as EditLayoutProps).onDragStop?.(
+                                        layout
+                                    );
+                                }}
+                                onResizeStart={() => {
+                                    (
+                                        props as EditLayoutProps
+                                    ).onResizeStart?.();
+                                }}
+                                onResize={(item) => {
+                                    const layout = getCurrentLayoutByItem(item);
+                                    (props as EditLayoutProps).onResize?.(
+                                        layout
+                                    );
+                                }}
+                                onResizeStop={(item) => {
+                                    const layout = getCurrentLayoutByItem(
+                                        item,
+                                        true
+                                    );
+                                    (props as EditLayoutProps).onResizeStop?.(
+                                        layout
+                                    );
+                                }}
+                                onPositionChange={(item) => {
+                                    const layout = getCurrentLayoutByItem(
+                                        item,
+                                        true
+                                    );
+                                    (
+                                        props as EditLayoutProps
+                                    ).onPositionChange?.(layout);
+                                }}
+                            />
+                        );
+                    } else {
+                        return <Fragment></Fragment>;
+                    }
                 })}
         </div>
     );

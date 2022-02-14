@@ -182,6 +182,7 @@ const App = () => {
                             is_draggable: true
                         } as DragItem;
 
+                        console.log(drop_element);
                         setWidgets(widgets.concat([drop_element]));
                         return drop_element;
                     }}

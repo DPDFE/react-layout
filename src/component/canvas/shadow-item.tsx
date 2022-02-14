@@ -5,7 +5,6 @@ import styles from './styles.module.css';
 interface ShadowItemProps extends Partial<ItemPos> {}
 
 function ShadowItem(props: ShadowItemProps) {
-    console.log('render shadow ');
     const { x, y, w, h, is_float } = props;
     return (
         <Fragment>

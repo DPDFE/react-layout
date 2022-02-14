@@ -212,12 +212,10 @@ export function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else if (key === 'children') {
-                const is_diff = childrenEqual(
-                    prev['children'],
-                    next['children']
-                );
-                return is_diff;
+                return childrenEqual(prev['children'], next['children']);
             } else {
+                const is_equal = isEqual(prev[key], next[key]);
+                !is_equal && console.log(is_equal, key);
                 return isEqual(prev[key], next[key]);
             }
         })
