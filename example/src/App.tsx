@@ -4,7 +4,8 @@ import {
     ReactDragLayout,
     LayoutType,
     DragItem,
-    DirectionType
+    DirectionType,
+    ItemPos
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 import 'antd/dist/antd.css';
@@ -37,17 +38,47 @@ const App = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_float: true
-            },
-            {
-                x: 1,
-                y: 1,
-                w: 1,
-                h: 1,
-                i: '1',
-                is_resizable: true,
-                is_draggable: true,
-                is_float: false
             }
+            // {
+            //     x: 1,
+            //     y: 1,
+            //     w: 1,
+            //     h: 1,
+            //     i: '1',
+            //     is_resizable: true,
+            //     is_draggable: true,
+            //     is_float: false
+            // },
+            // {
+            //     x: 1,
+            //     y: 1,
+            //     w: 1,
+            //     h: 1,
+            //     i: '2',
+            //     is_resizable: true,
+            //     is_draggable: true,
+            //     is_float: false
+            // },
+            // {
+            //     x: 1,
+            //     y: 1,
+            //     w: 1,
+            //     h: 1,
+            //     i: '3',
+            //     is_resizable: true,
+            //     is_draggable: true,
+            //     is_float: false
+            // },
+            // {
+            //     x: 1,
+            //     y: 1,
+            //     w: 1,
+            //     h: 1,
+            //     i: '4',
+            //     is_resizable: true,
+            //     is_draggable: true,
+            //     is_float: false
+            // }
         ];
         // return Array.from({ length: 3 }).map((_, i) => {
         //     return {
@@ -143,17 +174,12 @@ const App = () => {
                     scale={scale}
                     guide_lines={guide_line}
                     mode={LayoutType.edit}
-                    onDrop={({ x, y }: any) => {
-                        console.log('onDrop');
+                    onDrop={(item: ItemPos) => {
                         const drop_element = {
-                            x: x,
-                            y: y,
-                            w: 100,
-                            h: 100,
+                            ...item,
                             i: widgets.length.toString(),
                             is_resizable: true,
-                            is_draggable: true,
-                            is_float: true
+                            is_draggable: true
                         } as DragItem;
 
                         setWidgets(widgets.concat([drop_element]));

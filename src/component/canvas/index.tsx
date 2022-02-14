@@ -20,7 +20,9 @@ import {
     dynamicProgramming,
     snapToGrid,
     dragToGrid,
-    createInitialLayout
+    createInitialLayout,
+    getDropPos,
+    gridToDrag
 } from './calc';
 import isEqual from 'lodash.isequal';
 
@@ -63,6 +65,7 @@ const Canvas = (props: CanvasProps) => {
     useEffect(() => {
         if (props.children.length > 0 && grid) {
             const layout = createInitialLayout(props.children, grid);
+            dynamicProgramming(layout);
             setLayout(layout);
             if (operator_stack.length === 0) {
                 setOperatorStack([layout]);
@@ -84,18 +87,23 @@ const Canvas = (props: CanvasProps) => {
 
     /** 拖拽添加 */
     const onDrop = (e: React.MouseEvent) => {
-        const current = e.target as HTMLElement;
-
-        const { left, top } = current?.getBoundingClientRect();
-        const _x = (e.clientX + current.scrollLeft - left) / props.scale;
-        const _y = (e.clientY + current.scrollTop - top) / props.scale;
-        const item = (props as EditLayoutProps).onDrop?.({ x: _x, y: _y });
+        const item = gridToDrag(
+            (props as EditLayoutProps).onDrop?.(
+                dragToGrid(snapToGrid(getDropPos(e, props, grid!), grid))
+            )!,
+            grid
+        );
+        console.log(item);
 
         if (item && item.i) {
             setCurrentChecked(item.i);
             setLayout(layout?.concat([item]));
             getCurrentLayoutByItem(item, true);
         }
+    };
+
+    const onDragOver = (e: React.MouseEvent) => {
+        setShadowWidget(snapToGrid(getDropPos(e, props, grid!), grid));
     };
 
     useEffect(() => {
@@ -139,10 +147,10 @@ const Canvas = (props: CanvasProps) => {
 
     const pushPosStep = (layout?: DragItem[]) => {
         if (!isEqual(layout, operator_stack[operator_stack_pointer])) {
-            console.log(layout, operator_stack);
             const index = operator_stack_pointer + 1;
             const copy_layout = operator_stack
                 .slice(0, index)
+                .slice(-10) // 栈长度是10个
                 .concat([copyObjectArray(layout!)]);
             console.log('index', index, copy_layout);
 
@@ -166,7 +174,7 @@ const Canvas = (props: CanvasProps) => {
                 ? Object.assign({}, widget, is_save ? shadow_pos : item)
                 : widget;
         });
-        // return dynamicProgramming(layout, grid, item_bound);
+        dynamicProgramming(new_layout, grid, item_bound);
 
         setLayout(new_layout);
         is_save && pushPosStep(new_layout);
@@ -199,12 +207,13 @@ const Canvas = (props: CanvasProps) => {
             onDrop={onDrop}
             onDragOver={(e) => {
                 e.preventDefault();
+                onDragOver(e);
             }}
             onKeyDown={(e: React.KeyboardEvent) => {
                 handleKeyDown(e);
             }}
         >
-            <ShadowItem {...shadow_widget}></ShadowItem>
+            <ShadowItem {...shadow_widget} />
             {layout &&
                 layout.length === props.children.length &&
                 React.Children.map(props.children, (child, idx) => {
@@ -265,7 +274,7 @@ const Canvas = (props: CanvasProps) => {
                                     layout
                                 );
                             }}
-                        ></LayoutItem>
+                        />
                     );
                 })}
         </div>

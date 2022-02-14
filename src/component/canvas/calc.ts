@@ -1,4 +1,4 @@
-import { CanvasProps, DragItem, ItemPos } from '@/interfaces';
+import { CanvasProps, DragItem, ItemPos, LayoutType } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, { ReactElement } from 'react';
 
@@ -112,10 +112,10 @@ export function calcBoundPositions<
 
 export function snapToGrid(pos: ItemPos, grid?: [number, number]) {
     if (grid && !pos.is_float) {
-        pos.x = Math.ceil(pos.x / grid[0]) * grid[0];
-        pos.y = Math.ceil(pos.y / grid[1]) * grid[1];
-        pos.w = Math.ceil(pos.w / grid[0]) * grid[0];
-        pos.h = Math.ceil(pos.h / grid[1]) * grid[1];
+        pos.x = Math.round(pos.x / grid[0]) * grid[0];
+        pos.y = Math.round(pos.y / grid[1]) * grid[1];
+        pos.w = Math.round(pos.w / grid[0]) * grid[0];
+        pos.h = Math.round(pos.h / grid[1]) * grid[1];
         return pos;
     }
     return pos;
@@ -222,4 +222,36 @@ export function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             }
         })
         .some((state) => state === false);
+}
+
+export function getDropPos(
+    e: React.MouseEvent,
+    props: CanvasProps,
+    grid: [number, number]
+): ItemPos {
+    const current = e.target as HTMLElement;
+
+    const { left, top } = current?.getBoundingClientRect();
+    const _x = (e.clientX + current.scrollLeft - left) / props.scale;
+    const _y = (e.clientY + current.scrollTop - top) / props.scale;
+
+    if (props.layout_type === LayoutType.GRID) {
+        return {
+            x: _x,
+            y: _y,
+            h: grid![1],
+            w: grid![0],
+            is_float: false,
+            i: Math.random().toString()
+        };
+    } else {
+        return {
+            x: _x,
+            y: _y,
+            h: 100,
+            w: 100,
+            is_float: true,
+            i: Math.random().toString()
+        };
+    }
 }
