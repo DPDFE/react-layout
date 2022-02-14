@@ -24,8 +24,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const [current_width, setCurrentWidth] = useState<number>(0); //宽度
     const [current_height, setCurrentHeight] = useState<number>(0); //高度
 
-    const [t_offset, setTopOffset] = useState<number>(0); //垂直偏移量
-    const [l_offset, setLeftOffset] = useState<number>(0); //水平偏移量
+    const [t_offset, setTopOffset] = useState<number | undefined>(undefined); //垂直偏移量
+    const [l_offset, setLeftOffset] = useState<number | undefined>(undefined); //水平偏移量
 
     const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
     const [fresh_count, setFreshCount] = useState<number>(0); // 刷新
@@ -71,29 +71,33 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             ref={container_ref}
         >
             {/* 水平标尺 */}
-            {props.mode === LayoutType.edit && canvas_viewport.current && (
-                <HorizontalRuler
-                    {...props}
-                    width={current_width}
-                    l_offset={l_offset}
-                    wrapper_width={wrapper_width}
-                    setRulerHoverPos={setRulerHoverPos}
-                    canvas_viewport={canvas_viewport}
-                ></HorizontalRuler>
-            )}
+            {props.mode === LayoutType.edit &&
+                canvas_viewport.current &&
+                l_offset !== undefined && (
+                    <HorizontalRuler
+                        {...props}
+                        width={current_width}
+                        l_offset={l_offset}
+                        wrapper_width={wrapper_width}
+                        setRulerHoverPos={setRulerHoverPos}
+                        canvas_viewport={canvas_viewport}
+                    ></HorizontalRuler>
+                )}
 
             <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
                 {/* 垂直标尺 */}
-                {props.mode === LayoutType.edit && canvas_viewport.current && (
-                    <VerticalRuler
-                        {...props}
-                        height={current_height}
-                        t_offset={t_offset}
-                        wrapper_height={wrapper_height}
-                        setRulerHoverPos={setRulerHoverPos}
-                        canvas_viewport={canvas_viewport}
-                    ></VerticalRuler>
-                )}
+                {props.mode === LayoutType.edit &&
+                    canvas_viewport.current &&
+                    t_offset !== undefined && (
+                        <VerticalRuler
+                            {...props}
+                            height={current_height}
+                            t_offset={t_offset}
+                            wrapper_height={wrapper_height}
+                            setRulerHoverPos={setRulerHoverPos}
+                            canvas_viewport={canvas_viewport}
+                        ></VerticalRuler>
+                    )}
 
                 {/* 可视区域窗口 */}
                 <div
@@ -111,37 +115,52 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                         }}
                     >
                         {/* 实际画布区域 */}
-                        <Canvas
-                            {...props}
-                            width={current_width}
-                            height={current_height}
-                            canvas_wrapper={canvas_wrapper}
-                            fresh_count={fresh_count}
-                            setFreshCount={setFreshCount}
-                            t_offset={t_offset}
-                            l_offset={l_offset}
-                        ></Canvas>
+                        {current_width &&
+                            current_height &&
+                            t_offset !== undefined &&
+                            l_offset !== undefined && (
+                                <Canvas
+                                    {...props}
+                                    width={current_width}
+                                    height={current_height}
+                                    row_height={
+                                        props.row_height
+                                            ? props.row_height
+                                            : current_height
+                                    }
+                                    canvas_wrapper={canvas_wrapper}
+                                    fresh_count={fresh_count}
+                                    setFreshCount={setFreshCount}
+                                    t_offset={t_offset}
+                                    l_offset={l_offset}
+                                ></Canvas>
+                            )}
                     </div>
                 </div>
             </div>
 
-            {props.mode === LayoutType.edit && canvas_viewport.current && (
-                <GuideLine
-                    scale={(props as DragLayoutProps).scale}
-                    t_offset={t_offset}
-                    l_offset={l_offset}
-                    guide_lines={props.guide_lines}
-                    canvas_viewport={canvas_viewport}
-                    ruler_hover_pos={ruler_hover_pos}
-                    removeGuideLine={props.removeGuideLine}
-                ></GuideLine>
-            )}
+            {props.mode === LayoutType.edit &&
+                canvas_viewport.current &&
+                t_offset !== undefined &&
+                l_offset !== undefined && (
+                    <GuideLine
+                        scale={(props as DragLayoutProps).scale}
+                        t_offset={t_offset}
+                        l_offset={l_offset}
+                        guide_lines={props.guide_lines}
+                        canvas_viewport={canvas_viewport}
+                        ruler_hover_pos={ruler_hover_pos}
+                        removeGuideLine={props.removeGuideLine}
+                    ></GuideLine>
+                )}
         </div>
     );
 };
 
 ReactDragLayout.defaultProps = {
     scale: 1,
+    cols: 10,
+    row_height: 20,
     container_margin: [10],
     mode: LayoutType.view
 };

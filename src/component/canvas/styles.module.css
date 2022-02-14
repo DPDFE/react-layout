@@ -32,11 +32,11 @@
 }
 
 .light-theme-border {
-    border: 1px dashed light_theme_border;
+    border: 1px dashed light_theme_border !important;
 }
 
 .dark-theme-border {
-    border: 1px dashed dark_theme_border;
+    border: 1px dashed dark_theme_border !important;
 }
 
 .no-border {
@@ -57,4 +57,5 @@
     background-color: #d9d9d9;
     position: absolute;
     will-change: transform;
+    /* transition: all 0.09s linear; */
 }

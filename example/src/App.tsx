@@ -27,18 +27,40 @@ const App = () => {
     }, []);
 
     function generateLayout() {
-        return Array.from({ length: 3 }).map((_, i) => {
-            return {
-                x: i * -30 + 230,
-                y: i * 120 + 230,
+        return [
+            {
+                x: 230,
+                y: 230,
                 w: 100,
                 h: 100,
-                i: i.toString(),
+                i: '0',
+                is_resizable: true,
+                is_draggable: true,
+                is_float: true
+            },
+            {
+                x: 1,
+                y: 1,
+                w: 1,
+                h: 1,
+                i: '1',
                 is_resizable: true,
                 is_draggable: true,
                 is_float: false
-            };
-        });
+            }
+        ];
+        // return Array.from({ length: 3 }).map((_, i) => {
+        //     return {
+        //         x: i * -30 + 230,
+        //         y: i * 120 + 230,
+        //         w: 1,
+        //         h: 1,
+        //         i: i.toString(),
+        //         is_resizable: true,
+        //         is_draggable: true,
+        //         is_float: false
+        //     };
+        // });
     }
 
     return (
@@ -116,7 +138,7 @@ const App = () => {
                     layout_type={LayoutType.DRAG}
                     width={width}
                     height={height}
-                    row_height={8}
+                    row_height={50}
                     cols={2}
                     scale={scale}
                     guide_lines={guide_line}
@@ -131,7 +153,8 @@ const App = () => {
                             h: 100,
                             i: widgets.length.toString(),
                             is_resizable: true,
-                            is_draggable: true
+                            is_draggable: true,
+                            is_float: true
                         } as DragItem;
 
                         setWidgets(widgets.concat([drop_element]));
@@ -145,6 +168,7 @@ const App = () => {
                     //     setWidgets(layout);
                     // }}
                     onDragStop={(layout: DragItem[]) => {
+                        console.log(layout);
                         // console.log('onDragStop');
                         setWidgets(layout);
                     }}
@@ -201,7 +225,10 @@ const App = () => {
                                 data-drag={w}
                                 // className={'app_class'}
                                 id={`app_id_${w.i}`}
-                                style={{ background: 'transform' }}
+                                style={{
+                                    background: '#fff',
+                                    border: '1px solid'
+                                }}
                             >
                                 <div className='test'>
                                     我是第{w.i}个div, height: {w.h}, width:{w.w}

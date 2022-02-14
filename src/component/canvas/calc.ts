@@ -1,4 +1,13 @@
-import { CanvasProps, GridLayoutProps } from '@/interfaces';
+import { CanvasProps, DragItem, ItemPos } from '@/interfaces';
+import isEqual from 'lodash.isequal';
+import React, { ReactElement } from 'react';
+
+export const DEFAULT_BOUND = {
+    max_x: undefined,
+    min_x: undefined,
+    min_y: undefined,
+    max_y: undefined
+};
 
 export function calcBoundBorder(
     bound?: [number, number?, number?, number?]
@@ -33,18 +42,17 @@ export function calcBoundBorder(
     return [0, 0, 0, 0];
 }
 
-export function calcBoundRange(props: CanvasProps) {
+export function calcBoundRange(
+    props: CanvasProps,
+    bound_border: [number, number, number, number]
+) {
     const { width, height } = props;
 
-    const bound_border = calcBoundBorder(
-        (props as GridLayoutProps).container_margin
-    );
-
     return {
-        max_x: width - bound_border[1],
-        min_x: bound_border[3],
-        min_y: bound_border[0],
-        max_y: height - bound_border[2]
+        max_x: width - bound_border[1] - bound_border[3],
+        min_x: 0,
+        min_y: 0,
+        max_y: height - bound_border[0] - bound_border[2]
     };
 }
 
@@ -101,14 +109,114 @@ export function calcBoundPositions<
     return pos;
 }
 
-export function snapToGrid(
-    pos: { x: number; y: number },
+export function snapToGrid(pos: ItemPos, grid?: [number, number]) {
+    if (grid && !pos.is_float) {
+        pos.x = Math.round(pos.x / grid[0]) * grid[0];
+        pos.y = Math.round(pos.y / grid[1]) * grid[1];
+        return pos;
+    }
+    return pos;
+}
+
+export function gridToDrag(widget: ItemPos, grid?: [number, number]): ItemPos {
+    if (widget.is_float) {
+        return widget as ItemPos;
+    } else {
+        if (grid) {
+            return {
+                x: widget.x * grid[0],
+                y: widget.y * grid[1],
+                w: widget.w * grid[0],
+                h: widget.h * grid[1],
+                is_float: false,
+                i: widget.i
+            };
+        } else {
+            return { x: 0, y: 0, h: 0, w: 0, is_float: false, i: widget.i };
+        }
+    }
+}
+
+export function dragToGrid(widget: ItemPos, grid?: [number, number]): ItemPos {
+    if (widget.is_float) {
+        return widget as ItemPos;
+    } else {
+        if (grid) {
+            return {
+                x: Math.ceil(widget.x / grid[0]),
+                y: Math.ceil(widget.y / grid[1]),
+                w: Math.ceil(widget.w / grid[0]),
+                h: Math.ceil(widget.h / grid[1]),
+                is_float: false,
+                i: widget.i
+            };
+        } else {
+            return { x: 0, y: 0, h: 0, w: 0, is_float: false, i: widget.i };
+        }
+    }
+}
+
+export function dynamicProgramming(
+    widgets: any,
+    grid?: [number, number],
+    grid_bound?: Partial<{
+        min_x: number;
+        max_x: number;
+        min_y: number;
+        max_y: number;
+    }>
+) {
+    // console.log(widgets);
+    return widgets;
+}
+
+export function createInitialLayout(
+    children: React.ReactElement[],
     grid?: [number, number]
 ) {
-    if (grid) {
-        const x = Math.round(pos.x / grid[0]) * grid[0];
-        const y = Math.round(pos.y / grid[1]) * grid[1];
-        return { x, y };
-    }
-    return { x: pos.x, y: pos.y };
+    return children.map((child) => {
+        const item = child.props['data-drag'] as DragItem;
+        return {
+            ...gridToDrag(item, grid),
+            is_float: item.is_float ? item.is_float : false,
+            is_draggable: item.is_draggable ? item.is_draggable : false,
+            is_resizable: item.is_resizable ? item.is_resizable : false
+        };
+    });
+}
+
+export function childrenEqual(a: ReactElement, b: ReactElement): boolean {
+    return isEqual(
+        React.Children.map(a, (c) => c?.key),
+        React.Children.map(b, (c) => c?.key)
+    );
+}
+
+export function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
+    return !Object.keys(prev)
+        .map((key) => {
+            if (
+                [
+                    'setCurrentChecked',
+                    'onDragStart',
+                    'onDrag',
+                    'onDragStop',
+                    'onResizeStart',
+                    'onResize',
+                    'onResizeStop',
+                    'onPositionChange'
+                ].includes(key)
+            ) {
+                return true;
+            } else if (key === 'children') {
+                const is_diff = childrenEqual(
+                    prev['children'],
+                    next['children']
+                );
+                return is_diff;
+            } else {
+                return isEqual(prev[key], next[key]);
+            }
+        })
+        .some((state) => state === false);
 }

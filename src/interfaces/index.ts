@@ -32,13 +32,22 @@ export type CursorPointer = {
 };
 
 export type ItemPos = {
+    i: string;
     x: number;
     y: number;
     h: number;
     w: number;
+    is_float: boolean;
 };
 
-type EditLayoutBase = {
+type LayoutBase = {
+    scale: number;
+    cols: number;
+    row_height: number;
+    container_margin: [number, number?, number?, number?];
+};
+
+type EditLayoutBase = LayoutBase & {
     onDrop?: ({ x, y }: { x: number; y: number }) => DragItem;
     onRemove?: (i: string) => void;
     onDragStart?: () => void;
@@ -56,9 +65,8 @@ type GuideLine = {
     removeGuideLine?: ({ x, y, direction }: RulerPointer) => void;
 };
 
-export type DragLayout = {
+export type DragLayout = LayoutBase & {
     layout_type: LayoutType.DRAG;
-    scale: number;
     width: number;
     height: number;
     mode: LayoutType.view;
@@ -68,7 +76,6 @@ export type DragLayout = {
 export type DragEditLayout = EditLayoutBase &
     GuideLine & {
         layout_type: LayoutType.DRAG;
-        scale: number;
         width: number;
         height: number;
         mode: LayoutType.edit;
@@ -77,24 +84,16 @@ export type DragEditLayout = EditLayoutBase &
 
 export type DragLayoutProps = DragLayout | DragEditLayout;
 
-export type GridLayout = {
+export type GridLayout = LayoutBase & {
     layout_type: LayoutType.GRID;
-    scale: number;
     mode: LayoutType.view;
-    cols: number;
-    row_height: number;
-    container_margin?: [number, number?, number?, number?];
     children: ReactElement[];
 };
 
 export type GridEditLayout = EditLayoutBase &
     GuideLine & {
         layout_type: LayoutType.GRID;
-        scale: number;
         mode: LayoutType.edit;
-        cols: number;
-        row_height: number;
-        container_margin?: [number, number?, number?, number?];
         children: ReactElement[];
     };
 
@@ -153,10 +152,8 @@ export type CanvasProps = ReactDragLayoutProps & {
 
 /** 单节点属性 */
 export interface DragItem extends ItemPos {
-    i: string;
     is_draggable?: boolean;
     is_resizable?: boolean;
-    is_float?: boolean;
 }
 
 interface EventBaseProps {
@@ -167,17 +164,12 @@ interface EventBaseProps {
 }
 
 /** 子元素 */
-export interface LayoutItemProps extends EventBaseProps {
+export interface LayoutItemProps extends EventBaseProps, DragItem {
     width: number;
     height: number;
     scale: number;
-    grid?: [number, number];
     bound: BoundType;
-    shadow_pos: { x: number; y: number };
     layout_type: LayoutType.DRAG | LayoutType.GRID;
-    mode: LayoutType.edit | LayoutType.view;
-    ['data-drag']: DragItem;
-    checked_index?: string;
     setCurrentChecked: (idx: string) => void;
     onDragStart?: () => void;
     onDrag?: (item: ItemPos) => void;
@@ -219,8 +211,28 @@ export interface ResizableProps extends EventBaseProps, ItemPos {
     bound?: Partial<BoundType>;
     is_resizable?: boolean;
     onResizeStart?: () => void;
-    onResize?: ({ x, y, h, w }: ItemPos) => void;
-    onResizeStop?: ({ x, y, h, w }: ItemPos) => void;
+    onResize?: ({
+        x,
+        y,
+        h,
+        w
+    }: {
+        x: number;
+        y: number;
+        h: number;
+        w: number;
+    }) => void;
+    onResizeStop?: ({
+        x,
+        y,
+        h,
+        w
+    }: {
+        x: number;
+        y: number;
+        h: number;
+        w: number;
+    }) => void;
 }
 
 export interface MenuProps {

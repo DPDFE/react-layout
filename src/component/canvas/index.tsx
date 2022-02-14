@@ -3,16 +3,27 @@ import {
     CanvasProps,
     DragItem,
     EditLayoutProps,
-    GridLayoutProps,
     ItemPos,
     LayoutType
 } from '@/interfaces';
 import React, { memo, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.css';
 import LayoutItem from './layout-item';
+import ShadowItem from './shadow-item';
 import { addEvent, removeEvent } from '@pearone/event-utils';
-import { copyObjectArray, diffObject } from '@/utils/utils';
-import { calcBoundPositions, calcBoundRange, snapToGrid } from './calc';
+import { copyObject, copyObjectArray } from '@/utils/utils';
+import {
+    calcBoundBorder,
+    calcBoundPositions,
+    calcBoundRange,
+    DEFAULT_BOUND,
+    dynamicProgramming,
+    snapToGrid,
+    gridToDrag,
+    dragToGrid,
+    createInitialLayout
+} from './calc';
+import isEqual from 'lodash.isequal';
 
 /** 画布 */
 const Canvas = (props: CanvasProps) => {
@@ -25,42 +36,38 @@ const Canvas = (props: CanvasProps) => {
     const [operator_stack, setOperatorStack] = useState<DragItem[][]>([]);
     const [grid, setGrid] = useState<[number, number] | undefined>(undefined);
 
-    const [shadow_widgets, setShadowWidgets] = useState<
-        Map<string, ItemPos & { is_float?: boolean }>
-    >(new Map());
-
-    const [grid_bound, setGridBound] = useState<BoundType | undefined>(
+    const [shadow_widget, setShadowWidget] = useState<ItemPos | undefined>(
         undefined
     );
+    const [layout, setLayout] = useState<DragItem[] | undefined>(undefined); // 真实定位位置
+
+    const [item_bound, setItemBound] =
+        useState<Partial<BoundType>>(DEFAULT_BOUND);
 
     useEffect(() => {
-        const grid =
-            (props as GridLayoutProps).cols &&
-            props.width &&
-            (props as GridLayoutProps).row_height
-                ? ([
-                      props.width / (props as GridLayoutProps).cols,
-                      (props as GridLayoutProps).row_height
-                  ] as [number, number])
-                : undefined;
-
+        const canvas_bound = calcBoundBorder(props.container_margin);
+        const item_bound = calcBoundRange(props, canvas_bound);
+        const grid = [
+            (props.width - canvas_bound[1] - canvas_bound[3]) / props.cols,
+            props.row_height
+        ] as [number, number];
         setGrid(grid);
+        setItemBound(item_bound);
     }, [
-        (props as GridLayoutProps).cols,
+        props.container_margin,
         props.width,
-        (props as GridLayoutProps).row_height
+        props.height,
+        props.cols,
+        props.row_height
     ]);
 
     useEffect(() => {
-        if (props.width && props.height) {
-            const grid_bound = calcBoundRange(props);
-            setGridBound(grid_bound);
+        if (props.children.length > 0 && grid) {
+            console.log(createInitialLayout(props.children, grid));
+            setLayout(createInitialLayout(props.children, grid));
+            setOperatorStackPointer(operator_stack_pointer + 1);
         }
-    }, [
-        (props as GridLayoutProps).container_margin,
-        props.width,
-        props.height
-    ]);
+    }, [props.children, grid]);
 
     /** 清空选中 */
     const clearChecked = (e: MouseEvent) => {
@@ -68,6 +75,7 @@ const Canvas = (props: CanvasProps) => {
             e.target === canvas_ref.current ||
             e.target === props.canvas_wrapper.current
         ) {
+            console.log('clearChecked');
             setCurrentChecked(undefined);
         }
     };
@@ -82,7 +90,7 @@ const Canvas = (props: CanvasProps) => {
         const item = (props as EditLayoutProps).onDrop?.({ x: _x, y: _y });
         if (item && item.i) {
             setCurrentChecked(item.i);
-            const layout = getCurrentLayoutByItem(item.i, item);
+            const layout = getCurrentLayoutByItem(item);
             pushPosStep(layout);
         }
     };
@@ -97,7 +105,6 @@ const Canvas = (props: CanvasProps) => {
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        console.log('onkeydown', operator_stack_pointer, operator_stack);
         /** 撤销还原 */
         const positionChange = (idx: number) => {
             setCurrentChecked(undefined);
@@ -127,10 +134,10 @@ const Canvas = (props: CanvasProps) => {
         }
     };
 
-    const pushPosStep = (layout: DragItem[], force: boolean = false) => {
+    const pushPosStep = (layout?: DragItem[]) => {
         if (
-            diffObject(layout, operator_stack[operator_stack_pointer]) ||
-            force
+            layout &&
+            !isEqual(layout, operator_stack[operator_stack_pointer])
         ) {
             const index = operator_stack_pointer + 1;
             const copy_layout = operator_stack
@@ -144,51 +151,26 @@ const Canvas = (props: CanvasProps) => {
     };
 
     /** 获取当前状态下的layout */
-    const getCurrentLayoutByItem = (
-        item_idx?: string,
-        item?: ItemPos,
-        is_save?: boolean
-    ) => {
-        const widgets_mapping = new Map();
+    const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
+        const shadow_pos = calcBoundPositions(
+            snapToGrid(copyObject(item), grid),
+            item_bound
+        );
 
-        const layout = props.children.map((child) => {
-            const { i, x, y, w, h, is_float } = child.props['data-drag'];
+        setShadowWidget(shadow_pos);
 
-            const getXY = (x: number, y: number) => {
-                const shadow_pos = snapToGrid({ x, y }, grid);
-                const bound_pos = calcBoundPositions(shadow_pos, grid_bound);
-                const widget = {
-                    ...bound_pos,
-                    w,
-                    h,
-                    is_float
-                };
-                widgets_mapping.set(i, widget);
-                return bound_pos;
-            };
-
-            if (i === item_idx) {
-                const final_pos = getXY(item!.x, item!.y);
-                return Object.assign(
-                    child.props['data-drag'],
-                    item,
-                    is_save ? final_pos : {}
-                );
-            } else {
-                getXY(x, y);
-                return child.props['data-drag'];
-            }
+        const new_layout = layout!.map((widget) => {
+            return widget.i === item.i ? (is_save ? shadow_pos : item) : widget;
         });
-        setShadowWidgets(widgets_mapping);
-        return layout;
+        setLayout(new_layout);
+
+        return new_layout.map((w) => {
+            return dragToGrid(w, grid);
+        });
+        // return dynamicProgramming(layout, grid, item_bound);
     };
 
-    useEffect(() => {
-        if (props.children.length > 0) {
-            const init_layout = getCurrentLayoutByItem();
-            pushPosStep(init_layout, true);
-        }
-    }, [props.children.length]);
+    console.log('render canvas');
 
     return (
         <div
@@ -201,7 +183,8 @@ const Canvas = (props: CanvasProps) => {
                 left: props.l_offset,
                 transform: `scale(${props.scale})`,
                 transformOrigin: '0 0',
-                overflow: props.mode === LayoutType.edit ? 'unset' : 'hidden'
+                overflow: props.mode === LayoutType.edit ? 'unset' : 'hidden',
+                padding: props.container_margin.map((i) => i + 'px').join(' ')
             }}
             onContextMenu={(e) => {
                 e.preventDefault();
@@ -215,74 +198,68 @@ const Canvas = (props: CanvasProps) => {
                 handleKeyDown(e);
             }}
         >
-            {props.children.map((child) => {
-                return (
-                    <LayoutItem
-                        layout_type={props.layout_type}
-                        key={child.props['data-drag'].i}
-                        {...child.props}
-                        shadow_pos={shadow_widgets.get(
-                            child.props['data-drag'].i
-                        )}
-                        children={child}
-                        bound={grid_bound}
-                        width={props.width}
-                        height={props.height}
-                        scale={props.scale}
-                        checked_index={checked_index}
-                        setCurrentChecked={setCurrentChecked}
-                        onDragStart={() => {
-                            (props as EditLayoutProps).onDragStart?.();
-                        }}
-                        onDrag={(item) => {
-                            const layout = getCurrentLayoutByItem(
-                                child.props['data-drag'].i,
-                                item
-                            );
-                            (props as EditLayoutProps).onDrag?.(layout);
-                        }}
-                        onDragStop={(item) => {
-                            const layout = getCurrentLayoutByItem(
-                                child.props['data-drag'].i,
-                                item,
-                                true
-                            );
-                            pushPosStep(layout);
-                            (props as EditLayoutProps).onDragStop?.(layout);
-                        }}
-                        onResizeStart={() => {
-                            (props as EditLayoutProps).onResizeStart?.();
-                        }}
-                        onResize={(item) => {
-                            const layout = getCurrentLayoutByItem(
-                                child.props['data-drag'].i,
-                                item
-                            );
-                            (props as EditLayoutProps).onResize?.(layout);
-                        }}
-                        onResizeStop={(item) => {
-                            const layout = getCurrentLayoutByItem(
-                                child.props['data-drag'].i,
-                                item,
-                                true
-                            );
-                            pushPosStep(layout);
-                            (props as EditLayoutProps).onResizeStop?.(layout);
-                        }}
-                        onPositionChange={(item) => {
-                            const layout = getCurrentLayoutByItem(
-                                child.props['data-drag'].i,
-                                item,
-                                true
-                            );
-                            pushPosStep(layout);
-                            (props as EditLayoutProps).onPositionChange?.(
-                                layout
-                            );
-                        }}
-                    ></LayoutItem>
-                );
-            })}
+            <ShadowItem {...shadow_widget}></ShadowItem>
+            {layout &&
+                React.Children.map(props.children, (child, idx) => {
+                    const widget = layout[idx];
+                    return (
+                        <LayoutItem
+                            layout_type={props.layout_type}
+                            key={widget.i}
+                            {...widget}
+                            {...child.props}
+                            bound={item_bound}
+                            children={child}
+                            width={props.width}
+                            height={props.height}
+                            scale={props.scale}
+                            is_resizable={
+                                widget.is_resizable &&
+                                checked_index === widget.i
+                            }
+                            setCurrentChecked={setCurrentChecked}
+                            onDragStart={() => {
+                                (props as EditLayoutProps).onDragStart?.();
+                            }}
+                            onDrag={(item) => {
+                                const layout = getCurrentLayoutByItem(item);
+                                (props as EditLayoutProps).onDrag?.(layout);
+                            }}
+                            onDragStop={(item) => {
+                                const layout = getCurrentLayoutByItem(
+                                    item,
+                                    true
+                                );
+                                pushPosStep(layout);
+                                (props as EditLayoutProps).onDragStop?.(layout);
+                            }}
+                            onResizeStart={() => {
+                                (props as EditLayoutProps).onResizeStart?.();
+                            }}
+                            onResize={(item) => {
+                                const layout = getCurrentLayoutByItem(item);
+                                (props as EditLayoutProps).onResize?.(layout);
+                            }}
+                            onResizeStop={(item) => {
+                                const layout = getCurrentLayoutByItem(
+                                    item,
+                                    true
+                                );
+                                pushPosStep(layout);
+                                (props as EditLayoutProps).onResizeStop?.(
+                                    layout
+                                );
+                            }}
+                            onPositionChange={(item) => {
+                                const layout = getCurrentLayoutByItem(item);
+                                pushPosStep(layout);
+                                (props as EditLayoutProps).onPositionChange?.(
+                                    layout
+                                );
+                            }}
+                        ></LayoutItem>
+                    );
+                })}
         </div>
     );
 };

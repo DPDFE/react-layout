@@ -1,5 +1,6 @@
-import { ItemPos, LayoutItemProps, LayoutType } from '@/interfaces';
-import React, { memo, useEffect, useRef, useState } from 'react';
+import { LayoutItemProps, LayoutType } from '@/interfaces';
+import React, { memo, useRef } from 'react';
+import { compareProps } from './calc';
 import Draggable from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -22,51 +23,34 @@ const LayoutItem = (props: LayoutItemProps) => {
     const child = React.Children.only(props.children);
     const item_ref = useRef<HTMLDivElement>(null);
 
-    const { x, y, h, w, i, is_resizable, is_draggable, is_float } =
-        props['data-drag'];
+    const { i, x, y, h, w, is_float, is_draggable, is_resizable } = props;
 
-    const [pos, setPos] = useState<ItemPos>({ x, y, h, w });
-
-    const default_bound = {
-        max_x: undefined,
-        min_x: undefined,
-        min_y: undefined,
-        max_y: undefined
-    };
-
-    useEffect(() => {
-        setPos({ x, y, h, w });
-    }, [x, y, h, w]);
+    console.log('render child', i);
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        let _pos;
         const keycode_step = 3;
 
         switch (e.keyCode) {
             case 37: // ArrowLeft
-                _pos = Object.assign({}, pos, {
-                    x: pos.x - keycode_step
-                });
-                return _pos;
+                return {
+                    x: x - keycode_step
+                };
 
             case 38: // ArrowUp
-                _pos = Object.assign({}, pos, {
-                    y: pos.y - keycode_step
-                });
-                return _pos;
+                return {
+                    y: y - keycode_step
+                };
 
             case 39: // ArrowRight
-                _pos = Object.assign({}, pos, {
-                    x: pos.x + keycode_step
-                });
-                return _pos;
+                return {
+                    x: x + keycode_step
+                };
 
             case 40: // ArrowDown
-                _pos = Object.assign({}, pos, {
-                    y: pos.y + keycode_step
-                });
-                return _pos;
+                return {
+                    y: y + keycode_step
+                };
         }
         return undefined;
     };
@@ -77,10 +61,13 @@ const LayoutItem = (props: LayoutItemProps) => {
             props.setCurrentChecked(i);
         },
         onKeyDown: (e: React.KeyboardEvent) => {
-            const keydown_pos = handleKeyDown(e);
-            if (keydown_pos) {
-                setPos(keydown_pos);
-                props.onPositionChange?.(keydown_pos);
+            if (is_float) {
+                const keydown_pos = handleKeyDown(e);
+                if (keydown_pos) {
+                    props.onPositionChange?.(
+                        Object.assign({ x, y, h, w, i, is_float }, keydown_pos)
+                    );
+                }
             }
         },
         ref: item_ref,
@@ -91,48 +78,36 @@ const LayoutItem = (props: LayoutItemProps) => {
         }`,
         className: `${[child.props.className, styles.layout_item].join(' ')}`,
         style: {
-            transform: `translate(${pos.x}px, ${pos.y}px)`,
-            width: pos.w,
-            height: pos.h,
+            transform: `translate(${x}px, ${y}px)`,
+            width: w,
+            height: h,
             ...child.props.style
         }
     });
 
     return (
         <React.Fragment>
-            {props.checked_index === i && props.shadow_pos && (
-                <div
-                    className={`placeholder ${styles.placeholder}`}
-                    style={{
-                        transform: `translate(${props.shadow_pos.x}px, ${props.shadow_pos.y}px)`,
-                        width: pos.w,
-                        height: pos.h
-                    }}
-                ></div>
-            )}
             <Resizable
-                {...pos}
+                {...{ x, y, h, w, i, is_float }}
                 scale={props.scale}
-                is_resizable={is_resizable && props.checked_index === i}
+                is_resizable={is_resizable}
                 onResizeStart={() => {
                     props.onResizeStart?.();
                 }}
                 onResize={({ x, y, h, w }) => {
-                    setPos({ x, y, w, h });
-                    props.onResize?.({ x, y, w, h });
+                    props.onResize?.({ x, y, h, w, is_float, i });
                 }}
                 bound={
                     props.layout_type === LayoutType.DRAG && is_float
-                        ? default_bound
+                        ? undefined
                         : props.bound
                 }
                 onResizeStop={({ x, y, h, w }) => {
-                    setPos({ x, y, h, w });
-                    props.onResizeStop?.({ x, y, h, w });
+                    props.onResizeStop?.({ x, y, h, w, is_float, i });
                 }}
             >
                 <Draggable
-                    {...pos}
+                    {...{ x, y, h, w, i, is_float }}
                     scale={props.scale}
                     is_draggable={is_draggable}
                     onDragStart={() => {
@@ -151,12 +126,24 @@ const LayoutItem = (props: LayoutItemProps) => {
                             : undefined
                     }
                     onDrag={({ x, y }) => {
-                        setPos({ x, y, w: pos.w, h: pos.h });
-                        props.onDrag?.({ x, y, w: pos.w, h: pos.h });
+                        props.onDrag?.({
+                            x,
+                            y,
+                            w,
+                            h,
+                            is_float,
+                            i
+                        });
                     }}
                     onDragStop={({ x, y }) => {
-                        setPos({ x, y, w: pos.w, h: pos.h });
-                        props.onDragStop?.({ x, y, w: pos.w, h: pos.h });
+                        props.onDragStop?.({
+                            x,
+                            y,
+                            w,
+                            h,
+                            is_float,
+                            i
+                        });
                     }}
                 >
                     {new_child}
@@ -168,7 +155,8 @@ const LayoutItem = (props: LayoutItemProps) => {
 
 LayoutItem.defaultProps = {
     scale: 1,
+    is_float: false,
     style: {}
 };
 
-export default memo(LayoutItem);
+export default memo(LayoutItem, compareProps);
