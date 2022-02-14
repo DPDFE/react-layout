@@ -2,7 +2,7 @@ import { CursorPointer, CursorType, ResizableProps } from '@/interfaces';
 import React, { memo } from 'react';
 import styles from './styles.module.css';
 import Cursor from './cursor';
-import { calcBoundPositions } from './calc';
+import { calcBoundPositions, MIN_DRAG_LENGTH } from './calc';
 
 const Resizable = (props: ResizableProps) => {
     const child = React.Children.only(props.children);
@@ -86,11 +86,15 @@ const Resizable = (props: ResizableProps) => {
         }
     });
 
+    const grid_x = props.is_float ? MIN_DRAG_LENGTH : props.grid[0];
+    const grid_y = props.is_float ? MIN_DRAG_LENGTH : props.grid[1];
+
     return (
         <React.Fragment>
             {new_child}
             {props.is_resizable && (
                 <React.Fragment>
+                    {/* 左上 */}
                     <Cursor
                         scale={props.scale}
                         cursor={CursorType.nw}
@@ -100,10 +104,11 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            max_x: props.x + props.w,
-                            max_y: props.y + props.h
+                            max_x: props.x + props.w - grid_x,
+                            max_y: props.y + props.h - grid_y
                         }}
                     ></Cursor>
+                    {/* 右上 */}
                     <Cursor
                         scale={props.scale}
                         cursor={CursorType.ne}
@@ -113,10 +118,11 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            min_x: props.x,
-                            max_y: props.y + props.h
+                            min_x: props.x + grid_x,
+                            max_y: props.y + props.h - grid_y
                         }}
                     ></Cursor>
+                    {/* 左下 */}
                     <Cursor
                         scale={props.scale}
                         cursor={CursorType.sw}
@@ -126,10 +132,11 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            max_x: props.x + props.w,
-                            min_y: props.y
+                            max_x: props.x + props.w - grid_x,
+                            min_y: props.y + grid_y
                         }}
                     ></Cursor>
+                    {/* 右下 */}
                     <Cursor
                         scale={props.scale}
                         cursor={CursorType.se}
@@ -138,7 +145,10 @@ const Resizable = (props: ResizableProps) => {
                         onDragStart={handleResizeStart}
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
-                        bound={{ min_x: props.x, min_y: props.y }}
+                        bound={{
+                            min_x: props.x + grid_x,
+                            min_y: props.y + grid_y
+                        }}
                     ></Cursor>
                 </React.Fragment>
             )}

@@ -97,6 +97,7 @@ const LayoutItem = (props: LayoutItemProps) => {
                 onResize={({ x, y, h, w }) => {
                     props.onResize?.({ x, y, h, w, is_float, i });
                 }}
+                grid={props.grid}
                 bound={
                     props.layout_type === LayoutType.DRAG && is_float
                         ? undefined

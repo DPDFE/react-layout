@@ -6,7 +6,7 @@ import {
     ItemPos,
     LayoutType
 } from '@/interfaces';
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.css';
 import LayoutItem from './layout-item';
 import ShadowItem from './shadow-item';
@@ -19,7 +19,6 @@ import {
     DEFAULT_BOUND,
     dynamicProgramming,
     snapToGrid,
-    gridToDrag,
     dragToGrid,
     createInitialLayout
 } from './calc';
@@ -63,9 +62,12 @@ const Canvas = (props: CanvasProps) => {
 
     useEffect(() => {
         if (props.children.length > 0 && grid) {
-            console.log(createInitialLayout(props.children, grid));
-            setLayout(createInitialLayout(props.children, grid));
-            setOperatorStackPointer(operator_stack_pointer + 1);
+            const layout = createInitialLayout(props.children, grid);
+            setLayout(layout);
+            if (operator_stack.length === 0) {
+                setOperatorStack([layout]);
+                setOperatorStackPointer(operator_stack_pointer + 1);
+            }
         }
     }, [props.children, grid]);
 
@@ -88,10 +90,11 @@ const Canvas = (props: CanvasProps) => {
         const _x = (e.clientX + current.scrollLeft - left) / props.scale;
         const _y = (e.clientY + current.scrollTop - top) / props.scale;
         const item = (props as EditLayoutProps).onDrop?.({ x: _x, y: _y });
+
         if (item && item.i) {
             setCurrentChecked(item.i);
-            const layout = getCurrentLayoutByItem(item);
-            pushPosStep(layout);
+            setLayout(layout?.concat([item]));
+            getCurrentLayoutByItem(item, true);
         }
     };
 
@@ -135,14 +138,13 @@ const Canvas = (props: CanvasProps) => {
     };
 
     const pushPosStep = (layout?: DragItem[]) => {
-        if (
-            layout &&
-            !isEqual(layout, operator_stack[operator_stack_pointer])
-        ) {
+        if (!isEqual(layout, operator_stack[operator_stack_pointer])) {
+            console.log(layout, operator_stack);
             const index = operator_stack_pointer + 1;
             const copy_layout = operator_stack
                 .slice(0, index)
-                .concat([copyObjectArray(layout)]);
+                .concat([copyObjectArray(layout!)]);
+            console.log('index', index, copy_layout);
 
             setOperatorStack(copy_layout);
             setOperatorStackPointer(index);
@@ -160,14 +162,18 @@ const Canvas = (props: CanvasProps) => {
         setShadowWidget(shadow_pos);
 
         const new_layout = layout!.map((widget) => {
-            return widget.i === item.i ? (is_save ? shadow_pos : item) : widget;
-        });
-        setLayout(new_layout);
-
-        return new_layout.map((w) => {
-            return dragToGrid(w, grid);
+            return widget.i === item.i
+                ? Object.assign({}, widget, is_save ? shadow_pos : item)
+                : widget;
         });
         // return dynamicProgramming(layout, grid, item_bound);
+
+        setLayout(new_layout);
+        is_save && pushPosStep(new_layout);
+
+        return new_layout.map((w) => {
+            return { ...w, ...dragToGrid(w, grid) };
+        });
     };
 
     console.log('render canvas');
@@ -200,6 +206,7 @@ const Canvas = (props: CanvasProps) => {
         >
             <ShadowItem {...shadow_widget}></ShadowItem>
             {layout &&
+                layout.length === props.children.length &&
                 React.Children.map(props.children, (child, idx) => {
                     const widget = layout[idx];
                     return (
@@ -208,6 +215,7 @@ const Canvas = (props: CanvasProps) => {
                             key={widget.i}
                             {...widget}
                             {...child.props}
+                            grid={grid}
                             bound={item_bound}
                             children={child}
                             width={props.width}
@@ -230,7 +238,6 @@ const Canvas = (props: CanvasProps) => {
                                     item,
                                     true
                                 );
-                                pushPosStep(layout);
                                 (props as EditLayoutProps).onDragStop?.(layout);
                             }}
                             onResizeStart={() => {
@@ -245,14 +252,15 @@ const Canvas = (props: CanvasProps) => {
                                     item,
                                     true
                                 );
-                                pushPosStep(layout);
                                 (props as EditLayoutProps).onResizeStop?.(
                                     layout
                                 );
                             }}
                             onPositionChange={(item) => {
-                                const layout = getCurrentLayoutByItem(item);
-                                pushPosStep(layout);
+                                const layout = getCurrentLayoutByItem(
+                                    item,
+                                    true
+                                );
                                 (props as EditLayoutProps).onPositionChange?.(
                                     layout
                                 );

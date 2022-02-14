@@ -169,6 +169,7 @@ export interface LayoutItemProps extends EventBaseProps, DragItem {
     height: number;
     scale: number;
     bound: BoundType;
+    grid: [number, number];
     layout_type: LayoutType.DRAG | LayoutType.GRID;
     setCurrentChecked: (idx: string) => void;
     onDragStart?: () => void;
@@ -208,6 +209,7 @@ export interface CursorProps extends DraggableProps {
 /** resize */
 export interface ResizableProps extends EventBaseProps, ItemPos {
     scale: number;
+    grid: [number, number];
     bound?: Partial<BoundType>;
     is_resizable?: boolean;
     onResizeStart?: () => void;

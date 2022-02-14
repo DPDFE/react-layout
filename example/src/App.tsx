@@ -135,17 +135,16 @@ const App = () => {
                     ></div>
                 </ReactDragLayout> */}
                 <ReactDragLayout
-                    layout_type={LayoutType.DRAG}
+                    layout_type={LayoutType.GRID}
                     width={width}
                     height={height}
                     row_height={50}
-                    cols={2}
+                    cols={8}
                     scale={scale}
                     guide_lines={guide_line}
                     mode={LayoutType.edit}
                     onDrop={({ x, y }: any) => {
                         console.log('onDrop');
-
                         const drop_element = {
                             x: x,
                             y: y,
@@ -168,7 +167,7 @@ const App = () => {
                     //     setWidgets(layout);
                     // }}
                     onDragStop={(layout: DragItem[]) => {
-                        console.log(layout);
+                        // console.log(layout);
                         // console.log('onDragStop');
                         setWidgets(layout);
                     }}

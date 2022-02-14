@@ -2,6 +2,7 @@ import { CanvasProps, DragItem, ItemPos } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, { ReactElement } from 'react';
 
+export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
 export const DEFAULT_BOUND = {
     max_x: undefined,
     min_x: undefined,
@@ -111,8 +112,10 @@ export function calcBoundPositions<
 
 export function snapToGrid(pos: ItemPos, grid?: [number, number]) {
     if (grid && !pos.is_float) {
-        pos.x = Math.round(pos.x / grid[0]) * grid[0];
-        pos.y = Math.round(pos.y / grid[1]) * grid[1];
+        pos.x = Math.ceil(pos.x / grid[0]) * grid[0];
+        pos.y = Math.ceil(pos.y / grid[1]) * grid[1];
+        pos.w = Math.ceil(pos.w / grid[0]) * grid[0];
+        pos.h = Math.ceil(pos.h / grid[1]) * grid[1];
         return pos;
     }
     return pos;
