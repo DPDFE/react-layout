@@ -1,6 +1,6 @@
 import { LayoutItemProps, LayoutType } from '@/interfaces';
 import React, { memo, useRef } from 'react';
-import { compareProps } from './calc';
+import { compareProps, MIN_DRAG_LENGTH } from './calc';
 import Draggable from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -85,6 +85,9 @@ const LayoutItem = (props: LayoutItemProps) => {
         }
     });
 
+    const grid_x = props.is_float ? MIN_DRAG_LENGTH : props.grid[0];
+    const grid_y = props.is_float ? MIN_DRAG_LENGTH : props.grid[1];
+
     return (
         <React.Fragment>
             <Resizable
@@ -97,7 +100,7 @@ const LayoutItem = (props: LayoutItemProps) => {
                 onResize={({ x, y, h, w }) => {
                     props.onResize?.({ x, y, h, w, is_float, i });
                 }}
-                grid={props.grid}
+                grid={[grid_x, grid_y]}
                 bound={
                     props.layout_type === LayoutType.DRAG && is_float
                         ? undefined

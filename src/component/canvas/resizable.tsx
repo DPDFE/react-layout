@@ -5,6 +5,7 @@ import Cursor from './cursor';
 import { calcBoundPositions, MIN_DRAG_LENGTH } from './calc';
 
 const Resizable = (props: ResizableProps) => {
+    const [grid_x, grid_y] = props.grid;
     const child = React.Children.only(props.children);
 
     const handleResizeStart = () => {
@@ -85,9 +86,6 @@ const Resizable = (props: ResizableProps) => {
             height: props.h
         }
     });
-
-    const grid_x = props.is_float ? MIN_DRAG_LENGTH : props.grid[0];
-    const grid_y = props.is_float ? MIN_DRAG_LENGTH : props.grid[1];
 
     return (
         <React.Fragment>

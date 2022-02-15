@@ -155,16 +155,7 @@ const App = () => {
                         onChange={setScale}
                     />
                 </div>
-                {/* <ReactDragLayout>
-                    <div
-                        data-drag={{ i: 1, w: 10, h: 10 }}
-                        style={{ background: '#000' }}
-                    ></div>
-                    <div
-                        data-drag={{ i: 2, w: 10, h: 10, x: 100, y: 100 }}
-                        style={{ background: '#000' }}
-                    ></div>
-                </ReactDragLayout> */}
+
                 <ReactDragLayout
                     layout_type={LayoutType.GRID}
                     width={width}
@@ -262,9 +253,28 @@ const App = () => {
                                 <Button
                                     type='primary'
                                     style={{ marginRight: 10 }}
+                                    onClick={() => {
+                                        console.log('delete my self');
+                                    }}
                                 >
                                     删除我自己
                                 </Button>
+                                {/* <ReactDragLayout>
+                                    <div
+                                        data-drag={{ i: 1, w: 10, h: 10 }}
+                                        style={{ background: '#000' }}
+                                    ></div>
+                                    <div
+                                        data-drag={{
+                                            i: 2,
+                                            w: 10,
+                                            h: 10,
+                                            x: 100,
+                                            y: 100
+                                        }}
+                                        style={{ background: '#000' }}
+                                    ></div>
+                                </ReactDragLayout> */}
                             </div>
                         );
                     })}

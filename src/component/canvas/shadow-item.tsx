@@ -8,14 +8,19 @@ function ShadowItem(props: ShadowItemProps) {
     const { x, y, w, h, is_float } = props;
     return (
         <Fragment>
-            <div
-                className={`placeholder ${styles.placeholder}`}
-                style={{
-                    transform: `translate(${x}px, ${y}px)`,
-                    width: w,
-                    height: h
-                }}
-            ></div>
+            {x !== undefined &&
+                y !== undefined &&
+                w !== undefined &&
+                h !== undefined && (
+                    <div
+                        className={`placeholder ${styles.placeholder}`}
+                        style={{
+                            transform: `translate(${x}px, ${y}px)`,
+                            width: w,
+                            height: h
+                        }}
+                    ></div>
+                )}
         </Fragment>
     );
 }

@@ -3,6 +3,7 @@ import isEqual from 'lodash.isequal';
 import React, { ReactElement } from 'react';
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
+export const MAX_STACK_LENGTH = -10; // 保存最大回撤操作距离
 export const DEFAULT_BOUND = {
     max_x: undefined,
     min_x: undefined,
@@ -227,29 +228,16 @@ export function getDropPos(
     props: CanvasProps,
     grid: [number, number]
 ): ItemPos {
-    const current = e.target as HTMLElement;
+    const { layerX, layerY } = e.nativeEvent as any;
+    const x = layerX / props.scale;
+    const y = layerY / props.scale;
 
-    const { left, top } = current?.getBoundingClientRect();
-    const _x = (e.clientX + current.scrollLeft - left) / props.scale;
-    const _y = (e.clientY + current.scrollTop - top) / props.scale;
-
-    if (props.layout_type === LayoutType.GRID) {
-        return {
-            x: _x,
-            y: _y,
-            h: grid![1],
-            w: grid![0],
-            is_float: false,
-            i: Math.random().toString()
-        };
-    } else {
-        return {
-            x: _x,
-            y: _y,
-            h: 100,
-            w: 100,
-            is_float: true,
-            i: Math.random().toString()
-        };
-    }
+    return {
+        x,
+        y,
+        w: grid[0],
+        h: grid[1],
+        i: Math.random().toString(),
+        is_float: props.layout_type === LayoutType.GRID ? false : true
+    };
 }
