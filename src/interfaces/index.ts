@@ -48,15 +48,15 @@ type LayoutBase = {
 };
 
 type EditLayoutBase = LayoutBase & {
-    onDrop?: ({ x, y }: { x: number; y: number }) => DragItem;
+    onDrop?: ({ x, y }: { x: number; y: number }) => LayoutItem;
     onRemove?: (i: string) => void;
     onDragStart?: () => void;
-    onDrag?: (layout: DragItem[]) => void;
-    onDragStop?: (layout: DragItem[]) => void;
+    onDrag?: (layout: LayoutItem[]) => void;
+    onDragStop?: (layout: LayoutItem[]) => void;
     onResizeStart?: () => void;
-    onResize?: (layout: DragItem[]) => void;
-    onResizeStop?: (layout: DragItem[]) => void;
-    onPositionChange?: (layout: DragItem[]) => void;
+    onResize?: (layout: LayoutItem[]) => void;
+    onResizeStop?: (layout: LayoutItem[]) => void;
+    onPositionChange?: (layout: LayoutItem[]) => void;
 };
 
 type GuideLine = {
@@ -151,7 +151,7 @@ export type CanvasProps = ReactDragLayoutProps & {
 };
 
 /** 单节点属性 */
-export interface DragItem extends ItemPos {
+export interface LayoutItem extends ItemPos {
     is_draggable?: boolean;
     is_resizable?: boolean;
 }
@@ -164,7 +164,7 @@ interface EventBaseProps {
 }
 
 /** 子元素 */
-export interface LayoutItemProps extends EventBaseProps, DragItem {
+export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     width: number;
     height: number;
     scale: number;

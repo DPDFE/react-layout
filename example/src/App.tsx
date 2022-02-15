@@ -3,7 +3,7 @@ import { Button, Input, Slider } from 'antd';
 import {
     ReactDragLayout,
     LayoutType,
-    DragItem,
+    LayoutItem,
     DirectionType,
     ItemPos
 } from 'react-drag-layout';
@@ -14,7 +14,7 @@ const App = () => {
     const [width, setWidth] = useState<number | string>(400);
     const [height, setHeight] = useState<number | string>(400);
     const [scale, setScale] = useState<number>(1);
-    const [widgets, setWidgets] = useState<DragItem[]>([]);
+    const [widgets, setWidgets] = useState<LayoutItem[]>([]);
     const [guide_line, setGuideLine] = useState<
         {
             x: number;
@@ -171,7 +171,7 @@ const App = () => {
                             i: widgets.length.toString(),
                             is_resizable: true,
                             is_draggable: true
-                        } as DragItem;
+                        } as LayoutItem;
 
                         console.log(drop_element);
                         setWidgets(widgets.concat([drop_element]));
@@ -180,11 +180,11 @@ const App = () => {
                     onDragStart={() => {
                         // console.log('onDragStart');
                     }}
-                    // onDrag={(layout: DragItem[]) => {
+                    // onDrag={(layout: LayoutItem[]) => {
                     //     console.log('onDrag');
                     //     setWidgets(layout);
                     // }}
-                    onDragStop={(layout: DragItem[]) => {
+                    onDragStop={(layout: LayoutItem[]) => {
                         // console.log(layout);
                         // console.log('onDragStop');
                         setWidgets(layout);
@@ -195,11 +195,11 @@ const App = () => {
                     // onResize={() => {
                     //     console.log('onResize');
                     // }}
-                    onResizeStop={(layout: DragItem[]) => {
+                    onResizeStop={(layout: LayoutItem[]) => {
                         // console.log('onResizeStop');
                         setWidgets(layout);
                     }}
-                    onPositionChange={(layout: DragItem[]) => {
+                    onPositionChange={(layout: LayoutItem[]) => {
                         // console.log('positionChange', layout);
                         setWidgets(layout);
                     }}

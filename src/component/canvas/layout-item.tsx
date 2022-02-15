@@ -1,4 +1,4 @@
-import { LayoutItemProps, LayoutType } from '@/interfaces';
+import { WidgetItemProps, LayoutType } from '@/interfaces';
 import React, { memo, useRef } from 'react';
 import { compareProps, MIN_DRAG_LENGTH } from './calc';
 import Draggable from './draggable';
@@ -6,20 +6,20 @@ import Resizable from './resizable';
 import styles from './styles.module.css';
 
 /**
- * LayoutItem、resizable、draggable（props、child）流转：
- * LayoutItem:
+ * WidgetItem、resizable、draggable（props、child）流转：
+ * WidgetItem:
  * child: 调用方child
  * props: Canvas props
  *
  * draggable:
- * child: LayoutItem
+ * child: WidgetItem
  * props: resizable props
  *
  * resizable:
  * child: draggable
- * props: LayoutItem props
+ * props: WidgetItem props
  */
-const LayoutItem = (props: LayoutItemProps) => {
+const WidgetItem = (props: WidgetItemProps) => {
     const child = React.Children.only(props.children);
     const item_ref = useRef<HTMLDivElement>(null);
 
@@ -157,10 +157,10 @@ const LayoutItem = (props: LayoutItemProps) => {
     );
 };
 
-LayoutItem.defaultProps = {
+WidgetItem.defaultProps = {
     scale: 1,
     is_float: false,
     style: {}
 };
 
-export default memo(LayoutItem, compareProps);
+export default memo(WidgetItem, compareProps);
