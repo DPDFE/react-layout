@@ -1,4 +1,5 @@
 import {
+    CanvasProps,
     DragLayoutProps,
     LayoutType,
     ReactDragLayoutProps
@@ -8,6 +9,58 @@ import { ReactElement, RefObject } from 'react';
 export const RULER_GAP = 100; // 标尺间隔大小
 export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
 export const WRAPPER_PADDING = 200; // 编辑状态下的边框
+export const DEFAULT_BOUND = {
+    max_x: undefined,
+    min_x: undefined,
+    min_y: undefined,
+    max_y: undefined
+};
+
+export function calcBoundBorder(
+    bound?: [number, number?, number?, number?]
+): [number, number, number, number] {
+    if (bound) {
+        switch (bound.length) {
+            case 1:
+                return [bound[0], bound[0], bound[0], bound[0]];
+            case 2:
+                return [
+                    bound[0],
+                    bound[1] as number,
+                    bound[0],
+                    bound[1] as number
+                ];
+            case 3:
+                return [
+                    bound[0],
+                    bound[1] as number,
+                    bound[2] as number,
+                    bound[1] as number
+                ];
+            case 4:
+                return [
+                    bound[0],
+                    bound[1] as number,
+                    bound[2] as number,
+                    bound[3] as number
+                ];
+        }
+    }
+    return [0, 0, 0, 0];
+}
+
+export function calcBoundRange(
+    current_width: number,
+    current_height: number,
+    bound_border: [number, number, number, number]
+) {
+    return {
+        max_x: current_width - bound_border[1] - bound_border[3],
+        min_x: 0,
+        min_y: 0,
+        max_y: current_height - bound_border[0] - bound_border[2]
+    };
+}
 
 // 生成从0开始的数组
 export const reciprocalNum = (count1: number, count2: number) => {

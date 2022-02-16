@@ -141,6 +141,8 @@ export interface GuideLineProps {
 
 /** 画布props */
 export type CanvasProps = ReactDragLayoutProps & {
+    bound: Partial<BoundType>;
+    grid: [number, number];
     width: number;
     height: number;
     t_offset: number;

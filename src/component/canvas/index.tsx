@@ -10,12 +10,9 @@ import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.css';
 import WidgetItem from './layout-item';
 import { addEvent, removeEvent } from '@pearone/event-utils';
-import { copyObject, noop } from '@/utils/utils';
+import { copyObject, copyObjectArray, noop } from '@/utils/utils';
 import {
-    calcBoundBorder,
     calcBoundPositions,
-    calcBoundRange,
-    DEFAULT_BOUND,
     dynamicCalcLayout,
     snapToGrid,
     dragToGrid,
@@ -34,43 +31,21 @@ const Canvas = (props: CanvasProps) => {
 
     const [checked_index, setCurrentChecked] = useState<string>();
 
-    const [grid, setGrid] = useState<[number, number] | undefined>(undefined);
-
     const [shadow_widget, setShadowWidget] = useState<ItemPos | undefined>(
         undefined
     );
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
-
-    const [item_bound, setItemBound] =
-        useState<Partial<BoundType>>(DEFAULT_BOUND);
-
-    useEffect(() => {
-        const canvas_bound = calcBoundBorder(props.container_margin);
-        const item_bound = calcBoundRange(props, canvas_bound);
-
-        const grid = [
-            (props.width - canvas_bound[1] - canvas_bound[3]) / props.cols,
-            props.row_height
-        ] as [number, number];
-
-        setGrid(grid);
-        setItemBound(item_bound);
-    }, [
-        props.container_margin,
-        props.width,
-        props.height,
-        props.cols,
-        props.row_height
-    ]);
+    const [old_layout, setOldLayout] = useState<LayoutItem[]>([]); // 拖拽、排序前的旧定位
+    const [is_drag_init, setDragInit] = useState<boolean>(false);
 
     useEffect(() => {
-        if (props.children.length > 0 && grid) {
-            const layout = createInitialLayout(props.children, grid);
-            // const { new_layout } = dynamicCalcLayout(layout, grid, item_bound);
-            console.log('init');
-            setLayout(layout);
+        if (props.children.length > 0) {
+            const layout = createInitialLayout(props.children, props.grid);
+            const new_layout = dynamicCalcLayout(layout);
+            setLayout(new_layout);
+            setOldLayout(copyObjectArray(new_layout));
         }
-    }, [props.children, grid]);
+    }, [props.children, props.grid]);
 
     /** 清空选中 */
     const clearCheckedEvent = (e: MouseEvent) => {
@@ -94,28 +69,6 @@ const Canvas = (props: CanvasProps) => {
         };
     }, []);
 
-    /** 拖拽添加 */
-    const onDrop = (e: React.MouseEvent) => {
-        e.preventDefault();
-
-        const drop_item = getDropPos(e, props, grid!);
-        const grid_layout = sortGridLayoutItems(layout);
-        const { shadow_pos } = dynamicCalcShadowPos(
-            grid_layout,
-            grid!,
-            item_bound,
-            drop_item
-        );
-
-        const grid_item = dragToGrid(shadow_pos, grid);
-        const item = (props as EditLayoutProps).onDrop?.(grid_item);
-
-        if (item && item.i) {
-            setShadowWidget(undefined);
-            setCurrentChecked(item.i);
-        }
-    };
-
     const onDragLeave = (e: React.MouseEvent) => {
         e.preventDefault();
 
@@ -126,50 +79,61 @@ const Canvas = (props: CanvasProps) => {
         }
     };
 
-    const onDragEnter = (e: React.MouseEvent) => {
+    /** 拖拽添加 */
+    const onDrop = (e: React.MouseEvent) => {
         e.preventDefault();
+        setDragInit(false);
+
+        const drop_item = getDropPos(e, props);
+        const { item_pos } = dynamicCalcShadowPos(
+            copyObjectArray(old_layout),
+            drop_item
+        );
+
+        const grid_item = dragToGrid(item_pos, props.grid);
+        const item = (props as EditLayoutProps).onDrop?.(grid_item);
+
+        if (item && item.i) {
+            setShadowWidget(undefined);
+            setCurrentChecked(item.i);
+        }
     };
 
     const onDragOver = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        // 响应式布局有阴影定位，固定宽高无阴影定位
-        const grid_layout = sortGridLayoutItems(layout);
-        console.log(grid_layout);
+        setDragInit(true);
 
-        const drop_item = getDropPos(e, props, grid!);
-        const { shadow_pos } = dynamicCalcShadowPos(
-            grid_layout,
-            grid!,
-            item_bound,
+        const drop_item = getDropPos(e, props);
+
+        const { item_pos, moved_layout } = dynamicCalcShadowPos(
+            copyObjectArray(old_layout),
             drop_item
         );
-
-        if (!isEqual(shadow_pos, shadow_widget)) {
-            setShadowWidget(shadow_pos);
+        if (!isEqual(item_pos, shadow_widget)) {
+            setShadowWidget(item_pos);
+            setLayout(moved_layout);
         }
     };
 
     /** 获取当前状态下的layout */
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        const { shadow_pos, new_layout } = dynamicCalcLayout(
-            layout,
-            grid,
-            item_bound,
-            copyObject(item)
-        );
-
-        setShadowWidget(shadow_pos);
-
-        setLayout(
-            new_layout.map((w) => {
-                return w.i === item.i ? { ...w, ...shadow_pos } : w;
-            })
-        );
-
-        return new_layout.map((w) => {
-            return { ...w, ...dragToGrid(w, grid) };
-        });
+        // const { shadow_pos, new_layout } = dynamicCalcLayout(
+        //     layout,
+        //     props.grid,
+        //     props.bound,
+        //     item
+        // );
+        // setShadowWidget(shadow_pos);
+        // setLayout(
+        //     new_layout.map((w) => {
+        //         return w.i === item.i ? { ...w, ...shadow_pos } : w;
+        //     })
+        // );
+        // return new_layout.map((w) => {
+        //     return { ...w, ...dragToGrid(w, props.grid) };
+        // });
+        return layout;
     };
 
     // console.log('render canvas');
@@ -194,7 +158,6 @@ const Canvas = (props: CanvasProps) => {
             /** 阻止了onDragOver以后，onDrop事件才生效 */
             onDrop={props.mode === LayoutType.edit ? onDrop : noop}
             onDragLeave={props.mode === LayoutType.edit ? onDragLeave : noop}
-            onDragEnter={props.mode === LayoutType.edit ? onDragEnter : noop}
             onDragOver={props.mode === LayoutType.edit ? onDragOver : noop}
         >
             {shadow_widget && (
@@ -208,7 +171,6 @@ const Canvas = (props: CanvasProps) => {
                     }}
                 ></div>
             )}
-            {/* <WidgetItem {...shadow_widget}></WidgetItem> */}
             {React.Children.map(props.children, (child, idx) => {
                 const widget = layout[idx];
                 if (widget) {
@@ -218,8 +180,8 @@ const Canvas = (props: CanvasProps) => {
                             key={widget.i}
                             {...widget}
                             {...child.props}
-                            grid={grid}
-                            bound={item_bound}
+                            grid={props.grid}
+                            bound={props.bound}
                             children={child}
                             width={props.width}
                             height={props.height}
