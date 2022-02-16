@@ -2,9 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
 import Canvas from '../canvas';
-import { getMaxWidgetsRange } from './calc';
+import {
+    calcBoundBorder,
+    calcBoundRange,
+    DEFAULT_BOUND,
+    getMaxWidgetsRange
+} from './calc';
 import styles from './styles.module.css';
 import {
+    BoundType,
     DragLayoutProps,
     LayoutType,
     ReactDragLayoutProps,
@@ -30,6 +36,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
     const [fresh_count, setFreshCount] = useState<number>(0); // 刷新
 
+    const [grid, setGrid] = useState<[number, number] | undefined>(undefined);
+    const [bound, setBound] = useState<Partial<BoundType>>(DEFAULT_BOUND);
+
     /**
      * 更改画布宽高属性
      */
@@ -51,6 +60,29 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         setTopOffset(t_offset);
         setLeftOffset(l_offset);
     };
+
+    useEffect(() => {
+        const canvas_bound = calcBoundBorder(props.container_margin);
+        const bound = calcBoundRange(
+            current_width,
+            current_height,
+            canvas_bound
+        );
+
+        const grid = [
+            (current_width - canvas_bound[1] - canvas_bound[3]) / props.cols,
+            props.row_height
+        ] as [number, number];
+
+        setGrid(grid);
+        setBound(bound);
+    }, [
+        props.container_margin,
+        current_width,
+        current_height,
+        props.cols,
+        props.row_height
+    ]);
 
     useEffect(() => {
         changeCanvasAttrs();
@@ -117,10 +149,13 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                         {/* 实际画布区域 */}
                         {current_width &&
                             current_height &&
+                            grid &&
                             t_offset !== undefined &&
                             l_offset !== undefined && (
                                 <Canvas
                                     {...props}
+                                    grid={grid}
+                                    bound={bound}
                                     width={current_width}
                                     height={current_height}
                                     row_height={

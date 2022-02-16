@@ -64,9 +64,10 @@ const WidgetItem = (props: WidgetItemProps) => {
             if (is_float) {
                 const keydown_pos = handleKeyDown(e);
                 if (keydown_pos) {
-                    props.onPositionChange?.(
-                        Object.assign({ x, y, h, w, i, is_float }, keydown_pos)
-                    );
+                    props.onPositionChange?.({
+                        ...{ x, y, h, w, i, is_float },
+                        ...keydown_pos
+                    });
                 }
             }
         },
