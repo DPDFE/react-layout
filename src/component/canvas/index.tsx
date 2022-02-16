@@ -20,7 +20,9 @@ import {
     getDropPos,
     gridToDrag,
     sortGridLayoutItems,
-    dynamicCalcShadowPos
+    dynamicCalcShadowPos,
+    findItemPos,
+    moveElement
 } from './calc';
 import isEqual from 'lodash.isequal';
 
@@ -36,7 +38,6 @@ const Canvas = (props: CanvasProps) => {
     );
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
     const [old_layout, setOldLayout] = useState<LayoutItem[]>([]); // 拖拽、排序前的旧定位
-    const [is_drag_init, setDragInit] = useState<boolean>(false);
 
     useEffect(() => {
         if (props.children.length > 0) {
@@ -82,15 +83,14 @@ const Canvas = (props: CanvasProps) => {
     /** 拖拽添加 */
     const onDrop = (e: React.MouseEvent) => {
         e.preventDefault();
-        setDragInit(false);
 
         const drop_item = getDropPos(e, props);
-        const { item_pos } = dynamicCalcShadowPos(
-            copyObjectArray(old_layout),
-            drop_item
-        );
+        const copy_layout = copyObjectArray(old_layout);
 
-        const grid_item = dragToGrid(item_pos, props.grid);
+        findItemPos(copy_layout, drop_item);
+        moveElement(copy_layout, drop_item);
+
+        const grid_item = dragToGrid(drop_item, props.grid);
         const item = (props as EditLayoutProps).onDrop?.(grid_item);
 
         if (item && item.i) {
@@ -102,38 +102,44 @@ const Canvas = (props: CanvasProps) => {
     const onDragOver = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        setDragInit(true);
 
         const drop_item = getDropPos(e, props);
+        const copy_layout = copyObjectArray(old_layout);
 
-        const { item_pos, moved_layout } = dynamicCalcShadowPos(
-            copyObjectArray(old_layout),
-            drop_item
-        );
-        if (!isEqual(item_pos, shadow_widget)) {
-            setShadowWidget(item_pos);
-            setLayout(moved_layout);
+        findItemPos(copy_layout, drop_item);
+        moveElement(copy_layout, drop_item);
+
+        if (!isEqual(drop_item, shadow_widget)) {
+            setShadowWidget(drop_item);
+            setLayout(copy_layout);
         }
     };
 
     /** 获取当前状态下的layout */
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        // const { shadow_pos, new_layout } = dynamicCalcLayout(
-        //     layout,
-        //     props.grid,
-        //     props.bound,
-        //     item
-        // );
-        // setShadowWidget(shadow_pos);
-        // setLayout(
-        //     new_layout.map((w) => {
-        //         return w.i === item.i ? { ...w, ...shadow_pos } : w;
-        //     })
-        // );
-        // return new_layout.map((w) => {
-        //     return { ...w, ...dragToGrid(w, props.grid) };
-        // });
-        return layout;
+        const copy_layout = copyObjectArray(old_layout);
+        const shadow_pos = copyObject(item);
+
+        if (!shadow_pos.is_float) {
+            snapToGrid(shadow_pos, props.grid);
+        }
+
+        findItemPos(copy_layout, shadow_pos);
+        moveElement(copy_layout, shadow_pos);
+
+        setShadowWidget(shadow_pos);
+        const new_layout = copy_layout.map((w) => {
+            return w.i === item.i
+                ? is_save
+                    ? { ...w, ...shadow_pos }
+                    : { ...w, ...item }
+                : w;
+        });
+
+        setLayout(new_layout);
+        return new_layout.map((w) => {
+            return dragToGrid(w, props.grid);
+        });
     };
 
     // console.log('render canvas');

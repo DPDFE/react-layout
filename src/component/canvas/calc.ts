@@ -217,10 +217,14 @@ export function sortGridLayoutItems(layout: LayoutItem[]) {
 }
 
 function getAllCollisions(layout: LayoutItem[], item: LayoutItem) {
-    return layout.filter((l) => collides(l, item));
+    return layout
+        .filter((l) => {
+            return !l.is_float;
+        })
+        .filter((l) => collides(l, item));
 }
 
-function findItemPos(layout: LayoutItem[], item: LayoutItem) {
+export function findItemPos(layout: LayoutItem[], item: LayoutItem) {
     let y = 0;
     layout.map((l) => {
         if (!l.is_float) {
@@ -242,17 +246,13 @@ export function dynamicCalcShadowPos(
     layout: LayoutItem[],
     center_widget: LayoutItem
 ) {
-    const _layout = layout.slice(0);
-    findItemPos(_layout, center_widget);
-    moveElement(_layout, center_widget);
-    return { item_pos: center_widget, moved_layout: _layout };
+    return { item_pos: center_widget, moved_layout: layout };
 }
 
 export function dynamicCalcLayout(layout: LayoutItem[]) {
     layout.map((l) => {
         if (!l.is_float) {
             const item_pos = findItemPos(layout, l);
-            console.log(item_pos);
             moveElement(layout, item_pos);
         }
         return l;
@@ -262,7 +262,7 @@ export function dynamicCalcLayout(layout: LayoutItem[]) {
 
 // 有碰撞，一直找到has_collisions没有了就停止
 // center_widget是正确元素，collisions为重叠元素
-function moveElement(layout: LayoutItem[], center_widget: LayoutItem) {
+export function moveElement(layout: LayoutItem[], center_widget: LayoutItem) {
     const collisions = getAllCollisions(layout, center_widget);
     const has_collisions = collisions.length > 0;
     if (has_collisions) {
