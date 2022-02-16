@@ -1,9 +1,14 @@
-import { CanvasProps, LayoutItem, ItemPos, LayoutType } from '@/interfaces';
+import {
+    CanvasProps,
+    LayoutItem,
+    ItemPos,
+    LayoutType,
+    BoundType
+} from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, { ReactElement } from 'react';
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
-export const MAX_STACK_LENGTH = -10; // 保存最大回撤操作距离
 export const DEFAULT_BOUND = {
     max_x: undefined,
     min_x: undefined,
@@ -160,20 +165,6 @@ export function dragToGrid(widget: ItemPos, grid?: [number, number]): ItemPos {
     }
 }
 
-export function dynamicProgramming(
-    widgets: any,
-    grid?: [number, number],
-    grid_bound?: Partial<{
-        min_x: number;
-        max_x: number;
-        min_y: number;
-        max_y: number;
-    }>
-) {
-    // console.log(widgets);
-    return widgets;
-}
-
 export function createInitialLayout(
     children: React.ReactElement[],
     grid?: [number, number]
@@ -242,11 +233,106 @@ export function getDropPos(
     };
 }
 
-export function collides(l1: LayoutItem, l2: LayoutItem): boolean {
-    if (l1.i === l2.i) return false; // same element
-    if (l1.x + l1.w <= l2.x) return false; // l1 is left of l2
-    if (l1.x >= l2.x + l2.w) return false; // l1 is right of l2
-    if (l1.y + l1.h <= l2.y) return false; // l1 is above l2
-    if (l1.y >= l2.y + l2.h) return false; // l1 is below l2
-    return true; // boxes overlap
+export function collides(item_1: LayoutItem, item_2: LayoutItem): boolean {
+    if (item_1.i === item_2.i) return false; // 相同节点
+    if (item_1.x + item_1.w <= item_2.x) return false; // 👈
+    if (item_1.x >= item_2.x + item_2.w) return false; // 👉
+    if (item_1.y + item_1.h <= item_2.y) return false; // 👆
+    if (item_1.y >= item_2.y + item_2.h) return false; // 👇
+    return true;
+}
+
+export function sortGridLayoutItems(layout: LayoutItem[]) {
+    return layout
+        .slice(0)
+        .filter((l) => {
+            return !l.is_float;
+        })
+        .sort(function (a, b) {
+            if (a.y > b.y || (a.y === b.y && a.x > b.x)) {
+                return 1;
+            } else if (a.y === b.y && a.x === b.x) {
+                // Without this, we can get different sort results in IE vs. Chrome/FF
+                return 0;
+            }
+            return -1;
+        });
+}
+
+function getAllCollisions(layout: LayoutItem[], item: LayoutItem) {
+    return layout.filter((l) => collides(l, item));
+}
+
+function findItemPos(layout: LayoutItem[], item: LayoutItem): LayoutItem {
+    let y = 0;
+    layout.map((l) => {
+        if (item.x > l.x && item.x < l.x + l.w) {
+            if (item.y > l.y && item.y < l.y + l.h) {
+                if (item.y > l.y + l.h / 2) {
+                    y = Math.max(l.y + l.h, y);
+                } else {
+                    y = Math.max(l.y, y);
+                }
+            }
+        }
+    });
+
+    console.log(item, y);
+    return { ...item, y };
+}
+
+export function dynamicCalcShadowPos(
+    layout: LayoutItem[],
+    grid: [number, number],
+    item_bound: Partial<BoundType>,
+    center_widget: LayoutItem
+) {
+    const item_pos = findItemPos(layout, center_widget);
+    const shadow_pos = calcBoundPositions(
+        snapToGrid(item_pos, grid),
+        item_bound
+    );
+    // console.log(item_pos);
+    return { shadow_pos };
+}
+
+// 如果有center_widget，说明有当前操作节点，需要针对当前节点，计算放置位置，作为shadow_widget的position
+// 如果没有center_widget，先过滤layout中的非浮动节点。
+// 非浮动节点进行排位，如果有挤压，进行重新定位。
+
+// 非浮动放置规则 向上挤压
+export function dynamicCalcLayout(
+    layout: LayoutItem[],
+    grid: [number, number] | undefined,
+    item_bound: Partial<BoundType>,
+    center_widget: LayoutItem
+) {
+    // const collisions = getAllCollisions(layout, { ...item, y });
+    // const has_collisions = collisions.length > 0;
+    // if (has_collisions) {
+    //     const last_collision = collisions[0];
+    //     console.log('last_collision', last_collision);
+    //     y =
+    //         last_collision.y + last_collision.h / 2 > y
+    //             ? last_collision.y + last_collision.h
+    //             : last_collision.y;
+    // }
+    // console.log('final', y);
+
+    // const new_layout = layout!.map((widget) => {
+    //     return widget.i === item.i
+    //         ? Object.assign(
+    //               {},
+    //               widget,
+    //               is_save && !item.is_float ? shadow_pos : item
+    //           )
+    //         : widget;
+    // });
+
+    const shadow_pos = calcBoundPositions(
+        snapToGrid(center_widget, grid),
+        item_bound
+    );
+
+    return { shadow_pos, new_layout: layout };
 }
