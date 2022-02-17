@@ -60,7 +60,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     };
 
     useEffect(() => {
-        console.log('change canvas Attrs');
         changeCanvasAttrs();
         addEvent(window, 'resize', changeCanvasAttrs);
         return () => {

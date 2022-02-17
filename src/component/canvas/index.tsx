@@ -1,5 +1,4 @@
 import {
-    BoundType,
     CanvasProps,
     LayoutItem,
     EditLayoutProps,
@@ -12,17 +11,13 @@ import WidgetItem from './layout-item';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import { copyObject, copyObjectArray, noop } from '@/utils/utils';
 import {
-    calcBoundPositions,
     dynamicCalcLayout,
     snapToGrid,
     dragToGrid,
     createInitialLayout,
     getDropPos,
-    gridToDrag,
-    sortGridLayoutItems,
-    dynamicCalcShadowPos,
-    findItemPos,
-    moveElement
+    moveElement,
+    findItemPos
 } from './calc';
 import isEqual from 'lodash.isequal';
 
@@ -37,14 +32,13 @@ const Canvas = (props: CanvasProps) => {
         undefined
     );
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
-    const [old_layout, setOldLayout] = useState<LayoutItem[]>([]); // 拖拽、排序前的旧定位
 
     useEffect(() => {
         if (props.children.length > 0) {
             const layout = createInitialLayout(props.children, props.grid);
-            const new_layout = dynamicCalcLayout(layout);
+            const new_layout = layout;
+            // const new_layout = dynamicCalcLayout(layout);
             setLayout(new_layout);
-            setOldLayout(copyObjectArray(new_layout));
         }
     }, [props.children, props.grid]);
 
@@ -85,10 +79,10 @@ const Canvas = (props: CanvasProps) => {
         e.preventDefault();
 
         const drop_item = getDropPos(e, props);
-        const copy_layout = copyObjectArray(old_layout);
+        const copy_layout = copyObjectArray(layout);
 
-        findItemPos(copy_layout, drop_item);
         moveElement(copy_layout, drop_item);
+        console.log(drop_item);
 
         const grid_item = dragToGrid(drop_item, props.grid);
         const item = (props as EditLayoutProps).onDrop?.(grid_item);
@@ -104,7 +98,7 @@ const Canvas = (props: CanvasProps) => {
         e.stopPropagation();
 
         const drop_item = getDropPos(e, props);
-        const copy_layout = copyObjectArray(old_layout);
+        const copy_layout = copyObjectArray(layout);
 
         findItemPos(copy_layout, drop_item);
         moveElement(copy_layout, drop_item);
@@ -117,15 +111,19 @@ const Canvas = (props: CanvasProps) => {
 
     /** 获取当前状态下的layout */
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        const copy_layout = copyObjectArray(old_layout);
+        const copy_layout = copyObjectArray(layout);
         const shadow_pos = copyObject(item);
 
         if (!shadow_pos.is_float) {
             snapToGrid(shadow_pos, props.grid);
+            findItemPos(layout, shadow_pos);
         }
 
-        findItemPos(copy_layout, shadow_pos);
-        moveElement(copy_layout, shadow_pos);
+        dynamicCalcLayout(
+            copy_layout.map((w) => {
+                return w.i === item.i ? { ...w, ...shadow_pos } : w;
+            })
+        );
 
         setShadowWidget(shadow_pos);
         const new_layout = copy_layout.map((w) => {

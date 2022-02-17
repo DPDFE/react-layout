@@ -243,7 +243,7 @@ const App = () => {
                                 // className={'app_class'}
                                 id={`app_id_${w.i}`}
                                 style={{
-                                    background: '#fff',
+                                    background: 'transparent',
                                     border: '1px solid'
                                 }}
                             >

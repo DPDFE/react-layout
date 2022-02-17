@@ -26,8 +26,6 @@ const WidgetItem = (props: WidgetItemProps) => {
 
     const { i, x, y, h, w, is_float, is_draggable, is_resizable } = props;
 
-    console.log('render child', i);
-
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
         const keycode_step = 3;

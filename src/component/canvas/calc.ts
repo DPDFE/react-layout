@@ -1,12 +1,5 @@
-import {
-    CanvasProps,
-    LayoutItem,
-    ItemPos,
-    LayoutType,
-    BoundType
-} from '@/interfaces';
-import isEqual from 'lodash.isequal';
-import React, { ReactElement } from 'react';
+import { CanvasProps, LayoutItem, ItemPos, LayoutType } from '@/interfaces';
+import React from 'react';
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
 
@@ -165,23 +158,12 @@ export function collides(item_1: LayoutItem, item_2: LayoutItem): boolean {
     return true;
 }
 
-export function sortGridLayoutItems(layout: LayoutItem[]) {
-    return layout
-        .slice(0)
-        .filter((l) => {
-            return !l.is_float;
-        })
-        .sort(function (a, b) {
-            if (a.y > b.y || (a.y === b.y && a.x > b.x)) {
-                return 1;
-            } else if (a.y === b.y && a.x === b.x) {
-                // Without this, we can get different sort results in IE vs. Chrome/FF
-                return 0;
-            }
-            return -1;
-        });
-}
-
+/**
+ * 获取布局上所有和目标元素重叠的元素
+ * @param layout
+ * @param item
+ * @returns
+ */
 function getAllCollisions(layout: LayoutItem[], item: LayoutItem) {
     return layout
         .filter((l) => {
@@ -190,51 +172,64 @@ function getAllCollisions(layout: LayoutItem[], item: LayoutItem) {
         .filter((l) => collides(l, item));
 }
 
+/**
+ * 获取正确定位
+ * @param layout
+ * @param item
+ * @returns
+ */
 export function findItemPos(layout: LayoutItem[], item: LayoutItem) {
     let y = 0;
     layout.map((l) => {
         if (!l.is_float) {
             if (item.x >= l.x && item.x < l.x + l.w) {
                 if (item.y > l.y + l.h / 2) {
+                    console.log('down', item, l);
                     y = Math.max(l.y + l.h, y);
-                }
-                if (item.y > l.y && item.y < l.y + l.h / 2) {
+                } else if (item.y > l.y) {
+                    console.log('up');
                     y = Math.max(l.y, y);
                 }
             }
         }
     });
     item.y = y;
-    return item;
 }
 
-export function dynamicCalcShadowPos(
-    layout: LayoutItem[],
-    center_widget: LayoutItem
-) {
-    return { item_pos: center_widget, moved_layout: layout };
+/**
+ * 有碰撞，一直找到has_collisions没有了就停止
+ * center_widget是正确元素，collisions为重叠元素
+ * @param layout
+ * @param center_widget
+ */
+export function moveElement(layout: LayoutItem[], center_widget: LayoutItem) {
+    findItemPos(layout, center_widget);
+    const collisions = getAllCollisions(layout, center_widget);
+    const has_collisions = collisions.length > 0;
+    if (has_collisions) {
+        collisions.map((col) => {
+            // moveElement(layout, col);
+        });
+    }
 }
 
+/**
+ * 保证初始化状态widget不重叠
+ * @param layout 用户定位布局
+ * @returns
+ */
 export function dynamicCalcLayout(layout: LayoutItem[]) {
+    console.log('dynamicCalcLayout start');
     layout.map((l) => {
         if (!l.is_float) {
-            const item_pos = findItemPos(layout, l);
-            moveElement(layout, item_pos);
+            findItemPos(layout, l);
+            moveElement(layout, l);
         }
         return l;
     });
     return layout;
 }
 
-// 有碰撞，一直找到has_collisions没有了就停止
-// center_widget是正确元素，collisions为重叠元素
-export function moveElement(layout: LayoutItem[], center_widget: LayoutItem) {
-    const collisions = getAllCollisions(layout, center_widget);
-    const has_collisions = collisions.length > 0;
-    if (has_collisions) {
-        collisions.map((col) => {
-            col.y = center_widget.y + center_widget.h;
-            moveElement(layout, col);
-        });
-    }
+function clamp(value: number, min: number, max: number): number {
+    return Math.min(value, Math.max(value, min), max);
 }
