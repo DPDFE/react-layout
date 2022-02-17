@@ -41,8 +41,8 @@ const App = () => {
             },
             {
                 x: 1,
-                y: 1,
-                w: 1,
+                y: 0,
+                w: 2,
                 h: 1,
                 i: '1',
                 is_resizable: true,
@@ -51,34 +51,34 @@ const App = () => {
             },
             {
                 x: 1,
-                y: 1,
-                w: 1,
-                h: 1,
+                y: 0,
+                w: 3,
+                h: 4,
                 i: '2',
                 is_resizable: true,
                 is_draggable: true,
                 is_float: false
+            },
+            {
+                x: 1,
+                y: 1,
+                w: 1,
+                h: 3,
+                i: '3',
+                is_resizable: true,
+                is_draggable: true,
+                is_float: false
+            },
+            {
+                x: 1,
+                y: 1,
+                w: 2,
+                h: 2,
+                i: '4',
+                is_resizable: true,
+                is_draggable: true,
+                is_float: false
             }
-            // {
-            //     x: 1,
-            //     y: 1,
-            //     w: 1,
-            //     h: 1,
-            //     i: '3',
-            //     is_resizable: true,
-            //     is_draggable: true,
-            //     is_float: false
-            // },
-            // {
-            //     x: 1,
-            //     y: 1,
-            //     w: 1,
-            //     h: 1,
-            //     i: '4',
-            //     is_resizable: true,
-            //     is_draggable: true,
-            //     is_float: false
-            // }
         ];
         // return Array.from({ length: 3 }).map((_, i) => {
         //     return {

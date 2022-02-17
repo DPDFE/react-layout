@@ -154,6 +154,7 @@ export type CanvasProps = ReactDragLayoutProps & {
 export interface LayoutItem extends ItemPos {
     is_draggable?: boolean;
     is_resizable?: boolean;
+    moved?: boolean;
 }
 
 interface EventBaseProps {

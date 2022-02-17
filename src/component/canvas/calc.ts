@@ -172,41 +172,148 @@ function getAllCollisions(layout: LayoutItem[], item: LayoutItem) {
         .filter((l) => collides(l, item));
 }
 
+function getFirstCollision(layout: LayoutItem[], item: LayoutItem) {
+    return layout.find((l) => {
+        return collides(l, item);
+    });
+}
+
+function sortLayoutItems(layout: LayoutItem[]) {
+    return layout
+        .filter((l) => {
+            return !l.is_float;
+        })
+        .sort((a, b) => {
+            if (a.y > b.y || (a.y === b.y && a.x > b.x)) {
+                return 1;
+            } else if (a.y === b.y && a.x === b.x) {
+                return 0;
+            }
+            return -1;
+        });
+}
+
 /**
  * 获取正确定位
  * @param layout
  * @param item
  * @returns
  */
-export function moveElement(layout: LayoutItem[], center_widget?: LayoutItem) {
-    const sort_layout = layout
-        .concat(center_widget ? [center_widget] : [])
-        .filter((l) => {
-            return !l.is_float;
-        })
-        .sort((a, b) => {
-            return a.y - b.y;
-        });
+export function moveElement(
+    layout: LayoutItem[],
+    l: LayoutItem,
+    grid: [number, number],
+    y: number,
+    x: number
+) {
+    l.moved = true;
+    l.y = y;
+    l.x = x;
 
-    sort_layout.map((l) => {
-        let max_y = 0;
+    const sorted = sortLayoutItems(layout);
 
-        const collisions = getAllCollisions(layout, l);
-
-        const has_collisions = collisions.length > 0;
-
-        if (has_collisions) {
-            console.log(collisions);
-
-            collisions.map((col) => {
-                if (l.y > col.y + col.h / 2) {
-                    max_y = Math.max(col.y + col.h, max_y);
-                } else if (l.y > col.y) {
-                    max_y = Math.max(col.y, max_y);
-                }
-            });
+    const collisions = getAllCollisions(sorted, l);
+    collisions.map((collision) => {
+        if (!collision.moved) {
+            layout = moveElementAwayFromCollision(layout, l, collision, grid);
         }
-        l.y = max_y;
+    });
+    return layout;
+}
+
+function moveElementAwayFromCollision(
+    layout: LayoutItem[],
+    l: LayoutItem,
+    collision: LayoutItem,
+    grid: [number, number]
+) {
+    const fake_item: LayoutItem = {
+        x: collision.x,
+        y: Math.max(l.y - collision.h, 0),
+        w: collision.w,
+        h: collision.h,
+        i: '-1',
+        is_float: false
+    };
+
+    if (!getFirstCollision(layout, fake_item)) {
+        return moveElement(layout, collision, grid, fake_item.y, fake_item.x);
+    }
+    return moveElement(
+        layout,
+        collision,
+        grid,
+        collision.y + grid[1],
+        collision.x
+    );
+}
+
+function bottom(layout: LayoutItem[]) {
+    let max = 0,
+        bottomY;
+    for (let i = 0, len = layout.length; i < len; i++) {
+        bottomY = layout[i].y + layout[i].h;
+        if (bottomY > max) max = bottomY;
+    }
+    return max;
+}
+
+function resolveCompactionCollision(
+    layout: LayoutItem[],
+    item: LayoutItem,
+    move_to: number,
+    col_height: number
+) {
+    item.y += col_height;
+    const itemIndex = layout
+        .map((layoutItem) => {
+            return layoutItem.i;
+        })
+        .indexOf(item.i);
+
+    for (let i = itemIndex + 1; i < layout.length; i++) {
+        const l = layout[i];
+        if (l.y > item.y + item.h) {
+            break;
+        }
+        if (collides(item, l)) {
+            resolveCompactionCollision(layout, l, move_to + item.h, col_height);
+        }
+    }
+}
+
+function compactItem(
+    compare_with: LayoutItem[],
+    l: LayoutItem,
+    sorted: LayoutItem[],
+    col_height: number
+) {
+    l.y = Math.min(bottom(compare_with), l.y);
+    while (l.y > 0 && !getFirstCollision(compare_with, l)) {
+        l.y -= col_height;
+    }
+
+    let collides;
+    while ((collides = getFirstCollision(compare_with, l))) {
+        resolveCompactionCollision(
+            sorted,
+            l,
+            collides.y + collides.h,
+            col_height
+        );
+    }
+
+    l.y = Math.max(l.y, 0);
+    l.x = Math.max(l.x, 0);
+    return l;
+}
+
+export function compact(layout: LayoutItem[], col_height: number) {
+    const compare_with: LayoutItem[] = [];
+    const sorted = sortLayoutItems(layout);
+    sorted.map((l) => {
+        l = compactItem(compare_with, l, sorted, col_height);
+        compare_with.push(l);
     });
 }
 
@@ -217,13 +324,6 @@ export function moveElement(layout: LayoutItem[], center_widget?: LayoutItem) {
  */
 export function dynamicCalcLayout(layout: LayoutItem[]) {
     console.log('dynamicCalcLayout start');
-    layout.map((l) => {
-        if (!l.is_float) {
-            // findItemPos(layout, l);
-            moveElement(layout, l);
-        }
-        return l;
-    });
     return layout;
 }
 

@@ -16,7 +16,8 @@ import {
     dragToGrid,
     createInitialLayout,
     getDropPos,
-    moveElement
+    moveElement,
+    compact
 } from './calc';
 import isEqual from 'lodash.isequal';
 
@@ -35,9 +36,8 @@ const Canvas = (props: CanvasProps) => {
     useEffect(() => {
         if (props.children.length > 0) {
             const layout = createInitialLayout(props.children, props.grid);
-            const new_layout = layout;
-            // const new_layout = dynamicCalcLayout(layout);
-            setLayout(new_layout);
+            compact(layout, props.grid[1]);
+            setLayout(layout);
         }
     }, [props.children, props.grid]);
 
@@ -78,10 +78,9 @@ const Canvas = (props: CanvasProps) => {
         e.preventDefault();
 
         const drop_item = getDropPos(e, props);
-        const copy_layout = copyObjectArray(layout);
+        const current_item = getLayoutItem(drop_item);
 
-        moveElement(copy_layout, drop_item);
-        console.log(drop_item);
+        moveElement(layout, current_item, props.grid, drop_item.y, drop_item.x);
 
         const grid_item = dragToGrid(drop_item, props.grid);
         const item = (props as EditLayoutProps).onDrop?.(grid_item);
@@ -97,47 +96,52 @@ const Canvas = (props: CanvasProps) => {
         e.stopPropagation();
 
         const drop_item = getDropPos(e, props);
-        const copy_layout = copyObjectArray(layout);
+        const current_item = getLayoutItem(drop_item);
 
-        // moveElement(copy_layout, drop_item);
-        moveElement(copy_layout, drop_item);
+        moveElement(layout, current_item, props.grid, drop_item.y, drop_item.x);
 
         if (!isEqual(drop_item, shadow_widget)) {
             setShadowWidget(drop_item);
-            setLayout(copy_layout);
+            setLayout(layout);
         }
     };
 
     const getLayoutItem = (item: ItemPos) => {
-        return {
-            ...layout.find((l) => {
-                return l.i == item.i;
-            }),
-            ...item
-        } as LayoutItem;
+        return layout.find((l) => {
+            return l.i == item.i;
+        }) as LayoutItem;
     };
 
     /** 获取当前状态下的layout */
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        const shadow_pos = getLayoutItem(item);
-        console.log(shadow_pos);
+        const current_item = getLayoutItem(item);
+        const shadow_pos = copyObject(item);
 
         if (!shadow_pos.is_float) {
             snapToGrid(shadow_pos, props.grid);
-            moveElement(layout, shadow_pos);
+            moveElement(
+                layout,
+                current_item,
+                props.grid,
+                shadow_pos.y,
+                shadow_pos.x
+            );
         }
 
         setShadowWidget(shadow_pos);
-        // const new_layout = layout.map((w) => {
-        //     return w.i === item.i
-        //         ? is_save
-        //             ? shadow_pos
-        //             : { ...w, ...item }
-        //         : w;
-        // });
+        compact(layout, props.grid[1]);
+        setLayout(
+            layout.map((w) => {
+                return w.i === item.i
+                    ? is_save
+                        ? shadow_pos
+                        : { ...w, ...item }
+                    : w;
+            })
+        );
 
-        setLayout(layout);
         return layout.map((w) => {
+            w.moved = false;
             return dragToGrid(w, props.grid);
         });
     };
