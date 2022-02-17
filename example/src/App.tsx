@@ -38,27 +38,27 @@ const App = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_float: true
+            },
+            {
+                x: 1,
+                y: 3,
+                w: 1,
+                h: 1,
+                i: '1',
+                is_resizable: true,
+                is_draggable: true,
+                is_float: false
+            },
+            {
+                x: 1,
+                y: 1,
+                w: 3,
+                h: 4,
+                i: '2',
+                is_resizable: true,
+                is_draggable: true,
+                is_float: false
             }
-            // {
-            //     x: 1,
-            //     y: 1,
-            //     w: 1,
-            //     h: 1,
-            //     i: '1',
-            //     is_resizable: true,
-            //     is_draggable: true,
-            //     is_float: false
-            // },
-            // {
-            //     x: 1,
-            //     y: 1,
-            //     w: 1,
-            //     h: 1,
-            //     i: '2',
-            //     is_resizable: true,
-            //     is_draggable: true,
-            //     is_float: false
-            // },
             // {
             //     x: 1,
             //     y: 1,

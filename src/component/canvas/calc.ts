@@ -1,6 +1,7 @@
 import { CanvasProps, LayoutItem, ItemPos, LayoutType } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, { ReactElement } from 'react';
+import { copyObject } from '@/utils/utils';
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
 export const MAX_STACK_LENGTH = -10; // 保存最大回撤操作距离
@@ -158,6 +159,65 @@ export function dragToGrid(widget: ItemPos, grid?: [number, number]): ItemPos {
             return { x: 0, y: 0, h: 0, w: 0, is_float: false, i: widget.i };
         }
     }
+}
+
+export function dynamicProgramming2(
+    item: ItemPos,
+    widgets: LayoutItem[],
+    grid: [number, number],
+    grid_bound?: Partial<{
+        min_x: number;
+        max_x: number;
+        min_y: number;
+        max_y: number;
+    }>
+) {
+    let shadow_pos = calcBoundPositions(
+        snapToGrid(copyObject(item), grid),
+        grid_bound
+    );
+    const sort_widgets = widgets
+        .filter((w) => !w.is_float && w.i !== item.i)
+        .concat([shadow_pos])
+        .sort((a, b) => a.y - b.y);
+
+    const footer_widgets: { [key: number]: LayoutItem | undefined } = {};
+
+    sort_widgets.forEach((widget) => {
+        let offset_y = 0;
+        let offset_x = widget.x;
+        while (offset_x < widget.x + widget.w) {
+            if (footer_widgets[offset_x]) {
+                offset_y = Math.max(
+                    offset_y,
+                    footer_widgets[offset_x]!.y + footer_widgets[offset_x]!.h
+                );
+                if (
+                    footer_widgets[offset_x]!.y + footer_widgets[offset_x]!.h <=
+                    widget.y
+                ) {
+                    // footer_widgets[offset_x]!.y = widget.y;
+                    footer_widgets[offset_x] = widget;
+                } else {
+                    widget.y = footer_widgets[offset_x]!.y;
+                    footer_widgets[offset_x]!.y += widget.h;
+                }
+            } else {
+                footer_widgets[offset_x] = widget;
+            }
+            offset_x += grid[0];
+        }
+
+        console.log(offset_y, widget.i);
+        widget.y = offset_y;
+    });
+
+    console.log(shadow_pos, 'shandow pos');
+
+    // console.log(sort_widgets, footer_widgets, '123123');
+
+    const layout = widgets;
+    return { layout, shadow_pos };
 }
 
 export function dynamicProgramming(

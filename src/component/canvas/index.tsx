@@ -10,13 +10,14 @@ import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.css';
 import WidgetItem from './layout-item';
 import { addEvent, removeEvent } from '@pearone/event-utils';
-import { copyObject, copyObjectArray, noop } from '@/utils/utils';
+import { copyObjectArray, noop } from '@/utils/utils';
 import {
     calcBoundBorder,
     calcBoundPositions,
     calcBoundRange,
     DEFAULT_BOUND,
     dynamicProgramming,
+    dynamicProgramming2,
     snapToGrid,
     dragToGrid,
     createInitialLayout,
@@ -200,14 +201,16 @@ const Canvas = (props: CanvasProps) => {
 
     /** 获取当前状态下的layout */
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        const shadow_pos = calcBoundPositions(
-            snapToGrid(copyObject(item), grid),
+        const { layout: dynamic_layout, shadow_pos } = dynamicProgramming2(
+            item,
+            layout,
+            grid!,
             item_bound
         );
 
         setShadowWidget(is_save || item.is_float ? undefined : shadow_pos);
 
-        const new_layout = layout!.map((widget) => {
+        const new_layout = dynamic_layout!.map((widget) => {
             return widget.i === item.i
                 ? Object.assign(
                       {},
@@ -216,7 +219,8 @@ const Canvas = (props: CanvasProps) => {
                   )
                 : widget;
         });
-        dynamicProgramming(new_layout, grid, item_bound);
+
+        console.log(new_layout, 'new_layout');
 
         setLayout(new_layout);
         is_save && pushPosStep(new_layout);
