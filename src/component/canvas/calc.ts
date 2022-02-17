@@ -183,6 +183,14 @@ export function dynamicProgramming2(
 
     const footer_widgets: { [key: number]: LayoutItem[] } = {};
 
+    function removeFooterWidget(widget: LayoutItem) {
+        let offset_x = widget.x;
+        while (offset_x < widget.x + widget.w) {
+            footer_widgets[offset_x]?.pop();
+            offset_x += grid[0];
+        }
+    }
+
     function checkUpWidets(cur_widget: LayoutItem) {
         let offset_y = 0;
         let offset_x = cur_widget.x;
@@ -217,7 +225,7 @@ export function dynamicProgramming2(
                         // 把上一个元素移除，放到sort_widgets栈中，重新排列
                         // 重置检测点 重新检测
                         sort_widgets.push(up_widget);
-                        up_widgets.pop();
+                        removeFooterWidget(up_widget);
                         up_widget.y += cur_widget.h;
                         offset_y = 0;
                         offset_x = cur_widget.x;
