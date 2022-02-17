@@ -179,42 +179,67 @@ export function dynamicProgramming2(
     const sort_widgets = widgets
         .filter((w) => !w.is_float && w.i !== item.i)
         .concat([shadow_pos])
-        .sort((a, b) => a.y - b.y);
+        .sort((a, b) => b.y - a.y);
 
-    const footer_widgets: { [key: number]: LayoutItem | undefined } = {};
+    const footer_widgets: { [key: number]: LayoutItem[] } = {};
 
-    sort_widgets.forEach((widget) => {
+    function checkUpWidets(cur_widget: LayoutItem) {
         let offset_y = 0;
-        let offset_x = widget.x;
-        while (offset_x < widget.x + widget.w) {
-            if (footer_widgets[offset_x]) {
-                offset_y = Math.max(
-                    offset_y,
-                    footer_widgets[offset_x]!.y + footer_widgets[offset_x]!.h
-                );
-                if (
-                    footer_widgets[offset_x]!.y + footer_widgets[offset_x]!.h <=
-                    widget.y
-                ) {
-                    // footer_widgets[offset_x]!.y = widget.y;
-                    footer_widgets[offset_x] = widget;
-                } else {
-                    widget.y = footer_widgets[offset_x]!.y;
-                    footer_widgets[offset_x]!.y += widget.h;
+        let offset_x = cur_widget.x;
+        const check_range = cur_widget.x + cur_widget.w;
+        while (offset_x < check_range) {
+            if (!footer_widgets[offset_x]) footer_widgets[offset_x] = [];
+
+            const up_widgets = footer_widgets[offset_x];
+            if (up_widgets && up_widgets.length) {
+                const up_widget = up_widgets[up_widgets.length - 1];
+                if (up_widget === cur_widget) {
+                    offset_x += grid[0];
+                    continue;
                 }
+
+                // 检测与拖拽元素碰撞的移动位置
+                // 其余情况依次往下排列
+                if ([up_widget.i, cur_widget.i].includes(item.i)) {
+                    let need_move = false;
+
+                    // 当前元素偏移量小于等于上方元素
+                    need_move =
+                        cur_widget.y <= up_widget.y && up_widget.i !== item.i;
+
+                    // 处理特殊情况，移动的元素比下方元素大很多
+                    need_move =
+                        up_widget.i === item.i &&
+                        item.y - up_widget.y > cur_widget.h;
+
+                    if (need_move) {
+                        // 当前元素向上移动
+                        // 把上一个元素移除，放到sort_widgets栈中，重新排列
+                        // 重置检测点 重新检测
+                        sort_widgets.push(up_widget);
+                        up_widgets.pop();
+                        up_widget.y += cur_widget.h;
+                        offset_y = 0;
+                        offset_x = cur_widget.x;
+                        continue;
+                    }
+                }
+
+                up_widgets.push(cur_widget);
+                offset_y = Math.max(offset_y, up_widget.y + up_widget.h);
             } else {
-                footer_widgets[offset_x] = widget;
+                up_widgets.push(cur_widget);
             }
             offset_x += grid[0];
         }
 
-        console.log(offset_y, widget.i);
-        widget.y = offset_y;
-    });
+        cur_widget.y = offset_y;
+    }
 
-    console.log(shadow_pos, 'shandow pos');
-
-    // console.log(sort_widgets, footer_widgets, '123123');
+    while (sort_widgets.length) {
+        const cur_widget = sort_widgets.pop();
+        if (cur_widget) checkUpWidets(cur_widget);
+    }
 
     const layout = widgets;
     return { layout, shadow_pos };
