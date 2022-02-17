@@ -178,39 +178,36 @@ function getAllCollisions(layout: LayoutItem[], item: LayoutItem) {
  * @param item
  * @returns
  */
-export function findItemPos(layout: LayoutItem[], item: LayoutItem) {
-    let y = 0;
-    layout.map((l) => {
-        if (!l.is_float) {
-            if (item.x >= l.x && item.x < l.x + l.w) {
-                if (item.y > l.y + l.h / 2) {
-                    console.log('down', item, l);
-                    y = Math.max(l.y + l.h, y);
-                } else if (item.y > l.y) {
-                    console.log('up');
-                    y = Math.max(l.y, y);
-                }
-            }
-        }
-    });
-    item.y = y;
-}
-
-/**
- * 有碰撞，一直找到has_collisions没有了就停止
- * center_widget是正确元素，collisions为重叠元素
- * @param layout
- * @param center_widget
- */
-export function moveElement(layout: LayoutItem[], center_widget: LayoutItem) {
-    findItemPos(layout, center_widget);
-    const collisions = getAllCollisions(layout, center_widget);
-    const has_collisions = collisions.length > 0;
-    if (has_collisions) {
-        collisions.map((col) => {
-            // moveElement(layout, col);
+export function moveElement(layout: LayoutItem[], center_widget?: LayoutItem) {
+    const sort_layout = layout
+        .concat(center_widget ? [center_widget] : [])
+        .filter((l) => {
+            return !l.is_float;
+        })
+        .sort((a, b) => {
+            return a.y - b.y;
         });
-    }
+
+    sort_layout.map((l) => {
+        let max_y = 0;
+
+        const collisions = getAllCollisions(layout, l);
+
+        const has_collisions = collisions.length > 0;
+
+        if (has_collisions) {
+            console.log(collisions);
+
+            collisions.map((col) => {
+                if (l.y > col.y + col.h / 2) {
+                    max_y = Math.max(col.y + col.h, max_y);
+                } else if (l.y > col.y) {
+                    max_y = Math.max(col.y, max_y);
+                }
+            });
+        }
+        l.y = max_y;
+    });
 }
 
 /**
@@ -222,7 +219,7 @@ export function dynamicCalcLayout(layout: LayoutItem[]) {
     console.log('dynamicCalcLayout start');
     layout.map((l) => {
         if (!l.is_float) {
-            findItemPos(layout, l);
+            // findItemPos(layout, l);
             moveElement(layout, l);
         }
         return l;

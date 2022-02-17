@@ -16,8 +16,7 @@ import {
     dragToGrid,
     createInitialLayout,
     getDropPos,
-    moveElement,
-    findItemPos
+    moveElement
 } from './calc';
 import isEqual from 'lodash.isequal';
 
@@ -100,7 +99,7 @@ const Canvas = (props: CanvasProps) => {
         const drop_item = getDropPos(e, props);
         const copy_layout = copyObjectArray(layout);
 
-        findItemPos(copy_layout, drop_item);
+        // moveElement(copy_layout, drop_item);
         moveElement(copy_layout, drop_item);
 
         if (!isEqual(drop_item, shadow_widget)) {
@@ -109,33 +108,36 @@ const Canvas = (props: CanvasProps) => {
         }
     };
 
+    const getLayoutItem = (item: ItemPos) => {
+        return {
+            ...layout.find((l) => {
+                return l.i == item.i;
+            }),
+            ...item
+        } as LayoutItem;
+    };
+
     /** 获取当前状态下的layout */
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        const copy_layout = copyObjectArray(layout);
-        const shadow_pos = copyObject(item);
+        const shadow_pos = getLayoutItem(item);
+        console.log(shadow_pos);
 
         if (!shadow_pos.is_float) {
             snapToGrid(shadow_pos, props.grid);
-            findItemPos(layout, shadow_pos);
+            moveElement(layout, shadow_pos);
         }
 
-        dynamicCalcLayout(
-            copy_layout.map((w) => {
-                return w.i === item.i ? { ...w, ...shadow_pos } : w;
-            })
-        );
-
         setShadowWidget(shadow_pos);
-        const new_layout = copy_layout.map((w) => {
-            return w.i === item.i
-                ? is_save
-                    ? { ...w, ...shadow_pos }
-                    : { ...w, ...item }
-                : w;
-        });
+        // const new_layout = layout.map((w) => {
+        //     return w.i === item.i
+        //         ? is_save
+        //             ? shadow_pos
+        //             : { ...w, ...item }
+        //         : w;
+        // });
 
-        setLayout(new_layout);
-        return new_layout.map((w) => {
+        setLayout(layout);
+        return layout.map((w) => {
             return dragToGrid(w, props.grid);
         });
     };
