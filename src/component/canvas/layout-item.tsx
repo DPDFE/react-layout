@@ -1,6 +1,7 @@
 import { WidgetItemProps, LayoutType } from '@/interfaces';
-import React, { memo, useRef } from 'react';
-import { compareProps, MIN_DRAG_LENGTH } from './calc';
+import isEqual from 'lodash.isequal';
+import React, { memo, ReactElement, useRef } from 'react';
+import { MIN_DRAG_LENGTH } from './calc';
 import Draggable from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -165,3 +166,37 @@ WidgetItem.defaultProps = {
 };
 
 export default memo(WidgetItem, compareProps);
+
+function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
+    return !Object.keys(prev)
+        .map((key) => {
+            if (
+                [
+                    'setCurrentChecked',
+                    'onDragStart',
+                    'onDrag',
+                    'onDragStop',
+                    'onResizeStart',
+                    'onResize',
+                    'onResizeStop',
+                    'onPositionChange'
+                ].includes(key)
+            ) {
+                return true;
+            } else if (key === 'children') {
+                return childrenEqual(prev['children'], next['children']);
+            } else {
+                const is_equal = isEqual(prev[key], next[key]);
+                // !is_equal && console.log(is_equal, key);
+                return isEqual(prev[key], next[key]);
+            }
+        })
+        .some((state) => state === false);
+}
+
+function childrenEqual(a: ReactElement, b: ReactElement): boolean {
+    return isEqual(
+        React.Children.map(a, (c) => c?.key),
+        React.Children.map(b, (c) => c?.key)
+    );
+}

@@ -5,6 +5,7 @@ import {
     ReactDragLayoutProps
 } from '@/interfaces';
 import { ReactElement, RefObject } from 'react';
+import { gridToDrag } from '../canvas/calc';
 
 export const RULER_GAP = 100; // 标尺间隔大小
 export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
@@ -129,12 +130,6 @@ export const getMaxWidgetsRange = (
         props
     );
 
-    const { max_left, max_right, max_top, max_bottom } = maxBorderPos(
-        current_width,
-        current_height,
-        children
-    );
-
     // 视窗的宽、高度
     const client_height = canvas_viewport.current?.clientHeight
         ? canvas_viewport.current?.clientHeight
@@ -143,19 +138,36 @@ export const getMaxWidgetsRange = (
         ? canvas_viewport.current?.clientWidth
         : 0;
 
+    const canvas_bound = calcBoundBorder(props.container_padding);
+    const grid = [
+        (current_width - canvas_bound[1] - canvas_bound[3]) / props.cols,
+        props.row_height
+    ] as [number, number];
+
+    const { max_left, max_right, max_top, max_bottom } = maxBorderPos(
+        current_width,
+        current_height,
+        children,
+        grid
+    );
+
     // 如果没有宽高就是自适应模式
     if (layout_type === LayoutType.GRID) {
+        const bound = calcBoundRange(current_width, max_bottom, canvas_bound);
+
         return {
-            wrapper_calc_width: current_width,
-            wrapper_calc_height: max_bottom,
+            bound,
+            grid,
             t_offset: 0,
             l_offset: 0,
-            current_width: current_width,
-            current_height: max_bottom,
-            t_scroll: 0,
-            l_scroll: 0
+            current_width,
+            current_height: max_bottom + canvas_bound[0] + canvas_bound[2],
+            wrapper_calc_width: current_width,
+            wrapper_calc_height: max_bottom + canvas_bound[0] + canvas_bound[2]
         };
     }
+
+    const bound = calcBoundRange(current_width, current_height, canvas_bound);
 
     const calc_width = current_width * scale;
     const calc_height = current_height * scale;
@@ -186,6 +198,8 @@ export const getMaxWidgetsRange = (
         );
 
         return {
+            grid,
+            bound,
             wrapper_calc_width,
             wrapper_calc_height,
             t_offset: t_offset + Math.abs(max_top) * scale,
@@ -200,14 +214,14 @@ export const getMaxWidgetsRange = (
         const t_offset = calcOffset(client_height, calc_height);
 
         return {
+            grid,
+            bound,
             wrapper_calc_width: Math.max(calc_width, client_width),
             wrapper_calc_height: Math.max(calc_height, client_height),
             current_height,
             current_width,
             l_offset,
-            t_offset,
-            t_scroll: 0,
-            l_scroll: 0
+            t_offset
         };
     }
 };
@@ -219,7 +233,8 @@ function calcOffset(client: number, calc: number) {
 function maxBorderPos(
     default_width: number,
     default_height: number,
-    children: ReactElement[]
+    children: ReactElement[],
+    grid: [number, number]
 ) {
     // 元素计算大小
     let max_left = 0,
@@ -229,13 +244,11 @@ function maxBorderPos(
 
     if (children) {
         children.map((child) => {
-            const { x, y, h, w } = child.props['data-drag'];
-            if (x) {
-                max_left = max_left < x ? max_left : x; // 最左边最小值
-                max_right = max_right < x + w ? x + w : max_right; // 最大值
-                max_top = max_top < y ? max_top : y; // 最上边最小值
-                max_bottom = max_bottom < y + h ? y + h : max_bottom; // 最大值
-            }
+            const { x, y, h, w } = gridToDrag(child.props['data-drag'], grid);
+            max_left = Math.min(max_left, x); // 最左边最小值
+            max_right = Math.max(max_right, x + w); // 最大值
+            max_top = Math.min(max_top, y); // 最上边最小值
+            max_bottom = Math.max(max_bottom, y + h); // 最大值
         });
     }
     return { max_left, max_right, max_top, max_bottom };

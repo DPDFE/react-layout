@@ -44,7 +44,7 @@ type LayoutBase = {
     scale: number;
     cols: number;
     row_height: number;
-    container_margin: [number, number?, number?, number?];
+    container_padding: [number, number?, number?, number?];
 };
 
 type EditLayoutBase = LayoutBase & {
@@ -147,8 +147,6 @@ export type CanvasProps = ReactDragLayoutProps & {
     height: number;
     t_offset: number;
     l_offset: number;
-    fresh_count: number;
-    setFreshCount: (count: number) => void;
     canvas_wrapper: RefObject<HTMLDivElement>;
 };
 

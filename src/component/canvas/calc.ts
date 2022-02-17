@@ -122,40 +122,6 @@ export function createInitialLayout(
     });
 }
 
-export function childrenEqual(a: ReactElement, b: ReactElement): boolean {
-    return isEqual(
-        React.Children.map(a, (c) => c?.key),
-        React.Children.map(b, (c) => c?.key)
-    );
-}
-
-export function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
-    return !Object.keys(prev)
-        .map((key) => {
-            if (
-                [
-                    'setCurrentChecked',
-                    'onDragStart',
-                    'onDrag',
-                    'onDragStop',
-                    'onResizeStart',
-                    'onResize',
-                    'onResizeStop',
-                    'onPositionChange'
-                ].includes(key)
-            ) {
-                return true;
-            } else if (key === 'children') {
-                return childrenEqual(prev['children'], next['children']);
-            } else {
-                const is_equal = isEqual(prev[key], next[key]);
-                // !is_equal && console.log(is_equal, key);
-                return isEqual(prev[key], next[key]);
-            }
-        })
-        .some((state) => state === false);
-}
-
 export function getDropPos(e: React.MouseEvent, props: CanvasProps): ItemPos {
     const { scale, grid, bound, layout_type } = props;
 
@@ -267,7 +233,6 @@ export function moveElement(layout: LayoutItem[], center_widget: LayoutItem) {
     const has_collisions = collisions.length > 0;
     if (has_collisions) {
         collisions.map((col) => {
-            console.log(col, center_widget);
             col.y = center_widget.y + center_widget.h;
             moveElement(layout, col);
         });

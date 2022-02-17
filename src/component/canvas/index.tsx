@@ -156,7 +156,7 @@ const Canvas = (props: CanvasProps) => {
                 transform: `scale(${props.scale})`,
                 transformOrigin: '0 0',
                 overflow: props.mode === LayoutType.edit ? 'unset' : 'hidden',
-                padding: props.container_margin.map((i) => i + 'px').join(' ')
+                padding: props.container_padding.map((i) => i + 'px').join(' ')
             }}
             onContextMenu={(e) => {
                 e.preventDefault();
