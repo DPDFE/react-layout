@@ -148,19 +148,20 @@ const Canvas = (props: CanvasProps) => {
 
         console.log(new_layout, 'new_layout');
 
-        setShadowWidget(shadow_pos);
+        setLayout(new_layout);
+        // setShadowWidget(shadow_pos);
         // compact(layout, props.grid[1]);
-        setLayout(
-            new_layout.map((w) => {
-                return w.i === item.i
-                    ? is_save
-                        ? shadow_pos
-                        : { ...w, ...item }
-                    : w;
-            })
-        );
+        // setLayout(
+        //     new_layout.map((w) => {
+        //         return w.i === item.i
+        //             ? is_save
+        //                 ? shadow_pos
+        //                 : { ...w, ...item }
+        //             : w;
+        //     })
+        // );
 
-        return layout.map((w) => {
+        return new_layout.map((w) => {
             w.moved = false;
             return dragToGrid(w, props.grid);
         });
