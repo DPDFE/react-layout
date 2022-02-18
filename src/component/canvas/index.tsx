@@ -35,7 +35,7 @@ const Canvas = (props: CanvasProps) => {
     useEffect(() => {
         if (props.children.length > 0) {
             const layout = createInitialLayout(props.children, props.grid);
-            // compact(layout, props.grid.row_height);
+            compact(layout, props.grid.row_height);
             setLayout(layout);
         }
     }, [props.children, props.grid]);
@@ -157,8 +157,8 @@ const Canvas = (props: CanvasProps) => {
     };
 
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        // return moveLayoutV1(item, is_save);
-        return moveLayoutV2(item, is_save);
+        return moveLayoutV1(item, is_save);
+        // return moveLayoutV2(item, is_save);
     };
 
     return (

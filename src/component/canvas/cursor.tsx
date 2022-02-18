@@ -1,5 +1,6 @@
 import { CursorProps } from '@/interfaces';
 import React, { memo, useRef } from 'react';
+import { DEFAULT_BOUND } from '../layout/calc';
 import Draggable from './draggable';
 import styles from './styles.module.css';
 
@@ -34,6 +35,10 @@ const Cursor = (props: CursorProps) => {
             ></div>
         </Draggable>
     );
+};
+
+Cursor.defaultProps = {
+    bound: DEFAULT_BOUND
 };
 
 export default memo(Cursor);

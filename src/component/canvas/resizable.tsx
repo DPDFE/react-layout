@@ -87,6 +87,8 @@ const Resizable = (props: ResizableProps) => {
         }
     });
 
+    console.log(props.grid);
+
     return (
         <React.Fragment>
             {new_child}
@@ -104,8 +106,8 @@ const Resizable = (props: ResizableProps) => {
                         bound={{
                             top: -Infinity,
                             left: -Infinity,
-                            bottom: props.x + props.w - props.grid.col_width,
-                            right: props.y + props.h - props.grid.row_height
+                            bottom: props.y + props.h - props.grid.row_height,
+                            right: props.x + props.w - props.grid.col_width
                         }}
                     ></Cursor>
                     {/* 右上 */}
