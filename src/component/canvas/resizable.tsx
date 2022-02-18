@@ -87,8 +87,6 @@ const Resizable = (props: ResizableProps) => {
         }
     });
 
-    console.log(props.grid);
-
     return (
         <React.Fragment>
             {new_child}
@@ -104,10 +102,10 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            top: -Infinity,
-                            left: -Infinity,
-                            bottom: props.y + props.h - props.grid.row_height,
-                            right: props.x + props.w - props.grid.col_width
+                            min_y: -Infinity,
+                            min_x: -Infinity,
+                            max_y: props.y + props.h - props.grid.row_height,
+                            max_x: props.x + props.w - props.grid.col_width
                         }}
                     ></Cursor>
                     {/* 右上 */}
@@ -120,10 +118,10 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            top: -Infinity,
-                            right: Infinity,
-                            left: props.x + props.grid.col_width,
-                            bottom: props.y + props.h - props.grid.row_height
+                            min_y: -Infinity,
+                            max_x: Infinity,
+                            min_x: props.x + props.grid.col_width,
+                            max_y: props.y + props.h - props.grid.row_height
                         }}
                     ></Cursor>
                     {/* 左下 */}
@@ -136,10 +134,10 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            left: -Infinity,
-                            bottom: Infinity,
-                            right: props.x + props.w - props.grid.col_width,
-                            top: props.y + props.grid.row_height
+                            min_x: -Infinity,
+                            max_y: Infinity,
+                            max_x: props.x + props.w - props.grid.col_width,
+                            min_y: props.y + props.grid.row_height
                         }}
                     ></Cursor>
                     {/* 右下 */}
@@ -152,10 +150,10 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            right: Infinity,
-                            bottom: Infinity,
-                            left: props.x + props.grid.col_width,
-                            top: props.y + props.grid.row_height
+                            max_x: Infinity,
+                            max_y: Infinity,
+                            min_x: props.x + props.grid.col_width,
+                            min_y: props.y + props.grid.row_height
                         }}
                     ></Cursor>
                 </React.Fragment>

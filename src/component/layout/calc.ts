@@ -3,6 +3,7 @@ import {
     DragLayoutProps,
     GridType,
     LayoutType,
+    MarginType,
     ReactDragLayoutProps
 } from '@/interfaces';
 import { ReactElement, RefObject } from 'react';
@@ -13,15 +14,15 @@ export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
 export const WRAPPER_PADDING = 200; // 编辑状态下的边框
 
 export const DEFAULT_BOUND = {
-    top: -Infinity,
-    bottom: Infinity,
-    left: -Infinity,
-    right: Infinity
+    min_x: -Infinity,
+    max_x: Infinity,
+    min_y: -Infinity,
+    max_y: Infinity
 };
 
 export function calcBoundBorder(
     bound?: [number, number?, number?, number?]
-): BoundType {
+): MarginType {
     if (bound) {
         switch (bound.length) {
             case 1:
@@ -60,13 +61,13 @@ export function calcBoundBorder(
 export function calcBoundRange(
     current_width: number,
     current_height: number,
-    bound_border: BoundType
+    bound_border: MarginType
 ): BoundType {
     return {
-        top: 0,
-        left: 0,
-        bottom: current_width - bound_border.right - bound_border.left,
-        right: current_height - bound_border.top - bound_border.bottom
+        min_y: 0,
+        min_x: 0,
+        max_y: current_height - bound_border.top - bound_border.bottom,
+        max_x: current_width - bound_border.right - bound_border.left
     };
 }
 
@@ -168,7 +169,7 @@ export const getMaxWidgetsRange = (
                 : current_height;
 
         const bound = calcBoundRange(current_width, _h, canvas_bound);
-
+        console.log('bound', bound);
         return {
             bound,
             grid,

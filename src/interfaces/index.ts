@@ -36,11 +36,18 @@ export type GridType = {
     row_height: number;
 };
 
-export type BoundType = {
+export type MarginType = {
     top: number;
     left: number;
     right: number;
     bottom: number;
+};
+
+export type BoundType = {
+    max_x: number;
+    max_y: number;
+    min_x: number;
+    min_y: number;
 };
 
 export type ItemPos = {

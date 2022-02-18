@@ -123,10 +123,10 @@ const WidgetItem = (props: WidgetItemProps) => {
                             ? DEFAULT_BOUND
                             : props.bound
                             ? {
-                                  bottom: props.bound.bottom - w,
-                                  top: props.bound.top,
-                                  left: props.bound.left,
-                                  right: props.bound.right - h
+                                  max_y: props.bound.max_y - h,
+                                  min_y: props.bound.min_y,
+                                  max_x: props.bound.max_x - w,
+                                  min_x: props.bound.min_x
                               }
                             : DEFAULT_BOUND
                     }

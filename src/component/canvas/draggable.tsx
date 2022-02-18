@@ -69,10 +69,12 @@ const Draggable = (props: Props) => {
         const delta_x = x - mouse_pos.x;
         const delta_y = y - mouse_pos.y;
 
-        const { top, left, bottom, right } = props.bound;
+        const { max_x, max_y, min_x, min_y } = props.bound;
+        console.log(props.bound);
+
         const pos = {
-            x: clamp(start_pos.x + delta_x, left, right),
-            y: clamp(start_pos.y + delta_y, top, bottom)
+            x: clamp(start_pos.x + delta_x, min_x, max_x),
+            y: clamp(start_pos.y + delta_y, min_y, max_y)
         };
 
         props.onDrag?.(pos);

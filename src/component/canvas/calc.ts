@@ -23,11 +23,11 @@ export function calcBoundPositions<T extends Position>(
     bound: BoundType
 ): T {
     if (bound) {
-        const { top, bottom, left, right } = bound;
-        pos.x = clamp(pos.x, left, right);
-        pos.y = clamp(pos.y, top, bottom);
-        pos.w = Math.min(pos.w, right - pos.x);
-        pos.h = Math.min(pos.h, bottom - pos.y);
+        const { max_x, max_y, min_x, min_y } = bound;
+        pos.x = clamp(pos.x, min_x, max_x);
+        pos.y = clamp(pos.y, min_y, max_y);
+        pos.w = Math.min(pos.w, max_x - pos.x);
+        pos.h = Math.min(pos.h, max_y - pos.y);
     }
     return pos;
 }
