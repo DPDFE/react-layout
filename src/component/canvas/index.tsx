@@ -9,10 +9,9 @@ import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.css';
 import WidgetItem from './layout-item';
 import { addEvent, removeEvent } from '@pearone/event-utils';
-import { copyObject, copyObjectArray, noop } from '@/utils/utils';
+import { noop } from '@/utils/utils';
 import {
-    dynamicCalcLayout,
-    snapToGrid,
+    dynamicProgramming2,
     dragToGrid,
     createInitialLayout,
     getDropPos,
@@ -114,24 +113,45 @@ const Canvas = (props: CanvasProps) => {
 
     /** 获取当前状态下的layout */
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        const current_item = getLayoutItem(item);
-        const shadow_pos = copyObject(item);
+        // const current_item = getLayoutItem(item);
+        // const shadow_pos = copyObject(item);
 
-        if (!shadow_pos.is_float) {
-            snapToGrid(shadow_pos, props.grid);
-            moveElement(
-                layout,
-                current_item,
-                props.grid,
-                shadow_pos.y,
-                shadow_pos.x
-            );
-        }
+        // if (!shadow_pos.is_float) {
+        //     snapToGrid(shadow_pos, props.grid);
+        //     moveElement(
+        //         layout,
+        //         current_item,
+        //         props.grid,
+        //         shadow_pos.y,
+        //         shadow_pos.x
+        //     );
+        // }
+
+        const { layout: dynamic_layout, shadow_pos } = dynamicProgramming2(
+            item,
+            layout,
+            props.grid,
+            props.bound
+        );
+
+        setShadowWidget(is_save || item.is_float ? undefined : shadow_pos);
+
+        const new_layout = dynamic_layout.map((widget: LayoutItem) => {
+            return widget.i === item.i
+                ? Object.assign(
+                      {},
+                      widget,
+                      is_save && !item.is_float ? shadow_pos : item
+                  )
+                : widget;
+        });
+
+        console.log(new_layout, 'new_layout');
 
         setShadowWidget(shadow_pos);
-        compact(layout, props.grid[1]);
+        // compact(layout, props.grid[1]);
         setLayout(
-            layout.map((w) => {
+            new_layout.map((w) => {
                 return w.i === item.i
                     ? is_save
                         ? shadow_pos
