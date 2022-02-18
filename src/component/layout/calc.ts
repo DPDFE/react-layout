@@ -153,7 +153,12 @@ export const getMaxWidgetsRange = (
 
     // 如果没有宽高就是自适应模式
     if (layout_type === LayoutType.GRID) {
-        const bound = calcBoundRange(current_width, max_bottom, canvas_bound);
+        const _h =
+            max_bottom > current_height
+                ? max_bottom + canvas_bound[0] + canvas_bound[2]
+                : current_height;
+
+        const bound = calcBoundRange(current_width, _h, canvas_bound);
 
         return {
             bound,
@@ -161,9 +166,9 @@ export const getMaxWidgetsRange = (
             t_offset: 0,
             l_offset: 0,
             current_width,
-            current_height: max_bottom + canvas_bound[0] + canvas_bound[2],
+            current_height: _h,
             wrapper_calc_width: current_width,
-            wrapper_calc_height: max_bottom + canvas_bound[0] + canvas_bound[2]
+            wrapper_calc_height: _h
         };
     }
 

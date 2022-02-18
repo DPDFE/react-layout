@@ -9,14 +9,14 @@ import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.css';
 import WidgetItem from './layout-item';
 import { addEvent, removeEvent } from '@pearone/event-utils';
-import { noop } from '@/utils/utils';
+import { copyObject, copyObjectArray, noop } from '@/utils/utils';
 import {
-    dynamicProgramming2,
+    dynamicProgramming,
     dragToGrid,
     createInitialLayout,
     getDropPos,
-    moveElement,
-    compact
+    compact,
+    snapToGrid
 } from './calc';
 import isEqual from 'lodash.isequal';
 
@@ -77,9 +77,6 @@ const Canvas = (props: CanvasProps) => {
         e.preventDefault();
 
         const drop_item = getDropPos(e, props);
-        const current_item = getLayoutItem(drop_item);
-
-        moveElement(layout, current_item, props.grid, drop_item.y, drop_item.x);
 
         const grid_item = dragToGrid(drop_item, props.grid);
         const item = (props as EditLayoutProps).onDrop?.(grid_item);
@@ -95,39 +92,19 @@ const Canvas = (props: CanvasProps) => {
         e.stopPropagation();
 
         const drop_item = getDropPos(e, props);
-        const current_item = getLayoutItem(drop_item);
-
-        moveElement(layout, current_item, props.grid, drop_item.y, drop_item.x);
-
-        if (!isEqual(drop_item, shadow_widget)) {
-            setShadowWidget(drop_item);
-            setLayout(layout);
-        }
+        setShadowWidget(drop_item);
+        compact(layout.concat(drop_item), props.grid[1]);
     };
 
-    const getLayoutItem = (item: ItemPos) => {
-        return layout.find((l) => {
-            return l.i == item.i;
-        }) as LayoutItem;
-    };
-
-    /** 获取当前状态下的layout */
-    const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        // const current_item = getLayoutItem(item);
-        // const shadow_pos = copyObject(item);
-
-        // if (!shadow_pos.is_float) {
-        //     snapToGrid(shadow_pos, props.grid);
-        //     moveElement(
-        //         layout,
-        //         current_item,
-        //         props.grid,
-        //         shadow_pos.y,
-        //         shadow_pos.x
-        //     );
-        // }
-
-        const { layout: dynamic_layout, shadow_pos } = dynamicProgramming2(
+    /**
+     * @author super-hui
+     * @param item 添加节点
+     * @param is_save 是否需要保存
+     * @returns
+     */
+    const moveLayoutV1 = (item: ItemPos, is_save?: boolean) => {
+        console.log('moveLayoutV1');
+        const { layout: dynamic_layout, shadow_pos } = dynamicProgramming(
             item,
             layout,
             props.grid,
@@ -146,28 +123,43 @@ const Canvas = (props: CanvasProps) => {
                 : widget;
         });
 
-        console.log(new_layout, 'new_layout');
-
         setLayout(new_layout);
-        // setShadowWidget(shadow_pos);
-        // compact(layout, props.grid[1]);
-        // setLayout(
-        //     new_layout.map((w) => {
-        //         return w.i === item.i
-        //             ? is_save
-        //                 ? shadow_pos
-        //                 : { ...w, ...item }
-        //             : w;
-        //     })
-        // );
 
         return new_layout.map((w) => {
-            w.moved = false;
             return dragToGrid(w, props.grid);
         });
     };
 
-    // console.log('render canvas');
+    const moveLayoutV2 = (item: ItemPos, is_save?: boolean) => {
+        const getLayoutItem = (item: ItemPos) => {
+            return layout.find((l) => {
+                return l.i == item.i;
+            }) as LayoutItem;
+        };
+        const current_item = getLayoutItem(item);
+        const float_item = Object.assign({}, current_item, item);
+
+        if (!current_item.is_float) {
+            snapToGrid(item, props.grid);
+            Object.assign(current_item, item);
+            compact(layout, props.grid[1]);
+            setShadowWidget(is_save ? undefined : current_item);
+        }
+
+        setLayout(
+            layout.map((w) => {
+                return w.i === item.i && !is_save ? float_item : w;
+            })
+        );
+        return layout.map((w) => {
+            return dragToGrid(w, props.grid);
+        });
+    };
+
+    const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
+        return moveLayoutV1(item, is_save);
+        // return moveLayoutV2(item, is_save);
+    };
 
     return (
         <div
@@ -223,43 +215,63 @@ const Canvas = (props: CanvasProps) => {
                             }
                             setCurrentChecked={setCurrentChecked}
                             onDragStart={() => {
-                                (props as EditLayoutProps).onDragStart?.();
+                                checked_index === widget.i
+                                    ? (props as EditLayoutProps).onDragStart?.()
+                                    : noop;
                             }}
                             onDrag={(item) => {
-                                const layout = getCurrentLayoutByItem(item);
-                                (props as EditLayoutProps).onDrag?.(layout);
+                                if (checked_index === widget.i) {
+                                    const layout = getCurrentLayoutByItem(item);
+                                    (props as EditLayoutProps).onDrag?.(layout);
+                                }
                             }}
                             onDragStop={(item) => {
-                                const layout = getCurrentLayoutByItem(
-                                    item,
-                                    true
-                                );
-                                (props as EditLayoutProps).onDragStop?.(layout);
+                                if (checked_index === widget.i) {
+                                    const layout = getCurrentLayoutByItem(
+                                        item,
+                                        true
+                                    );
+                                    (props as EditLayoutProps).onDragStop?.(
+                                        layout
+                                    );
+                                }
                             }}
                             onResizeStart={() => {
-                                (props as EditLayoutProps).onResizeStart?.();
+                                if (checked_index === widget.i) {
+                                    (
+                                        props as EditLayoutProps
+                                    ).onResizeStart?.();
+                                }
                             }}
                             onResize={(item) => {
-                                const layout = getCurrentLayoutByItem(item);
-                                (props as EditLayoutProps).onResize?.(layout);
+                                if (checked_index === widget.i) {
+                                    const layout = getCurrentLayoutByItem(item);
+                                    (props as EditLayoutProps).onResize?.(
+                                        layout
+                                    );
+                                }
                             }}
                             onResizeStop={(item) => {
-                                const layout = getCurrentLayoutByItem(
-                                    item,
-                                    true
-                                );
-                                (props as EditLayoutProps).onResizeStop?.(
-                                    layout
-                                );
+                                if (checked_index === widget.i) {
+                                    const layout = getCurrentLayoutByItem(
+                                        item,
+                                        true
+                                    );
+                                    (props as EditLayoutProps).onResizeStop?.(
+                                        layout
+                                    );
+                                }
                             }}
                             onPositionChange={(item) => {
-                                const layout = getCurrentLayoutByItem(
-                                    item,
-                                    true
-                                );
-                                (props as EditLayoutProps).onPositionChange?.(
-                                    layout
-                                );
+                                if (checked_index === widget.i) {
+                                    const layout = getCurrentLayoutByItem(
+                                        item,
+                                        true
+                                    );
+                                    (
+                                        props as EditLayoutProps
+                                    ).onPositionChange?.(layout);
+                                }
                             }}
                         />
                     );

@@ -1,5 +1,5 @@
 import { CanvasProps, LayoutItem, ItemPos, LayoutType } from '@/interfaces';
-import { copyObject } from '@/utils/utils';
+import { copyObject, copyObjectArray } from '@/utils/utils';
 import React from 'react';
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
@@ -26,10 +26,10 @@ export function calcBoundPositions<
     if (bound) {
         const { min_x, max_x, min_y, max_y } = bound;
         if (min_x != undefined && max_x != undefined) {
-            pos.x = Math.min(Math.max(min_x, pos.x), max_x);
+            pos.x = clamp(pos.x, min_x, max_x);
         }
         if (min_y != undefined && max_y != undefined) {
-            pos.y = Math.min(Math.max(min_y, pos.y), max_y);
+            pos.y = clamp(pos.y, min_y, max_y);
         }
         if (
             max_x != undefined &&
@@ -101,7 +101,7 @@ export function dragToGrid(widget: ItemPos, grid?: [number, number]): ItemPos {
     }
 }
 
-export function dynamicProgramming2(
+export function dynamicProgramming(
     item: ItemPos,
     widgets: LayoutItem[],
     grid: [number, number],
@@ -251,20 +251,6 @@ export function collides(item_1: LayoutItem, item_2: LayoutItem): boolean {
     return true;
 }
 
-/**
- * 获取布局上所有和目标元素重叠的元素
- * @param layout
- * @param item
- * @returns
- */
-function getAllCollisions(layout: LayoutItem[], item: LayoutItem) {
-    return layout
-        .filter((l) => {
-            return !l.is_float;
-        })
-        .filter((l) => collides(l, item));
-}
-
 function getFirstCollision(layout: LayoutItem[], item: LayoutItem) {
     return layout.find((l) => {
         return collides(l, item);
@@ -286,61 +272,6 @@ function sortLayoutItems(layout: LayoutItem[]) {
         });
 }
 
-/**
- * 获取正确定位
- * @param layout
- * @param item
- * @returns
- */
-export function moveElement(
-    layout: LayoutItem[],
-    l: LayoutItem,
-    grid: [number, number],
-    y: number,
-    x: number
-) {
-    l.moved = true;
-    l.y = y;
-    l.x = x;
-
-    const sorted = sortLayoutItems(layout);
-
-    const collisions = getAllCollisions(sorted, l);
-    collisions.map((collision) => {
-        if (!collision.moved) {
-            layout = moveElementAwayFromCollision(layout, l, collision, grid);
-        }
-    });
-    return layout;
-}
-
-function moveElementAwayFromCollision(
-    layout: LayoutItem[],
-    l: LayoutItem,
-    collision: LayoutItem,
-    grid: [number, number]
-) {
-    const fake_item: LayoutItem = {
-        x: collision.x,
-        y: Math.max(l.y - collision.h, 0),
-        w: collision.w,
-        h: collision.h,
-        i: '-1',
-        is_float: false
-    };
-
-    if (!getFirstCollision(layout, fake_item)) {
-        return moveElement(layout, collision, grid, fake_item.y, fake_item.x);
-    }
-    return moveElement(
-        layout,
-        collision,
-        grid,
-        collision.y + grid[1],
-        collision.x
-    );
-}
-
 function bottom(layout: LayoutItem[]) {
     let max = 0,
         bottomY;
@@ -358,13 +289,13 @@ function resolveCompactionCollision(
     col_height: number
 ) {
     item.y += col_height;
-    const itemIndex = layout
+    const item_index = layout
         .map((layoutItem) => {
             return layoutItem.i;
         })
         .indexOf(item.i);
 
-    for (let i = itemIndex + 1; i < layout.length; i++) {
+    for (let i = item_index + 1; i < layout.length; i++) {
         const l = layout[i];
         if (l.y > item.y + item.h) {
             break;
@@ -373,17 +304,18 @@ function resolveCompactionCollision(
             resolveCompactionCollision(layout, l, move_to + item.h, col_height);
         }
     }
+    item.y = move_to;
 }
 
 function compactItem(
     compare_with: LayoutItem[],
     l: LayoutItem,
     sorted: LayoutItem[],
-    col_height: number
+    row_height: number
 ) {
     l.y = Math.min(bottom(compare_with), l.y);
     while (l.y > 0 && !getFirstCollision(compare_with, l)) {
-        l.y -= col_height;
+        l.y -= row_height;
     }
 
     let collides;
@@ -392,7 +324,7 @@ function compactItem(
             sorted,
             l,
             collides.y + collides.h,
-            col_height
+            row_height
         );
     }
 
@@ -401,23 +333,14 @@ function compactItem(
     return l;
 }
 
-export function compact(layout: LayoutItem[], col_height: number) {
+export function compact(layout: LayoutItem[], row_height: number) {
     const compare_with: LayoutItem[] = [];
     const sorted = sortLayoutItems(layout);
+
     sorted.map((l) => {
-        l = compactItem(compare_with, l, sorted, col_height);
+        l = compactItem(compare_with, l, sorted, row_height);
         compare_with.push(l);
     });
-}
-
-/**
- * 保证初始化状态widget不重叠
- * @param layout 用户定位布局
- * @returns
- */
-export function dynamicCalcLayout(layout: LayoutItem[]) {
-    console.log('dynamicCalcLayout start');
-    return layout;
 }
 
 function clamp(value: number, min: number, max: number): number {
