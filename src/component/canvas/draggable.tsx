@@ -1,7 +1,8 @@
 import { DraggableProps } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
-import { calcBoundPositions } from './calc';
+import { DEFAULT_BOUND } from '../layout/calc';
+import { calcBoundPositions, clamp } from './calc';
 
 interface Pos {
     x: number;
@@ -68,13 +69,11 @@ const Draggable = (props: Props) => {
         const delta_x = x - mouse_pos.x;
         const delta_y = y - mouse_pos.y;
 
-        const pos = calcBoundPositions(
-            {
-                x: start_pos.x + delta_x,
-                y: start_pos.y + delta_y
-            },
-            props.bound
-        );
+        const { top, left, bottom, right } = props.bound;
+        const pos = {
+            x: clamp(start_pos.x + delta_x, left, right),
+            y: clamp(start_pos.y + delta_y, top, bottom)
+        };
 
         props.onDrag?.(pos);
     };
@@ -151,7 +150,8 @@ const Draggable = (props: Props) => {
 Draggable.defaultProps = {
     is_draggable: false,
     scale: 1,
-    style: {}
+    style: {},
+    bound: DEFAULT_BOUND
 };
 
 export default memo(Draggable);

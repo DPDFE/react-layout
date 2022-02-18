@@ -1,6 +1,7 @@
 import {
-    CanvasProps,
+    BoundType,
     DragLayoutProps,
+    GridType,
     LayoutType,
     ReactDragLayoutProps
 } from '@/interfaces';
@@ -10,56 +11,62 @@ import { gridToDrag } from '../canvas/calc';
 export const RULER_GAP = 100; // 标尺间隔大小
 export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
 export const WRAPPER_PADDING = 200; // 编辑状态下的边框
+
 export const DEFAULT_BOUND = {
-    max_x: undefined,
-    min_x: undefined,
-    min_y: undefined,
-    max_y: undefined
+    top: -Infinity,
+    bottom: Infinity,
+    left: -Infinity,
+    right: Infinity
 };
 
 export function calcBoundBorder(
     bound?: [number, number?, number?, number?]
-): [number, number, number, number] {
+): BoundType {
     if (bound) {
         switch (bound.length) {
             case 1:
-                return [bound[0], bound[0], bound[0], bound[0]];
+                return {
+                    top: bound[0],
+                    right: bound[0],
+                    bottom: bound[0],
+                    left: bound[0]
+                };
             case 2:
-                return [
-                    bound[0],
-                    bound[1] as number,
-                    bound[0],
-                    bound[1] as number
-                ];
+                return {
+                    top: bound[0],
+                    right: bound[1] as number,
+                    bottom: bound[0],
+                    left: bound[1] as number
+                };
             case 3:
-                return [
-                    bound[0],
-                    bound[1] as number,
-                    bound[2] as number,
-                    bound[1] as number
-                ];
+                return {
+                    top: bound[0],
+                    right: bound[1] as number,
+                    bottom: bound[2] as number,
+                    left: bound[1] as number
+                };
             case 4:
-                return [
-                    bound[0],
-                    bound[1] as number,
-                    bound[2] as number,
-                    bound[3] as number
-                ];
+                return {
+                    top: bound[0],
+                    right: bound[1] as number,
+                    bottom: bound[2] as number,
+                    left: bound[3] as number
+                };
         }
     }
-    return [0, 0, 0, 0];
+    return { top: 0, right: 0, bottom: 0, left: 0 };
 }
 
 export function calcBoundRange(
     current_width: number,
     current_height: number,
-    bound_border: [number, number, number, number]
-) {
+    bound_border: BoundType
+): BoundType {
     return {
-        max_x: current_width - bound_border[1] - bound_border[3],
-        min_x: 0,
-        min_y: 0,
-        max_y: current_height - bound_border[0] - bound_border[2]
+        top: 0,
+        left: 0,
+        bottom: current_width - bound_border.right - bound_border.left,
+        right: current_height - bound_border.top - bound_border.bottom
     };
 }
 
@@ -139,10 +146,12 @@ export const getMaxWidgetsRange = (
         : 0;
 
     const canvas_bound = calcBoundBorder(props.container_padding);
-    const grid = [
-        (current_width - canvas_bound[1] - canvas_bound[3]) / props.cols,
-        props.row_height
-    ] as [number, number];
+    const grid = {
+        col_width:
+            (current_width - canvas_bound.left - canvas_bound.right) /
+            props.cols,
+        row_height: props.row_height
+    };
 
     const { max_left, max_right, max_top, max_bottom } = maxBorderPos(
         current_width,
@@ -239,7 +248,7 @@ function maxBorderPos(
     default_width: number,
     default_height: number,
     children: ReactElement[],
-    grid: [number, number]
+    grid: GridType
 ) {
     // 元素计算大小
     let max_left = 0,

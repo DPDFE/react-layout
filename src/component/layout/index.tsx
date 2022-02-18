@@ -7,6 +7,7 @@ import styles from './styles.module.css';
 import {
     BoundType,
     DragLayoutProps,
+    GridType,
     LayoutType,
     ReactDragLayoutProps,
     RulerPointer
@@ -30,8 +31,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
 
-    const [grid, setGrid] = useState<[number, number]>([1, 1]);
-    const [bound, setBound] = useState<Partial<BoundType>>(DEFAULT_BOUND);
+    const [grid, setGrid] = useState<GridType>({ col_width: 1, row_height: 1 });
+    const [bound, setBound] = useState<BoundType>(DEFAULT_BOUND);
 
     /**
      * 更改画布宽高属性

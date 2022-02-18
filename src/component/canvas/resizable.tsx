@@ -2,10 +2,10 @@ import { CursorPointer, CursorType, ResizableProps } from '@/interfaces';
 import React, { memo } from 'react';
 import styles from './styles.module.css';
 import Cursor from './cursor';
-import { calcBoundPositions, MIN_DRAG_LENGTH } from './calc';
+import { calcBoundPositions } from './calc';
+import { DEFAULT_BOUND } from '../layout/calc';
 
 const Resizable = (props: ResizableProps) => {
-    const [grid_x, grid_y] = props.grid;
     const child = React.Children.only(props.children);
 
     const handleResizeStart = () => {
@@ -102,8 +102,10 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            max_x: props.x + props.w - grid_x,
-                            max_y: props.y + props.h - grid_y
+                            top: -Infinity,
+                            left: -Infinity,
+                            bottom: props.x + props.w - props.grid.col_width,
+                            right: props.y + props.h - props.grid.row_height
                         }}
                     ></Cursor>
                     {/* 右上 */}
@@ -116,8 +118,10 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            min_x: props.x + grid_x,
-                            max_y: props.y + props.h - grid_y
+                            top: -Infinity,
+                            right: Infinity,
+                            left: props.x + props.grid.col_width,
+                            bottom: props.y + props.h - props.grid.row_height
                         }}
                     ></Cursor>
                     {/* 左下 */}
@@ -130,8 +134,10 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            max_x: props.x + props.w - grid_x,
-                            min_y: props.y + grid_y
+                            left: -Infinity,
+                            bottom: Infinity,
+                            right: props.x + props.w - props.grid.col_width,
+                            top: props.y + props.grid.row_height
                         }}
                     ></Cursor>
                     {/* 右下 */}
@@ -144,8 +150,10 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            min_x: props.x + grid_x,
-                            min_y: props.y + grid_y
+                            right: Infinity,
+                            bottom: Infinity,
+                            left: props.x + props.grid.col_width,
+                            top: props.y + props.grid.row_height
                         }}
                     ></Cursor>
                 </React.Fragment>
@@ -157,7 +165,8 @@ const Resizable = (props: ResizableProps) => {
 Resizable.defaultProps = {
     is_resizable: false,
     scale: 1,
-    style: {}
+    style: {},
+    bound: DEFAULT_BOUND
 };
 
 export default memo(Resizable);

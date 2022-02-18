@@ -31,6 +31,18 @@ export type CursorPointer = {
     cursor: CursorType;
 };
 
+export type GridType = {
+    col_width: number;
+    row_height: number;
+};
+
+export type BoundType = {
+    top: number;
+    left: number;
+    right: number;
+    bottom: number;
+};
+
 export type ItemPos = {
     i: string;
     x: number;
@@ -141,8 +153,8 @@ export interface GuideLineProps {
 
 /** 画布props */
 export type CanvasProps = ReactDragLayoutProps & {
-    bound: Partial<BoundType>;
-    grid: [number, number];
+    bound: BoundType;
+    grid: GridType;
     width: number;
     height: number;
     t_offset: number;
@@ -170,7 +182,7 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     height: number;
     scale: number;
     bound: BoundType;
-    grid: [number, number];
+    grid: GridType;
     layout_type: LayoutType.DRAG | LayoutType.GRID;
     setCurrentChecked: (idx: string) => void;
     onDragStart?: () => void;
@@ -181,20 +193,12 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     onResizeStop?: (item: ItemPos) => void;
     onPositionChange?: (item: ItemPos) => void;
 }
-
-export type BoundType = {
-    min_x: number;
-    max_x: number;
-    min_y: number;
-    max_y: number;
-};
-
 /** drag */
 export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
     x: number;
     y: number;
     scale: number;
-    bound?: Partial<BoundType>;
+    bound: BoundType;
     is_draggable?: boolean;
     onDragStart?: () => void;
     onDrag?: ({ x, y }: { x: number; y: number }) => void;
@@ -210,8 +214,8 @@ export interface CursorProps extends DraggableProps {
 /** resize */
 export interface ResizableProps extends EventBaseProps, ItemPos {
     scale: number;
-    grid: [number, number];
-    bound?: Partial<BoundType>;
+    grid: GridType;
+    bound: BoundType;
     is_resizable?: boolean;
     onResizeStart?: () => void;
     onResize?: ({

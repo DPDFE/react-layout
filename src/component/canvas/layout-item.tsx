@@ -1,6 +1,7 @@
 import { WidgetItemProps, LayoutType } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, { memo, ReactElement, useRef } from 'react';
+import { DEFAULT_BOUND } from '../layout/calc';
 import { MIN_DRAG_LENGTH } from './calc';
 import Draggable from './draggable';
 import Resizable from './resizable';
@@ -24,7 +25,7 @@ const WidgetItem = (props: WidgetItemProps) => {
     const child = React.Children.only(props.children);
     const item_ref = useRef<HTMLDivElement>(null);
 
-    const { i, x, y, h, w, is_float, is_draggable, is_resizable } = props;
+    const { i, x, y, w, h, is_float, is_draggable, is_resizable } = props;
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -85,8 +86,8 @@ const WidgetItem = (props: WidgetItemProps) => {
         }
     });
 
-    const grid_x = props.is_float ? MIN_DRAG_LENGTH : props.grid[0];
-    const grid_y = props.is_float ? MIN_DRAG_LENGTH : props.grid[1];
+    const col_width = is_float ? MIN_DRAG_LENGTH : props.grid.col_width;
+    const row_height = is_float ? MIN_DRAG_LENGTH : props.grid.row_height;
 
     return (
         <React.Fragment>
@@ -100,10 +101,10 @@ const WidgetItem = (props: WidgetItemProps) => {
                 onResize={({ x, y, h, w }) => {
                     props.onResize?.({ x, y, h, w, is_float, i });
                 }}
-                grid={[grid_x, grid_y]}
+                grid={{ col_width, row_height }}
                 bound={
                     props.layout_type === LayoutType.DRAG && is_float
-                        ? undefined
+                        ? DEFAULT_BOUND
                         : props.bound
                 }
                 onResizeStop={({ x, y, h, w }) => {
@@ -119,15 +120,15 @@ const WidgetItem = (props: WidgetItemProps) => {
                     }}
                     bound={
                         props.layout_type === LayoutType.DRAG && is_float
-                            ? undefined
+                            ? DEFAULT_BOUND
                             : props.bound
                             ? {
-                                  max_x: props.bound.max_x - w,
-                                  min_x: props.bound.min_x,
-                                  min_y: props.bound.min_y,
-                                  max_y: props.bound.max_y - h
+                                  bottom: props.bound.bottom - w,
+                                  top: props.bound.top,
+                                  left: props.bound.left,
+                                  right: props.bound.right - h
                               }
-                            : undefined
+                            : DEFAULT_BOUND
                     }
                     onDrag={({ x, y }) => {
                         props.onDrag?.({
@@ -184,8 +185,6 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             } else if (key === 'children') {
                 return childrenEqual(prev['children'], next['children']);
             } else {
-                const is_equal = isEqual(prev[key], next[key]);
-                // !is_equal && console.log(is_equal, key);
                 return isEqual(prev[key], next[key]);
             }
         })

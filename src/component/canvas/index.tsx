@@ -35,7 +35,7 @@ const Canvas = (props: CanvasProps) => {
     useEffect(() => {
         if (props.children.length > 0) {
             const layout = createInitialLayout(props.children, props.grid);
-            compact(layout, props.grid[1]);
+            // compact(layout, props.grid.row_height);
             setLayout(layout);
         }
     }, [props.children, props.grid]);
@@ -93,7 +93,7 @@ const Canvas = (props: CanvasProps) => {
 
         const drop_item = getDropPos(e, props);
         setShadowWidget(drop_item);
-        compact(layout.concat(drop_item), props.grid[1]);
+        // compact(layout.concat(drop_item), props.grid.row_height);
     };
 
     /**
@@ -103,7 +103,6 @@ const Canvas = (props: CanvasProps) => {
      * @returns
      */
     const moveLayoutV1 = (item: ItemPos, is_save?: boolean) => {
-        console.log('moveLayoutV1');
         const { layout: dynamic_layout, shadow_pos } = dynamicProgramming(
             item,
             layout,
@@ -142,7 +141,8 @@ const Canvas = (props: CanvasProps) => {
         if (!current_item.is_float) {
             snapToGrid(item, props.grid);
             Object.assign(current_item, item);
-            compact(layout, props.grid[1]);
+
+            compact(layout, props.grid.row_height);
             setShadowWidget(is_save ? undefined : current_item);
         }
 
@@ -157,8 +157,8 @@ const Canvas = (props: CanvasProps) => {
     };
 
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        return moveLayoutV1(item, is_save);
-        // return moveLayoutV2(item, is_save);
+        // return moveLayoutV1(item, is_save);
+        return moveLayoutV2(item, is_save);
     };
 
     return (
