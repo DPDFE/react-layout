@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import styles from './styles.module.css';
 import Cursor from './cursor';
 import { calcBoundPositions } from './calc';
-import { DEFAULT_BOUND } from '../layout/calc';
+import { DEFAULT_BOUND } from './draggable';
 
 const Resizable = (props: ResizableProps) => {
     const child = React.Children.only(props.children);
@@ -102,8 +102,6 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            min_y: -Infinity,
-                            min_x: -Infinity,
                             max_y: props.y + props.h - props.grid.row_height,
                             max_x: props.x + props.w - props.grid.col_width
                         }}
@@ -118,8 +116,6 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            min_y: -Infinity,
-                            max_x: Infinity,
                             min_x: props.x + props.grid.col_width,
                             max_y: props.y + props.h - props.grid.row_height
                         }}
@@ -134,8 +130,6 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            min_x: -Infinity,
-                            max_y: Infinity,
                             max_x: props.x + props.w - props.grid.col_width,
                             min_y: props.y + props.grid.row_height
                         }}
@@ -150,8 +144,6 @@ const Resizable = (props: ResizableProps) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            max_x: Infinity,
-                            max_y: Infinity,
                             min_x: props.x + props.grid.col_width,
                             min_y: props.y + props.grid.row_height
                         }}

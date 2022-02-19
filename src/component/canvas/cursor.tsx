@@ -1,7 +1,6 @@
 import { CursorProps } from '@/interfaces';
 import React, { memo, useRef } from 'react';
-import { DEFAULT_BOUND } from '../layout/calc';
-import Draggable from './draggable';
+import Draggable, { DEFAULT_BOUND } from './draggable';
 import styles from './styles.module.css';
 
 const Cursor = (props: CursorProps) => {

@@ -205,7 +205,7 @@ export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
     x: number;
     y: number;
     scale: number;
-    bound: BoundType;
+    bound?: Partial<BoundType>;
     is_draggable?: boolean;
     onDragStart?: () => void;
     onDrag?: ({ x, y }: { x: number; y: number }) => void;

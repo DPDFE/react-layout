@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
 import Canvas from '../canvas';
-import { DEFAULT_BOUND, getMaxWidgetsRange } from './calc';
+import { getMaxWidgetsRange } from './calc';
 import styles from './styles.module.css';
 import {
     BoundType,
@@ -14,6 +14,7 @@ import {
 } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import GuideLine from '../guide-line';
+import { DEFAULT_BOUND } from '../canvas/draggable';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const container_ref = useRef<HTMLDivElement>(null);

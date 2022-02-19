@@ -13,13 +13,6 @@ export const RULER_GAP = 100; // 标尺间隔大小
 export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
 export const WRAPPER_PADDING = 200; // 编辑状态下的边框
 
-export const DEFAULT_BOUND = {
-    min_x: -Infinity,
-    max_x: Infinity,
-    min_y: -Infinity,
-    max_y: Infinity
-};
-
 export function calcBoundBorder(
     bound?: [number, number?, number?, number?]
 ): MarginType {
@@ -169,7 +162,7 @@ export const getMaxWidgetsRange = (
                 : current_height;
 
         const bound = calcBoundRange(current_width, _h, canvas_bound);
-        console.log('bound', bound);
+
         return {
             bound,
             grid,

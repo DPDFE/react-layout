@@ -106,8 +106,7 @@ const Canvas = (props: CanvasProps) => {
         const { layout: dynamic_layout, shadow_pos } = dynamicProgramming(
             item,
             layout,
-            props.grid,
-            props.bound
+            props.grid
         );
 
         setShadowWidget(is_save || item.is_float ? undefined : shadow_pos);
@@ -157,8 +156,8 @@ const Canvas = (props: CanvasProps) => {
     };
 
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        return moveLayoutV1(item, is_save);
-        // return moveLayoutV2(item, is_save);
+        // return moveLayoutV1(item, is_save);
+        return moveLayoutV2(item, is_save);
     };
 
     return (

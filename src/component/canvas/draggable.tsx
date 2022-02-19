@@ -1,9 +1,13 @@
-import { DraggableProps } from '@/interfaces';
+import { BoundType, DraggableProps } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
-import { DEFAULT_BOUND } from '../layout/calc';
-import { calcBoundPositions, clamp } from './calc';
 
+export const DEFAULT_BOUND = {
+    min_x: -Infinity,
+    max_x: Infinity,
+    min_y: -Infinity,
+    max_y: Infinity
+};
 interface Pos {
     x: number;
     y: number;
@@ -69,8 +73,7 @@ const Draggable = (props: Props) => {
         const delta_x = x - mouse_pos.x;
         const delta_y = y - mouse_pos.y;
 
-        const { max_x, max_y, min_x, min_y } = props.bound;
-        console.log(props.bound);
+        const { max_x, max_y, min_x, min_y } = formatBound(props.bound);
 
         const pos = {
             x: clamp(start_pos.x + delta_x, min_x, max_x),
@@ -157,3 +160,19 @@ Draggable.defaultProps = {
 };
 
 export default memo(Draggable);
+
+export function clamp(value: number, min: number, max: number): number {
+    return Math.min(Math.max(value, min), max);
+}
+
+export function formatBound(bound?: Partial<BoundType>): BoundType {
+    if (bound) {
+        return {
+            max_x: bound.max_x == undefined ? Infinity : bound.max_x,
+            min_x: bound.min_x == undefined ? -Infinity : bound.min_x,
+            max_y: bound.max_y == undefined ? Infinity : bound.max_y,
+            min_y: bound.min_y == undefined ? -Infinity : bound.min_y
+        };
+    }
+    return DEFAULT_BOUND;
+}

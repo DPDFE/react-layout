@@ -6,8 +6,9 @@ import {
     GridType,
     BoundType
 } from '@/interfaces';
-import { copyObject, copyObjectArray } from '@/utils/utils';
+import { copyObject } from '@/utils/utils';
 import React from 'react';
+import { clamp } from './draggable';
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
 
@@ -85,13 +86,9 @@ export function dragToGrid(widget: ItemPos, grid?: GridType): ItemPos {
 export function dynamicProgramming(
     item: ItemPos,
     widgets: LayoutItem[],
-    grid: GridType,
-    grid_bound: BoundType
+    grid: GridType
 ) {
-    let shadow_pos = calcBoundPositions(
-        snapToGrid(copyObject(item), grid),
-        grid_bound
-    );
+    let shadow_pos = snapToGrid(copyObject(item), grid);
     const sort_widgets = widgets
         .filter((w) => !w.is_float && w.i !== item.i)
         .concat([shadow_pos])
@@ -317,8 +314,4 @@ export function compact(layout: LayoutItem[], row_height: number) {
         l = compactItem(compare_with, l, sorted, row_height);
         compare_with.push(l);
     });
-}
-
-export function clamp(value: number, min: number, max: number): number {
-    return Math.min(Math.max(value, min), max);
 }
