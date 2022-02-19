@@ -23,7 +23,6 @@ import isEqual from 'lodash.isequal';
 /** 画布 */
 const Canvas = (props: CanvasProps) => {
     const canvas_ref = useRef<HTMLDivElement>(null);
-    const shadow_ref = useRef<HTMLDivElement>(null);
 
     const [checked_index, setCurrentChecked] = useState<string>();
 
@@ -184,7 +183,6 @@ const Canvas = (props: CanvasProps) => {
         >
             {shadow_widget && (
                 <div
-                    ref={shadow_ref}
                     className={`placeholder ${styles.placeholder}`}
                     style={{
                         transform: `translate(${shadow_widget.x}px, ${shadow_widget.y}px)`,

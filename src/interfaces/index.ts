@@ -191,7 +191,7 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     bound: BoundType;
     grid: GridType;
     layout_type: LayoutType.DRAG | LayoutType.GRID;
-    setCurrentChecked: (idx: string) => void;
+    setCurrentChecked?: (idx: string) => void;
     onDragStart?: () => void;
     onDrag?: (item: ItemPos) => void;
     onDragStop?: (item: ItemPos) => void;

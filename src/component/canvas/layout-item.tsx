@@ -57,7 +57,7 @@ const WidgetItem = (props: WidgetItemProps) => {
     const new_child = React.cloneElement(child, {
         tabIndex: i,
         onMouseDown: () => {
-            props.setCurrentChecked(i);
+            props.setCurrentChecked?.(i);
         },
         onKeyDown: (e: React.KeyboardEvent) => {
             if (is_float) {

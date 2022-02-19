@@ -188,31 +188,19 @@ export function getDropPos(e: React.MouseEvent, props: CanvasProps): ItemPos {
     const x = layerX / scale;
     const y = layerY / scale;
 
+    const w = grid.col_width * 1;
+    const h = grid.row_height * 1;
+
+    const pos = { i: '-1', x, y, w, h, is_float: true };
+
     if (layout_type === LayoutType.GRID) {
-        return calcBoundPositions(
-            snapToGrid(
-                {
-                    x,
-                    y,
-                    w: grid.col_width,
-                    h: grid.row_height,
-                    i: Math.random().toString(),
-                    is_float: false
-                },
-                grid
-            ),
-            bound
-        );
-    } else {
-        return {
-            x,
-            y,
-            w: grid.col_width,
-            h: grid.row_height,
-            i: Math.random().toString(),
-            is_float: true
-        };
+        snapToGrid(pos, grid);
+        const { max_x, max_y, min_x, min_y } = bound;
+        pos.x = clamp(pos.x, min_x, max_x - w);
+        pos.y = clamp(pos.y, min_y, max_y - h);
     }
+
+    return pos;
 }
 
 export function collides(item_1: LayoutItem, item_2: LayoutItem): boolean {
