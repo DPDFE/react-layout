@@ -182,7 +182,7 @@ const App = () => {
                     height={height}
                     row_height={50}
                     cols={8}
-                    item_margin={[30, 5]}
+                    item_margin={[10, 10]}
                     container_padding={[10, 10, 10, 10]}
                     scale={scale}
                     guide_lines={guide_line}
