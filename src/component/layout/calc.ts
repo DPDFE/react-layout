@@ -7,7 +7,7 @@ import {
     ReactDragLayoutProps
 } from '@/interfaces';
 import { ReactElement, RefObject } from 'react';
-import { gridToDrag } from '../canvas/calc';
+import { DEFAULT_BOUND } from '../canvas/draggable';
 
 export const RULER_GAP = 100; // 标尺间隔大小
 export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
@@ -16,39 +16,44 @@ export const WRAPPER_PADDING = 200; // 编辑状态下的边框
 export function calcBoundBorder(
     bound?: [number, number?, number?, number?]
 ): MarginType {
+    let pos = { top: 0, right: 0, bottom: 0, left: 0 };
     if (bound) {
         switch (bound.length) {
             case 1:
-                return {
+                pos = {
                     top: bound[0],
                     right: bound[0],
                     bottom: bound[0],
                     left: bound[0]
                 };
+                break;
             case 2:
-                return {
+                pos = {
                     top: bound[0],
                     right: bound[1] as number,
                     bottom: bound[0],
                     left: bound[1] as number
                 };
+                break;
             case 3:
-                return {
+                pos = {
                     top: bound[0],
                     right: bound[1] as number,
                     bottom: bound[2] as number,
                     left: bound[1] as number
                 };
+                break;
             case 4:
-                return {
+                pos = {
                     top: bound[0],
                     right: bound[1] as number,
                     bottom: bound[2] as number,
                     left: bound[3] as number
                 };
+                break;
         }
     }
-    return { top: 0, right: 0, bottom: 0, left: 0 };
+    return pos;
 }
 
 export function calcBoundRange(
@@ -59,7 +64,7 @@ export function calcBoundRange(
     return {
         min_y: 0,
         min_x: 0,
-        max_y: current_height - bound_border.top - bound_border.bottom,
+        max_y: current_height - bound_border.bottom - bound_border.top,
         max_x: current_width - bound_border.right - bound_border.left
     };
 }
@@ -140,10 +145,15 @@ export const getMaxWidgetsRange = (
         : 0;
 
     const canvas_bound = calcBoundBorder(props.container_padding);
+
+    const max_bound = Math.max(
+        canvas_bound.left + canvas_bound.right,
+        props.item_margin[1]
+    );
+    const _w = current_width - max_bound;
+
     const grid = {
-        col_width:
-            (current_width - canvas_bound.left - canvas_bound.right) /
-            props.cols,
+        col_width: _w / props.cols,
         row_height: props.row_height
     };
 
@@ -158,12 +168,13 @@ export const getMaxWidgetsRange = (
     if (layout_type === LayoutType.GRID) {
         const _h =
             max_bottom > current_height
-                ? max_bottom + canvas_bound[0] + canvas_bound[2]
+                ? max_bottom + canvas_bound.top + canvas_bound.bottom
                 : current_height;
 
         const bound = calcBoundRange(current_width, _h, canvas_bound);
 
         return {
+            padding: canvas_bound,
             bound,
             grid,
             t_offset: 0,
@@ -206,6 +217,7 @@ export const getMaxWidgetsRange = (
         );
 
         return {
+            padding: canvas_bound,
             grid,
             bound,
             wrapper_calc_width,
@@ -222,6 +234,7 @@ export const getMaxWidgetsRange = (
         const t_offset = calcOffset(client_height, calc_height);
 
         return {
+            padding: canvas_bound,
             grid,
             bound,
             wrapper_calc_width: Math.max(calc_width, client_width),
@@ -250,13 +263,34 @@ function maxBorderPos(
         max_top = 0,
         max_bottom = default_height;
 
+    function gridMapping(
+        is_float: boolean,
+        data: number,
+        approximation: number
+    ): number {
+        return is_float ? data : data * approximation;
+    }
+
     if (children) {
         children.map((child) => {
-            const { x, y, h, w } = gridToDrag(child.props['data-drag'], grid);
-            max_left = Math.min(max_left, x); // 最左边最小值
-            max_right = Math.max(max_right, x + w); // 最大值
-            max_top = Math.min(max_top, y); // 最上边最小值
-            max_bottom = Math.max(max_bottom, y + h); // 最大值
+            const { x, y, h, w, is_float } = child.props['data-drag'];
+
+            max_left = Math.min(
+                max_left,
+                gridMapping(is_float, x, grid.col_width)
+            ); // 最左边最小值
+            max_right = Math.max(
+                max_right,
+                gridMapping(is_float, x + w, grid.col_width)
+            ); // 最大值
+            max_top = Math.min(
+                max_top,
+                gridMapping(is_float, y, grid.row_height)
+            ); // 最上边最小值
+            max_bottom = Math.max(
+                max_bottom,
+                gridMapping(is_float, y + h, grid.row_height)
+            ); // 最大值
         });
     }
     return { max_left, max_right, max_top, max_bottom };

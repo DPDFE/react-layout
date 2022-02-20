@@ -81,6 +81,7 @@ const Resizable = (props: ResizableProps) => {
                 : styles['no-border']
         ].join(' '),
         style: {
+            ...props.style,
             transform: `translate(${props.x}px, ${props.y}px)`,
             width: props.w,
             height: props.h

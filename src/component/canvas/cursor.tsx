@@ -29,7 +29,9 @@ const Cursor = (props: CursorProps) => {
                     styles['light-theme']
                 ].join(' ')}
                 style={{
-                    cursor: props.cursor
+                    cursor: props.cursor,
+                    marginTop: -3,
+                    marginLeft: -3
                 }}
             ></div>
         </Draggable>

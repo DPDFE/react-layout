@@ -64,6 +64,7 @@ type LayoutBase = {
     cols: number;
     row_height: number;
     container_padding: [number, number?, number?, number?];
+    item_margin: [number, number];
 };
 
 type EditLayoutBase = LayoutBase & {
@@ -160,6 +161,7 @@ export interface GuideLineProps {
 
 /** 画布props */
 export type CanvasProps = ReactDragLayoutProps & {
+    padding: MarginType;
     bound: BoundType;
     grid: GridType;
     width: number;
@@ -190,6 +192,8 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     scale: number;
     bound: BoundType;
     grid: GridType;
+    padding: MarginType;
+    margin: [number, number];
     layout_type: LayoutType.DRAG | LayoutType.GRID;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: () => void;
@@ -214,6 +218,7 @@ export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
 
 export interface CursorProps extends DraggableProps {
     cursor: CursorType;
+    margin?: [number, number];
     onDrag?: ({ x, y, cursor }: CursorPointer) => void;
     onDragStop?: ({ x, y, cursor }: CursorPointer) => void;
 }
@@ -223,6 +228,7 @@ export interface ResizableProps extends EventBaseProps, ItemPos {
     scale: number;
     grid: GridType;
     bound: BoundType;
+    margin?: [number, number];
     is_resizable?: boolean;
     onResizeStart?: () => void;
     onResize?: ({

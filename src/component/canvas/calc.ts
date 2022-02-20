@@ -41,25 +41,25 @@ export function snapToGrid(pos: ItemPos, grid: GridType) {
     return pos;
 }
 
-export function gridToDrag(widget: ItemPos, grid?: GridType): ItemPos {
+export function gridToDrag(
+    widget: ItemPos,
+    grid: GridType,
+    item_margin: [number, number]
+): ItemPos {
     if (widget.is_float) {
         return widget as ItemPos;
     } else {
-        if (grid) {
-            return {
-                ...widget,
-                x: widget.x * grid.col_width,
-                y: widget.y * grid.row_height,
-                w: widget.w * grid.col_width,
-                h: widget.h * grid.row_height
-            };
-        } else {
-            return { ...widget, x: 0, y: 0, h: 0, w: 0 };
-        }
+        return {
+            ...widget,
+            x: widget.x * grid.col_width,
+            y: widget.y * grid.row_height,
+            w: widget.w * grid.col_width,
+            h: widget.h * grid.row_height
+        };
     }
 }
 
-export function dragToGrid(widget: ItemPos, grid?: GridType): ItemPos {
+export function dragToGrid(widget: ItemPos, grid: GridType): ItemPos {
     if (widget.is_float) {
         return widget as ItemPos;
     } else {
@@ -168,12 +168,13 @@ export function dynamicProgramming(
 
 export function createInitialLayout(
     children: React.ReactElement[],
-    grid: GridType
+    grid: GridType,
+    item_margin: [number, number]
 ) {
     return children.map((child) => {
         const item = child.props['data-drag'] as LayoutItem;
         return {
-            ...gridToDrag(item, grid),
+            ...gridToDrag(item, grid, item_margin),
             is_float: item.is_float ? item.is_float : false,
             is_draggable: item.is_draggable ? item.is_draggable : false,
             is_resizable: item.is_resizable ? item.is_resizable : false

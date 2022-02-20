@@ -3,7 +3,8 @@ import {
     LayoutItem,
     EditLayoutProps,
     ItemPos,
-    LayoutType
+    LayoutType,
+    MarginType
 } from '@/interfaces';
 import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.css';
@@ -18,7 +19,6 @@ import {
     compact,
     snapToGrid
 } from './calc';
-import isEqual from 'lodash.isequal';
 
 /** 画布 */
 const Canvas = (props: CanvasProps) => {
@@ -33,7 +33,11 @@ const Canvas = (props: CanvasProps) => {
 
     useEffect(() => {
         if (props.children.length > 0) {
-            const layout = createInitialLayout(props.children, props.grid);
+            const layout = createInitialLayout(
+                props.children,
+                props.grid,
+                props.item_margin
+            );
             compact(layout, props.grid.row_height);
             setLayout(layout);
         }
@@ -77,13 +81,13 @@ const Canvas = (props: CanvasProps) => {
 
         const drop_item = getDropPos(e, props);
 
-        const grid_item = dragToGrid(drop_item, props.grid);
-        const item = (props as EditLayoutProps).onDrop?.(grid_item);
+        // const grid_item = dragToGrid(drop_item, props.grid);
+        // const item = (props as EditLayoutProps).onDrop?.(grid_item);
 
-        if (item && item.i) {
-            setShadowWidget(undefined);
-            setCurrentChecked(item.i);
-        }
+        // if (item && item.i) {
+        //     setShadowWidget(undefined);
+        //     setCurrentChecked(item.i);
+        // }
     };
 
     const onDragOver = (e: React.MouseEvent) => {
@@ -155,8 +159,8 @@ const Canvas = (props: CanvasProps) => {
     };
 
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        // return moveLayoutV1(item, is_save);
-        return moveLayoutV2(item, is_save);
+        return moveLayoutV1(item, is_save);
+        // return moveLayoutV2(item, is_save);
     };
 
     return (
@@ -171,7 +175,10 @@ const Canvas = (props: CanvasProps) => {
                 transform: `scale(${props.scale})`,
                 transformOrigin: '0 0',
                 overflow: props.mode === LayoutType.edit ? 'unset' : 'hidden',
-                padding: props.container_padding.map((i) => i + 'px').join(' ')
+                paddingTop: props.padding.top,
+                paddingLeft: props.padding.left,
+                paddingBottom: props.padding.bottom,
+                paddingRight: props.padding.right
             }}
             onContextMenu={(e) => {
                 e.preventDefault();
@@ -181,7 +188,7 @@ const Canvas = (props: CanvasProps) => {
             onDragLeave={props.mode === LayoutType.edit ? onDragLeave : noop}
             onDragOver={props.mode === LayoutType.edit ? onDragOver : noop}
         >
-            {shadow_widget && (
+            {/* {shadow_widget && (
                 <div
                     className={`placeholder ${styles.placeholder}`}
                     style={{
@@ -190,7 +197,7 @@ const Canvas = (props: CanvasProps) => {
                         height: shadow_widget.h
                     }}
                 ></div>
-            )}
+            )} */}
             {React.Children.map(props.children, (child, idx) => {
                 const widget = layout[idx];
                 if (widget) {
@@ -200,12 +207,14 @@ const Canvas = (props: CanvasProps) => {
                             key={widget.i}
                             {...widget}
                             {...child.props}
+                            padding={props.padding}
                             grid={props.grid}
                             bound={props.bound}
                             children={child}
                             width={props.width}
                             height={props.height}
                             scale={props.scale}
+                            margin={props.item_margin}
                             is_resizable={
                                 widget.is_resizable &&
                                 checked_index === widget.i
@@ -278,6 +287,16 @@ const Canvas = (props: CanvasProps) => {
             })}
         </div>
     );
+};
+
+Canvas.defaultProps = {
+    item_margin: [0, 0],
+    padding: {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+    }
 };
 
 export default memo(Canvas);

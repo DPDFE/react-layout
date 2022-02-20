@@ -9,6 +9,7 @@ import {
     DragLayoutProps,
     GridType,
     LayoutType,
+    MarginType,
     ReactDragLayoutProps,
     RulerPointer
 } from '@/interfaces';
@@ -34,6 +35,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     const [grid, setGrid] = useState<GridType>({ col_width: 1, row_height: 1 });
     const [bound, setBound] = useState<BoundType>(DEFAULT_BOUND);
+    const [padding, setPadding] = useState<MarginType>({
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+    });
 
     /**
      * 更改画布宽高属性
@@ -41,6 +48,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const changeCanvasAttrs = () => {
         // 画板计算大小
         const {
+            padding,
             grid,
             bound,
             t_offset,
@@ -51,6 +59,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             wrapper_calc_height
         } = getMaxWidgetsRange(canvas_viewport, container_ref, props);
 
+        setPadding(padding);
         setGrid(grid);
         setBound(bound);
         setCanvasWrapperWidth(wrapper_calc_width);
@@ -123,6 +132,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                         {current_width && current_height && grid && (
                             <Canvas
                                 {...props}
+                                padding={padding}
                                 grid={grid}
                                 bound={bound}
                                 width={current_width}
@@ -161,6 +171,7 @@ ReactDragLayout.defaultProps = {
     cols: 10,
     row_height: 20,
     container_padding: [10],
+    item_margin: [0, 0],
     mode: LayoutType.view
 };
 

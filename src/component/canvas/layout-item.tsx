@@ -24,7 +24,18 @@ const WidgetItem = (props: WidgetItemProps) => {
     const child = React.Children.only(props.children);
     const item_ref = useRef<HTMLDivElement>(null);
 
-    const { i, x, y, w, h, is_float, is_draggable, is_resizable } = props;
+    const { i, is_float, is_draggable, is_resizable } = props;
+
+    const margin_height = is_float ? 0 : props.margin[0];
+    const margin_width = is_float ? 0 : props.margin[1];
+
+    const offset_x = Math.max(margin_width - props.padding.left, 0);
+    const offset_y = Math.max(margin_height - props.padding.top, 0);
+
+    const x = props.x + offset_x;
+    const y = props.y + offset_y;
+    const w = props.w - margin_width;
+    const h = props.h - margin_height;
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -98,7 +109,14 @@ const WidgetItem = (props: WidgetItemProps) => {
                     props.onResizeStart?.();
                 }}
                 onResize={({ x, y, h, w }) => {
-                    props.onResize?.({ x, y, h, w, is_float, i });
+                    props.onResize?.({
+                        x: x - offset_x,
+                        y: y - offset_y,
+                        w: w + margin_width,
+                        h: h + margin_height,
+                        is_float,
+                        i
+                    });
                 }}
                 grid={{ col_width, row_height }}
                 bound={
@@ -107,7 +125,14 @@ const WidgetItem = (props: WidgetItemProps) => {
                         : props.bound
                 }
                 onResizeStop={({ x, y, h, w }) => {
-                    props.onResizeStop?.({ x, y, h, w, is_float, i });
+                    props.onResizeStop?.({
+                        x: x - offset_x,
+                        y: y - offset_y,
+                        w: w + margin_width,
+                        h: h + margin_height,
+                        is_float,
+                        i
+                    });
                 }}
             >
                 <Draggable
@@ -131,20 +156,20 @@ const WidgetItem = (props: WidgetItemProps) => {
                     }
                     onDrag={({ x, y }) => {
                         props.onDrag?.({
-                            x,
-                            y,
-                            w,
-                            h,
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            w: w + margin_width,
+                            h: h + margin_height,
                             is_float,
                             i
                         });
                     }}
                     onDragStop={({ x, y }) => {
                         props.onDragStop?.({
-                            x,
-                            y,
-                            w,
-                            h,
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            w: w + margin_width,
+                            h: h + margin_height,
                             is_float,
                             i
                         });
@@ -160,7 +185,14 @@ const WidgetItem = (props: WidgetItemProps) => {
 WidgetItem.defaultProps = {
     scale: 1,
     is_float: false,
-    style: {}
+    style: {},
+    margin: [0, 0],
+    padding: {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0
+    }
 };
 
 export default memo(WidgetItem, compareProps);

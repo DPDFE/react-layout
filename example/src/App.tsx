@@ -40,19 +40,39 @@ const App = () => {
                 is_float: true
             },
             {
-                x: 1,
+                x: 0,
                 y: 0,
                 w: 2,
-                h: 1,
+                h: 5,
                 i: '1',
                 is_resizable: true,
                 is_draggable: true,
                 is_float: false
             },
             {
-                x: 1,
+                x: 0,
+                y: 5,
+                w: 2,
+                h: 5,
+                i: '5',
+                is_resizable: true,
+                is_draggable: true,
+                is_float: false
+            },
+            {
+                x: 0,
+                y: 10,
+                w: 2,
+                h: 3,
+                i: '6',
+                is_resizable: true,
+                is_draggable: true,
+                is_float: false
+            },
+            {
+                x: 2,
                 y: 0,
-                w: 3,
+                w: 2,
                 h: 4,
                 i: '2',
                 is_resizable: true,
@@ -60,9 +80,9 @@ const App = () => {
                 is_float: false
             },
             {
-                x: 1,
+                x: 4,
                 y: 1,
-                w: 1,
+                w: 2,
                 h: 3,
                 i: '3',
                 is_resizable: true,
@@ -70,7 +90,7 @@ const App = () => {
                 is_float: false
             },
             {
-                x: 1,
+                x: 6,
                 y: 1,
                 w: 2,
                 h: 2,
@@ -162,6 +182,8 @@ const App = () => {
                     height={height}
                     row_height={50}
                     cols={8}
+                    item_margin={[50, 50]}
+                    container_padding={[10, 20, 30, 40]}
                     scale={scale}
                     guide_lines={guide_line}
                     mode={LayoutType.edit}
