@@ -138,7 +138,7 @@ const Canvas = (props: CanvasProps) => {
         const float_item = Object.assign({}, current_item, item);
 
         if (!current_item.is_float) {
-            snapToGrid(item, props.grid, props.item_margin);
+            snapToGrid(item, props.grid);
             Object.assign(current_item, item);
 
             compact(layout, props.grid.row_height);
@@ -186,14 +186,21 @@ const Canvas = (props: CanvasProps) => {
             onDragOver={props.mode === LayoutType.edit ? onDragOver : noop}
         >
             {shadow_widget && (
-                <div
-                    className={`placeholder ${styles.placeholder}`}
-                    style={{
-                        transform: `translate(${shadow_widget.x}px, ${shadow_widget.y}px)`,
-                        width: shadow_widget.w,
-                        height: shadow_widget.h
-                    }}
-                ></div>
+                <WidgetItem
+                    {...shadow_widget}
+                    width={props.width}
+                    height={props.height}
+                    bound={props.bound}
+                    padding={props.padding}
+                    margin={props.item_margin}
+                    grid={props.grid}
+                    layout_type={props.layout_type}
+                    is_resizable={false}
+                    is_draggable={false}
+                    i={'shadow_widget'}
+                >
+                    <div className={`placeholder ${styles.placeholder}`}></div>
+                </WidgetItem>
             )}
 
             {React.Children.map(props.children, (child, idx) => {

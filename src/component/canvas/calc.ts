@@ -11,19 +11,11 @@ import { clamp } from './draggable';
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
 
-export function snapToGrid(
-    pos: ItemPos,
-    grid: GridType,
-    margin: [number, number]
-) {
-    const margin_height = pos.is_float ? 0 : margin[0];
-    const margin_width = pos.is_float ? 0 : margin[1];
-
+export function snapToGrid(pos: ItemPos, grid: GridType) {
     pos.x = Math.round(pos.x / grid.col_width) * grid.col_width;
     pos.y = Math.round(pos.y / grid.row_height) * grid.row_height;
-    pos.w = Math.round(pos.w / grid.col_width) * grid.col_width - margin_height;
-    pos.h =
-        Math.round(pos.h / grid.row_height) * grid.row_height - margin_width;
+    pos.w = Math.round(pos.w / grid.col_width) * grid.col_width;
+    pos.h = Math.round(pos.h / grid.row_height) * grid.row_height;
     return pos;
 }
 
@@ -71,7 +63,7 @@ export function dynamicProgramming(
     grid: GridType,
     margin: [number, number]
 ) {
-    let shadow_pos = snapToGrid(copyObject(item), grid, margin);
+    let shadow_pos = snapToGrid(copyObject(item), grid);
     const sort_widgets = widgets
         .filter((w) => !w.is_float && w.i !== item.i)
         .concat([shadow_pos])
@@ -177,7 +169,7 @@ export function getDropPos(e: React.MouseEvent, props: CanvasProps): ItemPos {
     const pos = { i: '-1', x, y, w, h, is_float: true };
 
     if (layout_type === LayoutType.GRID) {
-        snapToGrid(pos, grid, props.item_margin);
+        snapToGrid(pos, grid);
         const { max_x, max_y, min_x, min_y } = bound;
         pos.x = clamp(pos.x, min_x, max_x - w);
         pos.y = clamp(pos.y, min_y, max_y - h);
