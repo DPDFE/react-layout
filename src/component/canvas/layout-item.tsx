@@ -34,8 +34,8 @@ const WidgetItem = (props: WidgetItemProps) => {
 
     const x = props.x + offset_x;
     const y = props.y + offset_y;
-    const w = props.w - margin_width;
-    const h = props.h - margin_height;
+    const w = Math.max(props.w - margin_width, 0);
+    const h = Math.max(props.h - margin_height, 0);
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {

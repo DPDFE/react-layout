@@ -151,7 +151,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 </div>
             </div>
 
-            {props.mode === LayoutType.edit && canvas_viewport.current && (
+            {/* {props.mode === LayoutType.edit && canvas_viewport.current && (
                 <GuideLine
                     scale={(props as DragLayoutProps).scale}
                     t_offset={t_offset}
@@ -161,7 +161,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     ruler_hover_pos={ruler_hover_pos}
                     removeGuideLine={props.removeGuideLine}
                 ></GuideLine>
-            )}
+            )} */}
         </div>
     );
 };

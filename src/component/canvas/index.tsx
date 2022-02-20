@@ -3,8 +3,7 @@ import {
     LayoutItem,
     EditLayoutProps,
     ItemPos,
-    LayoutType,
-    MarginType
+    LayoutType
 } from '@/interfaces';
 import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
 import styles from './styles.module.css';
@@ -33,11 +32,7 @@ const Canvas = (props: CanvasProps) => {
 
     useEffect(() => {
         if (props.children.length > 0) {
-            const layout = createInitialLayout(
-                props.children,
-                props.grid,
-                props.item_margin
-            );
+            const layout = createInitialLayout(props.children, props.grid);
             compact(layout, props.grid.row_height);
             setLayout(layout);
         }
@@ -109,7 +104,8 @@ const Canvas = (props: CanvasProps) => {
         const { layout: dynamic_layout, shadow_pos } = dynamicProgramming(
             item,
             layout,
-            props.grid
+            props.grid,
+            props.item_margin
         );
 
         setShadowWidget(is_save || item.is_float ? undefined : shadow_pos);
@@ -131,17 +127,18 @@ const Canvas = (props: CanvasProps) => {
         });
     };
 
+    const getLayoutItem = (item: ItemPos) => {
+        return layout.find((l) => {
+            return l.i == item.i;
+        }) as LayoutItem;
+    };
+
     const moveLayoutV2 = (item: ItemPos, is_save?: boolean) => {
-        const getLayoutItem = (item: ItemPos) => {
-            return layout.find((l) => {
-                return l.i == item.i;
-            }) as LayoutItem;
-        };
         const current_item = getLayoutItem(item);
         const float_item = Object.assign({}, current_item, item);
 
         if (!current_item.is_float) {
-            snapToGrid(item, props.grid);
+            snapToGrid(item, props.grid, props.item_margin);
             Object.assign(current_item, item);
 
             compact(layout, props.grid.row_height);
@@ -159,8 +156,8 @@ const Canvas = (props: CanvasProps) => {
     };
 
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
-        return moveLayoutV1(item, is_save);
-        // return moveLayoutV2(item, is_save);
+        // return moveLayoutV1(item, is_save);
+        return moveLayoutV2(item, is_save);
     };
 
     return (
@@ -188,7 +185,7 @@ const Canvas = (props: CanvasProps) => {
             onDragLeave={props.mode === LayoutType.edit ? onDragLeave : noop}
             onDragOver={props.mode === LayoutType.edit ? onDragOver : noop}
         >
-            {/* {shadow_widget && (
+            {shadow_widget && (
                 <div
                     className={`placeholder ${styles.placeholder}`}
                     style={{
@@ -197,7 +194,8 @@ const Canvas = (props: CanvasProps) => {
                         height: shadow_widget.h
                     }}
                 ></div>
-            )} */}
+            )}
+
             {React.Children.map(props.children, (child, idx) => {
                 const widget = layout[idx];
                 if (widget) {

@@ -3,8 +3,7 @@ import {
     LayoutItem,
     ItemPos,
     LayoutType,
-    GridType,
-    BoundType
+    GridType
 } from '@/interfaces';
 import { copyObject } from '@/utils/utils';
 import React from 'react';
@@ -12,40 +11,23 @@ import { clamp } from './draggable';
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
 
-interface Position {
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-}
+export function snapToGrid(
+    pos: ItemPos,
+    grid: GridType,
+    margin: [number, number]
+) {
+    const margin_height = pos.is_float ? 0 : margin[0];
+    const margin_width = pos.is_float ? 0 : margin[1];
 
-export function calcBoundPositions<T extends Position>(
-    pos: T,
-    bound: BoundType
-): T {
-    if (bound) {
-        const { max_x, max_y, min_x, min_y } = bound;
-        pos.x = clamp(pos.x, min_x, max_x);
-        pos.y = clamp(pos.y, min_y, max_y);
-        pos.w = Math.min(pos.w, max_x - pos.x);
-        pos.h = Math.min(pos.h, max_y - pos.y);
-    }
-    return pos;
-}
-
-export function snapToGrid(pos: ItemPos, grid: GridType) {
     pos.x = Math.round(pos.x / grid.col_width) * grid.col_width;
     pos.y = Math.round(pos.y / grid.row_height) * grid.row_height;
-    pos.w = Math.round(pos.w / grid.col_width) * grid.col_width;
-    pos.h = Math.round(pos.h / grid.row_height) * grid.row_height;
+    pos.w = Math.round(pos.w / grid.col_width) * grid.col_width - margin_height;
+    pos.h =
+        Math.round(pos.h / grid.row_height) * grid.row_height - margin_width;
     return pos;
 }
 
-export function gridToDrag(
-    widget: ItemPos,
-    grid: GridType,
-    item_margin: [number, number]
-): ItemPos {
+export function gridToDrag(widget: ItemPos, grid: GridType): ItemPos {
     if (widget.is_float) {
         return widget as ItemPos;
     } else {
@@ -86,9 +68,10 @@ export function dragToGrid(widget: ItemPos, grid: GridType): ItemPos {
 export function dynamicProgramming(
     item: ItemPos,
     widgets: LayoutItem[],
-    grid: GridType
+    grid: GridType,
+    margin: [number, number]
 ) {
-    let shadow_pos = snapToGrid(copyObject(item), grid);
+    let shadow_pos = snapToGrid(copyObject(item), grid, margin);
     const sort_widgets = widgets
         .filter((w) => !w.is_float && w.i !== item.i)
         .concat([shadow_pos])
@@ -168,13 +151,12 @@ export function dynamicProgramming(
 
 export function createInitialLayout(
     children: React.ReactElement[],
-    grid: GridType,
-    item_margin: [number, number]
+    grid: GridType
 ) {
     return children.map((child) => {
         const item = child.props['data-drag'] as LayoutItem;
         return {
-            ...gridToDrag(item, grid, item_margin),
+            ...gridToDrag(item, grid),
             is_float: item.is_float ? item.is_float : false,
             is_draggable: item.is_draggable ? item.is_draggable : false,
             is_resizable: item.is_resizable ? item.is_resizable : false
@@ -195,7 +177,7 @@ export function getDropPos(e: React.MouseEvent, props: CanvasProps): ItemPos {
     const pos = { i: '-1', x, y, w, h, is_float: true };
 
     if (layout_type === LayoutType.GRID) {
-        snapToGrid(pos, grid);
+        snapToGrid(pos, grid, props.item_margin);
         const { max_x, max_y, min_x, min_y } = bound;
         pos.x = clamp(pos.x, min_x, max_x - w);
         pos.y = clamp(pos.y, min_y, max_y - h);

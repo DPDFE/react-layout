@@ -1,9 +1,13 @@
-import { CursorPointer, CursorType, ResizableProps } from '@/interfaces';
+import {
+    BoundType,
+    CursorPointer,
+    CursorType,
+    ResizableProps
+} from '@/interfaces';
 import React, { memo } from 'react';
 import styles from './styles.module.css';
 import Cursor from './cursor';
-import { calcBoundPositions } from './calc';
-import { DEFAULT_BOUND } from './draggable';
+import { clamp, DEFAULT_BOUND } from './draggable';
 
 const Resizable = (props: ResizableProps) => {
     const child = React.Children.only(props.children);
@@ -23,11 +27,12 @@ const Resizable = (props: ResizableProps) => {
                     {
                         x,
                         y,
-                        w: props.x - x + props.w,
-                        h: props.y - y + props.h
+                        w: Math.min(props.x - x + props.w, props.x + props.w),
+                        h: Math.min(props.y - y + props.h, props.y + props.h)
                     },
                     props.bound
                 );
+                console.log(pos);
                 return pos;
             case CursorType.ne:
                 pos = calcBoundPositions(
@@ -35,7 +40,7 @@ const Resizable = (props: ResizableProps) => {
                         x: props.x,
                         y: y,
                         w: x - props.x,
-                        h: props.y - y + props.h
+                        h: Math.min(props.y - y + props.h, props.y + props.h)
                     },
                     props.bound
                 );
@@ -45,7 +50,7 @@ const Resizable = (props: ResizableProps) => {
                     {
                         x: x,
                         y: props.y,
-                        w: props.x - x + props.w,
+                        w: Math.min(props.x - x + props.w, props.x + props.w),
                         h: y - props.y
                     },
                     props.bound
@@ -163,3 +168,24 @@ Resizable.defaultProps = {
 };
 
 export default memo(Resizable);
+
+interface Position {
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+}
+
+export function calcBoundPositions<T extends Position>(
+    pos: T,
+    bound: BoundType
+): T {
+    if (bound) {
+        const { max_x, max_y, min_x, min_y } = bound;
+        pos.x = clamp(pos.x, min_x, max_x);
+        pos.y = clamp(pos.y, min_y, max_y);
+        pos.w = Math.min(pos.w, max_x - pos.x);
+        pos.h = Math.min(pos.h, max_y - pos.y);
+    }
+    return pos;
+}
