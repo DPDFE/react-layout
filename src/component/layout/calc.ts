@@ -146,11 +146,11 @@ export const getMaxWidgetsRange = (
 
     const canvas_bound = calcBoundBorder(props.container_padding);
 
-    const max_bound = Math.max(
-        canvas_bound.left + canvas_bound.right,
-        props.item_margin[1]
-    );
-    const _w = current_width - max_bound;
+    const _w =
+        current_width -
+        (canvas_bound.right > props.item_margin[1]
+            ? canvas_bound.right - props.item_margin[1] + canvas_bound.left
+            : props.item_margin[1]);
 
     const grid = {
         col_width: _w / props.cols,

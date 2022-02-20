@@ -182,8 +182,8 @@ const App = () => {
                     height={height}
                     row_height={50}
                     cols={8}
-                    item_margin={[10, 10]}
-                    container_padding={[20]}
+                    item_margin={[30, 5]}
+                    container_padding={[10, 20, 10, 10]}
                     scale={scale}
                     guide_lines={guide_line}
                     mode={LayoutType.edit}

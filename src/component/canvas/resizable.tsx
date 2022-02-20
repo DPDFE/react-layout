@@ -32,7 +32,6 @@ const Resizable = (props: ResizableProps) => {
                     },
                     props.bound
                 );
-                console.log(pos);
                 return pos;
             case CursorType.ne:
                 pos = calcBoundPositions(
