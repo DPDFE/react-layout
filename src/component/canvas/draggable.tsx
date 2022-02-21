@@ -115,8 +115,7 @@ const Draggable = (props: Props) => {
     useEffect(() => {
         if (drag_state === DragStates.dragging) {
             addEvent(document, 'mousemove', handleDrag);
-            // 处理画布外的点击事件也能取消选中状态
-            addEvent(document, 'mouseup', handleDragStop, { capture: false });
+            addEvent(document, 'mouseup', handleDragStop);
         }
         if (drag_state === DragStates.draged) {
             props.onDragStop?.({ x: props.x, y: props.y });
@@ -124,9 +123,7 @@ const Draggable = (props: Props) => {
         }
         return () => {
             removeEvent(document, 'mousemove', handleDrag);
-            removeEvent(document, 'mouseup', handleDragStop, {
-                capture: false
-            });
+            removeEvent(document, 'mouseup', handleDragStop);
         };
     }, [drag_state]);
 

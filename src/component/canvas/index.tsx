@@ -52,26 +52,18 @@ const Canvas = (props: CanvasProps) => {
     };
 
     useEffect(() => {
-        addEvent(props.canvas_wrapper.current, 'dragleave', onDragLeave, {
-            capture: false
-        });
-        addEvent(props.canvas_wrapper.current, 'dragover', onDragOver, {
-            capture: false
-        });
+        addEvent(props.canvas_wrapper.current, 'dragleave', onDragLeave);
+        addEvent(props.canvas_wrapper.current, 'dragover', onDragOver);
         return () => {
-            removeEvent(props.canvas_wrapper.current, 'dragover', onDragOver, {
-                capture: false
-            });
+            removeEvent(props.canvas_wrapper.current, 'dragover', onDragOver);
         };
     }, [props.canvas_wrapper]);
 
     useEffect(() => {
         // React合成事件和原生事件
-        addEvent(document, 'mouseup', clearCheckedEvent, { capture: false });
+        addEvent(document, 'mouseup', clearCheckedEvent);
         return () => {
-            removeEvent(document, 'mouseup', clearCheckedEvent, {
-                capture: false
-            });
+            removeEvent(document, 'mouseup', clearCheckedEvent);
         };
     }, []);
 

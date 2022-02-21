@@ -52,9 +52,9 @@ const GuideLine = (props: GuideLineProps) => {
     };
 
     useEffect(() => {
-        addEvent(document, 'click', clearGuideMenuPos, { capture: false });
+        addEvent(document, 'click', clearGuideMenuPos);
         return () => {
-            addEvent(document, 'click', clearGuideMenuPos, { capture: false });
+            addEvent(document, 'click', clearGuideMenuPos);
         };
     }, []);
 

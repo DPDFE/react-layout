@@ -1,9 +1,10 @@
+/** 统一处理浏览器兼容性问题 */
 'use strict';
 /** 添加event */
 export function addEvent(el, event, handler, inputOptions) {
     if (!el)
         return;
-    const options = Object.assign({ capture: true }, inputOptions);
+    const options = Object.assign({ capture: false }, inputOptions);
     if (el.addEventListener) {
         el.addEventListener(event, handler, options);
     }
@@ -18,7 +19,7 @@ export function addEvent(el, event, handler, inputOptions) {
 export function removeEvent(el, event, handler, inputOptions) {
     if (!el)
         return;
-    const options = Object.assign({ capture: true }, inputOptions);
+    const options = Object.assign({ capture: false }, inputOptions);
     if (el.removeEventListener) {
         el.removeEventListener(event, handler, options);
     }
