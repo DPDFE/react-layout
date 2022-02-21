@@ -21,7 +21,8 @@ import {
     createInitialLayout,
     getDropPos,
     compact,
-    snapToGrid
+    snapToGrid,
+    moveElement
 } from './calc';
 
 export interface CanvasRef {
@@ -149,8 +150,15 @@ const Canvas = React.forwardRef(function useCanvas(
 
         if (!current_item.is_float) {
             snapToGrid(item, props.grid);
-            Object.assign(current_item, item);
-
+            moveElement(
+                layout,
+                current_item,
+                item.x,
+                item.y,
+                props.grid.row_height
+            );
+            current_item.w = item.w;
+            current_item.h = item.h;
             compact(layout, props.grid.row_height);
             setShadowWidget(is_save ? undefined : current_item);
         }

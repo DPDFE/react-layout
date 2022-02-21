@@ -6,9 +6,8 @@ import {
     GridType,
     EditLayoutProps
 } from '@/interfaces';
-import { copyObject } from '@/utils/utils';
+import { copyObject, copyObjectArray } from '@/utils/utils';
 import React, { RefObject } from 'react';
-import { clamp } from './draggable';
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
 
@@ -38,23 +37,13 @@ export function dragToGrid(widget: ItemPos, grid: GridType): ItemPos {
     if (widget.is_float) {
         return widget as ItemPos;
     } else {
-        if (grid) {
-            return {
-                ...widget,
-                x: Math.ceil(widget.x / grid.col_width),
-                y: Math.ceil(widget.y / grid.row_height),
-                w: Math.ceil(widget.w / grid.col_width),
-                h: Math.ceil(widget.h / grid.row_height)
-            };
-        } else {
-            return {
-                ...widget,
-                x: 0,
-                y: 0,
-                h: 0,
-                w: 0
-            };
-        }
+        return {
+            ...widget,
+            x: Math.ceil(widget.x / grid.col_width),
+            y: Math.ceil(widget.y / grid.row_height),
+            w: Math.ceil(widget.w / grid.col_width),
+            h: Math.ceil(widget.h / grid.row_height)
+        };
     }
 }
 
@@ -235,9 +224,9 @@ function resolveCompactionCollision(
     layout: LayoutItem[],
     item: LayoutItem,
     move_to: number,
-    col_height: number
+    row_height: number
 ) {
-    item.y += col_height;
+    item.y += row_height;
     const item_index = layout
         .map((layoutItem) => {
             return layoutItem.i;
@@ -250,7 +239,7 @@ function resolveCompactionCollision(
             break;
         }
         if (collides(item, l)) {
-            resolveCompactionCollision(layout, l, move_to + item.h, col_height);
+            resolveCompactionCollision(layout, l, move_to + item.h, row_height);
         }
     }
     item.y = move_to;
@@ -263,8 +252,13 @@ function compactItem(
     row_height: number
 ) {
     l.y = Math.min(bottom(compare_with), l.y);
-    while (l.y > 0 && !getFirstCollision(compare_with, l)) {
-        l.y -= row_height;
+
+    while (l.y > 0) {
+        if (getFirstCollision(compare_with, l)) {
+            break;
+        } else {
+            l.y -= row_height;
+        }
     }
 
     let collides;
@@ -287,7 +281,71 @@ export function compact(layout: LayoutItem[], row_height: number) {
     const sorted = sortLayoutItems(layout);
 
     sorted.map((l) => {
+        l.moved = false;
         l = compactItem(compare_with, l, sorted, row_height);
         compare_with.push(l);
     });
+}
+
+function getAllCollisions(sorted: LayoutItem[], item: LayoutItem) {
+    return sorted.filter((l) => collides(l, item));
+}
+
+function moveElementAwayFromCollision(
+    layout: LayoutItem[],
+    l: LayoutItem,
+    collision: LayoutItem,
+    row_height: number
+) {
+    const fake_item: LayoutItem = {
+        x: collision.x,
+        y: Math.max(l.y - collision.h, 0),
+        w: collision.w,
+        h: collision.h,
+        i: '-1',
+        is_float: false
+    };
+
+    const not_move_up = getFirstCollision(layout, fake_item);
+    if (!not_move_up) {
+        return moveElement(
+            layout,
+            collision,
+            collision.x,
+            fake_item.y,
+            row_height
+        );
+    }
+
+    return moveElement(
+        layout,
+        collision,
+        collision.x,
+        collision.y + row_height,
+        row_height
+    );
+}
+
+export function moveElement(
+    layout: LayoutItem[],
+    l: LayoutItem,
+    x: number,
+    y: number,
+    row_height: number
+) {
+    const old_y = l.y;
+    l.x = x;
+    l.y = y;
+    l.moved = true;
+    let sorted = sortLayoutItems(layout);
+    const moving_up = old_y >= y;
+    if (moving_up) sorted = sorted.reverse();
+    const collisions = getAllCollisions(sorted, l);
+
+    for (let i = 0, len = collisions.length; i < len; i++) {
+        const collision = collisions[i];
+        if (collision.moved) continue;
+        layout = moveElementAwayFromCollision(sorted, l, collision, row_height);
+    }
+    return layout;
 }
