@@ -184,7 +184,7 @@ const App = () => {
                     //         i: 'drop_element'
                     //     };
                     // }}
-                    layout_type={LayoutType.DRAG}
+                    layout_type={LayoutType.GRID}
                     width={width}
                     height={height}
                     row_height={50}

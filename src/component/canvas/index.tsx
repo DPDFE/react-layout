@@ -15,7 +15,6 @@ import React, {
 } from 'react';
 import styles from './styles.module.css';
 import WidgetItem from './layout-item';
-import { addEvent, removeEvent } from '@pearone/event-utils';
 import { copyObject, copyObjectArray, noop } from '@/utils/utils';
 import {
     dynamicProgramming,
@@ -30,7 +29,7 @@ export interface CanvasRef {
     onDragLeave: (e: React.MouseEvent) => void;
     onDrop: (e: React.MouseEvent) => void;
     onDragOver: (e: React.MouseEvent) => void;
-    onMouseUp: (e: React.MouseEvent) => void;
+    onClick: (e: React.MouseEvent) => void;
 }
 
 /** 画布 */
@@ -46,6 +45,12 @@ const Canvas = React.forwardRef(function useCanvas(
     );
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
+    const dropping_item = (props as EditLayoutProps).getDroppingItem?.();
+
+    const dropping_item_key = dropping_item
+        ? dropping_item.i
+        : '__dropping_item__';
+
     useEffect(() => {
         if (props.children.length > 0) {
             const layout = createInitialLayout(props.children, props.grid);
@@ -56,8 +61,9 @@ const Canvas = React.forwardRef(function useCanvas(
     }, [props.children, props.grid]);
 
     /** 清空选中 */
-    const onMouseUp = (e: React.MouseEvent) => {
+    const onClick = (e: React.MouseEvent) => {
         console.log('clearChecked');
+        e.stopPropagation();
         setCurrentChecked(undefined);
     };
 
@@ -65,7 +71,7 @@ const Canvas = React.forwardRef(function useCanvas(
         onDragLeave,
         onDrop,
         onDragOver,
-        onMouseUp
+        onClick
     }));
 
     /**
@@ -75,15 +81,17 @@ const Canvas = React.forwardRef(function useCanvas(
     const onDragLeave = (e: React.MouseEvent) => {
         e.preventDefault();
 
-        if (props.mode !== LayoutType.edit) {
-            return;
-        }
         // 如果是canvas内的子节点会被触发leave
         if (
             !canvas_ref.current!.contains(e.relatedTarget as Node) &&
             !shadow_widget?.is_float
         ) {
             setShadowWidget(undefined);
+            setLayout(
+                layout.filter((w) => {
+                    return w.i != dropping_item_key;
+                })
+            );
         }
     };
 
@@ -202,7 +210,7 @@ const Canvas = React.forwardRef(function useCanvas(
             onContextMenu={(e) => {
                 e.preventDefault();
             }}
-            onMouseUp={onMouseUp}
+            onClick={onClick}
         >
             {shadow_widget && (
                 <WidgetItem

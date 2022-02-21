@@ -145,7 +145,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                 ? canvas_ref.current?.onDragLeave
                                 : noop
                         }
-                        onMouseUp={canvas_ref.current?.onMouseUp}
+                        onClick={canvas_ref.current?.onClick}
                     >
                         {/* 实际画布区域 */}
                         {current_width && current_height && grid && (
