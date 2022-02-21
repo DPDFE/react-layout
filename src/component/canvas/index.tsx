@@ -7,7 +7,6 @@ import {
 } from '@/interfaces';
 import React, {
     Fragment,
-    memo,
     useEffect,
     useImperativeHandle,
     useRef,
@@ -45,12 +44,6 @@ const Canvas = React.forwardRef(function useCanvas(
     );
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
-    const dropping_item = (props as EditLayoutProps).getDroppingItem?.();
-
-    const dropping_item_key = dropping_item
-        ? dropping_item.i
-        : '__dropping_item__';
-
     useEffect(() => {
         if (props.children.length > 0) {
             const layout = createInitialLayout(props.children, props.grid);
@@ -74,24 +67,15 @@ const Canvas = React.forwardRef(function useCanvas(
         onClick
     }));
 
-    /**
-     * 处理拖拽出画布外没有隐藏shadow的情况
-     * @param e
-     */
+    /** 处理拖拽出画布外没有隐藏shadow的情况 */
     const onDragLeave = (e: React.MouseEvent) => {
-        e.preventDefault();
-
         // 如果是canvas内的子节点会被触发leave
         if (
             !canvas_ref.current!.contains(e.relatedTarget as Node) &&
             !shadow_widget?.is_float
         ) {
             setShadowWidget(undefined);
-            setLayout(
-                layout.filter((w) => {
-                    return w.i != dropping_item_key;
-                })
-            );
+            compact(layout, props.grid.row_height);
         }
     };
 
@@ -113,15 +97,11 @@ const Canvas = React.forwardRef(function useCanvas(
     const onDragOver = (e: React.MouseEvent) => {
         e.preventDefault();
 
-        if (props.mode !== LayoutType.edit) {
-            return;
-        }
-
         const drop_item = getDropPos(canvas_ref, e, props);
-
         setShadowWidget(drop_item);
 
-        compact(layout.concat(drop_item), props.grid.row_height);
+        const new_layout = layout.concat(drop_item);
+        compact(new_layout, props.grid.row_height);
     };
 
     /**

@@ -81,6 +81,12 @@ const WidgetItem = (props: WidgetItemProps) => {
         onClick: (e: React.MouseEvent) => {
             e.stopPropagation();
         },
+        onDragLeave: (e: React.MouseEvent) => {
+            e.stopPropagation();
+        },
+        onDragEnter: (e: React.MouseEvent) => {
+            e.stopPropagation();
+        },
         onKeyDown: (e: React.KeyboardEvent) => {
             if (is_float) {
                 const keydown_pos = handleKeyDown(e);
