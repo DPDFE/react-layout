@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
-import Canvas from '../canvas';
+import Canvas, { CanvasRef } from '../canvas';
 import { getMaxWidgetsRange } from './calc';
 import styles from './styles.module.css';
 import {
@@ -16,11 +16,13 @@ import {
 import { addEvent, removeEvent } from '@pearone/event-utils';
 import GuideLine from '../guide-line';
 import { DEFAULT_BOUND } from '../canvas/draggable';
+import { noop } from '@/utils/utils';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const container_ref = useRef<HTMLDivElement>(null);
     const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
     const canvas_wrapper = useRef<HTMLDivElement>(null); // canvas存放的画布，增加边距支持滚动
+    const canvas_ref = useRef<CanvasRef>(null);
 
     const [wrapper_width, setCanvasWrapperWidth] = useState<number>(0); // 画板宽度
     const [wrapper_height, setCanvasWrapperHeight] = useState<number>(0); // 画板高度
@@ -127,11 +129,29 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             width: wrapper_width,
                             height: wrapper_height
                         }}
+                        /** 阻止了onDragOver以后，onDrop事件才生效 */
+                        onDrop={
+                            props.mode === LayoutType.edit
+                                ? canvas_ref.current?.onDrop
+                                : noop
+                        }
+                        onDragOver={
+                            props.mode === LayoutType.edit
+                                ? canvas_ref.current?.onDragOver
+                                : noop
+                        }
+                        onDragLeave={
+                            props.mode === LayoutType.edit
+                                ? canvas_ref.current?.onDragLeave
+                                : noop
+                        }
+                        onMouseUp={canvas_ref.current?.onMouseUp}
                     >
                         {/* 实际画布区域 */}
                         {current_width && current_height && grid && (
                             <Canvas
                                 {...props}
+                                ref={canvas_ref}
                                 padding={padding}
                                 grid={grid}
                                 bound={bound}
@@ -142,7 +162,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                         ? props.row_height
                                         : current_height
                                 }
-                                canvas_wrapper={canvas_wrapper}
                                 t_offset={t_offset}
                                 l_offset={l_offset}
                             ></Canvas>

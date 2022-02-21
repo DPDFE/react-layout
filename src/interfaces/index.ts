@@ -169,7 +169,6 @@ export type CanvasProps = ReactDragLayoutProps & {
     height: number;
     t_offset: number;
     l_offset: number;
-    canvas_wrapper: RefObject<HTMLDivElement>;
 };
 
 /** 单节点属性 */

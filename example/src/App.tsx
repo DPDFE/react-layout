@@ -184,7 +184,7 @@ const App = () => {
                     //         i: 'drop_element'
                     //     };
                     // }}
-                    layout_type={LayoutType.GRID}
+                    layout_type={LayoutType.DRAG}
                     width={width}
                     height={height}
                     row_height={50}
@@ -195,15 +195,17 @@ const App = () => {
                     guide_lines={guide_line}
                     mode={LayoutType.edit}
                     onDrop={(item: ItemPos) => {
-                        const drop_element = {
-                            ...item,
-                            i: widgets.length.toString(),
-                            is_resizable: true,
-                            is_draggable: true
-                        } as LayoutItem;
+                        const drop_element = JSON.parse(
+                            JSON.stringify({
+                                ...item,
+                                i: widgets.length.toString(),
+                                is_resizable: true,
+                                is_draggable: true
+                            })
+                        );
 
-                        console.log(drop_element);
-                        setWidgets(widgets.concat([drop_element]));
+                        const new_widgets = widgets.concat([drop_element]);
+                        setWidgets(new_widgets);
                         return drop_element;
                     }}
                     onDragStart={() => {
@@ -283,7 +285,21 @@ const App = () => {
                                     type='primary'
                                     style={{ marginRight: 10 }}
                                     onClick={() => {
-                                        console.log('delete my self');
+                                        console.log('delete my self', widgets);
+                                        setWidgets(
+                                            widgets.concat([
+                                                {
+                                                    x: 2,
+                                                    y: 0,
+                                                    w: 2,
+                                                    h: 4,
+                                                    i: Math.random().toString(),
+                                                    is_resizable: true,
+                                                    is_draggable: true,
+                                                    is_float: false
+                                                }
+                                            ])
+                                        );
                                     }}
                                 >
                                     删除我自己

@@ -78,6 +78,9 @@ const WidgetItem = (props: WidgetItemProps) => {
         onMouseDown: () => {
             props.setCurrentChecked?.(i);
         },
+        onMouseUp: (e: React.MouseEvent) => {
+            e.stopPropagation();
+        },
         onKeyDown: (e: React.KeyboardEvent) => {
             if (is_float) {
                 const keydown_pos = handleKeyDown(e);

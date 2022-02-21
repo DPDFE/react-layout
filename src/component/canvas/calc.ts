@@ -159,7 +159,7 @@ export function createInitialLayout(
 
 export function getDropPos(
     canvas_ref: RefObject<HTMLElement>,
-    e: MouseEvent | React.MouseEvent,
+    e: React.MouseEvent,
     props: CanvasProps
 ): ItemPos {
     const { scale, grid, layout_type } = props;
@@ -175,8 +175,8 @@ export function getDropPos(
     const i = drop_item ? drop_item.i : '__dropping_item__';
 
     if (layout_type === LayoutType.GRID) {
-        const w = grid.col_width * (drop_item ? drop_item.w : 1);
-        const h = grid.row_height * (drop_item ? drop_item.h : 1);
+        const w = grid.col_width * (drop_item ? drop_item.w : 2);
+        const h = grid.row_height * (drop_item ? drop_item.h : 2);
 
         const pos = { w, h, i, x, y, is_float: false };
 

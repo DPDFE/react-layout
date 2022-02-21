@@ -5,7 +5,14 @@ import {
     ItemPos,
     LayoutType
 } from '@/interfaces';
-import React, { Fragment, memo, useEffect, useRef, useState } from 'react';
+import React, {
+    Fragment,
+    memo,
+    useEffect,
+    useImperativeHandle,
+    useRef,
+    useState
+} from 'react';
 import styles from './styles.module.css';
 import WidgetItem from './layout-item';
 import { addEvent, removeEvent } from '@pearone/event-utils';
@@ -18,12 +25,20 @@ import {
     compact,
     snapToGrid
 } from './calc';
-import { DEFAULT_BOUND } from './draggable';
+
+export interface CanvasRef {
+    onDragLeave: (e: React.MouseEvent) => void;
+    onDrop: (e: React.MouseEvent) => void;
+    onDragOver: (e: React.MouseEvent) => void;
+    onMouseUp: (e: React.MouseEvent) => void;
+}
 
 /** 画布 */
-const Canvas = (props: CanvasProps) => {
+const Canvas = React.forwardRef(function useCanvas(
+    props: CanvasProps,
+    ref: React.MutableRefObject<CanvasRef>
+) {
     const canvas_ref = useRef<HTMLDivElement>(null);
-
     const [checked_index, setCurrentChecked] = useState<string>();
 
     const [shadow_widget, setShadowWidget] = useState<ItemPos | undefined>(
@@ -35,43 +50,29 @@ const Canvas = (props: CanvasProps) => {
         if (props.children.length > 0) {
             const layout = createInitialLayout(props.children, props.grid);
             compact(layout, props.grid.row_height);
+
             setLayout(layout);
         }
     }, [props.children, props.grid]);
 
     /** 清空选中 */
-    const clearCheckedEvent = (e: MouseEvent) => {
-        setShadowWidget(undefined);
-        if (
-            e.target === canvas_ref.current ||
-            e.target === props.canvas_wrapper.current
-        ) {
-            console.log('clearChecked');
-            setCurrentChecked(undefined);
-        }
+    const onMouseUp = (e: React.MouseEvent) => {
+        console.log('clearChecked');
+        setCurrentChecked(undefined);
     };
 
-    useEffect(() => {
-        addEvent(props.canvas_wrapper.current, 'dragleave', onDragLeave);
-        addEvent(props.canvas_wrapper.current, 'dragover', onDragOver);
-        return () => {
-            removeEvent(props.canvas_wrapper.current, 'dragover', onDragOver);
-        };
-    }, [props.canvas_wrapper]);
-
-    useEffect(() => {
-        // React合成事件和原生事件
-        addEvent(document, 'mouseup', clearCheckedEvent);
-        return () => {
-            removeEvent(document, 'mouseup', clearCheckedEvent);
-        };
-    }, []);
+    useImperativeHandle(ref, () => ({
+        onDragLeave,
+        onDrop,
+        onDragOver,
+        onMouseUp
+    }));
 
     /**
      * 处理拖拽出画布外没有隐藏shadow的情况
      * @param e
      */
-    const onDragLeave = (e: MouseEvent) => {
+    const onDragLeave = (e: React.MouseEvent) => {
         e.preventDefault();
 
         if (props.mode !== LayoutType.edit) {
@@ -82,7 +83,6 @@ const Canvas = (props: CanvasProps) => {
             !canvas_ref.current!.contains(e.relatedTarget as Node) &&
             !shadow_widget?.is_float
         ) {
-            console.log('dragleave');
             setShadowWidget(undefined);
         }
     };
@@ -102,15 +102,12 @@ const Canvas = (props: CanvasProps) => {
         }
     };
 
-    const onDragOver = (e: MouseEvent) => {
+    const onDragOver = (e: React.MouseEvent) => {
         e.preventDefault();
-        e.stopPropagation();
 
         if (props.mode !== LayoutType.edit) {
             return;
         }
-
-        console.log('onDragOver');
 
         const drop_item = getDropPos(canvas_ref, e, props);
 
@@ -205,8 +202,7 @@ const Canvas = (props: CanvasProps) => {
             onContextMenu={(e) => {
                 e.preventDefault();
             }}
-            /** 阻止了onDragOver以后，onDrop事件才生效 */
-            onDrop={props.mode === LayoutType.edit ? onDrop : noop}
+            onMouseUp={onMouseUp}
         >
             {shadow_widget && (
                 <WidgetItem
@@ -314,10 +310,10 @@ const Canvas = (props: CanvasProps) => {
             })}
         </div>
     );
-};
+});
 
 Canvas.defaultProps = {
-    item_margin: [0, 0],
+    item_margin: [0, 0] as [number, number],
     padding: {
         top: 0,
         right: 0,
@@ -326,4 +322,4 @@ Canvas.defaultProps = {
     }
 };
 
-export default memo(Canvas);
+export default Canvas;
