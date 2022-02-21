@@ -10,7 +10,7 @@ export function addEvent(
 ): void {
     if (!el) return;
 
-    const options = { capture: true, ...inputOptions };
+    const options = { capture: false, ...inputOptions };
 
     if (el.addEventListener) {
         el.addEventListener(event, handler, options);
@@ -29,7 +29,7 @@ export function removeEvent(
     inputOptions?: Object
 ): void {
     if (!el) return;
-    const options = { capture: true, ...inputOptions };
+    const options = { capture: false, ...inputOptions };
 
     if (el.removeEventListener) {
         el.removeEventListener(event, handler, options);

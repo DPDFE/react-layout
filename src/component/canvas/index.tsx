@@ -18,6 +18,7 @@ import {
     compact,
     snapToGrid
 } from './calc';
+import { DEFAULT_BOUND } from './draggable';
 
 /** 画布 */
 const Canvas = (props: CanvasProps) => {
@@ -51,6 +52,20 @@ const Canvas = (props: CanvasProps) => {
     };
 
     useEffect(() => {
+        addEvent(props.canvas_wrapper.current, 'dragleave', onDragLeave, {
+            capture: false
+        });
+        addEvent(props.canvas_wrapper.current, 'dragover', onDragOver, {
+            capture: false
+        });
+        return () => {
+            removeEvent(props.canvas_wrapper.current, 'dragover', onDragOver, {
+                capture: false
+            });
+        };
+    }, [props.canvas_wrapper]);
+
+    useEffect(() => {
         // React合成事件和原生事件
         addEvent(document, 'mouseup', clearCheckedEvent, { capture: false });
         return () => {
@@ -60,11 +75,21 @@ const Canvas = (props: CanvasProps) => {
         };
     }, []);
 
-    const onDragLeave = (e: React.MouseEvent) => {
+    /**
+     * 处理拖拽出画布外没有隐藏shadow的情况
+     * @param e
+     */
+    const onDragLeave = (e: MouseEvent) => {
         e.preventDefault();
 
+        if (props.mode !== LayoutType.edit) {
+            return;
+        }
         // 如果是canvas内的子节点会被触发leave
-        if (!canvas_ref.current!.contains(e.relatedTarget as Node)) {
+        if (
+            !canvas_ref.current!.contains(e.relatedTarget as Node) &&
+            !shadow_widget?.is_float
+        ) {
             console.log('dragleave');
             setShadowWidget(undefined);
         }
@@ -74,24 +99,32 @@ const Canvas = (props: CanvasProps) => {
     const onDrop = (e: React.MouseEvent) => {
         e.preventDefault();
 
-        const drop_item = getDropPos(e, props);
+        const drop_item = getDropPos(canvas_ref, e, props);
 
-        // const grid_item = dragToGrid(drop_item, props.grid);
-        // const item = (props as EditLayoutProps).onDrop?.(grid_item);
+        const grid_item = dragToGrid(drop_item, props.grid);
+        const item = (props as EditLayoutProps).onDrop?.(grid_item);
 
-        // if (item && item.i) {
-        //     setShadowWidget(undefined);
-        //     setCurrentChecked(item.i);
-        // }
+        if (item && item.i) {
+            setShadowWidget(undefined);
+            setCurrentChecked(item.i);
+        }
     };
 
-    const onDragOver = (e: React.MouseEvent) => {
+    const onDragOver = (e: MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
 
-        const drop_item = getDropPos(e, props);
+        if (props.mode !== LayoutType.edit) {
+            return;
+        }
+
+        console.log('onDragOver');
+
+        const drop_item = getDropPos(canvas_ref, e, props);
+
         setShadowWidget(drop_item);
-        // compact(layout.concat(drop_item), props.grid.row_height);
+
+        compact(layout.concat(drop_item), props.grid.row_height);
     };
 
     /**
@@ -182,8 +215,6 @@ const Canvas = (props: CanvasProps) => {
             }}
             /** 阻止了onDragOver以后，onDrop事件才生效 */
             onDrop={props.mode === LayoutType.edit ? onDrop : noop}
-            onDragLeave={props.mode === LayoutType.edit ? onDragLeave : noop}
-            onDragOver={props.mode === LayoutType.edit ? onDragOver : noop}
         >
             {shadow_widget && (
                 <WidgetItem
@@ -197,7 +228,6 @@ const Canvas = (props: CanvasProps) => {
                     layout_type={props.layout_type}
                     is_resizable={false}
                     is_draggable={false}
-                    i={'shadow_widget'}
                 >
                     <div className={`placeholder ${styles.placeholder}`}></div>
                 </WidgetItem>

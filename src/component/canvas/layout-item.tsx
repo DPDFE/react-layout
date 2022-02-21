@@ -2,7 +2,7 @@ import { WidgetItemProps, LayoutType } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, { memo, ReactElement, useRef } from 'react';
 import { MIN_DRAG_LENGTH } from './calc';
-import Draggable, { DEFAULT_BOUND } from './draggable';
+import Draggable, { clamp, DEFAULT_BOUND } from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
 
@@ -32,10 +32,18 @@ const WidgetItem = (props: WidgetItemProps) => {
     const offset_x = Math.max(margin_width - props.padding.left, 0);
     const offset_y = Math.max(margin_height - props.padding.top, 0);
 
-    const x = props.x + offset_x;
-    const y = props.y + offset_y;
+    const { min_x, max_x, min_y, max_y } = props.bound;
+
+    /**
+     * 通过宽高度距离减小，支持margin效果
+     * 两侧的margin在和配置的padding，进行抵消后，产生了每个元素的整体偏移量offset_x，offset_y，支持padding
+     * 增加边界控制，非浮动元素，不支持拖拽出画布
+     */
     const w = Math.max(props.w - margin_width, 0);
     const h = Math.max(props.h - margin_height, 0);
+
+    const x = is_float ? props.x : clamp(props.x + offset_x, min_x, max_x - w);
+    const y = is_float ? props.y : clamp(props.y + offset_y, min_y, max_y - h);
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {

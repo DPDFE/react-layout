@@ -177,6 +177,13 @@ const App = () => {
                 </div>
 
                 <ReactDragLayout
+                    // getDroppingItem={() => {
+                    //     return {
+                    //         h: 2,
+                    //         w: 2,
+                    //         i: 'drop_element'
+                    //     };
+                    // }}
                     layout_type={LayoutType.GRID}
                     width={width}
                     height={height}

@@ -3,10 +3,11 @@ import {
     LayoutItem,
     ItemPos,
     LayoutType,
-    GridType
+    GridType,
+    EditLayoutProps
 } from '@/interfaces';
 import { copyObject } from '@/utils/utils';
-import React from 'react';
+import React, { RefObject } from 'react';
 import { clamp } from './draggable';
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
@@ -156,26 +157,38 @@ export function createInitialLayout(
     });
 }
 
-export function getDropPos(e: React.MouseEvent, props: CanvasProps): ItemPos {
-    const { scale, grid, bound, layout_type } = props;
+export function getDropPos(
+    canvas_ref: RefObject<HTMLElement>,
+    e: MouseEvent | React.MouseEvent,
+    props: CanvasProps
+): ItemPos {
+    const { scale, grid, layout_type } = props;
 
-    const { layerX, layerY } = e.nativeEvent as any;
-    const x = layerX / scale;
-    const y = layerY / scale;
+    const current = (canvas_ref as RefObject<HTMLElement>).current!;
 
-    const w = grid.col_width * 1;
-    const h = grid.row_height * 1;
+    const { left, top } = current.getBoundingClientRect();
+    const x = (e.clientX + current.scrollLeft - left) / scale;
+    const y = (e.clientY + current.scrollTop - top) / scale;
 
-    const pos = { i: '-1', x, y, w, h, is_float: true };
+    const drop_item = (props as EditLayoutProps).getDroppingItem?.();
+
+    const i = drop_item ? drop_item.i : '__dropping_item__';
 
     if (layout_type === LayoutType.GRID) {
-        snapToGrid(pos, grid);
-        const { max_x, max_y, min_x, min_y } = bound;
-        pos.x = clamp(pos.x, min_x, max_x - w);
-        pos.y = clamp(pos.y, min_y, max_y - h);
-    }
+        const w = grid.col_width * (drop_item ? drop_item.w : 1);
+        const h = grid.row_height * (drop_item ? drop_item.h : 1);
 
-    return pos;
+        const pos = { w, h, i, x, y, is_float: false };
+
+        snapToGrid(pos, grid);
+
+        return pos;
+    } else {
+        const w = drop_item ? drop_item.w : 100;
+        const h = drop_item ? drop_item.h : 100;
+
+        return { w, h, i, x, y, is_float: true };
+    }
 }
 
 export function collides(item_1: LayoutItem, item_2: LayoutItem): boolean {

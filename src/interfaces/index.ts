@@ -68,6 +68,7 @@ type LayoutBase = {
 };
 
 type EditLayoutBase = LayoutBase & {
+    getDroppingItem?: () => { h: number; w: number; i: string };
     onDrop?: ({ x, y }: { x: number; y: number }) => LayoutItem;
     onRemove?: (i: string) => void;
     onDragStart?: () => void;
