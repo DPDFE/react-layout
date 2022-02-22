@@ -164,3 +164,7 @@ a {
 .test {
     margin: 10px;
 }
+
+.ant-tabs-content {
+    height: 100%;
+}

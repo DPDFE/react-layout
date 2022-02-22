@@ -65,6 +65,7 @@ type LayoutBase = {
     row_height: number;
     container_padding: [number, number?, number?, number?];
     item_margin: [number, number];
+    need_ruler: boolean;
 };
 
 type EditLayoutBase = LayoutBase & {

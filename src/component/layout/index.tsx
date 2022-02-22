@@ -91,29 +91,33 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             ref={container_ref}
         >
             {/* 水平标尺 */}
-            {props.mode === LayoutType.edit && canvas_viewport.current && (
-                <HorizontalRuler
-                    {...props}
-                    width={current_width}
-                    l_offset={l_offset!}
-                    wrapper_width={wrapper_width}
-                    setRulerHoverPos={setRulerHoverPos}
-                    canvas_viewport={canvas_viewport}
-                ></HorizontalRuler>
-            )}
+            {props.mode === LayoutType.edit &&
+                canvas_viewport.current &&
+                props.need_ruler && (
+                    <HorizontalRuler
+                        {...props}
+                        width={current_width}
+                        l_offset={l_offset!}
+                        wrapper_width={wrapper_width}
+                        setRulerHoverPos={setRulerHoverPos}
+                        canvas_viewport={canvas_viewport}
+                    ></HorizontalRuler>
+                )}
 
             <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
                 {/* 垂直标尺 */}
-                {props.mode === LayoutType.edit && canvas_viewport.current && (
-                    <VerticalRuler
-                        {...props}
-                        height={current_height}
-                        t_offset={t_offset!}
-                        wrapper_height={wrapper_height}
-                        setRulerHoverPos={setRulerHoverPos}
-                        canvas_viewport={canvas_viewport}
-                    ></VerticalRuler>
-                )}
+                {props.mode === LayoutType.edit &&
+                    canvas_viewport.current &&
+                    props.need_ruler && (
+                        <VerticalRuler
+                            {...props}
+                            height={current_height}
+                            t_offset={t_offset!}
+                            wrapper_height={wrapper_height}
+                            setRulerHoverPos={setRulerHoverPos}
+                            canvas_viewport={canvas_viewport}
+                        ></VerticalRuler>
+                    )}
 
                 {/* 可视区域窗口 */}
                 <div
@@ -191,7 +195,8 @@ ReactDragLayout.defaultProps = {
     row_height: 20,
     container_padding: [10],
     item_margin: [0, 0],
-    mode: LayoutType.view
+    mode: LayoutType.view,
+    need_ruler: false
 };
 
 export default ReactDragLayout;

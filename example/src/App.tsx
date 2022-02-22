@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Slider } from 'antd';
+import { Button, Col, Input, Row, Slider } from 'antd';
 import {
     ReactDragLayout,
     LayoutType,
@@ -9,6 +9,9 @@ import {
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 import 'antd/dist/antd.css';
+import { Tabs } from 'antd';
+
+const { TabPane } = Tabs;
 
 const App = () => {
     const [width, setWidth] = useState<number | string>(400);
@@ -30,7 +33,7 @@ const App = () => {
     function generateLayout() {
         return [
             {
-                x: 230,
+                x: 630,
                 y: 230,
                 w: 100,
                 h: 100,
@@ -42,8 +45,8 @@ const App = () => {
             {
                 x: 0,
                 y: 0,
-                w: 2,
-                h: 5,
+                w: 5,
+                h: 10,
                 i: '1',
                 is_resizable: true,
                 is_draggable: true,
@@ -58,47 +61,47 @@ const App = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_float: false
-            },
-            {
-                x: 0,
-                y: 10,
-                w: 2,
-                h: 3,
-                i: '6',
-                is_resizable: true,
-                is_draggable: true,
-                is_float: false
-            },
-            {
-                x: 2,
-                y: 0,
-                w: 2,
-                h: 4,
-                i: '2',
-                is_resizable: true,
-                is_draggable: true,
-                is_float: false
-            },
-            {
-                x: 4,
-                y: 1,
-                w: 2,
-                h: 3,
-                i: '3',
-                is_resizable: true,
-                is_draggable: true,
-                is_float: false
-            },
-            {
-                x: 6,
-                y: 1,
-                w: 2,
-                h: 2,
-                i: '4',
-                is_resizable: true,
-                is_draggable: true,
-                is_float: false
             }
+            // {
+            //     x: 0,
+            //     y: 10,
+            //     w: 2,
+            //     h: 3,
+            //     i: '6',
+            //     is_resizable: true,
+            //     is_draggable: true,
+            //     is_float: false
+            // }
+            // {
+            //     x: 2,
+            //     y: 0,
+            //     w: 2,
+            //     h: 4,
+            //     i: '2',
+            //     is_resizable: true,
+            //     is_draggable: true,
+            //     is_float: false
+            // },
+            // {
+            //     x: 4,
+            //     y: 1,
+            //     w: 2,
+            //     h: 3,
+            //     i: '3',
+            //     is_resizable: true,
+            //     is_draggable: true,
+            //     is_float: false
+            // },
+            // {
+            //     x: 6,
+            //     y: 1,
+            //     w: 2,
+            //     h: 2,
+            //     i: '4',
+            //     is_resizable: true,
+            //     is_draggable: true,
+            //     is_float: false
+            // }
         ];
         // return Array.from({ length: 3 }).map((_, i) => {
         //     return {
@@ -138,8 +141,7 @@ const App = () => {
                         height: '50px',
                         justifyContent: 'center',
                         alignItems: 'center',
-                        background: '#ddd',
-                        marginBottom: 10
+                        background: '#ddd'
                     }}
                 >
                     <Button
@@ -275,13 +277,186 @@ const App = () => {
                                 id={`app_id_${w.i}`}
                                 style={{
                                     background: 'transparent',
-                                    border: '1px solid'
+                                    border: '1px solid',
+                                    padding: 10
                                 }}
                             >
-                                <div className='test'>
-                                    我是第{w.i}个div, height: {w.h}, width:{w.w}
-                                </div>
-                                <Button
+                                {w.i === '1' && (
+                                    <Tabs
+                                        defaultActiveKey='1'
+                                        onChange={(key) => {
+                                            console.log(key);
+                                        }}
+                                        style={{ height: '100%' }}
+                                    >
+                                        <TabPane tab='Tab 1' key='1'>
+                                            <ReactDragLayout
+                                                layout_type={LayoutType.GRID}
+                                                mode={LayoutType.edit}
+                                                container_padding={[
+                                                    10, 10, 10, 10
+                                                ]}
+                                                row_height={50}
+                                                cols={8}
+                                                item_margin={[10, 10]}
+                                            >
+                                                <div
+                                                    data-drag={{
+                                                        i: '0',
+                                                        w: 100,
+                                                        h: 100,
+                                                        x: 100,
+                                                        y: 100,
+                                                        is_float: true,
+                                                        is_resizable: true,
+                                                        is_draggable: true
+                                                    }}
+                                                    style={{
+                                                        border: '1px solid'
+                                                    }}
+                                                >
+                                                    <div className='test'>
+                                                        我是第0个div, height:{' '}
+                                                        {w.h}, width:
+                                                        {w.w}
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    style={{
+                                                        border: '1px solid'
+                                                    }}
+                                                    data-drag={{
+                                                        i: '1',
+                                                        w: 2,
+                                                        h: 2,
+                                                        x: 0,
+                                                        y: 0,
+                                                        is_float: false,
+                                                        is_resizable: true,
+                                                        is_draggable: true
+                                                    }}
+                                                >
+                                                    <div className='test'>
+                                                        我是第1个div, height:{' '}
+                                                        {w.h}, width:
+                                                        {w.w}
+                                                    </div>
+                                                </div>
+                                            </ReactDragLayout>
+                                        </TabPane>
+                                        <TabPane tab='Tab 2' key='2'>
+                                            <ReactDragLayout
+                                                layout_type={LayoutType.GRID}
+                                                mode={LayoutType.edit}
+                                                container_padding={[
+                                                    10, 10, 10, 10
+                                                ]}
+                                                row_height={50}
+                                                cols={8}
+                                                item_margin={[10, 10]}
+                                            >
+                                                <div
+                                                    data-drag={{
+                                                        i: '0',
+                                                        w: 200,
+                                                        h: 200,
+                                                        x: 100,
+                                                        y: 100,
+                                                        is_float: true,
+                                                        is_resizable: true,
+                                                        is_draggable: true
+                                                    }}
+                                                    style={{
+                                                        border: '1px solid'
+                                                    }}
+                                                >
+                                                    <div className='test'>
+                                                        我是第0个div, height:{' '}
+                                                        {w.h}, width:
+                                                        {w.w}
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    style={{
+                                                        border: '1px solid'
+                                                    }}
+                                                    data-drag={{
+                                                        i: '1',
+                                                        w: 2,
+                                                        h: 2,
+                                                        x: 0,
+                                                        y: 0,
+                                                        is_float: false,
+                                                        is_resizable: true,
+                                                        is_draggable: true
+                                                    }}
+                                                >
+                                                    <div className='test'>
+                                                        我是第1个div, height:{' '}
+                                                        {w.h}, width:
+                                                        {w.w}
+                                                    </div>
+                                                </div>
+                                            </ReactDragLayout>
+                                        </TabPane>
+                                        <TabPane tab='Tab 3' key='3'>
+                                            <ReactDragLayout
+                                                layout_type={LayoutType.GRID}
+                                                mode={LayoutType.edit}
+                                                container_padding={[
+                                                    10, 10, 10, 10
+                                                ]}
+                                                row_height={50}
+                                                cols={8}
+                                                item_margin={[10, 10]}
+                                            >
+                                                <div
+                                                    data-drag={{
+                                                        i: '0',
+                                                        w: 100,
+                                                        h: 100,
+                                                        x: 100,
+                                                        y: 100,
+                                                        is_float: true,
+                                                        is_resizable: true,
+                                                        is_draggable: true
+                                                    }}
+                                                    style={{
+                                                        border: '1px solid'
+                                                    }}
+                                                >
+                                                    <div className='test'>
+                                                        我是第0个div, height:{' '}
+                                                        {w.h}, width:
+                                                        {w.w}
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    style={{
+                                                        border: '1px solid'
+                                                    }}
+                                                    data-drag={{
+                                                        i: '1',
+                                                        w: 4,
+                                                        h: 4,
+                                                        x: 0,
+                                                        y: 0,
+                                                        is_float: false,
+                                                        is_resizable: true,
+                                                        is_draggable: true
+                                                    }}
+                                                >
+                                                    <div className='test'>
+                                                        我是第1个div, height:{' '}
+                                                        {w.h}, width:
+                                                        {w.w}
+                                                    </div>
+                                                </div>
+                                            </ReactDragLayout>
+                                        </TabPane>
+                                    </Tabs>
+                                )}
+                                {/* <Button
                                     type='primary'
                                     style={{ marginRight: 10 }}
                                     onClick={() => {
@@ -303,23 +478,7 @@ const App = () => {
                                     }}
                                 >
                                     删除我自己
-                                </Button>
-                                {/* <ReactDragLayout>
-                                    <div
-                                        data-drag={{ i: 1, w: 10, h: 10 }}
-                                        style={{ background: '#000' }}
-                                    ></div>
-                                    <div
-                                        data-drag={{
-                                            i: 2,
-                                            w: 10,
-                                            h: 10,
-                                            x: 100,
-                                            y: 100
-                                        }}
-                                        style={{ background: '#000' }}
-                                    ></div>
-                                </ReactDragLayout> */}
+                                </Button> */}
                             </div>
                         );
                     })}

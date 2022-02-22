@@ -129,6 +129,7 @@ const Draggable = (props: Props) => {
 
     const new_child = React.cloneElement(child, {
         onMouseDown: (e: React.MouseEvent) => {
+            e.stopPropagation();
             child.props.onMouseDown?.(e);
             handleDragStart(e as unknown as MouseEvent);
         },

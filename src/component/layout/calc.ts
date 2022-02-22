@@ -95,7 +95,10 @@ export const calcCurrentWH = (
 } => {
     const { mode, layout_type } = props;
 
-    const offset_width = mode === LayoutType.edit ? TOP_RULER_LEFT_MARGIN : 0;
+    const offset_width =
+        mode === LayoutType.edit && props.need_ruler
+            ? TOP_RULER_LEFT_MARGIN
+            : 0;
 
     const current_width =
         layout_type === LayoutType.DRAG

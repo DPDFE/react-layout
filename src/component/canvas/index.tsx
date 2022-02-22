@@ -46,8 +46,10 @@ const Canvas = React.forwardRef(function useCanvas(
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
     useEffect(() => {
-        if (props.children.length > 0) {
+        if (props.children && props.children.length > 0) {
+            console.log('init');
             const layout = createInitialLayout(props.children, props.grid);
+            // TODO：应该在compact以后再计算宽高，同时还可以解决实时计算宽高的问题
             compact(layout, props.grid.row_height);
 
             setLayout(layout);
@@ -83,6 +85,7 @@ const Canvas = React.forwardRef(function useCanvas(
     /** 拖拽添加 */
     const onDrop = (e: React.MouseEvent) => {
         e.preventDefault();
+        e.stopPropagation();
 
         const drop_item = getDropPos(canvas_ref, e, props);
 
@@ -97,6 +100,7 @@ const Canvas = React.forwardRef(function useCanvas(
 
     const onDragOver = (e: React.MouseEvent) => {
         e.preventDefault();
+        e.stopPropagation();
 
         const drop_item = getDropPos(canvas_ref, e, props);
         setShadowWidget(drop_item);
