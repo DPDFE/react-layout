@@ -161,17 +161,6 @@ export interface GuideLineProps {
     removeGuideLine?: ({ x, y, direction }: RulerPointer) => void;
 }
 
-/** 画布props */
-export type CanvasProps = ReactDragLayoutProps & {
-    padding: MarginType;
-    bound: BoundType;
-    grid: GridType;
-    width: number;
-    height: number;
-    t_offset: number;
-    l_offset: number;
-};
-
 /** 单节点属性 */
 export interface LayoutItem extends ItemPos {
     is_draggable?: boolean;

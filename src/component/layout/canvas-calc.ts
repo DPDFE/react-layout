@@ -19,20 +19,6 @@ export function snapToGrid(pos: ItemPos, grid: GridType) {
     return pos;
 }
 
-export function gridToDrag(widget: ItemPos, grid: GridType): ItemPos {
-    if (widget.is_float) {
-        return widget as ItemPos;
-    } else {
-        return {
-            ...widget,
-            x: widget.x * grid.col_width,
-            y: widget.y * grid.row_height,
-            w: widget.w * grid.col_width,
-            h: widget.h * grid.row_height
-        };
-    }
-}
-
 export function dragToGrid(widget: ItemPos, grid: GridType): ItemPos {
     if (widget.is_float) {
         return widget as ItemPos;
@@ -129,21 +115,6 @@ export function dynamicProgramming(
 
     const layout = widgets;
     return { layout, shadow_pos };
-}
-
-export function createInitialLayout(
-    children: React.ReactElement[],
-    grid: GridType
-) {
-    return children.map((child) => {
-        const item = child.props['data-drag'] as LayoutItem;
-        return {
-            ...gridToDrag(item, grid),
-            is_float: item.is_float ? item.is_float : false,
-            is_draggable: item.is_draggable ? item.is_draggable : false,
-            is_resizable: item.is_resizable ? item.is_resizable : false
-        };
-    });
 }
 
 export function getDropPos(
