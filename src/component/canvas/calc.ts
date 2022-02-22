@@ -302,12 +302,20 @@ function moveElementAwayFromCollision(
         y: Math.max(l.y - collision.h, 0),
         w: collision.w,
         h: collision.h,
-        i: '-1',
+        i: 'fake_item',
         is_float: false
     };
 
     const not_move_up = getFirstCollision(layout, fake_item);
-    if (!not_move_up) {
+    if (not_move_up) {
+        return moveElement(
+            layout,
+            collision,
+            collision.x,
+            collision.y + row_height,
+            row_height
+        );
+    } else {
         return moveElement(
             layout,
             collision,
@@ -316,14 +324,6 @@ function moveElementAwayFromCollision(
             row_height
         );
     }
-
-    return moveElement(
-        layout,
-        collision,
-        collision.x,
-        collision.y + row_height,
-        row_height
-    );
 }
 
 export function moveElement(
@@ -333,18 +333,21 @@ export function moveElement(
     y: number,
     row_height: number
 ) {
-    const old_y = l.y;
     l.x = x;
     l.y = y;
     l.moved = true;
+
     let sorted = sortLayoutItems(layout);
-    const moving_up = old_y >= y;
-    if (moving_up) sorted = sorted.reverse();
+
     const collisions = getAllCollisions(sorted, l);
 
     for (let i = 0, len = collisions.length; i < len; i++) {
         const collision = collisions[i];
-        if (collision.moved) continue;
+
+        if (collision.moved) {
+            continue;
+        }
+
         layout = moveElementAwayFromCollision(sorted, l, collision, row_height);
     }
     return layout;

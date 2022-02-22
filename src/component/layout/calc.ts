@@ -64,7 +64,8 @@ export function calcBoundRange(
     return {
         min_y: 0,
         min_x: 0,
-        max_y: current_height - bound_border.bottom - bound_border.top,
+        // max_y: current_height - bound_border.bottom - bound_border.top,
+        max_y: Infinity,
         max_x: current_width - bound_border.right - bound_border.left
     };
 }
