@@ -4,7 +4,7 @@ import {
     reciprocalNum,
     RULER_GAP,
     TOP_RULER_LEFT_MARGIN
-} from '@/component/layout/calc';
+} from '@/component/layout/layout-calc';
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import styles from './styles.module.css';

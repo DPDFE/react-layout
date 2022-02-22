@@ -1,10 +1,10 @@
 import {
-    CanvasProps,
     LayoutItem,
     ItemPos,
     LayoutType,
     GridType,
-    EditLayoutProps
+    EditLayoutProps,
+    ReactDragLayoutProps
 } from '@/interfaces';
 import { copyObject, copyObjectArray } from '@/utils/utils';
 import React, { RefObject } from 'react';
@@ -149,9 +149,10 @@ export function createInitialLayout(
 export function getDropPos(
     canvas_ref: RefObject<HTMLElement>,
     e: React.MouseEvent,
-    props: CanvasProps
+    props: ReactDragLayoutProps,
+    grid: GridType
 ): ItemPos {
-    const { scale, grid, layout_type } = props;
+    const { scale, layout_type } = props;
 
     const current = (canvas_ref as RefObject<HTMLElement>).current!;
 

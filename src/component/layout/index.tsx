@@ -1,13 +1,16 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { Fragment, useEffect, useRef, useState } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
-import Canvas, { CanvasRef } from '../canvas';
-import { getMaxWidgetsRange } from './calc';
+import WidgetItem from '../canvas/layout-item';
+import { getMaxWidgetsRange } from './layout-calc';
 import styles from './styles.module.css';
 import {
     BoundType,
     DragLayoutProps,
+    EditLayoutProps,
     GridType,
+    ItemPos,
+    LayoutItem,
     LayoutType,
     MarginType,
     ReactDragLayoutProps,
@@ -17,12 +20,21 @@ import { addEvent, removeEvent } from '@pearone/event-utils';
 import GuideLine from '../guide-line';
 import { DEFAULT_BOUND } from '../canvas/draggable';
 import { noop } from '@/utils/utils';
+import {
+    compact,
+    createInitialLayout,
+    dragToGrid,
+    dynamicProgramming,
+    getDropPos,
+    moveElement,
+    snapToGrid
+} from './canvas-calc';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const container_ref = useRef<HTMLDivElement>(null);
     const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
     const canvas_wrapper = useRef<HTMLDivElement>(null); // canvas存放的画布，增加边距支持滚动
-    const canvas_ref = useRef<CanvasRef>(null);
+    const canvas_ref = useRef<HTMLDivElement>(null);
 
     const [wrapper_width, setCanvasWrapperWidth] = useState<number>(0); // 画板宽度
     const [wrapper_height, setCanvasWrapperHeight] = useState<number>(0); // 画板高度
@@ -43,6 +55,137 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         bottom: 0,
         left: 0
     });
+
+    const [checked_index, setCurrentChecked] = useState<string>();
+
+    const [shadow_widget, setShadowWidget] = useState<ItemPos | undefined>(
+        undefined
+    );
+    const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
+
+    useEffect(() => {
+        if (props.children && props.children.length > 0) {
+            console.log('init');
+            const layout = createInitialLayout(props.children, grid);
+            // TODO：应该在compact以后再计算宽高，同时还可以解决实时计算宽高的问题
+            compact(layout, grid.row_height);
+
+            setLayout(layout);
+        }
+    }, [props.children, grid]);
+
+    /** 清空选中 */
+    const onClick = (e: React.MouseEvent) => {
+        console.log('clearChecked');
+        e.stopPropagation();
+        setCurrentChecked(undefined);
+    };
+
+    /** 处理拖拽出画布外没有隐藏shadow的情况 */
+    const onDragLeave = (e: React.MouseEvent) => {
+        // 如果是canvas内的子节点会被触发leave
+        if (
+            !canvas_ref.current!.contains(e.relatedTarget as Node) &&
+            !shadow_widget?.is_float
+        ) {
+            setShadowWidget(undefined);
+            compact(layout, grid.row_height);
+        }
+    };
+
+    /** 拖拽添加 */
+    const onDrop = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const drop_item = getDropPos(canvas_ref, e, props, grid);
+
+        const grid_item = dragToGrid(drop_item, grid);
+        const item = (props as EditLayoutProps).onDrop?.(grid_item);
+
+        if (item && item.i) {
+            setShadowWidget(undefined);
+            setCurrentChecked(item.i);
+        }
+    };
+
+    const onDragOver = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const drop_item = getDropPos(canvas_ref, e, props, grid);
+        setShadowWidget(drop_item);
+
+        const new_layout = layout.concat(drop_item);
+        compact(new_layout, grid.row_height);
+    };
+
+    /**
+     * @author super-hui
+     * @param item 添加节点
+     * @param is_save 是否需要保存
+     * @returns
+     */
+    const moveLayoutV1 = (item: ItemPos, is_save?: boolean) => {
+        const { layout: dynamic_layout, shadow_pos } = dynamicProgramming(
+            item,
+            layout,
+            grid,
+            props.item_margin
+        );
+
+        setShadowWidget(is_save || item.is_float ? undefined : shadow_pos);
+
+        const new_layout = dynamic_layout.map((widget: LayoutItem) => {
+            return widget.i === item.i
+                ? Object.assign(
+                      {},
+                      widget,
+                      is_save && !item.is_float ? shadow_pos : item
+                  )
+                : widget;
+        });
+
+        setLayout(new_layout);
+
+        return new_layout.map((w) => {
+            return dragToGrid(w, grid);
+        });
+    };
+
+    const getLayoutItem = (item: ItemPos) => {
+        return layout.find((l) => {
+            return l.i == item.i;
+        }) as LayoutItem;
+    };
+
+    const moveLayoutV2 = (item: ItemPos, is_save?: boolean) => {
+        const current_item = getLayoutItem(item);
+        const float_item = Object.assign({}, current_item, item);
+
+        if (!current_item.is_float) {
+            snapToGrid(item, grid);
+            moveElement(layout, current_item, item.x, item.y, grid.row_height);
+            current_item.w = item.w;
+            current_item.h = item.h;
+            compact(layout, grid.row_height);
+            setShadowWidget(is_save ? undefined : current_item);
+        }
+
+        setLayout(
+            layout.map((w) => {
+                return w.i === item.i && !is_save ? float_item : w;
+            })
+        );
+        return layout.map((w) => {
+            return dragToGrid(w, grid);
+        });
+    };
+
+    const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
+        // return moveLayoutV1(item, is_save);
+        return moveLayoutV2(item, is_save);
+    };
 
     /**
      * 更改画布宽高属性
@@ -74,9 +217,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     useEffect(() => {
         changeCanvasAttrs();
-        addEvent(window, 'resize', changeCanvasAttrs);
+        addEvent(document, 'resize', changeCanvasAttrs);
         return () => {
-            removeEvent(window, 'resize', changeCanvasAttrs);
+            removeEvent(document, 'resize', changeCanvasAttrs);
         };
     }, [
         (props as DragLayoutProps).height,
@@ -134,41 +277,198 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             height: wrapper_height
                         }}
                         /** 阻止了onDragOver以后，onDrop事件才生效 */
-                        onDrop={
-                            props.mode === LayoutType.edit
-                                ? canvas_ref.current?.onDrop
-                                : noop
-                        }
+                        onDrop={props.mode === LayoutType.edit ? onDrop : noop}
                         onDragOver={
-                            props.mode === LayoutType.edit
-                                ? canvas_ref.current?.onDragOver
-                                : noop
+                            props.mode === LayoutType.edit ? onDragOver : noop
                         }
                         onDragLeave={
-                            props.mode === LayoutType.edit
-                                ? canvas_ref.current?.onDragLeave
-                                : noop
+                            props.mode === LayoutType.edit ? onDragLeave : noop
                         }
-                        onClick={canvas_ref.current?.onClick}
+                        onClick={onClick}
                     >
                         {/* 实际画布区域 */}
                         {current_width && current_height && grid && (
-                            <Canvas
-                                {...props}
+                            <div
                                 ref={canvas_ref}
-                                padding={padding}
-                                grid={grid}
-                                bound={bound}
-                                width={current_width}
-                                height={current_height}
-                                row_height={
-                                    props.row_height
-                                        ? props.row_height
-                                        : current_height
-                                }
-                                t_offset={t_offset}
-                                l_offset={l_offset}
-                            ></Canvas>
+                                className={styles.canvas}
+                                style={{
+                                    width: current_width,
+                                    height: current_height,
+                                    top: t_offset,
+                                    left: l_offset,
+                                    transform: `scale(${props.scale})`,
+                                    transformOrigin: '0 0',
+                                    overflow:
+                                        props.mode === LayoutType.edit
+                                            ? 'unset'
+                                            : 'hidden',
+                                    paddingTop: padding.top,
+                                    paddingLeft: padding.left,
+                                    paddingBottom: padding.bottom,
+                                    paddingRight: padding.right
+                                }}
+                                onContextMenu={(e) => {
+                                    e.preventDefault();
+                                }}
+                                onClick={onClick}
+                            >
+                                {shadow_widget && (
+                                    <WidgetItem
+                                        {...shadow_widget}
+                                        width={current_width}
+                                        height={current_height}
+                                        bound={bound}
+                                        padding={padding}
+                                        margin={props.item_margin}
+                                        grid={grid}
+                                        layout_type={props.layout_type}
+                                        is_resizable={false}
+                                        is_draggable={false}
+                                    >
+                                        <div
+                                            className={`placeholder ${styles.placeholder}`}
+                                        ></div>
+                                    </WidgetItem>
+                                )}
+
+                                {React.Children.map(
+                                    props.children,
+                                    (child, idx) => {
+                                        const widget = layout[idx];
+                                        if (widget) {
+                                            return (
+                                                <WidgetItem
+                                                    layout_type={
+                                                        props.layout_type
+                                                    }
+                                                    key={widget.i}
+                                                    {...widget}
+                                                    {...child.props}
+                                                    padding={padding}
+                                                    grid={grid}
+                                                    bound={bound}
+                                                    children={child}
+                                                    width={current_width}
+                                                    height={current_height}
+                                                    scale={props.scale}
+                                                    margin={props.item_margin}
+                                                    is_resizable={
+                                                        widget.is_resizable &&
+                                                        checked_index ===
+                                                            widget.i
+                                                    }
+                                                    setCurrentChecked={
+                                                        setCurrentChecked
+                                                    }
+                                                    onDragStart={() => {
+                                                        checked_index ===
+                                                        widget.i
+                                                            ? (
+                                                                  props as EditLayoutProps
+                                                              ).onDragStart?.()
+                                                            : noop;
+                                                    }}
+                                                    onDrag={(item) => {
+                                                        if (
+                                                            checked_index ===
+                                                            widget.i
+                                                        ) {
+                                                            const layout =
+                                                                getCurrentLayoutByItem(
+                                                                    item
+                                                                );
+                                                            (
+                                                                props as EditLayoutProps
+                                                            ).onDrag?.(layout);
+                                                        }
+                                                    }}
+                                                    onDragStop={(item) => {
+                                                        if (
+                                                            checked_index ===
+                                                            widget.i
+                                                        ) {
+                                                            const layout =
+                                                                getCurrentLayoutByItem(
+                                                                    item,
+                                                                    true
+                                                                );
+                                                            (
+                                                                props as EditLayoutProps
+                                                            ).onDragStop?.(
+                                                                layout
+                                                            );
+                                                        }
+                                                    }}
+                                                    onResizeStart={() => {
+                                                        if (
+                                                            checked_index ===
+                                                            widget.i
+                                                        ) {
+                                                            (
+                                                                props as EditLayoutProps
+                                                            ).onResizeStart?.();
+                                                        }
+                                                    }}
+                                                    onResize={(item) => {
+                                                        if (
+                                                            checked_index ===
+                                                            widget.i
+                                                        ) {
+                                                            const layout =
+                                                                getCurrentLayoutByItem(
+                                                                    item
+                                                                );
+                                                            (
+                                                                props as EditLayoutProps
+                                                            ).onResize?.(
+                                                                layout
+                                                            );
+                                                        }
+                                                    }}
+                                                    onResizeStop={(item) => {
+                                                        if (
+                                                            checked_index ===
+                                                            widget.i
+                                                        ) {
+                                                            const layout =
+                                                                getCurrentLayoutByItem(
+                                                                    item,
+                                                                    true
+                                                                );
+                                                            (
+                                                                props as EditLayoutProps
+                                                            ).onResizeStop?.(
+                                                                layout
+                                                            );
+                                                        }
+                                                    }}
+                                                    onPositionChange={(
+                                                        item
+                                                    ) => {
+                                                        if (
+                                                            checked_index ===
+                                                            widget.i
+                                                        ) {
+                                                            const layout =
+                                                                getCurrentLayoutByItem(
+                                                                    item,
+                                                                    true
+                                                                );
+                                                            (
+                                                                props as EditLayoutProps
+                                                            ).onPositionChange?.(
+                                                                layout
+                                                            );
+                                                        }
+                                                    }}
+                                                />
+                                            );
+                                        } else {
+                                            return <Fragment></Fragment>;
+                                        }
+                                    }
+                                )}
+                            </div>
                         )}
                     </div>
                 </div>

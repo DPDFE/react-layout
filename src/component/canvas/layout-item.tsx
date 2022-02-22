@@ -1,7 +1,7 @@
 import { WidgetItemProps, LayoutType } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, { memo, ReactElement, useRef } from 'react';
-import { MIN_DRAG_LENGTH } from './calc';
+import { MIN_DRAG_LENGTH } from '../layout/canvas-calc';
 import Draggable, { clamp, DEFAULT_BOUND } from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -239,7 +239,7 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
         .some((state) => state === false);
 }
 
-function childrenEqual(a: ReactElement, b: ReactElement): boolean {
+export function childrenEqual(a: ReactElement, b: ReactElement): boolean {
     return isEqual(
         React.Children.map(a, (c) => c?.key),
         React.Children.map(b, (c) => c?.key)

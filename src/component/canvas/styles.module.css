@@ -3,11 +3,6 @@
 /* @value transition_time: none; */
 @value transition_time: all 0.1s linear;
 
-.canvas {
-    position: absolute;
-    background-color: #fff;
-}
-
 .layout_item {
     background-color: #fff;
     position: absolute;
@@ -49,12 +44,5 @@
     height: 6px;
     border-radius: 3px;
     display: block !important;
-    transition: transition_time;
-}
-
-.placeholder {
-    background-color: #d9d9d9;
-    position: absolute;
-    will-change: transform;
     transition: transition_time;
 }
