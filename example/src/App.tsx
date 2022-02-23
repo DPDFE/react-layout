@@ -57,7 +57,7 @@ const App = () => {
                 y: 5,
                 w: 2,
                 h: 5,
-                i: '5',
+                i: '2',
                 is_resizable: true,
                 is_draggable: true,
                 is_float: false
@@ -277,7 +277,7 @@ const App = () => {
                                 // className={'app_class'}
                                 id={`app_id_${w.i}`}
                                 style={{
-                                    background: 'transparent',
+                                    background: '#f19e9e',
                                     border: '1px solid',
                                     padding: 10
                                 }}

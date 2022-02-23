@@ -111,7 +111,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 container_ref.current &&
                 resizeObserverInstance.unobserve(container_ref.current);
         };
-    }, [container_ref.current, layout]);
+    }, [container_ref.current, layout, JSON.stringify(shadow_widget)]);
 
     /** resize更新宽高 */
     useEffect(() => {
@@ -177,11 +177,11 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
         const current_height = getCurrentHeight(container_ref, props);
 
-        console.log(current_height);
-
-        const { max_left, max_right, max_top, max_bottom } = getMaxLayoutBound(
-            layout!
+        const current_layout = layout.concat(
+            shadow_widget ? [shadow_widget] : []
         );
+        const { max_left, max_right, max_top, max_bottom } =
+            getMaxLayoutBound(current_layout);
 
         // 如果没有宽高就是自适应模式
         if (layout_type === LayoutType.GRID) {
@@ -255,6 +255,14 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         }
     };
 
+    const scrollToTarget = (target: ItemPos) => {
+        const scroll_to =
+            canvas_viewport.current!.scrollTop >= target.y
+                ? target.y
+                : target.y + target.h;
+        canvas_viewport.current?.scrollTo(0, scroll_to);
+    };
+
     /** 清空选中 */
     const onClick = (e: React.MouseEvent) => {
         console.log('clearChecked');
@@ -264,6 +272,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     /** 处理拖拽出画布外没有隐藏shadow的情况 */
     const onDragLeave = (e: React.MouseEvent) => {
+        e.persist();
+        // console.log(e);
+
         // 如果是canvas内的子节点会被触发leave
         if (
             !canvas_ref.current!.contains(e.relatedTarget as Node) &&
@@ -299,6 +310,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
         const new_layout = layout!.concat(drop_item);
         compact(new_layout, grid.row_height);
+        scrollToTarget(drop_item);
     };
 
     /**
@@ -350,7 +362,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             current_item.w = item.w;
             current_item.h = item.h;
             compact(layout!, grid.row_height);
-            setShadowWidget(is_save ? undefined : current_item);
+            if (is_save) {
+                setShadowWidget(undefined);
+            } else {
+                setShadowWidget(current_item);
+                scrollToTarget(current_item);
+            }
         }
 
         setLayout(
@@ -400,7 +417,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
                 {/* 可视区域窗口 */}
                 <div
-                    style={{ overflow: 'auto', position: 'relative', flex: 1 }}
+                    style={{
+                        overflow: 'auto',
+                        position: 'relative',
+                        flex: 1,
+                        scrollBehavior: 'smooth'
+                    }}
                     ref={canvas_viewport}
                     id={'canvas_viewport'}
                 >
@@ -454,6 +476,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     height={current_height}
                                     bound={bound}
                                     padding={padding}
+                                    scale={props.scale}
                                     margin={props.item_margin}
                                     grid={grid}
                                     layout_type={props.layout_type}

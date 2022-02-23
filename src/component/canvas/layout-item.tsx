@@ -20,9 +20,9 @@ import styles from './styles.module.css';
  * child: draggable
  * props: WidgetItem props
  */
-const WidgetItem = (props: WidgetItemProps) => {
+const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children);
-    const item_ref = useRef<HTMLDivElement>(null);
+    const item_ref = ref ?? useRef<HTMLDivElement>(null);
 
     const { i, is_float, is_draggable, is_resizable } = props;
 
@@ -197,13 +197,13 @@ const WidgetItem = (props: WidgetItemProps) => {
             </Resizable>
         </React.Fragment>
     );
-};
+});
 
 WidgetItem.defaultProps = {
     scale: 1,
     is_float: false,
     style: {},
-    margin: [0, 0],
+    margin: [0, 0] as [number, number],
     padding: {
         top: 0,
         right: 0,
