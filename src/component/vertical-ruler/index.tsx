@@ -3,7 +3,7 @@ import {
     fiveMultipleIntergral,
     reciprocalNum,
     RULER_GAP
-} from '@/component/layout/layout-calc';
+} from '@/component/layout/calc';
 import React, { useEffect, useState } from 'react';
 import styles from './styles.module.css';
 import { addEvent, removeEvent } from '@pearone/event-utils';

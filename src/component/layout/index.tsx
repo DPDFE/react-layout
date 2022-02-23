@@ -4,11 +4,20 @@ import HorizontalRuler from '../horizontal-ruler';
 import WidgetItem from '../canvas/layout-item';
 import {
     calcBoundRange,
+    calcOffset,
     completedPadding,
-    getCurrentLayout,
-    getMaxWidgetsRange,
-    TOP_RULER_LEFT_MARGIN
-} from './layout-calc';
+    getCurrentHeight,
+    getMaxLayoutBound,
+    gridToDrag,
+    TOP_RULER_LEFT_MARGIN,
+    WRAPPER_PADDING,
+    compact,
+    dragToGrid,
+    dynamicProgramming,
+    getDropPos,
+    moveElement,
+    snapToGrid
+} from './calc';
 import styles from './styles.module.css';
 import {
     DragLayoutProps,
@@ -20,17 +29,8 @@ import {
     ReactDragLayoutProps,
     RulerPointer
 } from '@/interfaces';
-import { addEvent, removeEvent } from '@pearone/event-utils';
 import GuideLine from '../guide-line';
 import { noop } from '@/utils/utils';
-import {
-    compact,
-    dragToGrid,
-    dynamicProgramming,
-    getDropPos,
-    moveElement,
-    snapToGrid
-} from './canvas-calc';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const container_ref = useRef<HTMLDivElement>(null);
@@ -41,13 +41,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const [wrapper_width, setCanvasWrapperWidth] = useState<number>(0); // 画板宽度
     const [wrapper_height, setCanvasWrapperHeight] = useState<number>(0); // 画板高度
 
-    const [current_width, setCurrentWidth] = useState<number>(0); //宽度
-    const [current_height, setCurrentHeight] = useState<number>(0); //高度
+    const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
 
     const [t_offset, setTopOffset] = useState<number>(0); //垂直偏移量
     const [l_offset, setLeftOffset] = useState<number>(0); //水平偏移量
 
-    const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
+    const [is_window_resize, setWindowResize] = useState<number>(Math.random());
 
     const [checked_index, setCurrentChecked] = useState<string>();
 
@@ -56,18 +55,90 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     );
     const [layout, setLayout] = useState<LayoutItem[]>(); // 真实定位位置
 
-    const [grid, setGrid] = useState<GridType>({ col_width: 1, row_height: 1 });
+    const [current_height, setCurrentHeight] = useState<number>(0); //高度;
+    /** 计算宽度 */
+    const current_width = useMemo(
+        () => getCurrentWidth(),
+        [
+            container_ref.current,
+            props.need_ruler,
+            props.layout_type,
+            is_window_resize
+        ]
+    );
 
+    /** 补全边距 */
     const padding = useMemo(
         () => completedPadding(props.container_padding),
         [props.container_padding]
     );
+
+    /** 计算单元格宽高 */
+    const grid = useMemo(
+        () => getCurrentGrid(),
+        [
+            props.item_margin,
+            props.cols,
+            props.row_height,
+            current_width,
+            padding
+        ]
+    );
+
+    /** 计算移动范围 */
     const bound = useMemo(
         () => calcBoundRange(current_width, current_height, padding),
         [current_width, current_height, padding]
     );
 
+    /** 生成数据 */
     useEffect(() => {
+        const layout = getCurrentLayout(props.children, grid);
+        setLayout(layout);
+    }, [props.children, grid]);
+
+    const resizeObserverInstance = new ResizeObserver((dom) => {
+        setWindowResize(Math.random());
+    });
+
+    /** 监听容器变化 */
+    useEffect(() => {
+        layout &&
+            container_ref.current &&
+            resizeObserverInstance.observe(container_ref.current);
+        return () => {
+            layout &&
+                container_ref.current &&
+                resizeObserverInstance.unobserve(container_ref.current);
+        };
+    }, [container_ref.current, layout]);
+
+    /** resize更新宽高 */
+    useEffect(() => {
+        GetCurrentContainerHeight();
+    }, [
+        (props as DragLayoutProps).height,
+        (props as DragLayoutProps).width,
+        props.scale,
+        is_window_resize
+    ]);
+
+    function getCurrentGrid() {
+        const { item_margin, cols, row_height } = props;
+
+        const width =
+            current_width -
+            (padding.right > item_margin[1]
+                ? padding.right - item_margin[1] + padding.left
+                : item_margin[1]);
+
+        return {
+            col_width: width / cols,
+            row_height
+        };
+    }
+
+    function getCurrentWidth() {
         const { need_ruler, layout_type } = props;
         const offset_width = need_ruler ? TOP_RULER_LEFT_MARGIN : 0;
 
@@ -78,75 +149,109 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 ? container_ref.current?.clientWidth - offset_width
                 : 0;
 
-        setCurrentWidth(current_width);
-        console.log('current_width', current_width);
-    }, [container_ref.current, props.need_ruler, props.layout_type]);
+        return current_width;
+    }
 
-    useEffect(() => {
-        const { item_margin, cols, row_height } = props;
+    function getCurrentLayout(children: React.ReactElement[], grid: GridType) {
+        const new_layout = children.map((child) => {
+            const item = child.props['data-drag'] as LayoutItem;
 
-        const width =
-            current_width -
-            (padding.right > item_margin[1]
-                ? padding.right - item_margin[1] + padding.left
-                : item_margin[1]);
-
-        console.log(grid);
-        setGrid({
-            col_width: width / cols,
-            row_height
+            return {
+                ...gridToDrag(item, grid),
+                is_float: item.is_float ?? false,
+                is_draggable: item.is_draggable ?? false,
+                is_resizable: item.is_resizable ?? false
+            };
         });
-    }, [
-        props.item_margin,
-        props.cols,
-        props.row_height,
-        current_width,
-        padding
-    ]);
 
-    useEffect(() => {
-        const layout = getCurrentLayout(props.children, grid);
-        setLayout(layout);
-        console.log(layout);
-    }, [props.children, grid]);
+        compact(new_layout, grid.row_height);
+        return new_layout;
+    }
 
-    useEffect(() => {
-        changeCanvasAttrs();
-        addEvent(window, 'resize', changeCanvasAttrs);
-        return () => {
-            removeEvent(window, 'resize', changeCanvasAttrs);
-        };
-    }, [
-        (props as DragLayoutProps).height,
-        (props as DragLayoutProps).width,
-        props.scale,
-        layout
-    ]);
+    const GetCurrentContainerHeight = () => {
+        if (!layout) {
+            return;
+        }
 
-    /**
-     * 更改画布宽高属性
-     */
-    const changeCanvasAttrs = () => {
-        // 画板计算大小
-        if (layout) {
-            const {
-                t_offset,
-                l_offset,
-                current_height,
-                wrapper_calc_width,
-                wrapper_calc_height
-            } = getMaxWidgetsRange(
-                canvas_viewport,
-                container_ref,
-                props,
-                layout
-            );
+        const { layout_type, mode, scale } = props;
 
-            setCanvasWrapperWidth(wrapper_calc_width);
-            setCanvasWrapperHeight(wrapper_calc_height);
-            setCurrentHeight(current_height);
-            setTopOffset(t_offset);
-            setLeftOffset(l_offset);
+        const current_height = getCurrentHeight(container_ref, props);
+
+        console.log(current_height);
+
+        const { max_left, max_right, max_top, max_bottom } = getMaxLayoutBound(
+            layout!
+        );
+
+        // 如果没有宽高就是自适应模式
+        if (layout_type === LayoutType.GRID) {
+            const _h =
+                max_bottom > current_height
+                    ? max_bottom + padding.top + padding.bottom
+                    : current_height;
+
+            setCanvasWrapperWidth(current_width);
+            setCanvasWrapperHeight(_h);
+            setCurrentHeight(_h);
+            setTopOffset(0);
+            setLeftOffset(0);
+        } else {
+            const calc_width = current_width * scale;
+            const calc_height = current_height * scale;
+
+            // 视窗的宽、高度
+            const client_height = canvas_viewport.current?.clientHeight
+                ? canvas_viewport.current?.clientHeight
+                : 0;
+            const client_width = canvas_viewport.current?.clientWidth
+                ? canvas_viewport.current?.clientWidth
+                : 0;
+
+            // 计算水平、垂直偏移量
+            if (mode === LayoutType.edit) {
+                const ele_width = max_right * scale - max_left * scale;
+                const ele_height = max_bottom * scale - max_top * scale;
+
+                const l_offset =
+                    calcOffset(client_width, calc_width + WRAPPER_PADDING) +
+                    WRAPPER_PADDING / 2;
+                const t_offset =
+                    calcOffset(client_height, calc_height + WRAPPER_PADDING) +
+                    WRAPPER_PADDING / 2;
+
+                const wrapper_calc_width = Math.max(
+                    calc_width > ele_width
+                        ? calc_width + WRAPPER_PADDING
+                        : ele_width + 2 * l_offset,
+                    client_width
+                );
+                const wrapper_calc_height = Math.max(
+                    calc_height > ele_height
+                        ? calc_height + WRAPPER_PADDING
+                        : ele_height + 2 * t_offset,
+                    client_height
+                );
+
+                setCanvasWrapperWidth(wrapper_calc_width);
+                setCanvasWrapperHeight(wrapper_calc_height);
+                setCurrentHeight(current_height);
+                setTopOffset(t_offset + Math.abs(max_top) * scale);
+                setLeftOffset(l_offset + Math.abs(max_left) * scale);
+
+                // return {
+                //     t_scroll: Math.abs(max_top) * scale,
+                //     l_scroll: Math.abs(max_left) * scale
+                // };
+            } else {
+                const l_offset = calcOffset(client_width, calc_width);
+                const t_offset = calcOffset(client_height, calc_height);
+
+                setCanvasWrapperWidth(Math.max(calc_width, client_width));
+                setCanvasWrapperHeight(Math.max(calc_height, client_height));
+                setCurrentHeight(current_height);
+                setTopOffset(t_offset);
+                setLeftOffset(l_offset);
+            }
         }
     };
 

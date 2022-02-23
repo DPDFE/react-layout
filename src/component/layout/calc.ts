@@ -4,10 +4,17 @@ import {
     LayoutType,
     GridType,
     EditLayoutProps,
-    ReactDragLayoutProps
+    ReactDragLayoutProps,
+    BoundType,
+    DragLayoutProps,
+    MarginType
 } from '@/interfaces';
 import { copyObject, copyObjectArray } from '@/utils/utils';
 import React, { RefObject } from 'react';
+
+export const RULER_GAP = 100; // 标尺间隔大小
+export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
+export const WRAPPER_PADDING = 200; // 编辑状态下的边框
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
 
@@ -323,4 +330,132 @@ export function moveElement(
         layout = moveElementAwayFromCollision(sorted, l, collision, row_height);
     }
     return layout;
+}
+
+// 生成从0开始的数组
+export const reciprocalNum = (count1: number, count2: number) => {
+    const list: any[] = [];
+    for (let i = -count1; i <= count2; i++) {
+        list.push(i);
+    }
+    return list;
+};
+
+// 获取5的整数倍数值
+export const fiveMultipleIntergral = (count: number, approximation = 5) => {
+    const max = Math.ceil(count / approximation) * approximation;
+    const min = Math.floor(count / approximation) * approximation;
+    return max - count >= approximation / 2 ? min : max;
+};
+
+export function completedPadding(
+    bound?: [number, number?, number?, number?]
+): MarginType {
+    let pos = { top: 0, right: 0, bottom: 0, left: 0 };
+    if (bound) {
+        switch (bound.length) {
+            case 1:
+                pos = {
+                    top: bound[0],
+                    right: bound[0],
+                    bottom: bound[0],
+                    left: bound[0]
+                };
+                break;
+            case 2:
+                pos = {
+                    top: bound[0],
+                    right: bound[1] as number,
+                    bottom: bound[0],
+                    left: bound[1] as number
+                };
+                break;
+            case 3:
+                pos = {
+                    top: bound[0],
+                    right: bound[1] as number,
+                    bottom: bound[2] as number,
+                    left: bound[1] as number
+                };
+                break;
+            case 4:
+                pos = {
+                    top: bound[0],
+                    right: bound[1] as number,
+                    bottom: bound[2] as number,
+                    left: bound[3] as number
+                };
+                break;
+        }
+    }
+    return pos;
+}
+
+export function calcBoundRange(
+    current_width: number,
+    current_height: number,
+    bound_border: MarginType
+): BoundType {
+    return {
+        min_y: 0,
+        min_x: 0,
+        // max_y: current_height - bound_border.bottom - bound_border.top,
+        max_y: Infinity,
+        max_x: current_width - bound_border.right - bound_border.left
+    };
+}
+
+export const getCurrentHeight = (
+    container_ref: RefObject<HTMLDivElement>,
+    props: ReactDragLayoutProps
+) => {
+    const { need_ruler, layout_type } = props;
+    const offset_height = need_ruler ? TOP_RULER_LEFT_MARGIN : 0;
+
+    const current_height =
+        layout_type === LayoutType.DRAG
+            ? (props as DragLayoutProps).height
+            : container_ref.current?.clientHeight
+            ? container_ref.current?.clientHeight - offset_height
+            : 0;
+
+    return current_height;
+};
+
+export function gridToDrag(widget: ItemPos, grid: GridType): ItemPos {
+    if (widget.is_float) {
+        return widget as ItemPos;
+    } else {
+        return {
+            ...widget,
+            x: widget.x * grid.col_width,
+            y: widget.y * grid.row_height,
+            w: widget.w * grid.col_width,
+            h: widget.h * grid.row_height
+        };
+    }
+}
+
+export function calcOffset(client: number, calc: number) {
+    return client - calc > 0 ? (client - calc) / 2 : 0;
+}
+
+export function getMaxLayoutBound(children: LayoutItem[]) {
+    // 元素计算大小
+    let max_left = 0,
+        max_right = 0,
+        max_top = 0,
+        max_bottom = 0;
+
+    if (children) {
+        children.map((child) => {
+            const { x, y, h, w } = child;
+
+            max_left = Math.min(max_left, x); // 最左边最小值
+            max_right = Math.max(max_right, x + w); // 最大值
+            max_top = Math.min(max_top, y); // 最上边最小值
+            max_bottom = Math.max(max_bottom, y + h); // 最大值
+        });
+    }
+    return { max_left, max_right, max_top, max_bottom };
 }

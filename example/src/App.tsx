@@ -196,6 +196,7 @@ const App = () => {
                     scale={scale}
                     guide_lines={guide_line}
                     mode={LayoutType.edit}
+                    need_ruler={true}
                     onDrop={(item: ItemPos) => {
                         const drop_element = JSON.parse(
                             JSON.stringify({
