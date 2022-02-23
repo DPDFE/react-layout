@@ -187,7 +187,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         if (layout_type === LayoutType.GRID) {
             const _h =
                 max_bottom > current_height
-                    ? max_bottom + padding.top + padding.bottom
+                    ? max_bottom + padding.bottom
                     : current_height;
 
             setCanvasWrapperWidth(current_width);
