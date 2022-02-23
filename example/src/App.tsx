@@ -18,6 +18,7 @@ const App = () => {
     const [height, setHeight] = useState<number | string>(400);
     const [scale, setScale] = useState<number>(1);
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
+    const [widgets2, setWidgets2] = useState<LayoutItem[]>([]);
     const [guide_line, setGuideLine] = useState<
         {
             x: number;
@@ -28,7 +29,33 @@ const App = () => {
 
     useEffect(() => {
         setWidgets(generateLayout());
+        setWidgets2(generateLayout2());
     }, []);
+
+    function generateLayout2() {
+        return [
+            {
+                i: '0',
+                w: 100,
+                h: 100,
+                x: 100,
+                y: 100,
+                is_float: true,
+                is_resizable: true,
+                is_draggable: true
+            },
+            {
+                i: '1',
+                w: 2,
+                h: 2,
+                x: 0,
+                y: 0,
+                is_float: false,
+                is_resizable: true,
+                is_draggable: true
+            }
+        ];
+    }
 
     function generateLayout() {
         return [
@@ -300,49 +327,48 @@ const App = () => {
                                                 row_height={50}
                                                 cols={8}
                                                 item_margin={[10, 10]}
+                                                need_drag_bound={false}
+                                                need_grid_bound={false}
+                                                need_bound={false}
+                                                onDrop={(item: ItemPos) => {
+                                                    const drop_element =
+                                                        JSON.parse(
+                                                            JSON.stringify({
+                                                                ...item,
+                                                                i: widgets.length.toString(),
+                                                                is_resizable:
+                                                                    true,
+                                                                is_draggable:
+                                                                    true
+                                                            })
+                                                        );
+
+                                                    const new_widgets =
+                                                        widgets2.concat([
+                                                            drop_element
+                                                        ]);
+                                                    setWidgets2(new_widgets);
+                                                    return drop_element;
+                                                }}
                                             >
-                                                <div
-                                                    data-drag={{
-                                                        i: '0',
-                                                        w: 100,
-                                                        h: 100,
-                                                        x: 100,
-                                                        y: 100,
-                                                        is_float: true,
-                                                        is_resizable: true,
-                                                        is_draggable: true
-                                                    }}
-                                                    style={{
-                                                        border: '1px solid'
-                                                    }}
-                                                >
-                                                    <div className='test'>
-                                                        我是第0个div, height:{' '}
-                                                        {w.h}, width:
-                                                        {w.w}
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    style={{
-                                                        border: '1px solid'
-                                                    }}
-                                                    data-drag={{
-                                                        i: '1',
-                                                        w: 2,
-                                                        h: 2,
-                                                        x: 0,
-                                                        y: 0,
-                                                        is_float: false,
-                                                        is_resizable: true,
-                                                        is_draggable: true
-                                                    }}
-                                                >
-                                                    <div className='test'>
-                                                        我是第1个div, height:{' '}
-                                                        {w.h}, width:
-                                                        {w.w}
-                                                    </div>
-                                                </div>
+                                                {widgets2.map((w) => {
+                                                    return (
+                                                        <div
+                                                            key={w.i}
+                                                            data-drag={w}
+                                                            style={{
+                                                                border: '1px solid'
+                                                            }}
+                                                        >
+                                                            <div className='test'>
+                                                                我是第0个div,
+                                                                height: {w.h},
+                                                                width:
+                                                                {w.w}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
                                             </ReactDragLayout>
                                         </TabPane>
                                         <TabPane tab='Tab 2' key='2'>
@@ -355,6 +381,8 @@ const App = () => {
                                                 row_height={50}
                                                 cols={8}
                                                 item_margin={[10, 10]}
+                                                need_drag_bound={false}
+                                                need_grid_bound={false}
                                             >
                                                 <div
                                                     data-drag={{
@@ -410,6 +438,8 @@ const App = () => {
                                                 row_height={50}
                                                 cols={8}
                                                 item_margin={[10, 10]}
+                                                need_drag_bound={false}
+                                                need_grid_bound={false}
                                             >
                                                 <div
                                                     data-drag={{

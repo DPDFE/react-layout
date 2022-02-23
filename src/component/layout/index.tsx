@@ -31,12 +31,14 @@ import {
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { noop } from '@/utils/utils';
+import { DEFAULT_BOUND } from '../canvas/draggable';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const container_ref = useRef<HTMLDivElement>(null);
     const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
     const canvas_wrapper = useRef<HTMLDivElement>(null); // canvas存放的画布，增加边距支持滚动
     const canvas_ref = useRef<HTMLDivElement>(null);
+    const shadow_widget_ref = useRef<HTMLDivElement>(null);
 
     const [wrapper_width, setCanvasWrapperWidth] = useState<number>(0); // 画板宽度
     const [wrapper_height, setCanvasWrapperHeight] = useState<number>(0); // 画板高度
@@ -255,11 +257,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         }
     };
 
-    const scrollToTarget = (target: ItemPos) => {
-        const scroll_to =
-            canvas_viewport.current!.scrollTop >= target.y
-                ? target.y
-                : target.y + target.h;
+    // 向上往上，向下往下
+    const scrollToTarget = (
+        target: ItemPos,
+        direction: 'top' | 'bottom' = 'top'
+    ) => {
+        const scroll_to = direction === 'top' ? target.y : target.y + target.h;
         canvas_viewport.current?.scrollTo(0, scroll_to);
     };
 
@@ -307,10 +310,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
         const drop_item = getDropPos(canvas_ref, e, props, grid);
         setShadowWidget(drop_item);
+        scrollToTarget(drop_item);
 
         const new_layout = layout!.concat(drop_item);
         compact(new_layout, grid.row_height);
-        scrollToTarget(drop_item);
     };
 
     /**
@@ -358,15 +361,18 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
         if (!current_item.is_float) {
             snapToGrid(item, grid);
+
             moveElement(layout!, current_item, item.x, item.y, grid.row_height);
+
             current_item.w = item.w;
             current_item.h = item.h;
+
             compact(layout!, grid.row_height);
+
             if (is_save) {
                 setShadowWidget(undefined);
             } else {
                 setShadowWidget(current_item);
-                scrollToTarget(current_item);
             }
         }
 
@@ -383,6 +389,14 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const getCurrentLayoutByItem = (item: ItemPos, is_save?: boolean) => {
         // return moveLayoutV1(item, is_save);
         return moveLayoutV2(item, is_save);
+    };
+
+    const getCurrentBound = (is_float: boolean) => {
+        if (is_float) {
+            return props.need_drag_bound ? bound : DEFAULT_BOUND;
+        } else {
+            return props.need_grid_bound ? bound : DEFAULT_BOUND;
+        }
     };
 
     return (
@@ -471,6 +485,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                         >
                             {shadow_widget && (
                                 <WidgetItem
+                                    ref={shadow_widget_ref}
                                     {...shadow_widget}
                                     width={current_width}
                                     height={current_height}
@@ -502,7 +517,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                 {...child.props}
                                                 padding={padding}
                                                 grid={grid}
-                                                bound={bound}
+                                                bound={getCurrentBound(
+                                                    widget.is_float
+                                                )}
                                                 children={child}
                                                 width={current_width}
                                                 height={current_height}
@@ -643,7 +660,9 @@ ReactDragLayout.defaultProps = {
     container_padding: [10],
     item_margin: [0, 0],
     mode: LayoutType.view,
-    need_ruler: false
+    need_ruler: false,
+    need_grid_bound: true,
+    need_drag_bound: true
 };
 
 export default ReactDragLayout;

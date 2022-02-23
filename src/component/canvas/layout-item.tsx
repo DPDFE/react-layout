@@ -136,11 +136,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     });
                 }}
                 grid={{ col_width, row_height }}
-                bound={
-                    props.layout_type === LayoutType.DRAG && is_float
-                        ? DEFAULT_BOUND
-                        : props.bound
-                }
+                bound={props.bound}
                 onResizeStop={({ x, y, h, w }) => {
                     props.onResizeStop?.({
                         x: x - offset_x,
@@ -159,18 +155,12 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     onDragStart={() => {
                         props.onDragStart?.();
                     }}
-                    bound={
-                        props.layout_type === LayoutType.DRAG && is_float
-                            ? DEFAULT_BOUND
-                            : props.bound
-                            ? {
-                                  max_y: props.bound.max_y - h,
-                                  min_y: props.bound.min_y,
-                                  max_x: props.bound.max_x - w,
-                                  min_x: props.bound.min_x
-                              }
-                            : DEFAULT_BOUND
-                    }
+                    bound={{
+                        max_y: props.bound.max_y - h,
+                        min_y: props.bound.min_y,
+                        max_x: props.bound.max_x - w,
+                        min_x: props.bound.min_x
+                    }}
                     onDrag={({ x, y }) => {
                         props.onDrag?.({
                             x: x - offset_x,

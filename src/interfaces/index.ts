@@ -66,6 +66,8 @@ type LayoutBase = {
     container_padding: [number, number?, number?, number?];
     item_margin: [number, number];
     need_ruler: boolean;
+    need_grid_bound: boolean;
+    need_drag_bound: boolean;
 };
 
 type EditLayoutBase = LayoutBase & {
