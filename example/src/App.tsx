@@ -42,7 +42,8 @@ const App = () => {
                 y: 100,
                 is_float: true,
                 is_resizable: true,
-                is_draggable: true
+                is_draggable: true,
+                is_droppable: true
             },
             {
                 i: '1',
@@ -52,7 +53,8 @@ const App = () => {
                 y: 0,
                 is_float: false,
                 is_resizable: true,
-                is_draggable: true
+                is_draggable: true,
+                is_droppable: false
             }
         ];
     }

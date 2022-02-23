@@ -115,6 +115,32 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         };
     }, [container_ref.current, layout, JSON.stringify(shadow_widget)]);
 
+    /** 判断元素是否消失 */
+    const intersectionObserverInstance = new IntersectionObserver(
+        (entries) => {
+            entries.map(() => {
+                shadow_widget_ref.current?.scrollIntoView({
+                    block: 'nearest',
+                    inline: 'nearest'
+                });
+            });
+        },
+        { root: canvas_viewport.current, threshold: 0 }
+    );
+
+    useEffect(() => {
+        shadow_widget &&
+            shadow_widget_ref.current &&
+            intersectionObserverInstance.observe(shadow_widget_ref.current);
+        return () => {
+            shadow_widget &&
+                shadow_widget_ref.current &&
+                intersectionObserverInstance.unobserve(
+                    shadow_widget_ref.current
+                );
+        };
+    }, [JSON.stringify(shadow_widget)]);
+
     /** resize更新宽高 */
     useEffect(() => {
         GetCurrentContainerHeight();
@@ -257,15 +283,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         }
     };
 
-    // 向上往上，向下往下
-    const scrollToTarget = (
-        target: ItemPos,
-        direction: 'top' | 'bottom' = 'top'
-    ) => {
-        const scroll_to = direction === 'top' ? target.y : target.y + target.h;
-        canvas_viewport.current?.scrollTo(0, scroll_to);
-    };
-
     /** 清空选中 */
     const onClick = (e: React.MouseEvent) => {
         console.log('clearChecked');
@@ -273,8 +290,16 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         setCurrentChecked(undefined);
     };
 
+    const onDragEnter = (e: React.MouseEvent) => {
+        // console.log('onDragEnter');
+
+        e.persist();
+        // console.log(e);
+    };
+
     /** 处理拖拽出画布外没有隐藏shadow的情况 */
     const onDragLeave = (e: React.MouseEvent) => {
+        // console.log('onDragLeave');
         e.persist();
         // console.log(e);
 
@@ -310,7 +335,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
         const drop_item = getDropPos(canvas_ref, e, props, grid);
         setShadowWidget(drop_item);
-        scrollToTarget(drop_item);
 
         const new_layout = layout!.concat(drop_item);
         compact(new_layout, grid.row_height);
@@ -455,6 +479,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                         }
                         onDragLeave={
                             props.mode === LayoutType.edit ? onDragLeave : noop
+                        }
+                        onDragEnter={
+                            props.mode === LayoutType.edit ? onDragEnter : noop
                         }
                         onClick={onClick}
                     >
