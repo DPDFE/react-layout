@@ -35,7 +35,7 @@ const App = () => {
     function generateLayout2() {
         return [
             {
-                i: '0',
+                i: '1-0',
                 w: 100,
                 h: 100,
                 x: 100,
@@ -45,7 +45,7 @@ const App = () => {
                 is_draggable: true
             },
             {
-                i: '1',
+                i: '1-1',
                 w: 2,
                 h: 2,
                 x: 0,
@@ -342,7 +342,9 @@ const App = () => {
                                                         JSON.parse(
                                                             JSON.stringify({
                                                                 ...item,
-                                                                i: widgets.length.toString(),
+                                                                i:
+                                                                    '1-' +
+                                                                    widgets.length.toString(),
                                                                 is_resizable:
                                                                     true,
                                                                 is_draggable:
@@ -354,11 +356,15 @@ const App = () => {
                                                         widgets2.concat([
                                                             drop_element
                                                         ]);
+
                                                     setWidgets2(new_widgets);
+                                                    console.log('add widgets2');
+
                                                     return drop_element;
                                                 }}
                                             >
                                                 {widgets2.map((w) => {
+                                                    console.log('widgets2', w);
                                                     return (
                                                         <div
                                                             key={w.i}
@@ -393,7 +399,7 @@ const App = () => {
                                             >
                                                 <div
                                                     data-drag={{
-                                                        i: '0',
+                                                        i: '2-0',
                                                         w: 200,
                                                         h: 200,
                                                         x: 100,
@@ -417,7 +423,7 @@ const App = () => {
                                                         border: '1px solid'
                                                     }}
                                                     data-drag={{
-                                                        i: '1',
+                                                        i: '2-1',
                                                         w: 2,
                                                         h: 2,
                                                         x: 0,
@@ -450,7 +456,7 @@ const App = () => {
                                             >
                                                 <div
                                                     data-drag={{
-                                                        i: '0',
+                                                        i: '3-0',
                                                         w: 100,
                                                         h: 100,
                                                         x: 100,
@@ -474,7 +480,7 @@ const App = () => {
                                                         border: '1px solid'
                                                     }}
                                                     data-drag={{
-                                                        i: '1',
+                                                        i: '3-1',
                                                         w: 4,
                                                         h: 4,
                                                         x: 0,

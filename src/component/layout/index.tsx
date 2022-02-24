@@ -1,4 +1,12 @@
-import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+    Fragment,
+    memo,
+    ReactElement,
+    useEffect,
+    useMemo,
+    useRef,
+    useState
+} from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
 import WidgetItem from '../canvas/layout-item';
@@ -34,6 +42,7 @@ import {
 import GuideLine from '../guide-line';
 import { noop } from '@/utils/utils';
 import { DEFAULT_BOUND } from '../canvas/draggable';
+import isEqual from 'lodash.isequal';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const container_ref = useRef<HTMLDivElement>(null);
@@ -298,7 +307,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     };
 
     const onDragEnter = (e: React.MouseEvent) => {
-        console.log('onDragEnter');
+        // console.log('onDragEnter');
 
         e.persist();
         // console.log(e);
@@ -329,8 +338,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         const grid_item = dragToGrid(drop_item, grid);
         const item = (props as EditLayoutProps).onDrop?.(grid_item);
 
+        setShadowWidget(undefined);
+
         if (item && item.i) {
-            setShadowWidget(undefined);
             setCurrentChecked(item.i);
         }
     };
@@ -338,6 +348,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const onDragOver = (e: React.MouseEvent) => {
         e.preventDefault();
         setOperatorType(OperatorType.drop);
+        e.persist();
 
         const collides = getCurrentMouseOverWidget(
             layout!,
@@ -446,6 +457,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             return props.need_grid_bound ? bound : DEFAULT_BOUND;
         }
     };
+
+    console.log('render layout');
 
     return (
         <div
@@ -720,4 +733,24 @@ ReactDragLayout.defaultProps = {
     need_drag_bound: true
 };
 
-export default ReactDragLayout;
+export default memo(ReactDragLayout, compareProps);
+
+function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
+    console.log('current children', next);
+    return !Object.keys(prev)
+        .map((key) => {
+            if (key === 'children') {
+                return childrenEqual(prev['children'], next['children']);
+            } else {
+                return isEqual(prev[key], next[key]);
+            }
+        })
+        .some((state) => state === false);
+}
+
+export function childrenEqual(a: ReactElement, b: ReactElement): boolean {
+    return isEqual(
+        React.Children.map(a, (c) => c?.key),
+        React.Children.map(b, (c) => c?.key)
+    );
+}
