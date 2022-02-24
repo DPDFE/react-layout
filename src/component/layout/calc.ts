@@ -124,19 +124,46 @@ export function dynamicProgramming(
     return { layout, shadow_pos };
 }
 
-export function getDropPos(
+export const getCurrentMouseOverWidget = (
+    layout: LayoutItem[],
+    canvas_ref: RefObject<HTMLElement>,
+    e: React.MouseEvent,
+    scale: number
+) => {
+    const { x, y } = getDropPosition(canvas_ref, e, scale);
+    const fake_item = {
+        i: 'drop_fake_item',
+        x,
+        y,
+        w: 10,
+        h: 10,
+        is_float: true
+    };
+    const collides = getFirstCollision(layout!, fake_item);
+    return collides;
+};
+
+export function getDropPosition(
+    canvas_ref: RefObject<HTMLElement>,
+    e: React.MouseEvent,
+    scale: number
+) {
+    const current = (canvas_ref as RefObject<HTMLElement>).current!;
+
+    const { left, top } = current.getBoundingClientRect();
+    const x = (e.clientX + current.scrollLeft - left) / scale;
+    const y = (e.clientY + current.scrollTop - top) / scale;
+    return { x, y };
+}
+
+export function getDropItem(
     canvas_ref: RefObject<HTMLElement>,
     e: React.MouseEvent,
     props: ReactDragLayoutProps,
     grid: GridType
 ): ItemPos {
     const { scale, layout_type } = props;
-
-    const current = (canvas_ref as RefObject<HTMLElement>).current!;
-
-    const { left, top } = current.getBoundingClientRect();
-    const x = (e.clientX + current.scrollLeft - left) / scale;
-    const y = (e.clientY + current.scrollTop - top) / scale;
+    const { x, y } = getDropPosition(canvas_ref, e, scale);
 
     const drop_item = (props as EditLayoutProps).getDroppingItem?.();
 
@@ -168,7 +195,7 @@ export function collides(item_1: LayoutItem, item_2: LayoutItem): boolean {
     return true;
 }
 
-function getFirstCollision(layout: LayoutItem[], item: LayoutItem) {
+export function getFirstCollision(layout: LayoutItem[], item: LayoutItem) {
     return layout.find((l) => {
         return collides(l, item);
     });

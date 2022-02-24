@@ -42,8 +42,7 @@ const App = () => {
                 y: 100,
                 is_float: true,
                 is_resizable: true,
-                is_draggable: true,
-                is_droppable: true
+                is_draggable: true
             },
             {
                 i: '1',
@@ -53,8 +52,7 @@ const App = () => {
                 y: 0,
                 is_float: false,
                 is_resizable: true,
-                is_draggable: true,
-                is_droppable: false
+                is_draggable: true
             }
         ];
     }
@@ -69,7 +67,8 @@ const App = () => {
                 i: '0',
                 is_resizable: true,
                 is_draggable: true,
-                is_float: true
+                is_float: true,
+                is_hover: true
             },
             {
                 x: 0,
@@ -79,7 +78,8 @@ const App = () => {
                 i: '1',
                 is_resizable: true,
                 is_draggable: true,
-                is_float: false
+                is_float: false,
+                is_hover: false
             },
             {
                 x: 0,
@@ -89,7 +89,8 @@ const App = () => {
                 i: '2',
                 is_resizable: true,
                 is_draggable: true,
-                is_float: false
+                is_float: false,
+                is_hover: true
             }
             // {
             //     x: 0,
@@ -311,6 +312,10 @@ const App = () => {
                                     padding: 10
                                 }}
                             >
+                                <div className='test'>
+                                    我是第{w.i}个div, height: {w.h}, width:
+                                    {w.w}
+                                </div>
                                 {w.i === '1' && (
                                     <Tabs
                                         defaultActiveKey='1'

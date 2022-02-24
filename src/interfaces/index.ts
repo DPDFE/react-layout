@@ -1,5 +1,12 @@
 import React, { ReactChild, ReactElement, RefObject } from 'react';
 
+export enum OperatorType {
+    drag = 'drag',
+    resize = 'resize',
+    drop = 'drop',
+    change = 'change'
+}
+
 export enum LayoutType {
     edit = 'edit',
     view = 'view',
@@ -167,6 +174,7 @@ export interface GuideLineProps {
 export interface LayoutItem extends ItemPos {
     is_draggable?: boolean;
     is_resizable?: boolean;
+    is_hover?: boolean;
     moved?: boolean;
 }
 
