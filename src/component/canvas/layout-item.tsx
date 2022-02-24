@@ -220,8 +220,6 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                 ].includes(key)
             ) {
                 return true;
-            } else if (key === 'children') {
-                return childrenEqual(prev['children'], next['children']);
             } else {
                 return isEqual(prev[key], next[key]);
             }

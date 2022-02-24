@@ -364,7 +364,6 @@ const App = () => {
                                                 }}
                                             >
                                                 {widgets2.map((w) => {
-                                                    console.log('widgets2', w);
                                                     return (
                                                         <div
                                                             key={w.i}

@@ -458,8 +458,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         }
     };
 
-    console.log('render layout');
-
     return (
         <div
             className={`react-drag-layout ${styles.container}`}
@@ -733,24 +731,4 @@ ReactDragLayout.defaultProps = {
     need_drag_bound: true
 };
 
-export default memo(ReactDragLayout, compareProps);
-
-function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
-    console.log('current children', next);
-    return !Object.keys(prev)
-        .map((key) => {
-            if (key === 'children') {
-                return childrenEqual(prev['children'], next['children']);
-            } else {
-                return isEqual(prev[key], next[key]);
-            }
-        })
-        .some((state) => state === false);
-}
-
-export function childrenEqual(a: ReactElement, b: ReactElement): boolean {
-    return isEqual(
-        React.Children.map(a, (c) => c?.key),
-        React.Children.map(b, (c) => c?.key)
-    );
-}
+export default ReactDragLayout;
