@@ -2,7 +2,7 @@ import { WidgetItemProps, LayoutType } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, { memo, ReactElement, useRef } from 'react';
 import { MIN_DRAG_LENGTH } from '../layout/calc';
-import Draggable, { clamp, DEFAULT_BOUND } from './draggable';
+import Draggable, { clamp } from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
 

@@ -7,7 +7,8 @@ import {
     ReactDragLayoutProps,
     BoundType,
     DragLayoutProps,
-    MarginType
+    MarginType,
+    GridLayoutProps
 } from '@/interfaces';
 import { copyObject, copyObjectArray } from '@/utils/utils';
 import React, { RefObject } from 'react';
@@ -312,8 +313,8 @@ function moveElementAwayFromCollision(
         is_float: false
     };
 
-    const not_move_up = getFirstCollision(layout, fake_item);
-    if (not_move_up) {
+    const _collision = getFirstCollision(layout, fake_item);
+    if (_collision) {
         return moveElement(
             layout,
             collision,
@@ -448,20 +449,6 @@ export const getCurrentHeight = (
 
     return current_height;
 };
-
-export function gridToDrag(widget: ItemPos, grid: GridType): ItemPos {
-    if (widget.is_float) {
-        return widget as ItemPos;
-    } else {
-        return {
-            ...widget,
-            x: widget.x * grid.col_width,
-            y: widget.y * grid.row_height,
-            w: widget.w * grid.col_width,
-            h: widget.h * grid.row_height
-        };
-    }
-}
 
 export function calcOffset(client: number, calc: number) {
     return client - calc > 0 ? (client - calc) / 2 : 0;

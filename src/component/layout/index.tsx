@@ -1,12 +1,4 @@
-import React, {
-    Fragment,
-    memo,
-    ReactElement,
-    useEffect,
-    useMemo,
-    useRef,
-    useState
-} from 'react';
+import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
 import WidgetItem from '../canvas/layout-item';
@@ -16,7 +8,6 @@ import {
     completedPadding,
     getCurrentHeight,
     getMaxLayoutBound,
-    gridToDrag,
     TOP_RULER_LEFT_MARGIN,
     WRAPPER_PADDING,
     compact,
@@ -41,8 +32,7 @@ import {
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { noop } from '@/utils/utils';
-import { DEFAULT_BOUND } from '../canvas/draggable';
-import isEqual from 'lodash.isequal';
+import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const container_ref = useRef<HTMLDivElement>(null);
@@ -196,16 +186,35 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         return current_width;
     }
 
+    /**
+     * 通过宽高度距离减小，支持margin效果
+     * 两侧的margin在和配置的padding，进行抵消后，产生了每个元素的整体偏移量offset_x，offset_y，支持padding
+     * 增加边界控制，非浮动元素，不支持拖拽出画布
+     */
+    function getCurrentWidget(item: LayoutItem) {
+        item.is_float = item.is_float ?? false;
+        item.is_draggable = item.is_draggable ?? false;
+        item.is_resizable = item.is_resizable ?? false;
+        item.is_unhoverable = item.is_unhoverable ?? false;
+
+        if (item.is_float) {
+            return item;
+        } else {
+            const { col_width, row_height } = grid;
+            return {
+                ...item,
+                x: item.x * col_width,
+                y: item.y * row_height,
+                w: item.w * col_width,
+                h: item.h * row_height
+            };
+        }
+    }
+
     function getCurrentLayout(children: React.ReactElement[], grid: GridType) {
         const new_layout = children.map((child) => {
             const item = child.props['data-drag'] as LayoutItem;
-
-            return {
-                ...gridToDrag(item, grid),
-                is_float: item.is_float ?? false,
-                is_draggable: item.is_draggable ?? false,
-                is_resizable: item.is_resizable ?? false
-            };
+            return getCurrentWidget(item);
         });
 
         compact(new_layout, grid.row_height);
@@ -333,9 +342,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         e.stopPropagation();
         setOperatorType(undefined);
 
-        const drop_item = getDropItem(canvas_ref, e, props, grid);
-
-        const grid_item = dragToGrid(drop_item, grid);
+        const grid_item = dragToGrid(shadow_widget!, grid);
         const item = (props as EditLayoutProps).onDrop?.(grid_item);
 
         setShadowWidget(undefined);
@@ -357,17 +364,17 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             props.scale
         );
 
-        if (collides && !collides.is_hover) {
+        if (collides && collides.is_unhoverable) {
             setShadowWidget(undefined);
             compact(layout!, grid.row_height);
-            return;
+        } else {
+            const drop_item = getDropItem(canvas_ref, e, props, grid);
+            setShadowWidget(drop_item);
+
+            const new_layout = [...layout!, drop_item];
+            console.log(new_layout);
+            compact(new_layout, grid.row_height);
         }
-
-        const drop_item = getDropItem(canvas_ref, e, props, grid);
-        setShadowWidget(drop_item);
-
-        const new_layout = layout!.concat(drop_item);
-        compact(new_layout, grid.row_height);
     };
 
     /**
@@ -551,7 +558,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     {...shadow_widget}
                                     width={current_width}
                                     height={current_height}
-                                    bound={bound}
+                                    bound={getCurrentBound(
+                                        shadow_widget.is_float
+                                    )}
                                     padding={padding}
                                     scale={props.scale}
                                     margin={props.item_margin}

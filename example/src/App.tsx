@@ -68,7 +68,7 @@ const App = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_float: true,
-                is_hover: true
+                is_unhoverable: false
             },
             {
                 x: 0,
@@ -79,7 +79,7 @@ const App = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_float: false,
-                is_hover: false
+                is_unhoverable: true
             },
             {
                 x: 0,
@@ -90,7 +90,7 @@ const App = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_float: false,
-                is_hover: true
+                is_unhoverable: false
             }
             // {
             //     x: 0,
@@ -226,7 +226,7 @@ const App = () => {
                     scale={scale}
                     guide_lines={guide_line}
                     mode={LayoutType.edit}
-                    need_ruler={true}
+                    // need_ruler={true}
                     onDrop={(item: ItemPos) => {
                         const drop_element = JSON.parse(
                             JSON.stringify({
@@ -335,7 +335,7 @@ const App = () => {
                                                 cols={8}
                                                 item_margin={[10, 10]}
                                                 need_drag_bound={false}
-                                                need_grid_bound={false}
+                                                need_grid_bound={true}
                                                 need_bound={false}
                                                 onDrop={(item: ItemPos) => {
                                                     const drop_element =
@@ -344,7 +344,9 @@ const App = () => {
                                                                 ...item,
                                                                 i:
                                                                     '1-' +
-                                                                    widgets.length.toString(),
+                                                                    widgets.length.toString() +
+                                                                    '-' +
+                                                                    Math.random(),
                                                                 is_resizable:
                                                                     true,
                                                                 is_draggable:
@@ -373,9 +375,9 @@ const App = () => {
                                                             }}
                                                         >
                                                             <div className='test'>
-                                                                我是第0个div,
-                                                                height: {w.h},
-                                                                width:
+                                                                我是第{w.i}
+                                                                个div, height:{' '}
+                                                                {w.h}, width:
                                                                 {w.w}
                                                             </div>
                                                         </div>
