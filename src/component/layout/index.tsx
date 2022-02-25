@@ -1,4 +1,11 @@
-import React, { Fragment, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+    Fragment,
+    useContext,
+    useEffect,
+    useMemo,
+    useRef,
+    useState
+} from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
 import WidgetItem from '../canvas/layout-item';
@@ -32,9 +39,11 @@ import {
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
 import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
-import isEqual from 'lodash.isequal';
+import { LayoutContext } from './context';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
+    const { checked_index, setCurrentChecked } = useContext(LayoutContext);
+
     const container_ref = useRef<HTMLDivElement>(null);
     const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
     const canvas_wrapper = useRef<HTMLDivElement>(null); // canvas存放的画布，增加边距支持滚动
@@ -50,8 +59,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const [l_offset, setLeftOffset] = useState<number>(0); //水平偏移量
 
     const [is_window_resize, setWindowResize] = useState<number>(Math.random());
-
-    const [checked_index, setCurrentChecked] = useState<string>();
 
     const [shadow_widget, setShadowWidget] = useState<ItemPos>();
     const [old_shadow_widget, setOldShadowWidget] = useState<ItemPos>();
@@ -169,7 +176,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
      * 根据children信息生成layout
      */
     useEffect(() => {
-        console.log('operator_type', operator_type);
+        console.log('operator_type', operator_type, props.children);
 
         const new_layout = props.children.map((child) => {
             const item = child.props['data-drag'] as LayoutItem;

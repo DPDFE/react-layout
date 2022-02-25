@@ -1,4 +1,4 @@
-import { WidgetItemProps, LayoutType } from '@/interfaces';
+import { WidgetItemProps } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, { memo, ReactElement, useRef } from 'react';
 import { MIN_DRAG_LENGTH } from '../layout/calc';
