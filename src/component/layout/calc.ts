@@ -12,6 +12,7 @@ import {
 } from '@/interfaces';
 import { copyObject, copyObjectArray } from '@/utils/utils';
 import React, { RefObject } from 'react';
+import { clamp } from '../canvas/draggable';
 
 export const RULER_GAP = 100; // 标尺间隔大小
 export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
@@ -161,7 +162,8 @@ export function getDropItem(
     canvas_ref: RefObject<HTMLElement>,
     e: React.MouseEvent,
     props: ReactDragLayoutProps,
-    grid: GridType
+    grid: GridType,
+    bound: BoundType
 ): ItemPos {
     const { scale, layout_type } = props;
     const { x, y } = getDropPosition(canvas_ref, e, scale);
@@ -177,6 +179,11 @@ export function getDropItem(
         const pos = { w, h, i, x, y, is_float: false };
 
         snapToGrid(pos, grid);
+
+        const { min_x, max_x, min_y, max_y } = bound;
+
+        pos.x = clamp(pos.x, min_x, max_x - pos.w);
+        pos.y = clamp(pos.y, min_y, max_y - pos.h);
 
         return pos;
     } else {
@@ -286,7 +293,7 @@ function compactItem(
 export function compact(layout: LayoutItem[], row_height: number) {
     const compare_with: LayoutItem[] = [];
     const sorted = sortLayoutItems(layout);
-    console.log(sorted);
+
     sorted.map((l) => {
         l.moved = false;
         l = compactItem(compare_with, l, sorted, row_height);

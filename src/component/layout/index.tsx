@@ -400,7 +400,15 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             compact(layout!, grid.row_height);
             setLayout(layout);
         } else {
-            const drop_item = getDropItem(canvas_ref, e, props, grid);
+            const drop_item = getDropItem(
+                canvas_ref,
+                e,
+                props,
+                grid,
+                getCurrentBound(
+                    props.layout_type === LayoutType.GRID ? false : true
+                )
+            );
 
             if (
                 old_shadow_widget &&
