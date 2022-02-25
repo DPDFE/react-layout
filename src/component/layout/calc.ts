@@ -286,7 +286,7 @@ function compactItem(
 export function compact(layout: LayoutItem[], row_height: number) {
     const compare_with: LayoutItem[] = [];
     const sorted = sortLayoutItems(layout);
-
+    console.log(sorted);
     sorted.map((l) => {
         l.moved = false;
         l = compactItem(compare_with, l, sorted, row_height);

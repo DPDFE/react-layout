@@ -66,7 +66,22 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     );
     const [canvas_inner_count, setCanvasInnerCount] = useState<number>(0);
 
-    /** 计算宽度 */
+    function getCurrentWidth() {
+        const { need_ruler, layout_type } = props;
+        const offset_width = need_ruler ? TOP_RULER_LEFT_MARGIN : 0;
+
+        const current_width =
+            layout_type === LayoutType.DRAG
+                ? (props as DragLayoutProps).width
+                : container_ref.current?.clientWidth
+                ? container_ref.current?.clientWidth - offset_width
+                : 0;
+
+        return current_width;
+    }
+    /**
+     * 画布宽度计算
+     */
     const current_width = useMemo(
         () => getCurrentWidth(),
         [
@@ -83,7 +98,24 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         [props.container_padding]
     );
 
-    /** 计算单元格宽高 */
+    function getCurrentGrid() {
+        const { item_margin, cols, row_height } = props;
+
+        const width =
+            current_width -
+            (padding.right > item_margin[1]
+                ? padding.right - item_margin[1] + padding.left
+                : item_margin[1]);
+
+        return {
+            col_width: width / cols,
+            row_height
+        };
+    }
+
+    /**
+     * 单元格宽高计算
+     */
     const grid = useMemo(
         () => getCurrentGrid(),
         [
@@ -101,18 +133,53 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         [current_width, current_height, padding]
     );
 
-    /** 生成数据 */
+    /**
+     * 获取组件实际宽高
+     * 组件信息补全
+     */
+    function getCurrentWidget(item: LayoutItem) {
+        item.is_float = item.is_float ?? false;
+        item.is_draggable = item.is_draggable ?? false;
+        item.is_resizable = item.is_resizable ?? false;
+        item.is_unhoverable = item.is_unhoverable ?? false;
+
+        if (item.is_float) {
+            return item;
+        } else {
+            const { col_width, row_height } = grid;
+            return {
+                ...item,
+                x: item.x * col_width,
+                y: item.y * row_height,
+                w: item.w * col_width,
+                h: item.h * row_height
+            };
+        }
+    }
+
+    /**
+     * 根据children信息生成layout
+     */
     useEffect(() => {
         console.log('operator_type', operator_type);
-        const layout = getCurrentLayout(props.children, grid);
-        setLayout(layout);
+
+        const new_layout = props.children.map((child) => {
+            const item = child.props['data-drag'] as LayoutItem;
+            return getCurrentWidget(item);
+        });
+
+        compact(new_layout, grid.row_height);
+        setLayout(new_layout);
     }, [props.children, grid]);
 
+    /**
+     * 缩放容器触发器
+     */
     const resizeObserverInstance = new ResizeObserver((dom) => {
         setWindowResize(Math.random());
     });
 
-    /** 监听容器变化 */
+    /** 监听容器变化，重新计算width、height、grid */
     useEffect(() => {
         layout &&
             container_ref.current &&
@@ -139,6 +206,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         { root: canvas_viewport.current, threshold: 0 }
     );
 
+    /**
+     * 让阴影定位组件位于可视范围内
+     */
     useEffect(() => {
         shadow_widget &&
             shadow_widget_ref.current &&
@@ -151,80 +221,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 );
         };
     }, [JSON.stringify(shadow_widget)]);
-
-    /** resize更新宽高 */
-    useEffect(() => {
-        GetCurrentContainerHeight();
-    }, [
-        (props as DragLayoutProps).height,
-        (props as DragLayoutProps).width,
-        props.scale,
-        is_window_resize
-    ]);
-
-    function getCurrentGrid() {
-        const { item_margin, cols, row_height } = props;
-
-        const width =
-            current_width -
-            (padding.right > item_margin[1]
-                ? padding.right - item_margin[1] + padding.left
-                : item_margin[1]);
-
-        return {
-            col_width: width / cols,
-            row_height
-        };
-    }
-
-    function getCurrentWidth() {
-        const { need_ruler, layout_type } = props;
-        const offset_width = need_ruler ? TOP_RULER_LEFT_MARGIN : 0;
-
-        const current_width =
-            layout_type === LayoutType.DRAG
-                ? (props as DragLayoutProps).width
-                : container_ref.current?.clientWidth
-                ? container_ref.current?.clientWidth - offset_width
-                : 0;
-
-        return current_width;
-    }
-
-    /**
-     * 通过宽高度距离减小，支持margin效果
-     * 两侧的margin在和配置的padding，进行抵消后，产生了每个元素的整体偏移量offset_x，offset_y，支持padding
-     * 增加边界控制，非浮动元素，不支持拖拽出画布
-     */
-    function getCurrentWidget(item: LayoutItem) {
-        item.is_float = item.is_float ?? false;
-        item.is_draggable = item.is_draggable ?? false;
-        item.is_resizable = item.is_resizable ?? false;
-        item.is_unhoverable = item.is_unhoverable ?? false;
-
-        if (item.is_float) {
-            return item;
-        } else {
-            const { col_width, row_height } = grid;
-            return {
-                ...item,
-                x: item.x * col_width,
-                y: item.y * row_height,
-                w: item.w * col_width,
-                h: item.h * row_height
-            };
-        }
-    }
-
-    function getCurrentLayout(children: React.ReactElement[], grid: GridType) {
-        const new_layout = children.map((child) => {
-            const item = child.props['data-drag'] as LayoutItem;
-            return getCurrentWidget(item);
-        });
-
-        compact(new_layout, grid.row_height);
-        return new_layout;
-    }
 
     const GetCurrentContainerHeight = () => {
         if (!layout) {
@@ -313,6 +309,16 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         }
     };
 
+    /** resize计算新的画布高度、元素容器大小和偏移量 */
+    useEffect(() => {
+        GetCurrentContainerHeight();
+    }, [
+        (props as DragLayoutProps).height,
+        (props as DragLayoutProps).width,
+        props.scale,
+        is_window_resize
+    ]);
+
     /** 清空选中 */
     const onClick = (e: React.MouseEvent) => {
         console.log('clearChecked');
@@ -348,18 +354,23 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         }
     };
 
+    const dragToGridLayout = (layout: LayoutItem[]) => {
+        return layout.map((w) => {
+            return dragToGrid(w, grid);
+        });
+    };
+
     /** 拖拽添加 */
     const onDrop = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
         setOperatorType(OperatorType.dropover);
+        setCanvasInnerCount(0);
 
         if (shadow_widget) {
             const grid_item = dragToGrid(shadow_widget!, grid);
             const item = (props as EditLayoutProps).onDrop?.(
-                layout!.map((w) => {
-                    return dragToGrid(w, grid);
-                }),
+                dragToGridLayout(layout ?? []),
                 grid_item
             );
 
@@ -403,6 +414,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
             const new_layout = [drop_item, ...layout!];
             compact(new_layout!, grid.row_height);
+            // 排序新布局，保存旧布局
             setLayout(layout);
         }
     };
@@ -436,9 +448,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
         setLayout(new_layout);
 
-        return new_layout.map((w) => {
-            return dragToGrid(w, grid);
-        });
+        return dragToGridLayout(new_layout);
     };
 
     const getLayoutItem = (item: ItemPos) => {
@@ -473,9 +483,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 return w.i === item.i && !is_save ? float_item : w;
             })
         );
-        return layout!.map((w) => {
-            return dragToGrid(w, grid);
-        });
+        return dragToGridLayout(layout ?? []);
     };
 
     const getCurrentLayoutByItem = (
