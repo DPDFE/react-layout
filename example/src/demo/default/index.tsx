@@ -14,7 +14,7 @@ import { Tabs } from 'antd';
 
 const { TabPane } = Tabs;
 
-const App = () => {
+const DefaultLayout = () => {
     const [width, setWidth] = useState<number | string>(400);
     const [height, setHeight] = useState<number | string>(400);
     const [scale, setScale] = useState<number>(1);
@@ -343,7 +343,7 @@ const App = () => {
                                                     item_margin={[10, 10]}
                                                     need_drag_bound={false}
                                                     need_grid_bound={false}
-                                                    need_bound={false}
+                                                    is_nested={true}
                                                     onDrop={(
                                                         layout: LayoutItem[],
                                                         item: ItemPos
@@ -568,4 +568,4 @@ const App = () => {
     );
 };
 
-export default App;
+export default DefaultLayout;

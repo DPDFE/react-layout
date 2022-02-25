@@ -79,6 +79,7 @@ type LayoutBase = {
     need_ruler: boolean;
     need_grid_bound: boolean;
     need_drag_bound: boolean;
+    is_nested: boolean;
 };
 
 type EditLayoutBase = LayoutBase & {

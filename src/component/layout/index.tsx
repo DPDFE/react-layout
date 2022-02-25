@@ -127,12 +127,16 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const intersectionObserverInstance = new IntersectionObserver(
         (entries) => {
             entries.map(() => {
-                if (operator_type !== OperatorType.resize) {
-                    shadow_widget_ref.current?.scrollIntoView({
-                        block: 'nearest',
-                        inline: 'nearest'
-                    });
+                if (operator_type === OperatorType.resize) {
+                    return;
                 }
+                if (props.is_nested) {
+                    return;
+                }
+                shadow_widget_ref.current?.scrollIntoView({
+                    block: 'nearest',
+                    inline: 'nearest'
+                });
             });
         },
         { root: canvas_viewport.current, threshold: 0 }
@@ -156,7 +160,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     /** 清空选中 */
     const onClick = (e: React.MouseEvent) => {
-        console.log('clearChecked');
+        console.log('clearChecked', operator_type);
         e.stopPropagation();
         setCurrentChecked(undefined);
     };
@@ -329,7 +333,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             }
         }
 
-        if (!current_item.is_float) {
+        if (current_item.is_float) {
+            Object.assign(current_item, item);
+        } else {
             snapToGrid(item, grid);
 
             moveElement(layout!, current_item, item.x, item.y, grid.row_height);
@@ -397,7 +403,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 {/* 可视区域窗口 */}
                 <div
                     style={{
-                        overflow: 'auto',
+                        overflowX: props.is_nested ? 'hidden' : 'auto',
+                        overflowY: 'auto',
                         position: 'relative',
                         flex: 1,
                         scrollBehavior: 'smooth'
@@ -639,7 +646,8 @@ ReactDragLayout.defaultProps = {
     mode: LayoutType.view,
     need_ruler: false,
     need_grid_bound: true,
-    need_drag_bound: true
+    need_drag_bound: true,
+    is_nested: false
 };
 
 export default ReactDragLayout;
