@@ -310,7 +310,9 @@ const App = () => {
                                     // className={'app_class'}
                                     id={`app_id_${w.i}`}
                                     style={{
-                                        background: '#f19e9e',
+                                        background: w.is_float
+                                            ? '#9eb3f1'
+                                            : '#f19e9e',
                                         border: '1px solid',
                                         padding: 10
                                     }}
@@ -339,8 +341,8 @@ const App = () => {
                                                     row_height={50}
                                                     cols={8}
                                                     item_margin={[10, 10]}
-                                                    need_drag_bound={true}
-                                                    need_grid_bound={true}
+                                                    need_drag_bound={false}
+                                                    need_grid_bound={false}
                                                     need_bound={false}
                                                     onDrop={(
                                                         layout: LayoutItem[],
@@ -383,7 +385,11 @@ const App = () => {
                                                                 key={w.i}
                                                                 data-drag={w}
                                                                 style={{
-                                                                    border: '1px solid'
+                                                                    border: '1px solid',
+                                                                    background:
+                                                                        w.is_float
+                                                                            ? '#9eb3f1'
+                                                                            : '#f19e9e'
                                                                 }}
                                                             >
                                                                 <div className='test'>

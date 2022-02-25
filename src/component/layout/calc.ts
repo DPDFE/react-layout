@@ -5,13 +5,10 @@ import {
     GridType,
     EditLayoutProps,
     ReactDragLayoutProps,
-    BoundType,
-    DragLayoutProps,
     MarginType
 } from '@/interfaces';
 import { copyObject } from '@/utils/utils';
 import React, { RefObject } from 'react';
-import { clamp } from '../canvas/draggable';
 
 export const RULER_GAP = 100; // 标尺间隔大小
 export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
@@ -424,37 +421,6 @@ export function completedPadding(
     }
     return pos;
 }
-
-export function calcBoundRange(
-    current_width: number,
-    current_height: number,
-    bound_border: MarginType
-): BoundType {
-    return {
-        min_y: 0,
-        min_x: 0,
-        // max_y: current_height - bound_border.bottom - bound_border.top,
-        max_y: Infinity,
-        max_x: current_width - bound_border.right - bound_border.left
-    };
-}
-
-export const getCurrentHeight = (
-    container_ref: RefObject<HTMLDivElement>,
-    props: ReactDragLayoutProps
-) => {
-    const { need_ruler, layout_type } = props;
-    const offset_height = need_ruler ? TOP_RULER_LEFT_MARGIN : 0;
-
-    const current_height =
-        layout_type === LayoutType.DRAG
-            ? (props as DragLayoutProps).height
-            : container_ref.current?.clientHeight
-            ? container_ref.current?.clientHeight - offset_height
-            : 0;
-
-    return current_height;
-};
 
 export function calcOffset(client: number, calc: number) {
     return client - calc > 0 ? (client - calc) / 2 : 0;
