@@ -7,10 +7,9 @@ import {
     ReactDragLayoutProps,
     BoundType,
     DragLayoutProps,
-    MarginType,
-    GridLayoutProps
+    MarginType
 } from '@/interfaces';
-import { copyObject, copyObjectArray } from '@/utils/utils';
+import { copyObject } from '@/utils/utils';
 import React, { RefObject } from 'react';
 import { clamp } from '../canvas/draggable';
 
@@ -21,25 +20,29 @@ export const WRAPPER_PADDING = 200; // 编辑状态下的边框
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
 
 export function snapToGrid(pos: ItemPos, grid: GridType) {
-    pos.x = Math.round(pos.x / grid.col_width) * grid.col_width;
-    pos.y = Math.round(pos.y / grid.row_height) * grid.row_height;
-    pos.w = Math.round(pos.w / grid.col_width) * grid.col_width;
-    pos.h = Math.round(pos.h / grid.row_height) * grid.row_height;
+    const { row_height, col_width } = grid;
+
+    pos.x = Math.round(pos.x / col_width) * col_width;
+    pos.y = Math.round(pos.y / row_height) * row_height;
+    pos.w = Math.round(pos.w / col_width) * col_width;
+    pos.h = Math.round(pos.h / row_height) * row_height;
     return pos;
 }
 
-export function dragToGrid(widget: ItemPos, grid: GridType): ItemPos {
-    if (widget.is_float) {
-        return widget as ItemPos;
-    } else {
+export function formatLayoutItem(l: ItemPos, grid: GridType): ItemPos {
+    const { x, y, w, h, is_float } = l;
+    const { row_height, col_width } = grid;
+
+    if (!is_float) {
         return {
-            ...widget,
-            x: Math.ceil(widget.x / grid.col_width),
-            y: Math.ceil(widget.y / grid.row_height),
-            w: Math.ceil(widget.w / grid.col_width),
-            h: Math.ceil(widget.h / grid.row_height)
+            ...l,
+            x: Math.ceil(x / col_width),
+            y: Math.ceil(y / row_height),
+            w: Math.ceil(w / col_width),
+            h: Math.ceil(h / row_height)
         };
     }
+    return l;
 }
 
 export function dynamicProgramming(
@@ -162,8 +165,7 @@ export function getDropItem(
     canvas_ref: RefObject<HTMLElement>,
     e: React.MouseEvent,
     props: ReactDragLayoutProps,
-    grid: GridType,
-    bound: BoundType
+    grid: GridType
 ): ItemPos {
     const { scale, layout_type } = props;
     const { x, y } = getDropPosition(canvas_ref, e, scale);
@@ -173,17 +175,12 @@ export function getDropItem(
     const i = drop_item ? drop_item.i : '__dropping_item__';
 
     if (layout_type === LayoutType.GRID) {
-        const w = grid.col_width * (drop_item ? drop_item.w : 2);
-        const h = grid.row_height * (drop_item ? drop_item.h : 2);
+        const w = grid.col_width * (drop_item?.w ?? 2);
+        const h = grid.row_height * (drop_item?.h ?? 2);
 
         const pos = { w, h, i, x, y, is_float: false };
 
         snapToGrid(pos, grid);
-
-        const { min_x, max_x, min_y, max_y } = bound;
-
-        pos.x = clamp(pos.x, min_x, max_x - pos.w);
-        pos.y = clamp(pos.y, min_y, max_y - pos.h);
 
         return pos;
     } else {

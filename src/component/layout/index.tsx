@@ -11,7 +11,7 @@ import {
     TOP_RULER_LEFT_MARGIN,
     WRAPPER_PADDING,
     compact,
-    dragToGrid,
+    formatLayoutItem,
     dynamicProgramming,
     getDropItem,
     moveElement,
@@ -22,7 +22,6 @@ import styles from './styles.module.css';
 import {
     DragLayoutProps,
     EditLayoutProps,
-    GridType,
     ItemPos,
     LayoutItem,
     LayoutType,
@@ -32,7 +31,7 @@ import {
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
-import { DEFAULT_BOUND } from '../canvas/draggable';
+import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
 import isEqual from 'lodash.isequal';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
@@ -132,6 +131,15 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         () => calcBoundRange(current_width, current_height, padding),
         [current_width, current_height, padding]
     );
+
+    /** 根据类型配置计算边界状态 */
+    const getCurrentBound = (is_float: boolean) => {
+        if (is_float) {
+            return props.need_drag_bound ? bound : DEFAULT_BOUND;
+        } else {
+            return props.need_grid_bound ? bound : DEFAULT_BOUND;
+        }
+    };
 
     /**
      * 获取组件实际宽高
@@ -356,7 +364,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     const dragToGridLayout = (layout: LayoutItem[]) => {
         return layout.map((w) => {
-            return dragToGrid(w, grid);
+            return formatLayoutItem(w, grid);
         });
     };
 
@@ -368,7 +376,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         setCanvasInnerCount(0);
 
         if (shadow_widget) {
-            const grid_item = dragToGrid(shadow_widget!, grid);
+            const grid_item = formatLayoutItem(shadow_widget!, grid);
             const item = (props as EditLayoutProps).onDrop?.(
                 dragToGridLayout(layout ?? []),
                 grid_item
@@ -381,6 +389,26 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 setCurrentChecked(item.i);
             }
         }
+    };
+
+    /** 对drop节点做边界计算以后再排序 */
+    const formatDropItemBound = (pos: LayoutItem) => {
+        const { min_x, min_y } = getCurrentBound(
+            props.layout_type === LayoutType.GRID ? false : true
+        );
+
+        pos.x = clamp(
+            pos.x,
+            min_x,
+            current_width - pos.w - props.item_margin[0]
+        );
+        pos.y = clamp(
+            pos.y,
+            min_y,
+            current_height - pos.h - props.item_margin[1]
+        );
+
+        return pos;
     };
 
     const onDragOver = (e: React.MouseEvent) => {
@@ -400,14 +428,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             compact(layout!, grid.row_height);
             setLayout(layout);
         } else {
-            const drop_item = getDropItem(
-                canvas_ref,
-                e,
-                props,
-                grid,
-                getCurrentBound(
-                    props.layout_type === LayoutType.GRID ? false : true
-                )
+            const drop_item = formatDropItemBound(
+                getDropItem(canvas_ref, e, props, grid)
             );
 
             if (
@@ -442,7 +464,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         );
 
         setShadowWidget(is_save || item.is_float ? undefined : shadow_pos);
-        setOldShadowWidget(is_save || item.is_float ? undefined : shadow_pos);
 
         const new_layout = dynamic_layout.map((widget: LayoutItem) => {
             return widget.i === item.i
@@ -502,14 +523,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         setOperatorType(type);
         // return moveLayoutV1(item, is_save);
         return moveLayoutV2(item, is_save);
-    };
-
-    const getCurrentBound = (is_float: boolean) => {
-        if (is_float) {
-            return props.need_drag_bound ? bound : DEFAULT_BOUND;
-        } else {
-            return props.need_grid_bound ? bound : DEFAULT_BOUND;
-        }
     };
 
     return (
@@ -597,7 +610,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             onContextMenu={(e) => {
                                 e.preventDefault();
                             }}
-                            onClick={onClick}
                         >
                             {shadow_widget && (
                                 <WidgetItem
