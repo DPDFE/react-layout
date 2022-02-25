@@ -340,11 +340,13 @@ export function moveElement(
     y: number,
     row_height: number
 ) {
+    const old_y = l.y;
     l.x = x;
     l.y = y;
     l.moved = true;
 
     let sorted = sortLayoutItems(layout);
+    if (old_y > l.y) sorted = sorted.reverse();
 
     const collisions = getAllCollisions(sorted, l);
 

@@ -342,13 +342,15 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         e.stopPropagation();
         setOperatorType(undefined);
 
-        const grid_item = dragToGrid(shadow_widget!, grid);
-        const item = (props as EditLayoutProps).onDrop?.(grid_item);
+        if (shadow_widget) {
+            const grid_item = dragToGrid(shadow_widget!, grid);
+            const item = (props as EditLayoutProps).onDrop?.(grid_item);
 
-        setShadowWidget(undefined);
+            setShadowWidget(undefined);
 
-        if (item && item.i) {
-            setCurrentChecked(item.i);
+            if (item && item.i) {
+                setCurrentChecked(item.i);
+            }
         }
     };
 
