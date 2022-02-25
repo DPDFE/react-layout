@@ -227,7 +227,7 @@ const App = () => {
                     guide_lines={guide_line}
                     mode={LayoutType.edit}
                     // need_ruler={true}
-                    onDrop={(item: ItemPos) => {
+                    onDrop={(layout: LayoutItem[], item: ItemPos) => {
                         const drop_element = JSON.parse(
                             JSON.stringify({
                                 ...item,
@@ -237,7 +237,7 @@ const App = () => {
                             })
                         );
 
-                        const new_widgets = widgets.concat([drop_element]);
+                        const new_widgets = layout.concat([drop_element]);
                         setWidgets(new_widgets);
                         return drop_element;
                     }}
@@ -337,7 +337,10 @@ const App = () => {
                                                 need_drag_bound={false}
                                                 need_grid_bound={true}
                                                 need_bound={false}
-                                                onDrop={(item: ItemPos) => {
+                                                onDrop={(
+                                                    layout: LayoutItem[],
+                                                    item: ItemPos
+                                                ) => {
                                                     const drop_element =
                                                         JSON.parse(
                                                             JSON.stringify({
@@ -355,7 +358,7 @@ const App = () => {
                                                         );
 
                                                     const new_widgets =
-                                                        widgets2.concat([
+                                                        layout.concat([
                                                             drop_element
                                                         ]);
 

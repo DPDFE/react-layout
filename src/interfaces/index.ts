@@ -1,10 +1,14 @@
 import React, { ReactChild, ReactElement, RefObject } from 'react';
 
 export enum OperatorType {
+    init = 'init',
     drag = 'drag',
+    dragover = 'dragover',
     resize = 'resize',
+    resizeover = 'resizeover',
     drop = 'drop',
-    change = 'change'
+    dropover = 'dropover',
+    changeover = 'changeover'
 }
 
 export enum LayoutType {
@@ -79,7 +83,10 @@ type LayoutBase = {
 
 type EditLayoutBase = LayoutBase & {
     getDroppingItem?: () => { h: number; w: number; i: string };
-    onDrop?: ({ x, y }: { x: number; y: number }) => LayoutItem;
+    onDrop?: (
+        layout: LayoutItem[],
+        { x, y }: { x: number; y: number }
+    ) => LayoutItem;
     onRemove?: (i: string) => void;
     onDragStart?: () => void;
     onDrag?: (layout: LayoutItem[]) => void;

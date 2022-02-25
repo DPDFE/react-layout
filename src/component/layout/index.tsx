@@ -31,8 +31,9 @@ import {
     RulerPointer
 } from '@/interfaces';
 import GuideLine from '../guide-line';
-import { noop } from '@/utils/utils';
-import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
+import { copyObject, noop } from '@/utils/utils';
+import { DEFAULT_BOUND } from '../canvas/draggable';
+import isEqual from 'lodash.isequal';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const container_ref = useRef<HTMLDivElement>(null);
@@ -53,14 +54,17 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     const [checked_index, setCurrentChecked] = useState<string>();
 
-    const [shadow_widget, setShadowWidget] = useState<ItemPos | undefined>(
-        undefined
-    );
+    const [shadow_widget, setShadowWidget] = useState<ItemPos>();
+    const [old_shadow_widget, setOldShadowWidget] = useState<ItemPos>();
+
     const [layout, setLayout] = useState<LayoutItem[]>(); // 真实定位位置
 
     const [current_height, setCurrentHeight] = useState<number>(0); //高度;
 
-    const [operator_type, setOperatorType] = useState<OperatorType>();
+    const [operator_type, setOperatorType] = useState<OperatorType>(
+        OperatorType.init
+    );
+    const [canvas_inner_count, setCanvasInnerCount] = useState<number>(0);
 
     /** 计算宽度 */
     const current_width = useMemo(
@@ -99,6 +103,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     /** 生成数据 */
     useEffect(() => {
+        console.log('operator_type', operator_type);
         const layout = getCurrentLayout(props.children, grid);
         setLayout(layout);
     }, [props.children, grid]);
@@ -316,7 +321,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     };
 
     const onDragEnter = (e: React.MouseEvent) => {
-        // console.log('onDragEnter');
+        e.preventDefault();
+        console.log('onDragEnter', canvas_inner_count + 1);
+
+        setCanvasInnerCount(canvas_inner_count + 1);
 
         e.persist();
         // console.log(e);
@@ -324,7 +332,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     /** 处理拖拽出画布外没有隐藏shadow的情况 */
     const onDragLeave = (e: React.MouseEvent) => {
+        console.log('onDragLeave', canvas_inner_count - 1);
         e.persist();
+        setCanvasInnerCount(canvas_inner_count - 1);
 
         if (
             !canvas_ref.current!.contains(e.relatedTarget as Node) &&
@@ -332,7 +342,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         ) {
             // 如果是canvas内的子节点会被触发leave
             setShadowWidget(undefined);
+            setOldShadowWidget(undefined);
             compact(layout!, grid.row_height);
+            setLayout(layout);
         }
     };
 
@@ -340,13 +352,19 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const onDrop = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        setOperatorType(undefined);
+        setOperatorType(OperatorType.dropover);
 
         if (shadow_widget) {
             const grid_item = dragToGrid(shadow_widget!, grid);
-            const item = (props as EditLayoutProps).onDrop?.(grid_item);
+            const item = (props as EditLayoutProps).onDrop?.(
+                layout!.map((w) => {
+                    return dragToGrid(w, grid);
+                }),
+                grid_item
+            );
 
             setShadowWidget(undefined);
+            setOldShadowWidget(undefined);
 
             if (item && item.i) {
                 setCurrentChecked(item.i);
@@ -357,7 +375,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const onDragOver = (e: React.MouseEvent) => {
         e.preventDefault();
         setOperatorType(OperatorType.drop);
-        e.persist();
 
         const collides = getCurrentMouseOverWidget(
             layout!,
@@ -368,14 +385,25 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
         if (collides && collides.is_unhoverable) {
             setShadowWidget(undefined);
+            setOldShadowWidget(undefined);
             compact(layout!, grid.row_height);
+            setLayout(layout);
         } else {
             const drop_item = getDropItem(canvas_ref, e, props, grid);
-            setShadowWidget(drop_item);
 
-            const new_layout = [...layout!, drop_item];
-            console.log(new_layout);
-            compact(new_layout, grid.row_height);
+            if (
+                old_shadow_widget &&
+                drop_item.x === old_shadow_widget.x &&
+                drop_item.y === old_shadow_widget.y
+            ) {
+                return;
+            }
+            setShadowWidget(drop_item);
+            setOldShadowWidget(copyObject(drop_item));
+
+            const new_layout = [drop_item, ...layout!];
+            compact(new_layout!, grid.row_height);
+            setLayout(layout);
         }
     };
 
@@ -394,6 +422,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         );
 
         setShadowWidget(is_save || item.is_float ? undefined : shadow_pos);
+        setOldShadowWidget(is_save || item.is_float ? undefined : shadow_pos);
 
         const new_layout = dynamic_layout.map((widget: LayoutItem) => {
             return widget.i === item.i
@@ -450,12 +479,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     };
 
     const getCurrentLayoutByItem = (
+        type: OperatorType,
         item: ItemPos,
-        is_save?: boolean,
-        type?: OperatorType
+        is_save?: boolean
     ) => {
-        // return moveLayoutV1(item, is_save);
         setOperatorType(type);
+        // return moveLayoutV1(item, is_save);
         return moveLayoutV2(item, is_save);
     };
 
@@ -619,9 +648,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                     ) {
                                                         const layout =
                                                             getCurrentLayoutByItem(
+                                                                OperatorType.drag,
                                                                 item,
-                                                                false,
-                                                                OperatorType.drag
+                                                                false
                                                             );
                                                         (
                                                             props as EditLayoutProps
@@ -635,6 +664,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                     ) {
                                                         const layout =
                                                             getCurrentLayoutByItem(
+                                                                OperatorType.dragover,
                                                                 item,
                                                                 true
                                                             );
@@ -660,9 +690,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                     ) {
                                                         const layout =
                                                             getCurrentLayoutByItem(
+                                                                OperatorType.resize,
                                                                 item,
-                                                                false,
-                                                                OperatorType.resize
+                                                                false
                                                             );
                                                         (
                                                             props as EditLayoutProps
@@ -676,6 +706,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                     ) {
                                                         const layout =
                                                             getCurrentLayoutByItem(
+                                                                OperatorType.resizeover,
                                                                 item,
                                                                 true
                                                             );
@@ -693,6 +724,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                     ) {
                                                         const layout =
                                                             getCurrentLayoutByItem(
+                                                                OperatorType.changeover,
                                                                 item,
                                                                 true
                                                             );
