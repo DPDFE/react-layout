@@ -23,7 +23,7 @@ const DragLayout = () => {
                 i: i.toString(),
                 x: random,
                 y: random,
-                is_resizable: true,
+                is_resizable: false,
                 is_draggable: true,
                 is_float: true
             };
@@ -47,7 +47,6 @@ const DragLayout = () => {
                     }}
                     onDrag={(layout: LayoutItem[]) => {
                         console.log('onDrag');
-                        // setWidgets(layout);
                     }}
                     onDragStop={(layout: LayoutItem[]) => {
                         console.log('onDragStop');
@@ -61,8 +60,7 @@ const DragLayout = () => {
                                 data-drag={w}
                                 style={{
                                     border: '1px solid',
-                                    padding: 10,
-                                    background: 'transparent'
+                                    padding: 10
                                 }}
                             >
                                 我是第{w.i}个div, height: {w.h}, width:

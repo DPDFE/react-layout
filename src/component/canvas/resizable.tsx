@@ -78,12 +78,7 @@ const Resizable = (props: ResizableProps) => {
     };
 
     const new_child = React.cloneElement(child, {
-        className: [
-            `react-resizable`,
-            props.is_resizable
-                ? styles['light-theme-border']
-                : styles['no-border']
-        ].join(' '),
+        className: 'react-resizable',
         style: {
             ...props.style,
             transform: `translate(${props.x}px, ${props.y}px)`,

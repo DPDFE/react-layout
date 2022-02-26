@@ -57,6 +57,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     );
 
     const {
+        is_window_resize,
         current_width,
         padding,
         grid,
@@ -126,29 +127,29 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         setLayout(new_layout);
     }, [props.children, grid]);
 
-    /** 判断元素是否消失 */
-    const intersectionObserverInstance = new IntersectionObserver(
-        (entries) => {
-            entries.map(() => {
-                if (operator_type === OperatorType.resize) {
-                    return;
-                }
-                if (props.is_nested) {
-                    return;
-                }
-                shadow_widget_ref.current?.scrollIntoView({
-                    block: 'nearest',
-                    inline: 'nearest'
-                });
-            });
-        },
-        { root: canvas_viewport.current, threshold: 0 }
-    );
-
     /**
      * 让阴影定位组件位于可视范围内
      */
     useLayoutEffect(() => {
+        /** 判断元素是否消失 */
+        const intersectionObserverInstance = new IntersectionObserver(
+            (entries) => {
+                entries.map(() => {
+                    if (operator_type === OperatorType.resize) {
+                        return;
+                    }
+                    if (props.is_nested) {
+                        return;
+                    }
+                    shadow_widget_ref.current?.scrollIntoView({
+                        block: 'nearest',
+                        inline: 'nearest'
+                    });
+                });
+            },
+            { root: canvas_viewport.current, threshold: 0 }
+        );
+
         shadow_widget &&
             shadow_widget_ref.current &&
             intersectionObserverInstance.observe(shadow_widget_ref.current);
@@ -505,9 +506,11 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                 height={current_height}
                                                 scale={props.scale}
                                                 margin={props.item_margin}
-                                                is_resizable={
-                                                    widget.is_resizable &&
+                                                is_checked={
                                                     checked_index === widget.i
+                                                }
+                                                is_resizable={
+                                                    widget.is_resizable
                                                 }
                                                 setCurrentChecked={
                                                     setCurrentChecked

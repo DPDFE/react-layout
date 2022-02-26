@@ -120,10 +120,12 @@ export const useLayoutHooks = (
         return {
             min_y: 0,
             min_x: 0,
-            max_y: Infinity,
+            max_y:
+                props.layout_type === LayoutType.GRID
+                    ? Infinity
+                    : current_height - padding.bottom - padding.top,
             max_x: current_width - padding.right - padding.left
         };
-        // max_y: current_height - padding.bottom - padding.top,
     }
 
     /** 计算移动范围 */
@@ -251,6 +253,7 @@ export const useLayoutHooks = (
     ]);
 
     return {
+        is_window_resize,
         current_width,
         padding,
         grid,

@@ -104,7 +104,13 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 ? child.props.id + ' layout-item-' + i
                 : 'layout-item-' + i
         }`,
-        className: `${[child.props.className, styles.layout_item].join(' ')}`,
+        className: `${[
+            child.props.className,
+            styles.layout_item,
+            props.is_checked
+                ? styles['light-theme-border']
+                : styles['no-border']
+        ].join(' ')}`,
         style: {
             transform: `translate(${x}px, ${y}px)`,
             width: w,
@@ -192,6 +198,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 WidgetItem.defaultProps = {
     scale: 1,
     is_float: false,
+    is_checked: false,
     style: {},
     margin: [0, 0] as [number, number],
     padding: {
