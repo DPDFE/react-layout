@@ -1,4 +1,4 @@
-import { Slider } from 'antd';
+import { Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 import {
     ReactDragLayout,
@@ -8,9 +8,8 @@ import {
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
-const ScaleLayout = () => {
+const DropGridResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
-    const [scale, setScale] = useState<number>(1);
 
     useEffect(() => {
         setWidgets(generateLayout());
@@ -20,14 +19,14 @@ const ScaleLayout = () => {
         return Array.from({ length: 6 }).map((_, i) => {
             const random = parseInt((Math.random() * 500).toFixed());
             return {
-                w: 100,
-                h: 100,
+                w: 2,
+                h: 10,
                 i: i.toString(),
                 x: random,
                 y: random,
                 is_resizable: false,
                 is_draggable: true,
-                is_float: true
+                is_float: false
             };
         });
     }
@@ -37,24 +36,19 @@ const ScaleLayout = () => {
             style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
             <div>
-                <span>缩放(100%)：</span>
-                <Slider
-                    value={scale}
-                    style={{ marginRight: 10, width: 150 }}
-                    step={0.04}
-                    min={0.04}
-                    max={2}
-                    onChange={setScale}
-                />
+                <Button
+                    type='primary'
+                    style={{ marginRight: 10 }}
+                    draggable={true}
+                >
+                    拖拽添加
+                </Button>
             </div>
             <ReactLayoutContext>
                 <ReactDragLayout
                     need_ruler
-                    height={600}
-                    width={1200}
-                    layout_type={LayoutType.DRAG}
+                    layout_type={LayoutType.GRID}
                     mode={LayoutType.edit}
-                    need_drag_bound={false}
                     onDragStart={() => {
                         console.log('onDragStart');
                     }}
@@ -87,4 +81,4 @@ const ScaleLayout = () => {
     );
 };
 
-export default ScaleLayout;
+export default DropGridResponsiveLayout;

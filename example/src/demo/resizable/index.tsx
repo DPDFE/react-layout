@@ -46,7 +46,6 @@ const ResizeLayout = () => {
                     }}
                     onResize={(layout: LayoutItem[]) => {
                         console.log('onResize');
-                        setWidgets(layout);
                     }}
                     onResizeStop={(layout: LayoutItem[]) => {
                         console.log('onResizeStop');

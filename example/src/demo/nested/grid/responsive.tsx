@@ -7,7 +7,11 @@ import {
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
-const DragLayout = () => {
+/**
+ * TODO：
+ * 1. 在drag状态下，页面会随着拖拽滚动
+ */
+const DragResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
 
     useEffect(() => {
@@ -18,14 +22,14 @@ const DragLayout = () => {
         return Array.from({ length: 6 }).map((_, i) => {
             const random = parseInt((Math.random() * 500).toFixed());
             return {
-                w: 100,
-                h: 100,
+                w: 2,
+                h: 10,
                 i: i.toString(),
                 x: random,
                 y: random,
                 is_resizable: false,
                 is_draggable: true,
-                is_float: true
+                is_float: false
             };
         });
     }
@@ -37,11 +41,8 @@ const DragLayout = () => {
             <ReactLayoutContext>
                 <ReactDragLayout
                     need_ruler
-                    height={600}
-                    width={1200}
-                    layout_type={LayoutType.DRAG}
+                    layout_type={LayoutType.GRID}
                     mode={LayoutType.edit}
-                    need_drag_bound={false}
                     onDragStart={() => {
                         console.log('onDragStart');
                     }}
@@ -74,4 +75,4 @@ const DragLayout = () => {
     );
 };
 
-export default DragLayout;
+export default DragResponsiveLayout;

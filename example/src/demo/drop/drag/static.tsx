@@ -1,4 +1,4 @@
-import { Slider } from 'antd';
+import { Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 import {
     ReactDragLayout,
@@ -8,9 +8,8 @@ import {
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
-const ScaleLayout = () => {
+const DropDragStaticLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
-    const [scale, setScale] = useState<number>(1);
 
     useEffect(() => {
         setWidgets(generateLayout());
@@ -37,15 +36,13 @@ const ScaleLayout = () => {
             style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
             <div>
-                <span>缩放(100%)：</span>
-                <Slider
-                    value={scale}
-                    style={{ marginRight: 10, width: 150 }}
-                    step={0.04}
-                    min={0.04}
-                    max={2}
-                    onChange={setScale}
-                />
+                <Button
+                    type='primary'
+                    style={{ marginRight: 10 }}
+                    draggable={true}
+                >
+                    拖拽添加
+                </Button>
             </div>
             <ReactLayoutContext>
                 <ReactDragLayout
@@ -87,4 +84,4 @@ const ScaleLayout = () => {
     );
 };
 
-export default ScaleLayout;
+export default DropDragStaticLayout;
