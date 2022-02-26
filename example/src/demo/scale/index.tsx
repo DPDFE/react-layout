@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-const MixinLayout = () => {
+const ScaleLayout = () => {
     return <div></div>;
 };
 
-export default MixinLayout;
+export default ScaleLayout;

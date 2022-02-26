@@ -55,6 +55,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const [operator_type, setOperatorType] = useState<OperatorType>(
         OperatorType.init
     );
+
     const {
         current_width,
         padding,
@@ -114,10 +115,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
      * 根据children信息生成layout
      */
     useEffect(() => {
-        const new_layout = props.children.map((child) => {
-            const item = child.props['data-drag'] as LayoutItem;
-            return getCurrentWidget(item);
-        });
+        const new_layout = React.Children.toArray(props.children).map(
+            (child: React.ReactElement) => {
+                const item = child.props['data-drag'] as LayoutItem;
+                return getCurrentWidget(item);
+            }
+        );
 
         compact(new_layout, grid.row_height);
         setLayout(new_layout);
@@ -640,8 +643,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 ReactDragLayout.defaultProps = {
     scale: 1,
     cols: 10,
+    width: 200,
+    height: 200,
     row_height: 20,
-    container_padding: [10],
+    container_padding: [0],
     item_margin: [0, 0],
     mode: LayoutType.view,
     need_ruler: false,

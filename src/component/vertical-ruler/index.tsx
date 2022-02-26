@@ -26,6 +26,9 @@ const VerticalRuler = (props: VerticalRulerProps) => {
      * 计算垂直方向尺子位置
      */
     const calcVerticalRulerPos = () => {
+        if (wrapper_height === 0) {
+            return;
+        }
         // 画布左上角偏移量（需要为5刻度的倍数）https://www.jianshu.com/p/a89732aa84af
         const canvas_offset_top = t_offset - canvas_viewport.current!.scrollTop;
 

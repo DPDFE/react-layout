@@ -4,6 +4,8 @@ interface LayoutContext {
     setCurrentChecked: (i?: string) => void;
 }
 
+// const [checked_index, setCurrentChecked] = useState<string>();
+
 export const LayoutContext = React.createContext<LayoutContext>({
     checked_index: undefined,
     setCurrentChecked: () => {}

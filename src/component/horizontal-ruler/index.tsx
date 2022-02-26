@@ -29,6 +29,10 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
      * 计算水平方向尺子位置
      */
     const calcHorizontalRulerPos = () => {
+        if (wrapper_width === 0) {
+            return;
+        }
+
         // 画布左上角偏移量（需要为5刻度的倍数）https://www.jianshu.com/p/a89732aa84af
         const canvas_offset_left =
             l_offset - canvas_viewport.current!.scrollLeft;

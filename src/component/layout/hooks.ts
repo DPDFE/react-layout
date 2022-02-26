@@ -32,24 +32,25 @@ export const useLayoutHooks = (
 
     const [is_window_resize, setWindowResize] = useState<number>(Math.random());
 
-    /**
-     * 缩放容器触发器
-     */
-    const resizeObserverInstance = new ResizeObserver(() => {
-        setWindowResize(Math.random());
-    });
-
     /** 监听容器变化，重新计算width、height、grid */
     useLayoutEffect(() => {
-        layout &&
-            container_ref.current &&
+        /**
+         * 缩放容器触发器
+         */
+        const resizeObserverInstance = new ResizeObserver(() => {
+            setWindowResize(Math.random());
+        });
+
+        if (layout && container_ref.current) {
             resizeObserverInstance.observe(container_ref.current);
+        }
         return () => {
-            layout &&
-                container_ref.current &&
+            if (layout && container_ref.current) {
                 resizeObserverInstance.unobserve(container_ref.current);
+                resizeObserverInstance.disconnect();
+            }
         };
-    }, [container_ref, layout, JSON.stringify(shadow_widget)]);
+    }, [layout, JSON.stringify(shadow_widget)]);
 
     /**
      * 计算当前容器宽度
@@ -183,6 +184,13 @@ export const useLayoutHooks = (
             const client_width = canvas_viewport.current?.clientWidth
                 ? canvas_viewport.current?.clientWidth
                 : 0;
+
+            if (client_height === 0 || client_width === 0) {
+                throw new Error('需要给画布父元素增加高度、宽度信息。');
+            }
+            if (client_height > document.body.clientHeight) {
+                throw new Error('需要给画布父元素增加高度。');
+            }
 
             // 计算水平、垂直偏移量
             if (mode === LayoutType.edit) {
