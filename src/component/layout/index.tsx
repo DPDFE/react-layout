@@ -510,7 +510,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                     checked_index === widget.i
                                                 }
                                                 is_resizable={
-                                                    widget.is_resizable
+                                                    widget.is_resizable &&
+                                                    checked_index === widget.i
                                                 }
                                                 setCurrentChecked={
                                                     setCurrentChecked
