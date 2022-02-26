@@ -8,7 +8,7 @@ import {
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
-const ScaleLayout = () => {
+const ScaleDragLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
     const [scale, setScale] = useState<number>(1);
 
@@ -87,4 +87,4 @@ const ScaleLayout = () => {
     );
 };
 
-export default ScaleLayout;
+export default ScaleDragLayout;
