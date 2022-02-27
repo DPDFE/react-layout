@@ -2,7 +2,7 @@ import { WidgetItemProps } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, { memo, ReactElement, useRef } from 'react';
 import { MIN_DRAG_LENGTH } from '../layout/calc';
-import Draggable from './draggable';
+import Draggable, { clamp } from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
 
@@ -24,13 +24,26 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children);
     const item_ref = ref ?? useRef<HTMLDivElement>(null);
 
-    const { i, is_float, x, y, is_draggable, is_resizable } = props;
+    const { i, is_float, is_draggable, is_resizable } = props;
 
     const margin_height = is_float ? 0 : props.margin[0];
     const margin_width = is_float ? 0 : props.margin[1];
 
+    const offset_x = Math.max(margin_width - props.padding.left, 0);
+    const offset_y = Math.max(margin_height - props.padding.top, 0);
+
+    const { min_x, max_x, min_y, max_y } = props.bound;
+
+    /**
+     * 通过宽高度距离减小，支持margin效果
+     * 两侧的margin在和配置的padding，进行抵消后，产生了每个元素的整体偏移量offset_x，offset_y，支持padding
+     * 增加边界控制，非浮动元素，不支持拖拽出画布
+     */
     const w = Math.max(props.w - margin_width, 0);
     const h = Math.max(props.h - margin_height, 0);
+
+    const x = clamp(props.x + offset_x, min_x, max_x - w);
+    const y = clamp(props.y + offset_y, min_y, max_y - h);
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -79,7 +92,14 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 const keydown_pos = handleKeyDown(e);
                 if (keydown_pos) {
                     props.onPositionChange?.({
-                        ...{ x, y, h, w, i, is_float },
+                        ...{
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            h: h + margin_height,
+                            w: w + margin_width,
+                            i,
+                            is_float
+                        },
                         ...keydown_pos
                     });
                 }
@@ -120,10 +140,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 }}
                 onResize={({ x, y, h, w }) => {
                     props.onResize?.({
-                        x,
-                        y,
-                        h,
-                        w,
+                        x: x - offset_x,
+                        y: y - offset_y,
+                        h: h + margin_height,
+                        w: w + margin_width,
                         is_float,
                         i
                     });
@@ -132,10 +152,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 bound={props.bound}
                 onResizeStop={({ x, y, h, w }) => {
                     props.onResizeStop?.({
-                        x,
-                        y,
-                        h,
-                        w,
+                        x: x - offset_x,
+                        y: y - offset_y,
+                        h: h + margin_height,
+                        w: w + margin_width,
                         is_float,
                         i
                     });
@@ -156,20 +176,20 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     }}
                     onDrag={({ x, y }) => {
                         props.onDrag?.({
-                            x,
-                            y,
-                            h,
-                            w,
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            h: h + margin_height,
+                            w: w + margin_width,
                             is_float,
                             i
                         });
                     }}
                     onDragStop={({ x, y }) => {
                         props.onDragStop?.({
-                            x,
-                            y,
-                            h,
-                            w,
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            h: h + margin_height,
+                            w: w + margin_width,
                             is_float,
                             i
                         });

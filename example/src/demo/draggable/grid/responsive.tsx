@@ -11,23 +11,92 @@ const DraggableGridResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
 
     useEffect(() => {
-        setWidgets(generateLayout());
+        const widget = generateLayout();
+        setWidgets(widget);
     }, []);
 
     function generateLayout() {
-        return Array.from({ length: 6 }).map((_, i) => {
-            const random = parseInt((Math.random() * 10).toFixed());
-            return {
+        return [
+            {
                 w: 2,
                 h: 10,
-                i: i.toString(),
-                x: random,
-                y: random,
+                i: '0',
+                x: 5,
+                y: 5,
                 is_resizable: false,
                 is_draggable: true,
-                is_float: false
-            };
-        });
+                is_float: false,
+                is_unhoverable: false
+            },
+            {
+                w: 2,
+                h: 10,
+                i: '1',
+                x: 1,
+                y: 1,
+                is_resizable: false,
+                is_draggable: true,
+                is_float: false,
+                is_unhoverable: false
+            },
+            {
+                w: 2,
+                h: 10,
+                i: '2',
+                x: 5,
+                y: 5,
+                is_resizable: false,
+                is_draggable: true,
+                is_float: false,
+                is_unhoverable: false
+            },
+            {
+                w: 2,
+                h: 10,
+                i: '3',
+                x: 4,
+                y: 4,
+                is_resizable: false,
+                is_draggable: true,
+                is_float: false,
+                is_unhoverable: false
+            },
+            {
+                w: 2,
+                h: 10,
+                i: '4',
+                x: 8,
+                y: 8,
+                is_resizable: false,
+                is_draggable: true,
+                is_float: false,
+                is_unhoverable: false
+            },
+            {
+                w: 2,
+                h: 10,
+                i: '5',
+                x: 3,
+                y: 3,
+                is_resizable: false,
+                is_draggable: true,
+                is_float: false,
+                is_unhoverable: false
+            }
+        ];
+        // return Array.from({ length: 6 }).map((_, i) => {
+        //     const random = parseInt((Math.random() * 10).toFixed());
+        //     return {
+        //         w: 2,
+        //         h: 10,
+        //         i: i.toString(),
+        //         x: random,
+        //         y: random,
+        //         is_resizable: false,
+        //         is_draggable: true,
+        //         is_float: false
+        //     };
+        // });
     }
 
     return (

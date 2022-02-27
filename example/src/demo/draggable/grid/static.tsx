@@ -15,7 +15,7 @@ const DraggableGridStaticLayout = () => {
     }, []);
 
     function generateLayout() {
-        return Array.from({ length: 6 }).map((_, i) => {
+        return Array.from({ length: 12 }).map((_, i) => {
             const random = parseInt((Math.random() * 10).toFixed());
             return {
                 w: 2,

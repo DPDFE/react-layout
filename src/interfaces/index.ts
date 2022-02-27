@@ -201,6 +201,7 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     grid: GridType;
     margin: [number, number];
     is_checked?: boolean;
+    padding: MarginType;
     layout_type: LayoutType.DRAG | LayoutType.GRID;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: () => void;
