@@ -15,7 +15,7 @@ const DraggableDragResponsiveLayout = () => {
     }, []);
 
     function generateLayout() {
-        return Array.from({ length: 6 }).map((_, i) => {
+        return Array.from({ length: 5 }).map((_, i) => {
             const random = parseInt((Math.random() * 500).toFixed());
             return {
                 w: 100,
@@ -41,7 +41,7 @@ const DraggableDragResponsiveLayout = () => {
                     console.log('onDragStart');
                 }}
                 onDrag={(layout: LayoutItem[]) => {
-                    console.log('onDrag');
+                    // console.log('onDrag');
                 }}
                 onDragStop={(layout: LayoutItem[]) => {
                     console.log('onDragStop');

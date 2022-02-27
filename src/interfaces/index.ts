@@ -1,7 +1,6 @@
 import React, { ReactChild, ReactElement, RefObject } from 'react';
 
 export enum OperatorType {
-    init = 'init',
     drag = 'drag',
     dragover = 'dragover',
     resize = 'resize',

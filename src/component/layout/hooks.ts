@@ -120,10 +120,7 @@ export const useLayoutHooks = (
         return {
             min_y: 0,
             min_x: 0,
-            max_y:
-                props.layout_type === LayoutType.GRID
-                    ? Infinity
-                    : current_height - padding.bottom - padding.top,
+            max_y: current_height - padding.bottom - padding.top,
             max_x: current_width - padding.right - padding.left
         };
     }

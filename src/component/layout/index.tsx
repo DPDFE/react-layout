@@ -52,9 +52,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     const [layout, setLayout] = useState<LayoutItem[]>(); // 真实定位位置
 
-    const [operator_type, setOperatorType] = useState<OperatorType>(
-        OperatorType.init
-    );
+    const [operator_type, setOperatorType] = useState<OperatorType>();
 
     const {
         current_width,
@@ -164,7 +162,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
         compact(new_layout, grid.row_height);
         setLayout(new_layout);
-    }, [props.children, grid]);
+    }, [props.children, grid, bound, padding]);
 
     /**
      * 让阴影定位组件位于可视范围内
@@ -201,12 +199,34 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         };
     }, [JSON.stringify(shadow_widget)]);
 
-    /** 清空选中 */
+    /**
+     * @description 只有在无状态的情况下，点击空白处才会取消选中状态
+     */
     const onClick = (e: React.MouseEvent) => {
-        console.log('clearChecked', operator_type);
-        e.stopPropagation();
-        setCurrentChecked(undefined);
+        if (operator_type === undefined) {
+            e.stopPropagation();
+            setCurrentChecked(undefined);
+        }
     };
+
+    /**
+     * @description 当操作结束以后更新操作状态为undefined
+     */
+    useEffect(() => {
+        if (
+            operator_type &&
+            [
+                OperatorType.changeover,
+                OperatorType.dragover,
+                OperatorType.dropover,
+                OperatorType.resizeover
+            ].includes(operator_type)
+        ) {
+            setTimeout(() => {
+                setOperatorType(undefined);
+            }, 0);
+        }
+    }, [operator_type]);
 
     const onDragEnter = (e: React.MouseEvent) => {
         e.preventDefault();

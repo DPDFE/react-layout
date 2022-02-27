@@ -24,7 +24,7 @@ const ResizableGridResponsiveLayout = () => {
                 x: random,
                 y: random,
                 is_resizable: true,
-                is_draggable: false,
+                is_draggable: true,
                 is_float: false
             };
         });
