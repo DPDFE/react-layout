@@ -39,21 +39,25 @@ function Router() {
     /* draggable */
     const draggable_lists = [
         {
+            index: 1,
             name: 'grid static',
             path: '/draggable/grid-static',
             element: <DraggableGridStaticLayout />
         },
         {
+            index: 2,
             name: 'grid responsive',
             path: '/draggable/grid-responsive',
             element: <DraggableGridResponsiveLayout />
         },
         {
+            index: 3,
             name: 'drag static',
             path: '/draggable/drag-static',
             element: <DraggableDragStaticLayout />
         },
         {
+            index: 4,
             name: 'drag responsive',
             path: '/draggable/drag-responsive',
             element: <DraggableDragResponsiveLayout />
@@ -63,21 +67,25 @@ function Router() {
     /* resizable */
     const resizable_lists = [
         {
+            index: 5,
             name: 'grid static',
             path: '/resizable/grid-static',
             element: <ResizableGridStaticLayout />
         },
         {
+            index: 6,
             name: 'grid responsive',
             path: '/resizable/grid-responsive',
             element: <ResizableGridResponsiveLayout />
         },
         {
+            index: 7,
             name: 'drag static',
             path: '/resizable/drag-static',
             element: <ResizableDragStaticLayout />
         },
         {
+            index: 8,
             name: 'drag responsive',
             path: '/resizable/drag-responsive',
             element: <ResizableDragResponsiveLayout />
@@ -87,34 +95,39 @@ function Router() {
     /* drop */
     const drop_lists = [
         {
+            index: 9,
             name: 'static',
             path: '/drop/drag-static',
             element: <DropDragStaticLayout />
         },
         {
+            index: 10,
             name: 'responsive',
             path: '/drop/grid-responsive',
             element: <DropGridResponsiveLayout />
         }
     ];
 
-    const router_lists = [
+    const other_lists = [
         {
-            name: 'default',
-            path: '/',
-            element: <DefaultLayout />
-        },
-        {
+            index: 11,
             name: 'nested grid responsive',
             path: '/nested',
             element: <NestedGridResponsiveLayout />
         },
         {
+            index: 12,
             name: 'change',
             path: '/change',
             element: <ChangeDragLayout />
         },
-        { name: 'ruler', path: 'ruler', element: <RulerLayout /> }
+        { index: 13, name: 'ruler', path: 'ruler', element: <RulerLayout /> },
+        {
+            index: 14,
+            name: 'default',
+            path: '/',
+            element: <DefaultLayout />
+        }
     ];
 
     return (
@@ -134,27 +147,48 @@ function Router() {
                 </Menu.Item>
                 <SubMenu key='draggable' title='draggable'>
                     {draggable_lists.map((r, i) => {
-                        return <Menu.Item key={r.path}>{r.name}</Menu.Item>;
+                        return (
+                            <Menu.Item key={r.path}>
+                                {r.index}.{r.name}
+                            </Menu.Item>
+                        );
                     })}
                 </SubMenu>
                 <SubMenu key='resizable' title='resizable'>
                     {resizable_lists.map((r, i) => {
-                        return <Menu.Item key={r.path}>{r.name}</Menu.Item>;
+                        return (
+                            <Menu.Item key={r.path}>
+                                {r.index}.{r.name}
+                            </Menu.Item>
+                        );
                     })}
                 </SubMenu>
                 <SubMenu key='drop' title='drop'>
                     {drop_lists.map((r, i) => {
-                        return <Menu.Item key={r.path}>{r.name}</Menu.Item>;
+                        return (
+                            <Menu.Item key={r.path}>
+                                {r.index}.{r.name}
+                            </Menu.Item>
+                        );
                     })}
                 </SubMenu>
-                {router_lists.map((r, i) => {
-                    return <Menu.Item key={r.path}>{r.name}</Menu.Item>;
+                {other_lists.map((r, i) => {
+                    return (
+                        <Menu.Item key={r.path}>
+                            {r.index}.{r.name}
+                        </Menu.Item>
+                    );
                 })}
             </Menu>
 
             <div style={{ flex: 1, overflow: 'hidden' }}>
                 <Routes>
-                    {router_lists.map((r) => {
+                    {[
+                        ...draggable_lists,
+                        ...resizable_lists,
+                        ...drop_lists,
+                        ...other_lists
+                    ].map((r) => {
                         return (
                             <Route
                                 key={r.name}
