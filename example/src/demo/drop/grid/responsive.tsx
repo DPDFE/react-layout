@@ -36,7 +36,13 @@ const DropGridResponsiveLayout = () => {
         <div
             style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
-            <div>
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '4px 10px'
+                }}
+            >
                 <Button
                     type='primary'
                     style={{ marginRight: 10 }}
