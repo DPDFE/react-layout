@@ -24,7 +24,7 @@ const ResizableGridStaticLayout = () => {
                 x: random,
                 y: random,
                 is_resizable: true,
-                is_draggable: true,
+                is_draggable: false,
                 is_float: false
             };
         });
@@ -36,7 +36,7 @@ const ResizableGridStaticLayout = () => {
                 need_ruler
                 height={600}
                 width={600}
-                padding={10}
+                container_padding={[10]}
                 item_margin={[10, 10]}
                 layout_type={LayoutType.DRAG}
                 mode={LayoutType.edit}

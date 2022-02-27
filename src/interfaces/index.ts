@@ -200,7 +200,6 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     scale: number;
     bound: BoundType;
     grid: GridType;
-    padding: MarginType;
     margin: [number, number];
     is_checked?: boolean;
     layout_type: LayoutType.DRAG | LayoutType.GRID;

@@ -57,7 +57,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     );
 
     const {
-        is_window_resize,
         current_width,
         padding,
         grid,
@@ -89,6 +88,46 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     };
 
     /**
+     * 通过宽高度距离减小，支持margin效果
+     * 两侧的margin在和配置的padding，进行抵消后，产生了每个元素的整体偏移量offset_x，offset_y，支持padding
+     * 增加边界控制，非浮动元素，不支持拖拽出画布
+     */
+    const genWidgetPosition = (
+        item: LayoutItem,
+        has_transfer: boolean = false
+    ) => {
+        const { max_x, min_x, max_y, min_y } = getCurrentBound(item.is_float);
+
+        const margin_height = item.is_float ? 0 : props.item_margin[0];
+        const margin_width = item.is_float ? 0 : props.item_margin[1];
+
+        const offset_x = Math.max(margin_width - padding.left, 0);
+        const offset_y = Math.max(margin_height - padding.top, 0);
+
+        if (has_transfer) {
+            const w = Math.max(item.w + margin_width, 0);
+            const h = Math.max(item.h + margin_height, 0);
+
+            item.w = w;
+            item.h = h;
+
+            item.x = clamp(item.x - offset_x, min_x, max_x - w);
+            item.y = clamp(item.y - offset_y, min_y, max_y - h);
+        } else {
+            const w = Math.max(item.w - margin_width, 0);
+            const h = Math.max(item.h - margin_height, 0);
+
+            const x = clamp(item.x + offset_x, min_x, max_x - w);
+            const y = clamp(item.y + offset_y, min_y, max_y - h);
+
+            item.x = x;
+            item.y = y;
+        }
+
+        return item;
+    };
+
+    /**
      * 获取组件实际宽高
      * 组件信息补全
      */
@@ -99,16 +138,16 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         item.is_unhoverable = item.is_unhoverable ?? false;
 
         if (item.is_float) {
-            return item;
+            return genWidgetPosition(item);
         } else {
             const { col_width, row_height } = grid;
-            return {
+            return genWidgetPosition({
                 ...item,
                 x: item.x * col_width,
                 y: item.y * row_height,
                 w: item.w * col_width,
                 h: item.h * row_height
-            };
+            });
         }
     }
 
@@ -314,6 +353,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         item: ItemPos,
         is_save?: boolean
     ) => {
+        item = genWidgetPosition(item, true);
         const current_item = getLayoutItem(item);
         const float_item = Object.assign({}, current_item, item);
 
@@ -471,7 +511,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     bound={getCurrentBound(
                                         shadow_widget.is_float
                                     )}
-                                    padding={padding}
                                     scale={props.scale}
                                     margin={props.item_margin}
                                     grid={grid}

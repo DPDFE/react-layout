@@ -1,13 +1,14 @@
 import './index.css';
 
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import {
     BrowserRouter,
     Routes,
     Route,
     Navigate,
-    useNavigate
+    useNavigate,
+    useLocation
 } from 'react-router-dom';
 
 import DefaultLayout from './demo/default';
@@ -25,12 +26,14 @@ import DropDragStaticLayout from './demo/drop/drag/static';
 import DropGridResponsiveLayout from './demo/drop/grid/responsive';
 
 import NestedGridResponsiveLayout from './demo/nested/grid/responsive';
-import ScaleDragLayout from './demo/scale';
+import ChangeDragLayout from './demo/change';
 import RulerLayout from './demo/ruler';
 import { Menu } from 'antd';
 
 function Router() {
     const history = useNavigate();
+    const location = useLocation();
+    const [selected_key, setSelectedKey] = useState<string>(location.pathname);
 
     const router_lists = [
         {
@@ -94,13 +97,13 @@ function Router() {
 
         {
             name: 'nested grid responsive',
-            path: 'nested',
+            path: '/nested',
             element: <NestedGridResponsiveLayout />
         },
         {
-            name: 'scale drag',
-            path: 'scale',
-            element: <ScaleDragLayout />
+            name: 'change',
+            path: '/change',
+            element: <ChangeDragLayout />
         },
         { name: 'ruler', path: 'ruler', element: <RulerLayout /> }
     ];
@@ -108,13 +111,22 @@ function Router() {
     return (
         <div style={{ display: 'flex', width: '100%', height: '100%' }}>
             <Menu
+                selectedKeys={[selected_key]}
                 onClick={(e) => {
+                    setSelectedKey(e.key);
                     history(e.key);
                 }}
                 mode='vertical'
             >
-                {router_lists.map((r) => {
-                    return <Menu.Item key={r.path}>{r.name}</Menu.Item>;
+                <Menu.Item disabled key='name'>
+                    demo menu
+                </Menu.Item>
+                {router_lists.map((r, i) => {
+                    return (
+                        <Menu.Item key={r.path}>
+                            {i + 1}.{r.name}
+                        </Menu.Item>
+                    );
                 })}
             </Menu>
 

@@ -20,7 +20,7 @@ const DragResponsiveLayout = () => {
 
     function generateLayout() {
         return Array.from({ length: 6 }).map((_, i) => {
-            const random = parseInt((Math.random() * 500).toFixed());
+            const random = parseInt((Math.random() * 10).toFixed());
             return {
                 w: 2,
                 h: 10,
@@ -42,6 +42,8 @@ const DragResponsiveLayout = () => {
                 <ReactDragLayout
                     need_ruler
                     layout_type={LayoutType.GRID}
+                    container_padding={[10]}
+                    item_margin={[10, 10]}
                     mode={LayoutType.edit}
                     onDragStart={() => {
                         console.log('onDragStart');

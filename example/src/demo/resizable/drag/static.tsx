@@ -24,7 +24,7 @@ const ResizableDragStaticLayout = () => {
                 x: random,
                 y: random,
                 is_resizable: true,
-                is_draggable: true,
+                is_draggable: false,
                 is_float: true
             };
         });

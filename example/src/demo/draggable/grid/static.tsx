@@ -36,7 +36,7 @@ const DraggableGridStaticLayout = () => {
                 need_ruler
                 height={600}
                 width={600}
-                padding={10}
+                container_padding={[10]}
                 item_margin={[10, 10]}
                 need_grid_bound={false}
                 layout_type={LayoutType.DRAG}

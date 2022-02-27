@@ -23,8 +23,8 @@ const ResizableGridResponsiveLayout = () => {
                 i: i.toString(),
                 x: random,
                 y: random,
-                is_resizable: false,
-                is_draggable: true,
+                is_resizable: true,
+                is_draggable: false,
                 is_float: false
             };
         });
@@ -36,7 +36,7 @@ const ResizableGridResponsiveLayout = () => {
                 need_ruler
                 layout_type={LayoutType.GRID}
                 mode={LayoutType.edit}
-                padding={10}
+                container_padding={[10]}
                 item_margin={[10, 10]}
                 onResizeStart={() => {
                     console.log('onResizeStart');

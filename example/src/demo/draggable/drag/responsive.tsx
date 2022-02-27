@@ -36,6 +36,7 @@ const DraggableDragResponsiveLayout = () => {
                 need_ruler
                 layout_type={LayoutType.GRID}
                 mode={LayoutType.edit}
+                container_padding={[10]}
                 onDragStart={() => {
                     console.log('onDragStart');
                 }}

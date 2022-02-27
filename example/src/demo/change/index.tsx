@@ -1,4 +1,4 @@
-import { Slider } from 'antd';
+import { Input, Slider } from 'antd';
 import React, { useEffect, useState } from 'react';
 import {
     ReactDragLayout,
@@ -8,9 +8,11 @@ import {
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
-const ScaleDragLayout = () => {
+const ChangeDragLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
     const [scale, setScale] = useState<number>(1);
+    const [width, setWidth] = useState<number | string>(400);
+    const [height, setHeight] = useState<number | string>(400);
 
     useEffect(() => {
         setWidgets(generateLayout());
@@ -19,15 +21,17 @@ const ScaleDragLayout = () => {
     function generateLayout() {
         return Array.from({ length: 6 }).map((_, i) => {
             const random = parseInt((Math.random() * 500).toFixed());
+            const boolean = Boolean(Math.round(Math.random()));
+
             return {
-                w: 100,
-                h: 100,
+                w: boolean ? 100 : 2,
+                h: boolean ? 100 : 10,
                 i: i.toString(),
                 x: random,
                 y: random,
-                is_resizable: false,
+                is_resizable: true,
                 is_draggable: true,
-                is_float: true
+                is_float: boolean
             };
         });
     }
@@ -36,7 +40,29 @@ const ScaleDragLayout = () => {
         <div
             style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
-            <div>
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '4px 10px'
+                }}
+            >
+                <span>高度(px)：</span>
+                <Input
+                    style={{ marginRight: 10, width: 150 }}
+                    value={height}
+                    onChange={(e) => {
+                        setHeight(parseInt(e.target.value));
+                    }}
+                ></Input>
+                <span>宽度(px)：</span>
+                <Input
+                    value={width}
+                    style={{ marginRight: 10, width: 150 }}
+                    onChange={(e) => {
+                        setWidth(parseInt(e.target.value));
+                    }}
+                ></Input>
                 <span>缩放(100%)：</span>
                 <Slider
                     value={scale}
@@ -50,11 +76,14 @@ const ScaleDragLayout = () => {
             <ReactLayoutContext>
                 <ReactDragLayout
                     need_ruler
-                    height={600}
-                    width={1200}
+                    height={height}
+                    width={width}
+                    item_margin={[10, 10]}
+                    container_padding={[10]}
                     layout_type={LayoutType.DRAG}
                     mode={LayoutType.edit}
                     need_drag_bound={false}
+                    scale={scale}
                     onDragStart={() => {
                         console.log('onDragStart');
                     }}
@@ -87,4 +116,4 @@ const ScaleDragLayout = () => {
     );
 };
 
-export default ScaleDragLayout;
+export default ChangeDragLayout;

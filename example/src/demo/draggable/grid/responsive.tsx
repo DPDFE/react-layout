@@ -36,7 +36,7 @@ const DraggableGridResponsiveLayout = () => {
                 need_ruler
                 layout_type={LayoutType.GRID}
                 mode={LayoutType.edit}
-                padding={10}
+                container_padding={[10]}
                 item_margin={[10, 10]}
                 onDragStart={() => {
                     console.log('onDragStart');

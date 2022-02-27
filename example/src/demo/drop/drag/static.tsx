@@ -4,7 +4,8 @@ import {
     ReactDragLayout,
     LayoutType,
     LayoutItem,
-    ReactLayoutContext
+    ReactLayoutContext,
+    ItemPos
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
@@ -35,7 +36,13 @@ const DropDragStaticLayout = () => {
         <div
             style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
-            <div>
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '4px 10px'
+                }}
+            >
                 <Button
                     type='primary'
                     style={{ marginRight: 10 }}
@@ -52,11 +59,23 @@ const DropDragStaticLayout = () => {
                     layout_type={LayoutType.DRAG}
                     mode={LayoutType.edit}
                     need_drag_bound={false}
-                    onDragStart={() => {
-                        console.log('onDragStart');
+                    getDroppingItem={() => {
+                        return {
+                            h: 200,
+                            w: 200,
+                            i: 'drop_element'
+                        };
                     }}
-                    onDrag={(layout: LayoutItem[]) => {
-                        console.log('onDrag');
+                    onDrop={(layout: LayoutItem[], item: ItemPos) => {
+                        const drop_element = {
+                            ...item,
+                            i: widgets.length.toString(),
+                            is_resizable: true,
+                            is_draggable: true
+                        };
+                        const new_widgets = layout.concat([drop_element]);
+                        setWidgets(new_widgets);
+                        return drop_element;
                     }}
                     onDragStop={(layout: LayoutItem[]) => {
                         console.log('onDragStop');

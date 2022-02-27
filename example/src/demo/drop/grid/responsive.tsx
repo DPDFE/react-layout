@@ -4,7 +4,8 @@ import {
     ReactDragLayout,
     LayoutType,
     LayoutItem,
-    ReactLayoutContext
+    ReactLayoutContext,
+    ItemPos
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
@@ -17,7 +18,7 @@ const DropGridResponsiveLayout = () => {
 
     function generateLayout() {
         return Array.from({ length: 6 }).map((_, i) => {
-            const random = parseInt((Math.random() * 500).toFixed());
+            const random = parseInt((Math.random() * 10).toFixed());
             return {
                 w: 2,
                 h: 10,
@@ -49,11 +50,25 @@ const DropGridResponsiveLayout = () => {
                     need_ruler
                     layout_type={LayoutType.GRID}
                     mode={LayoutType.edit}
-                    onDragStart={() => {
-                        console.log('onDragStart');
+                    container_padding={[10]}
+                    item_margin={[10, 10]}
+                    getDroppingItem={() => {
+                        return {
+                            h: 5,
+                            w: 2,
+                            i: 'drop_element'
+                        };
                     }}
-                    onDrag={(layout: LayoutItem[]) => {
-                        console.log('onDrag');
+                    onDrop={(layout: LayoutItem[], item: ItemPos) => {
+                        const drop_element = {
+                            ...item,
+                            i: widgets.length.toString(),
+                            is_resizable: true,
+                            is_draggable: true
+                        };
+                        const new_widgets = layout.concat([drop_element]);
+                        setWidgets(new_widgets);
+                        return drop_element;
                     }}
                     onDragStop={(layout: LayoutItem[]) => {
                         console.log('onDragStop');
