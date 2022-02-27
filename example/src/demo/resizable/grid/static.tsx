@@ -45,7 +45,7 @@ const ResizableGridStaticLayout = () => {
                     console.log('onResizeStart');
                 }}
                 onResize={(layout: LayoutItem[]) => {
-                    console.log('onResize');
+                    // console.log('onResize');
                 }}
                 onResizeStop={(layout: LayoutItem[]) => {
                     console.log('onResizeStop');

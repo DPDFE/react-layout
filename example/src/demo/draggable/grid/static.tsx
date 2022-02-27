@@ -38,14 +38,14 @@ const DraggableGridStaticLayout = () => {
                 width={600}
                 container_padding={[10]}
                 item_margin={[10, 10]}
-                need_grid_bound={false}
+                need_grid_bound={true}
                 layout_type={LayoutType.DRAG}
                 mode={LayoutType.edit}
                 onDragStart={() => {
                     console.log('onDragStart');
                 }}
                 onDrag={(layout: LayoutItem[]) => {
-                    console.log('onDrag');
+                    // console.log('onDrag');
                 }}
                 onDragStop={(layout: LayoutItem[]) => {
                     console.log('onDragStop');

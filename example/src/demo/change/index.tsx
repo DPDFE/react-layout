@@ -88,7 +88,7 @@ const ChangeDragLayout = () => {
                         console.log('onDragStart');
                     }}
                     onDrag={(layout: LayoutItem[]) => {
-                        console.log('onDrag');
+                        // console.log('onDrag');
                     }}
                     onDragStop={(layout: LayoutItem[]) => {
                         console.log('onDragStop');
