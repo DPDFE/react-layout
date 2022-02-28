@@ -33,10 +33,10 @@ export function formatLayoutItem(l: ItemPos, grid: GridType): ItemPos {
     if (!is_float) {
         return {
             ...l,
-            x: Math.ceil(x / col_width),
-            y: Math.ceil(y / row_height),
-            w: Math.ceil(w / col_width),
-            h: Math.ceil(h / row_height)
+            x: Math.floor(x / col_width),
+            y: Math.floor(y / row_height),
+            w: Math.floor(w / col_width),
+            h: Math.floor(h / row_height)
         };
     }
     return l;
