@@ -6,6 +6,7 @@ import {
     ReactLayoutContext
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
+import './styles.css';
 
 const DraggableGridResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
@@ -121,6 +122,7 @@ const DraggableGridResponsiveLayout = () => {
                 {widgets.map((w) => {
                     return (
                         <div
+                            className={'widget_item'}
                             key={w.i}
                             data-drag={w}
                             style={{
