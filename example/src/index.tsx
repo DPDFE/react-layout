@@ -28,9 +28,8 @@ import DropGridResponsiveLayout from './demo/drop/grid/responsive';
 import NestedGridResponsiveLayout from './demo/nested/grid/responsive';
 import ChangeDragLayout from './demo/change';
 import RulerLayout from './demo/ruler';
-import { Button, Menu } from 'antd';
+import { Menu } from 'antd';
 
-import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { LayoutIcon } from './component/icon';
 import Sider from 'antd/lib/layout/Sider';
 
@@ -159,6 +158,7 @@ function Router() {
                         setSelectedKey(e.key);
                         history(e.key);
                     }}
+                    selectedKeys={[selected_key]}
                     mode='inline'
                     openKeys={
                         collapsed
