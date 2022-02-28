@@ -343,31 +343,38 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         }) as LayoutItem;
     };
 
+    /** 如果当前元素位于嵌套元素中 */
+    const hasItemUnhoverable = (item: ItemPos, is_save?: boolean) => {
+        const current_item = getLayoutItem(item);
+        const float_item = Object.assign({}, current_item, item);
+
+        setShadowWidget(undefined);
+        setOldShadowWidget(undefined);
+        compact(
+            (layout ?? []).filter((l) => {
+                return l.i != item.i;
+            }),
+            grid.row_height
+        );
+        setLayout(
+            layout!.map((w) => {
+                return w.i === item.i && !is_save ? float_item : w;
+            })
+        );
+        return dragToGridLayout(layout ?? []);
+    };
+
     const moveLayoutV2 = (
         type: OperatorType,
         item: ItemPos,
         is_save?: boolean
     ) => {
         const current_item = getLayoutItem(item);
-        const float_item = Object.assign({}, current_item, item);
 
         if (type === OperatorType.drag || type === OperatorType.dragover) {
             const collides = getFirstCollision(layout ?? [], item);
             if (collides && collides.is_unhoverable) {
-                setShadowWidget(undefined);
-                setOldShadowWidget(undefined);
-                compact(
-                    (layout ?? []).filter((l) => {
-                        return l.i != item.i;
-                    }),
-                    grid.row_height
-                );
-                setLayout(
-                    layout!.map((w) => {
-                        return w.i === item.i && !is_save ? float_item : w;
-                    })
-                );
-                return dragToGridLayout(layout ?? []);
+                return hasItemUnhoverable(item, is_save);
             }
         }
 
