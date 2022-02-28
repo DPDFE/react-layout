@@ -28,13 +28,18 @@ import DropGridResponsiveLayout from './demo/drop/grid/responsive';
 import NestedGridResponsiveLayout from './demo/nested/grid/responsive';
 import ChangeDragLayout from './demo/change';
 import RulerLayout from './demo/ruler';
-import { Menu } from 'antd';
+import { Button, Menu } from 'antd';
+
+import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import { LayoutIcon } from './component/icon';
+import Sider from 'antd/lib/layout/Sider';
 
 function Router() {
     const { SubMenu } = Menu;
     const history = useNavigate();
     const location = useLocation();
     const [selected_key, setSelectedKey] = useState<string>(location.pathname);
+    const [collapsed, toggleCollapsed] = useState<boolean>(false);
 
     /* draggable */
     const draggable_lists = [
@@ -113,73 +118,112 @@ function Router() {
             index: 11,
             name: 'nested grid responsive',
             path: '/nested',
+            icon: 'icon-nested',
             element: <NestedGridResponsiveLayout />
         },
         {
             index: 12,
             name: 'change',
             path: '/change',
+            icon: 'icon-change',
             element: <ChangeDragLayout />
         },
-        { index: 13, name: 'ruler', path: 'ruler', element: <RulerLayout /> },
+        {
+            index: 13,
+            name: 'ruler',
+            path: 'ruler',
+            icon: 'icon-ruler',
+            element: <RulerLayout />
+        },
         {
             index: 14,
             name: 'default',
             path: '/',
+            icon: 'icon-base',
             element: <DefaultLayout />
         }
     ];
 
     return (
         <div style={{ display: 'flex', width: '100%', height: '100%' }}>
-            <Menu
-                selectedKeys={[selected_key]}
-                onClick={(e) => {
-                    setSelectedKey(e.key);
-                    history(e.key);
-                }}
-                mode='inline'
-                openKeys={['draggable', 'resizable', 'drop']}
-                style={{ width: '220px', overflow: 'auto' }}
+            <Sider
+                collapsible
+                style={{ overflow: 'auto' }}
+                collapsed={collapsed}
+                onCollapse={toggleCollapsed}
             >
-                <Menu.Item disabled key='name'>
-                    demo menu
-                </Menu.Item>
-                <SubMenu key='draggable' title='draggable'>
-                    {draggable_lists.map((r, i) => {
+                <Menu
+                    theme='dark'
+                    inlineCollapsed={collapsed}
+                    onClick={(e) => {
+                        setSelectedKey(e.key);
+                        history(e.key);
+                    }}
+                    mode='inline'
+                    openKeys={
+                        collapsed
+                            ? undefined
+                            : ['draggable', 'resizable', 'drop']
+                    }
+                >
+                    <Menu.Item
+                        disabled
+                        key='name'
+                        icon={<LayoutIcon type={'icon-menu'} />}
+                    >
+                        demo menu
+                    </Menu.Item>
+                    <SubMenu
+                        key='draggable'
+                        title='draggable'
+                        icon={<LayoutIcon type={'icon-draggable'} />}
+                    >
+                        {draggable_lists.map((r, i) => {
+                            return (
+                                <Menu.Item key={r.path}>
+                                    {r.index}.{r.name}
+                                </Menu.Item>
+                            );
+                        })}
+                    </SubMenu>
+                    <SubMenu
+                        key='resizable'
+                        title='resizable'
+                        icon={<LayoutIcon type={'icon-resize'} />}
+                    >
+                        {resizable_lists.map((r, i) => {
+                            return (
+                                <Menu.Item key={r.path}>
+                                    {r.index}.{r.name}
+                                </Menu.Item>
+                            );
+                        })}
+                    </SubMenu>
+                    <SubMenu
+                        key='drop'
+                        title='drop'
+                        icon={<LayoutIcon type={'icon-dropbox'} />}
+                    >
+                        {drop_lists.map((r, i) => {
+                            return (
+                                <Menu.Item key={r.path}>
+                                    {r.index}.{r.name}
+                                </Menu.Item>
+                            );
+                        })}
+                    </SubMenu>
+                    {other_lists.map((r, i) => {
                         return (
-                            <Menu.Item key={r.path}>
+                            <Menu.Item
+                                key={r.path}
+                                icon={<LayoutIcon type={r.icon!} />}
+                            >
                                 {r.index}.{r.name}
                             </Menu.Item>
                         );
                     })}
-                </SubMenu>
-                <SubMenu key='resizable' title='resizable'>
-                    {resizable_lists.map((r, i) => {
-                        return (
-                            <Menu.Item key={r.path}>
-                                {r.index}.{r.name}
-                            </Menu.Item>
-                        );
-                    })}
-                </SubMenu>
-                <SubMenu key='drop' title='drop'>
-                    {drop_lists.map((r, i) => {
-                        return (
-                            <Menu.Item key={r.path}>
-                                {r.index}.{r.name}
-                            </Menu.Item>
-                        );
-                    })}
-                </SubMenu>
-                {other_lists.map((r, i) => {
-                    return (
-                        <Menu.Item key={r.path}>
-                            {r.index}.{r.name}
-                        </Menu.Item>
-                    );
-                })}
-            </Menu>
+                </Menu>
+            </Sider>
 
             <div style={{ flex: 1, overflow: 'hidden' }}>
                 <Routes>
