@@ -1,5 +1,4 @@
 import {
-    BoundType,
     DragLayoutProps,
     ItemPos,
     LayoutItem,
@@ -10,7 +9,6 @@ import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import {
     calcOffset,
     completedPadding,
-    getMaxLayoutBound,
     TOP_RULER_LEFT_MARGIN,
     WRAPPER_PADDING
 } from './calc';
@@ -18,7 +16,6 @@ import {
 export const useLayoutHooks = (
     props: ReactDragLayoutProps,
     container_ref: React.RefObject<HTMLDivElement>,
-    canvas_viewport: React.RefObject<HTMLDivElement>,
     shadow_widget?: ItemPos,
     layout?: LayoutItem[]
 ) => {
@@ -41,45 +38,41 @@ export const useLayoutHooks = (
             setWindowResize(Math.random());
         });
 
-        if (layout && container_ref.current) {
+        if (container_ref.current) {
             resizeObserverInstance.observe(container_ref.current);
         }
         return () => {
-            if (layout && container_ref.current) {
+            if (container_ref.current) {
                 resizeObserverInstance.unobserve(container_ref.current);
                 resizeObserverInstance.disconnect();
             }
         };
-    }, [layout, JSON.stringify(shadow_widget)]);
+    }, [container_ref]);
 
-    /**
-     * 计算当前容器宽度
-     */
-    function getCurrentWidth() {
-        const { need_ruler, layout_type } = props;
-        const offset_width = need_ruler ? TOP_RULER_LEFT_MARGIN : 0;
+    /** 视窗宽度 */
+    const client_width = useMemo(() => {
+        const offset_width = props.need_ruler ? TOP_RULER_LEFT_MARGIN : 0;
+        return container_ref.current
+            ? container_ref.current.clientWidth - offset_width
+            : 0;
+    }, [container_ref.current, is_window_resize]);
 
-        const current_width =
-            layout_type === LayoutType.DRAG
-                ? (props as DragLayoutProps).width
-                : container_ref.current?.clientWidth
-                ? container_ref.current?.clientWidth - offset_width
-                : 0;
+    /** 视窗高度 */
+    const client_height = useMemo(() => {
+        const offset_height = props.need_ruler ? TOP_RULER_LEFT_MARGIN : 0;
+        return container_ref.current
+            ? container_ref.current.clientHeight - offset_height
+            : 0;
+    }, [container_ref.current, is_window_resize]);
 
-        return current_width;
-    }
     /**
      * 画布宽度计算
      */
-    const current_width = useMemo(
-        () => getCurrentWidth(),
-        [
-            container_ref.current,
-            props.need_ruler,
-            props.layout_type,
-            is_window_resize
-        ]
-    );
+    const current_width = useMemo(() => {
+        return props.layout_type === LayoutType.DRAG
+            ? (props as DragLayoutProps).width
+            : client_width;
+    }, [props.layout_type, client_width]);
 
     /** 补全边距 */
     const padding = useMemo(
@@ -87,7 +80,10 @@ export const useLayoutHooks = (
         [props.container_padding]
     );
 
-    function getCurrentGrid() {
+    /**
+     * 单元格宽高计算
+     */
+    const grid = useMemo(() => {
         const { item_margin, cols, row_height } = props;
 
         const width =
@@ -100,91 +96,83 @@ export const useLayoutHooks = (
             col_width: width / cols,
             row_height
         };
-    }
+    }, [
+        props.item_margin,
+        props.cols,
+        props.row_height,
+        current_width,
+        padding
+    ]);
 
-    /**
-     * 单元格宽高计算
-     */
-    const grid = useMemo(
-        () => getCurrentGrid(),
-        [
-            props.item_margin,
-            props.cols,
-            props.row_height,
-            current_width,
-            padding
-        ]
-    );
-
-    function calcBoundRange(): BoundType {
+    /** 计算移动范围 */
+    const bound = useMemo(() => {
         return {
             min_y: 0,
             min_x: 0,
             max_y: Infinity,
-            // current_height - padding.bottom - padding.top,
             max_x: current_width - padding.right - padding.left
         };
+    }, [current_width, padding]);
+
+    /** 获取元素最大边界 */
+    function getMaxLayoutBound(children: LayoutItem[]) {
+        // 元素计算大小
+        let max_left = 0,
+            max_right = 0,
+            max_top = 0,
+            max_bottom = 0;
+
+        if (children) {
+            children.map((child) => {
+                const { x, y, h, w, is_float } = child;
+
+                max_left = Math.min(max_left, x); // 最左边最小值
+                max_right = Math.max(
+                    max_right,
+                    x + w + (is_float ? padding.right : 0)
+                ); // 最大值
+                max_top = Math.min(max_top, y); // 最上边最小值
+                max_bottom = Math.max(
+                    max_bottom,
+                    y + h + (is_float ? padding.bottom : 0)
+                ); // 最大值
+            });
+        }
+        return { max_left, max_right, max_top, max_bottom };
     }
 
-    /** 计算移动范围 */
-    const bound = useMemo(
-        () => calcBoundRange(),
-        [current_width, current_height, padding]
-    );
-
-    const getCurrentHeight = () => {
-        const { need_ruler, layout_type } = props;
-        const offset_height = need_ruler ? TOP_RULER_LEFT_MARGIN : 0;
-
-        const current_height =
-            layout_type === LayoutType.DRAG
-                ? (props as DragLayoutProps).height
-                : container_ref.current?.clientHeight
-                ? container_ref.current?.clientHeight - offset_height
-                : 0;
-
-        return current_height;
-    };
-
     const GetCurrentContainerHeight = () => {
-        if (!layout) {
-            return;
-        }
+        if (!layout) return;
 
         const { layout_type, mode, scale } = props;
 
-        const current_height = getCurrentHeight();
-
-        const current_layout = layout.concat(
-            shadow_widget ? [shadow_widget] : []
+        const current_height =
+            props.layout_type === LayoutType.DRAG
+                ? (props as DragLayoutProps).height
+                : client_height;
+        const { max_left, max_right, max_top, max_bottom } = getMaxLayoutBound(
+            layout.concat(shadow_widget ? [shadow_widget] : [])
         );
-        const { max_left, max_right, max_top, max_bottom } =
-            getMaxLayoutBound(current_layout);
+
+        /** 和视窗比较，找到实际最大边界 */
+        const max_b =
+            max_bottom > current_height
+                ? max_bottom + padding.bottom
+                : current_height;
+
+        const max_r =
+            max_right > current_width
+                ? max_right + padding.right
+                : current_width;
 
         // 如果没有宽高就是自适应模式
         if (layout_type === LayoutType.GRID) {
-            const _h =
-                max_bottom > current_height
-                    ? max_bottom + padding.bottom
-                    : current_height;
-
             setCanvasWrapperWidth(current_width);
-            setCanvasWrapperHeight(_h);
-            setCurrentHeight(_h);
+            setCanvasWrapperHeight(max_b);
+            setCurrentHeight(max_b);
             setTopOffset(0);
             setLeftOffset(0);
         } else {
-            const calc_width = current_width * scale;
-            const calc_height = current_height * scale;
-
-            // 视窗的宽、高度
-            const client_height = canvas_viewport.current?.clientHeight
-                ? canvas_viewport.current?.clientHeight
-                : 0;
-            const client_width = canvas_viewport.current?.clientWidth
-                ? canvas_viewport.current?.clientWidth
-                : 0;
-
             if (client_height === 0 || client_width === 0) {
                 throw new Error('需要给画布父元素增加高度、宽度信息。');
             }
@@ -192,10 +180,13 @@ export const useLayoutHooks = (
                 throw new Error('需要给画布父元素增加高度。');
             }
 
+            const calc_width = current_width * scale;
+            const calc_height = current_height * scale;
+
             // 计算水平、垂直偏移量
             if (mode === LayoutType.edit) {
-                const ele_width = max_right * scale - max_left * scale;
-                const ele_height = max_bottom * scale - max_top * scale;
+                const ele_width = (max_r - max_left) * scale;
+                const ele_height = (max_b - max_top) * scale;
 
                 const l_offset =
                     calcOffset(client_width, calc_width + WRAPPER_PADDING) +
@@ -217,9 +208,9 @@ export const useLayoutHooks = (
                     client_height
                 );
 
+                setCurrentHeight(current_height);
                 setCanvasWrapperWidth(wrapper_calc_width);
                 setCanvasWrapperHeight(wrapper_calc_height);
-                setCurrentHeight(current_height);
                 setTopOffset(t_offset + Math.abs(max_top) * scale);
                 setLeftOffset(l_offset + Math.abs(max_left) * scale);
 
@@ -247,7 +238,9 @@ export const useLayoutHooks = (
         (props as DragLayoutProps).height,
         (props as DragLayoutProps).width,
         props.scale,
-        is_window_resize
+        layout,
+        client_height,
+        client_width
     ]);
 
     return {

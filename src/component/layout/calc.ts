@@ -436,23 +436,3 @@ export function completedPadding(
 export function calcOffset(client: number, calc: number) {
     return client - calc > 0 ? (client - calc) / 2 : 0;
 }
-
-export function getMaxLayoutBound(children: LayoutItem[]) {
-    // 元素计算大小
-    let max_left = 0,
-        max_right = 0,
-        max_top = 0,
-        max_bottom = 0;
-
-    if (children) {
-        children.map((child) => {
-            const { x, y, h, w } = child;
-
-            max_left = Math.min(max_left, x); // 最左边最小值
-            max_right = Math.max(max_right, x + w); // 最大值
-            max_top = Math.min(max_top, y); // 最上边最小值
-            max_bottom = Math.max(max_bottom, y + h); // 最大值
-        });
-    }
-    return { max_left, max_right, max_top, max_bottom };
-}

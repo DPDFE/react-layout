@@ -31,7 +31,7 @@ import {
     RulerPointer
 } from '@/interfaces';
 import GuideLine from '../guide-line';
-import { copyObject, noop } from '@/utils/utils';
+import { copyObject, copyObjectArray, noop } from '@/utils/utils';
 import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
 import { LayoutContext } from './context';
 import { useLayoutHooks } from './hooks';
@@ -64,13 +64,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         wrapper_height,
         t_offset,
         l_offset
-    } = useLayoutHooks(
-        props,
-        container_ref,
-        canvas_viewport,
-        shadow_widget,
-        layout
-    );
+    } = useLayoutHooks(props, container_ref, shadow_widget, layout);
 
     const layout_name = useMemo(() => {
         return `Layout_name_${(Math.random() * 100).toFixed(0)}`;
@@ -377,8 +371,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             }
         }
 
+        Object.assign(current_item, item);
+        const old_layout = copyObjectArray(layout ?? []);
+
         if (current_item.is_float) {
-            Object.assign(current_item, item);
+            setLayout(old_layout);
+            return dragToGridLayout(old_layout ?? []);
         } else {
             snapToGrid(item, grid);
 
@@ -398,17 +396,14 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
             if (is_save) {
                 setShadowWidget(undefined);
+                setLayout(layout);
+                return dragToGridLayout(layout ?? []);
             } else {
                 setShadowWidget(current_item);
+                setLayout(old_layout);
+                return dragToGridLayout(old_layout ?? []);
             }
         }
-
-        setLayout(
-            layout!.map((w) => {
-                return w.i === item.i && !is_save ? float_item : w;
-            })
-        );
-        return dragToGridLayout(layout ?? []);
     };
 
     const getCurrentLayoutByItem = (
