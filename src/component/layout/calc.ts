@@ -7,7 +7,7 @@ import {
     ReactDragLayoutProps,
     MarginType
 } from '@/interfaces';
-import { copyObject } from '@/utils/utils';
+import { copyObject, copyObjectArray } from '@/utils/utils';
 import React, { RefObject } from 'react';
 
 export const RULER_GAP = 100; // 标尺间隔大小
@@ -303,7 +303,8 @@ function moveElementAwayFromCollision(
     layout: LayoutItem[],
     l: LayoutItem,
     collision: LayoutItem,
-    row_height: number
+    row_height: number,
+    is_user_action: boolean = false
 ) {
     const fake_item: LayoutItem = {
         x: collision.x,
@@ -314,24 +315,27 @@ function moveElementAwayFromCollision(
         is_float: false
     };
 
-    const _collision = getFirstCollision(layout, fake_item);
-    if (_collision) {
-        return moveElement(
-            layout,
-            collision,
-            collision.x,
-            collision.y + row_height,
-            row_height
-        );
-    } else {
-        return moveElement(
-            layout,
-            collision,
-            collision.x,
-            fake_item.y,
-            row_height
-        );
+    if (is_user_action) {
+        is_user_action = false;
+        const _collision = getFirstCollision(layout, fake_item);
+        if (!_collision) {
+            return moveElement(
+                layout,
+                collision,
+                collision.x,
+                fake_item.y,
+                row_height,
+                is_user_action
+            );
+        }
     }
+    return moveElement(
+        layout,
+        collision,
+        collision.x,
+        collision.y + row_height,
+        row_height
+    );
 }
 
 export function moveElement(
@@ -339,7 +343,8 @@ export function moveElement(
     l: LayoutItem,
     x: number,
     y: number,
-    row_height: number
+    row_height: number,
+    is_user_action: boolean = false
 ) {
     const old_y = l.y;
     l.x = x;
@@ -358,7 +363,13 @@ export function moveElement(
             continue;
         }
 
-        layout = moveElementAwayFromCollision(sorted, l, collision, row_height);
+        layout = moveElementAwayFromCollision(
+            sorted,
+            l,
+            collision,
+            row_height,
+            is_user_action
+        );
     }
     return layout;
 }

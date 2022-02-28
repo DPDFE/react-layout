@@ -90,6 +90,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
      * 组件信息补全
      */
     function getCurrentWidget(item: LayoutItem) {
+        /** 初始化前先边界控制一下 */
         const genWidgetPosition = (item: LayoutItem) => {
             const { max_x, min_x, max_y, min_y } = getCurrentBound(
                 item.is_float
@@ -140,7 +141,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             }
         );
 
-        console.log(copyObject(new_layout));
         compact(new_layout, grid.row_height);
         setLayout(new_layout);
     }, [props.children, grid, bound, padding]);
@@ -382,7 +382,14 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         } else {
             snapToGrid(item, grid);
 
-            moveElement(layout!, current_item, item.x, item.y, grid.row_height);
+            moveElement(
+                layout!,
+                current_item,
+                item.x,
+                item.y,
+                grid.row_height,
+                true
+            );
 
             current_item.w = item.w;
             current_item.h = item.h;

@@ -93,7 +93,7 @@ export const useLayoutHooks = (
         const width =
             current_width -
             (padding.right > item_margin[1]
-                ? padding.right - item_margin[1] + padding.left
+                ? padding.left - item_margin[1] + padding.right
                 : item_margin[1]);
 
         return {
@@ -120,7 +120,8 @@ export const useLayoutHooks = (
         return {
             min_y: 0,
             min_x: 0,
-            max_y: current_height - padding.bottom - padding.top,
+            // max_y: current_height - padding.bottom - padding.top,
+            max_y: Infinity,
             max_x: current_width - padding.right - padding.left
         };
     }
