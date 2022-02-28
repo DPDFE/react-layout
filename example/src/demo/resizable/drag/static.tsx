@@ -49,6 +49,16 @@ const ResizableDragStaticLayout = () => {
                     console.log('onResizeStop');
                     setWidgets(layout);
                 }}
+                onDragStart={() => {
+                    console.log('onDragStart');
+                }}
+                onDrag={(layout: LayoutItem[]) => {
+                    // console.log('onDrag');
+                }}
+                onDragStop={(layout: LayoutItem[]) => {
+                    console.log('onDragStop');
+                    setWidgets(layout);
+                }}
             >
                 {widgets.map((w) => {
                     return (

@@ -40,7 +40,6 @@ const ResizableGridStaticLayout = () => {
                 item_margin={[10, 10]}
                 layout_type={LayoutType.DRAG}
                 mode={LayoutType.edit}
-                need_grid_bound={false}
                 onResizeStart={() => {
                     console.log('onResizeStart');
                 }}
@@ -49,6 +48,16 @@ const ResizableGridStaticLayout = () => {
                 }}
                 onResizeStop={(layout: LayoutItem[]) => {
                     console.log('onResizeStop');
+                    setWidgets(layout);
+                }}
+                onDragStart={() => {
+                    console.log('onDragStart');
+                }}
+                onDrag={(layout: LayoutItem[]) => {
+                    // console.log('onDrag');
+                }}
+                onDragStop={(layout: LayoutItem[]) => {
+                    console.log('onDragStop');
                     setWidgets(layout);
                 }}
             >

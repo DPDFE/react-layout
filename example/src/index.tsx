@@ -38,7 +38,7 @@ function Router() {
     const history = useNavigate();
     const location = useLocation();
     const [selected_key, setSelectedKey] = useState<string>(location.pathname);
-    const [collapsed, toggleCollapsed] = useState<boolean>(false);
+    const [collapsed, toggleCollapsed] = useState<boolean>(true);
 
     /* draggable */
     const draggable_lists = [

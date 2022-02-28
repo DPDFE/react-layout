@@ -36,6 +36,8 @@ const ResizableDragResponsiveLayout = () => {
                 need_ruler
                 layout_type={LayoutType.GRID}
                 mode={LayoutType.edit}
+                container_padding={[10]}
+                item_margin={[10, 10]}
                 onResizeStart={() => {
                     console.log('onResizeStart');
                 }}
@@ -44,6 +46,16 @@ const ResizableDragResponsiveLayout = () => {
                 }}
                 onResizeStop={(layout: LayoutItem[]) => {
                     console.log('onResizeStop');
+                    setWidgets(layout);
+                }}
+                onDragStart={() => {
+                    console.log('onDragStart');
+                }}
+                onDrag={(layout: LayoutItem[]) => {
+                    // console.log('onDrag');
+                }}
+                onDragStop={(layout: LayoutItem[]) => {
+                    console.log('onDragStop');
                     setWidgets(layout);
                 }}
             >
