@@ -108,8 +108,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ref: item_ref,
         id: `${
             child.props.id
-                ? child.props.id + ' layout-item-' + i
-                : 'layout-item-' + i
+                ? child.props.id + ' layout_item_' + i
+                : 'layout_item_' + i
         }`,
         className: `${[
             child.props.className,

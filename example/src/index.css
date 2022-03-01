@@ -13,6 +13,42 @@ code {
         monospace;
 }
 
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-button:start:decrement,
+::-webkit-scrollbar-button:end:increment {
+    display: block;
+    height: 10px;
+}
+
+::-webkit-scrollbar-button:vertical:decrement,
+::-webkit-scrollbar-button:horizontal:decrement,
+::-webkit-scrollbar-button:vertical:increment,
+::-webkit-scrollbar-button:horizontal:increment {
+    height: 0;
+    width: 0;
+}
+
+::-webkit-scrollbar-track-piece {
+    background-color: #fff;
+    -webkit-border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:vertical {
+    height: 50px;
+    -webkit-border-radius: 3px;
+    background: #ccc;
+}
+
+::-webkit-scrollbar-thumb:horizontal {
+    width: 50px;
+    -webkit-border-radius: 3px;
+    background-color: #ccc;
+}
+
 html,
 body,
 div,

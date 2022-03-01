@@ -15,7 +15,7 @@ import {
 
 export const useLayoutHooks = (
     props: ReactDragLayoutProps,
-    container_ref: React.RefObject<HTMLDivElement>,
+    canvas_viewport: React.RefObject<HTMLDivElement>,
     shadow_widget?: ItemPos,
     layout?: LayoutItem[]
 ) => {
@@ -38,32 +38,30 @@ export const useLayoutHooks = (
             setWindowResize(Math.random());
         });
 
-        if (container_ref.current) {
-            resizeObserverInstance.observe(container_ref.current);
+        if (canvas_viewport.current) {
+            resizeObserverInstance.observe(canvas_viewport.current);
         }
         return () => {
-            if (container_ref.current) {
-                resizeObserverInstance.unobserve(container_ref.current);
+            if (canvas_viewport.current) {
+                resizeObserverInstance.unobserve(canvas_viewport.current);
                 resizeObserverInstance.disconnect();
             }
         };
-    }, [container_ref]);
+    }, [canvas_viewport]);
 
     /** 视窗宽度 */
     const client_width = useMemo(() => {
-        const offset_width = props.need_ruler ? TOP_RULER_LEFT_MARGIN : 0;
-        return container_ref.current
-            ? container_ref.current.clientWidth - offset_width
+        return canvas_viewport.current
+            ? canvas_viewport.current.clientWidth
             : 0;
-    }, [container_ref.current, is_window_resize]);
+    }, [is_window_resize]);
 
     /** 视窗高度 */
     const client_height = useMemo(() => {
-        const offset_height = props.need_ruler ? TOP_RULER_LEFT_MARGIN : 0;
-        return container_ref.current
-            ? container_ref.current.clientHeight - offset_height
+        return canvas_viewport.current
+            ? canvas_viewport.current.clientHeight
             : 0;
-    }, [container_ref.current, is_window_resize]);
+    }, [is_window_resize]);
 
     /**
      * 画布宽度计算
@@ -173,13 +171,6 @@ export const useLayoutHooks = (
             setTopOffset(0);
             setLeftOffset(0);
         } else {
-            if (client_height === 0 || client_width === 0) {
-                throw new Error('需要给画布父元素增加高度、宽度信息。');
-            }
-            if (client_height > document.body.clientHeight) {
-                throw new Error('需要给画布父元素增加高度。');
-            }
-
             const calc_width = current_width * scale;
             const calc_height = current_height * scale;
 

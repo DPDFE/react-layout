@@ -64,10 +64,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         wrapper_height,
         t_offset,
         l_offset
-    } = useLayoutHooks(props, container_ref, shadow_widget, layout);
+    } = useLayoutHooks(props, canvas_viewport, shadow_widget, layout);
 
     const layout_name = useMemo(() => {
-        return `Layout_name_${(Math.random() * 100).toFixed(0)}`;
+        return `layout_name_${(Math.random() * 100).toFixed(0)}`;
     }, []);
 
     /** 根据类型配置计算边界状态 */

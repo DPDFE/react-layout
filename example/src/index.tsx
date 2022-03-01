@@ -1,5 +1,3 @@
-import './index.css';
-
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
 import {
@@ -32,6 +30,7 @@ import { Menu } from 'antd';
 
 import { LayoutIcon } from './component/icon';
 import Sider from 'antd/lib/layout/Sider';
+import './index.css';
 
 function Router() {
     const { SubMenu } = Menu;
