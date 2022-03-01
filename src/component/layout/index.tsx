@@ -2,7 +2,6 @@ import React, {
     Fragment,
     useContext,
     useEffect,
-    useLayoutEffect,
     useMemo,
     useRef,
     useState
@@ -18,7 +17,6 @@ import {
     moveElement,
     snapToGrid,
     getCurrentMouseOverWidget,
-    getFirstCollision,
     getAllCollisions
 } from './calc';
 import styles from './styles.module.css';
@@ -73,6 +71,34 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         layout
     );
 
+    /**
+     * @description 当操作结束以后更新操作状态为undefined
+     */
+    useEffect(() => {
+        if (
+            operator_type &&
+            [
+                OperatorType.changeover,
+                OperatorType.dragover,
+                OperatorType.dropover,
+                OperatorType.resizeover
+            ].includes(operator_type)
+        ) {
+            setTimeout(() => {
+                setOperatorType(undefined);
+            }, 0);
+        }
+    }, [operator_type]);
+
+    /**
+     * @description 只有在无状态的情况下，点击空白处才会取消选中状态
+     */
+    const onClick = (e: React.MouseEvent) => {
+        if (operator_type === undefined) {
+            setCurrentChecked(undefined);
+        }
+    };
+
     const layout_name = useMemo(() => {
         return `layout_name_${(Math.random() * 100).toFixed(0)}`;
     }, []);
@@ -108,6 +134,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
             item.x = clamp(item.x, min_x, max_x - w - offset_x);
             item.y = clamp(item.y, min_y, max_y - h - offset_y);
+            console.log(item);
 
             return item;
         };
@@ -145,35 +172,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         compact(new_layout, grid.row_height);
         setLayout(new_layout);
     }, [props.children, grid, bound, padding]);
-
-    /**
-     * @description 只有在无状态的情况下，点击空白处才会取消选中状态
-     */
-    const onClick = (e: React.MouseEvent) => {
-        if (operator_type === undefined) {
-            e.stopPropagation();
-            setCurrentChecked(undefined);
-        }
-    };
-
-    /**
-     * @description 当操作结束以后更新操作状态为undefined
-     */
-    useEffect(() => {
-        if (
-            operator_type &&
-            [
-                OperatorType.changeover,
-                OperatorType.dragover,
-                OperatorType.dropover,
-                OperatorType.resizeover
-            ].includes(operator_type)
-        ) {
-            setTimeout(() => {
-                setOperatorType(undefined);
-            }, 0);
-        }
-    }, [operator_type]);
 
     const onDragEnter = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -340,13 +338,17 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
      * iframe 会阻止mousemove事件在拖拽过程中处理一下
      */
     const preventIframeMouseEvent = (type: OperatorType, item: ItemPos) => {
-        if (type === OperatorType.drag) {
+        if (OperatorType.drag == type) {
             const collisions = getAllCollisions(layout ?? [], item);
             collisions.map((collision) => {
                 collision.covered = true;
             });
         }
-        if (type === OperatorType.dragover) {
+        if (OperatorType.resize == type) {
+            const collision = getLayoutItem(item);
+            collision.covered = true;
+        }
+        if ([OperatorType.dragover, OperatorType.resizeover].includes(type)) {
             (layout ?? []).map((l) => {
                 l.covered = false;
             });
@@ -490,11 +492,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                 overflow:
                                     props.mode === LayoutType.edit
                                         ? 'unset'
-                                        : 'hidden',
-                                paddingTop: padding.top,
-                                paddingLeft: padding.left,
-                                paddingBottom: padding.bottom,
-                                paddingRight: padding.right
+                                        : 'hidden'
                             }}
                             onContextMenu={(e) => {
                                 e.preventDefault();

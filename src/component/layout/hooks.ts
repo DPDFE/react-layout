@@ -143,7 +143,7 @@ export const useLayoutHooks = (
             min_y: 0,
             min_x: 0,
             max_y: Infinity,
-            max_x: current_width - padding.right - padding.left
+            max_x: current_width - padding.right
         };
     }, [current_width, padding]);
 
@@ -167,7 +167,14 @@ export const useLayoutHooks = (
                 max_top = Math.min(max_top, y); // 最上边最小值
                 max_bottom = Math.max(
                     max_bottom,
-                    y + h + (is_float ? padding.bottom : 0)
+                    y +
+                        h +
+                        (is_float
+                            ? padding.bottom
+                            : Math.max(
+                                  0,
+                                  padding.bottom - props.item_margin[0]
+                              ))
                 ); // 最大值
             });
         }

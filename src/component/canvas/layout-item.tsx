@@ -34,11 +34,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const { min_x, max_x, min_y, max_y } = props.bound;
 
-    /**
-     * 通过宽高度距离减小，支持margin效果
-     * 两侧的margin在和配置的padding，进行抵消后，产生了每个元素的整体偏移量offset_x，offset_y，支持padding
-     * 增加边界控制，非浮动元素，不支持拖拽出画布
-     */
     const w = Math.max(props.w - margin_width, 0);
     const h = Math.max(props.h - margin_height, 0);
 

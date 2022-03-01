@@ -203,7 +203,7 @@ export function getFirstCollision(layout: LayoutItem[], item: LayoutItem) {
     });
 }
 
-function sortLayoutItems(layout: LayoutItem[]) {
+function sortGridLayoutItems(layout: LayoutItem[]) {
     return layout
         .filter((l) => {
             return !l.is_float;
@@ -286,7 +286,7 @@ function compactItem(
 
 export function compact(layout: LayoutItem[], row_height: number) {
     const compare_with: LayoutItem[] = [];
-    const sorted = sortLayoutItems(layout);
+    const sorted = sortGridLayoutItems(layout);
 
     sorted.map((l) => {
         l.moved = false;
@@ -351,7 +351,7 @@ export function moveElement(
     l.y = y;
     l.moved = true;
 
-    let sorted = sortLayoutItems(layout);
+    let sorted = sortGridLayoutItems(layout);
     if (old_y > l.y) sorted = sorted.reverse();
 
     const collisions = getAllCollisions(sorted, l);
