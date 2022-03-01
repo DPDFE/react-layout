@@ -295,7 +295,7 @@ export function compact(layout: LayoutItem[], row_height: number) {
     });
 }
 
-function getAllCollisions(sorted: LayoutItem[], item: LayoutItem) {
+export function getAllCollisions(sorted: LayoutItem[], item: LayoutItem) {
     return sorted.filter((l) => collides(l, item));
 }
 

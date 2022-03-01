@@ -92,14 +92,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 const keydown_pos = handleKeyDown(e);
                 if (keydown_pos) {
                     props.onPositionChange?.({
-                        ...{
-                            x: x - offset_x,
-                            y: y - offset_y,
-                            h: h + margin_height,
-                            w: w + margin_width,
-                            i,
-                            is_float
-                        },
+                        ...{ x, y, h, w, i, is_float },
                         ...keydown_pos
                     });
                 }
@@ -120,6 +113,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ].join(' ')}`,
         style: {
             transform: `translate(${x}px, ${y}px)`,
+            transition: props.is_checked ? 'none' : 'all 0.1s linear',
+            pointerEvents: props.covered
+                ? 'none'
+                : 'auto' /* 处理iframe不响应mousemove事件 */,
             width: w,
             height: h,
             ...child.props.style

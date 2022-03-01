@@ -182,6 +182,7 @@ export interface LayoutItem extends ItemPos {
     is_draggable?: boolean;
     is_resizable?: boolean;
     is_unhoverable?: boolean;
+    covered?: boolean;
     moved?: boolean;
 }
 

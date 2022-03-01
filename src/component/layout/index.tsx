@@ -18,7 +18,8 @@ import {
     moveElement,
     snapToGrid,
     getCurrentMouseOverWidget,
-    getFirstCollision
+    getFirstCollision,
+    getAllCollisions
 } from './calc';
 import styles from './styles.module.css';
 import {
@@ -146,20 +147,22 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         /** 判断元素是否消失 */
         const intersectionObserverInstance = new IntersectionObserver(
             (entries) => {
-                entries.map(() => {
-                    if (operator_type === OperatorType.resize) {
-                        return;
+                entries.map((entry) => {
+                    if (!entry.intersectionRatio) {
+                        if (operator_type === OperatorType.resize) {
+                            return;
+                        }
+                        if (props.is_nested) {
+                            return;
+                        }
+                        shadow_widget_ref.current?.scrollIntoView({
+                            block: 'nearest',
+                            inline: 'nearest'
+                        });
                     }
-                    if (props.is_nested) {
-                        return;
-                    }
-                    shadow_widget_ref.current?.scrollIntoView({
-                        block: 'nearest',
-                        inline: 'nearest'
-                    });
                 });
             },
-            { root: canvas_viewport.current, threshold: 0 }
+            { root: canvas_viewport.current }
         );
 
         shadow_widget &&
@@ -364,19 +367,37 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         return dragToGridLayout(layout ?? []);
     };
 
+    /**
+     * iframe 会阻止mousemove事件在拖拽过程中处理一下
+     */
+    const preventIframeMouseEvent = (type: OperatorType, item: ItemPos) => {
+        if (type === OperatorType.drag) {
+            const collisions = getAllCollisions(layout ?? [], item);
+            collisions.map((collision) => {
+                collision.covered = true;
+            });
+        }
+        if (type === OperatorType.dragover) {
+            (layout ?? []).map((l) => {
+                l.covered = false;
+            });
+        }
+    };
+
     const moveLayoutV2 = (
         type: OperatorType,
         item: ItemPos,
         is_save?: boolean
     ) => {
         const current_item = getLayoutItem(item);
+        preventIframeMouseEvent(type, item);
 
-        if (type === OperatorType.drag || type === OperatorType.dragover) {
-            const collides = getFirstCollision(layout ?? [], item);
-            if (collides && collides.is_unhoverable) {
-                return hasItemUnhoverable(item, is_save);
-            }
-        }
+        // if (type === OperatorType.drag || type === OperatorType.dragover) {
+        //     const collides = getFirstCollision(layout ?? [], item);
+        //     if (collides && collides.is_unhoverable) {
+        //         return hasItemUnhoverable(item, is_save);
+        //     }
+        // }
 
         Object.assign(current_item, item);
         const old_layout = copyObjectArray(layout ?? []);
@@ -527,6 +548,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     layout_type={props.layout_type}
                                     is_resizable={false}
                                     is_draggable={false}
+                                    is_checked={false}
                                 >
                                     <div
                                         className={`placeholder ${styles.placeholder}`}
@@ -541,6 +563,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     if (widget) {
                                         return (
                                             <WidgetItem
+                                                className={
+                                                    'react-drag-placeholder'
+                                                }
                                                 layout_type={props.layout_type}
                                                 key={widget.i}
                                                 {...widget}

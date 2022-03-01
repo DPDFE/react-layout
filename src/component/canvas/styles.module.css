@@ -8,7 +8,6 @@
     position: absolute;
     overflow: hidden;
     outline: none;
-    transition: transition_time;
 }
 
 .layout_item:hover {
@@ -44,5 +43,4 @@
     height: 6px;
     border-radius: 3px;
     display: block !important;
-    transition: transition_time;
 }
