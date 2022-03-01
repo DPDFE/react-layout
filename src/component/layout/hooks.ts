@@ -6,12 +6,7 @@ import {
     ReactDragLayoutProps
 } from '@/interfaces';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import {
-    calcOffset,
-    completedPadding,
-    TOP_RULER_LEFT_MARGIN,
-    WRAPPER_PADDING
-} from './calc';
+import { calcOffset, completedPadding, WRAPPER_PADDING } from './calc';
 
 export const useLayoutHooks = (
     props: ReactDragLayoutProps,
@@ -121,9 +116,8 @@ export const useLayoutHooks = (
 
         const width =
             current_width -
-            (padding.right > item_margin[1]
-                ? padding.left - item_margin[1] + padding.right
-                : item_margin[1]);
+            Math.max(padding.left, item_margin[1]) -
+            Math.max(padding.right - item_margin[1], 0);
 
         return {
             col_width: width / cols,
@@ -140,8 +134,8 @@ export const useLayoutHooks = (
     /** 计算移动范围 */
     const bound = useMemo(() => {
         return {
-            min_y: 0,
-            min_x: 0,
+            min_y: padding.left,
+            min_x: padding.top,
             max_y: Infinity,
             max_x: current_width - padding.right
         };
@@ -162,7 +156,12 @@ export const useLayoutHooks = (
                 max_left = Math.min(max_left, x); // 最左边最小值
                 max_right = Math.max(
                     max_right,
-                    x + w + (is_float ? padding.right : 0)
+                    x +
+                        w +
+                        (is_float
+                            ? padding.right
+                            : Math.max(0, padding.left - props.item_margin[1]) +
+                              padding.right)
                 ); // 最大值
                 max_top = Math.min(max_top, y); // 最上边最小值
                 max_bottom = Math.max(
@@ -171,10 +170,8 @@ export const useLayoutHooks = (
                         h +
                         (is_float
                             ? padding.bottom
-                            : Math.max(
-                                  0,
-                                  padding.bottom - props.item_margin[0]
-                              ))
+                            : Math.max(0, padding.top - props.item_margin[0]) +
+                              padding.bottom)
                 ); // 最大值
             });
         }
@@ -195,15 +192,9 @@ export const useLayoutHooks = (
         );
 
         /** 和视窗比较，找到实际最大边界 */
-        const max_b =
-            max_bottom > current_height
-                ? max_bottom + padding.bottom
-                : current_height;
+        const max_b = max_bottom > current_height ? max_bottom : current_height;
 
-        const max_r =
-            max_right > current_width
-                ? max_right + padding.right
-                : current_width;
+        const max_r = max_right > current_width ? max_right : current_width;
 
         // 如果没有宽高就是自适应模式
         if (layout_type === LayoutType.GRID) {

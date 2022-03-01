@@ -24,15 +24,17 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children);
     const item_ref = ref ?? useRef<HTMLDivElement>(null);
 
+    const { col_width, row_height } = props.grid;
+
+    const { min_x, max_x, min_y, max_y } = props.bound;
+
     const { i, is_float, is_draggable, is_resizable } = props;
 
     const margin_height = is_float ? 0 : props.margin[0];
     const margin_width = is_float ? 0 : props.margin[1];
 
-    const offset_x = Math.max(margin_width - props.padding.left, 0);
-    const offset_y = Math.max(margin_height - props.padding.top, 0);
-
-    const { min_x, max_x, min_y, max_y } = props.bound;
+    const offset_x = is_float ? 0 : Math.max(margin_width, props.padding.left);
+    const offset_y = is_float ? 0 : Math.max(margin_height, props.padding.top);
 
     const w = Math.max(props.w - margin_width, 0);
     const h = Math.max(props.h - margin_height, 0);
@@ -118,9 +120,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         }
     });
 
-    const col_width = is_float ? MIN_DRAG_LENGTH : props.grid.col_width;
-    const row_height = is_float ? MIN_DRAG_LENGTH : props.grid.row_height;
-
     return (
         <React.Fragment>
             <Resizable
@@ -134,20 +133,23 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     props.onResize?.({
                         x: x - offset_x,
                         y: y - offset_y,
-                        h: h + margin_height,
                         w: w + margin_width,
+                        h: h + margin_height,
                         is_float,
                         i
                     });
                 }}
-                grid={{ col_width, row_height }}
+                grid={{
+                    col_width: is_float ? MIN_DRAG_LENGTH : col_width,
+                    row_height: is_float ? MIN_DRAG_LENGTH : row_height
+                }}
                 bound={props.bound}
                 onResizeStop={({ x, y, h, w }) => {
                     props.onResizeStop?.({
                         x: x - offset_x,
                         y: y - offset_y,
-                        h: h + margin_height,
                         w: w + margin_width,
+                        h: h + margin_height,
                         is_float,
                         i
                     });
@@ -161,17 +163,17 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         props.onDragStart?.();
                     }}
                     bound={{
-                        max_y: props.bound.max_y - h,
-                        min_y: props.bound.min_y,
-                        max_x: props.bound.max_x - w,
-                        min_x: props.bound.min_x
+                        max_y: max_y - h,
+                        min_y,
+                        max_x: max_x - w,
+                        min_x
                     }}
                     onDrag={({ x, y }) => {
                         props.onDrag?.({
                             x: x - offset_x,
                             y: y - offset_y,
-                            h: h + margin_height,
                             w: w + margin_width,
+                            h: h + margin_height,
                             is_float,
                             i
                         });
@@ -180,8 +182,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         props.onDragStop?.({
                             x: x - offset_x,
                             y: y - offset_y,
-                            h: h + margin_height,
                             w: w + margin_width,
+                            h: h + margin_height,
                             is_float,
                             i
                         });

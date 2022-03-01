@@ -116,7 +116,7 @@ const DraggableGridResponsiveLayout = () => {
                 }}
                 onDragStop={(layout: LayoutItem[]) => {
                     console.log('onDragStop');
-                    setWidgets(layout);
+                    // setWidgets(layout);
                 }}
             >
                 {widgets.map((w) => {
