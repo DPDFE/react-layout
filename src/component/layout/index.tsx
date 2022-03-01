@@ -65,7 +65,13 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         wrapper_height,
         t_offset,
         l_offset
-    } = useLayoutHooks(props, canvas_viewport, shadow_widget, layout);
+    } = useLayoutHooks(
+        props,
+        canvas_viewport,
+        shadow_widget_ref,
+        shadow_widget,
+        layout
+    );
 
     const layout_name = useMemo(() => {
         return `layout_name_${(Math.random() * 100).toFixed(0)}`;
@@ -139,43 +145,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         compact(new_layout, grid.row_height);
         setLayout(new_layout);
     }, [props.children, grid, bound, padding]);
-
-    /**
-     * 让阴影定位组件位于可视范围内
-     */
-    useLayoutEffect(() => {
-        /** 判断元素是否消失 */
-        const intersectionObserverInstance = new IntersectionObserver(
-            (entries) => {
-                entries.map((entry) => {
-                    if (!entry.intersectionRatio) {
-                        if (operator_type === OperatorType.resize) {
-                            return;
-                        }
-                        if (props.is_nested) {
-                            return;
-                        }
-                        shadow_widget_ref.current?.scrollIntoView({
-                            block: 'nearest',
-                            inline: 'nearest'
-                        });
-                    }
-                });
-            },
-            { root: canvas_viewport.current }
-        );
-
-        shadow_widget &&
-            shadow_widget_ref.current &&
-            intersectionObserverInstance.observe(shadow_widget_ref.current);
-        return () => {
-            shadow_widget &&
-                shadow_widget_ref.current &&
-                intersectionObserverInstance.unobserve(
-                    shadow_widget_ref.current
-                );
-        };
-    }, [JSON.stringify(shadow_widget)]);
 
     /**
      * @description 只有在无状态的情况下，点击空白处才会取消选中状态
@@ -440,7 +409,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         is_save?: boolean
     ) => {
         setOperatorType(type);
-        // return moveLayoutV1(item, is_save);
         return moveLayoutV2(type, item, is_save);
     };
 

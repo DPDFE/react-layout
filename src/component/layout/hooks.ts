@@ -16,6 +16,7 @@ import {
 export const useLayoutHooks = (
     props: ReactDragLayoutProps,
     canvas_viewport: React.RefObject<HTMLDivElement>,
+    shadow_widget_ref: React.RefObject<HTMLDivElement>,
     shadow_widget?: ItemPos,
     layout?: LayoutItem[]
 ) => {
@@ -28,6 +29,40 @@ export const useLayoutHooks = (
     const [current_height, setCurrentHeight] = useState<number>(0); //高度;
 
     const [is_window_resize, setWindowResize] = useState<number>(Math.random());
+
+    /**
+     * 让阴影定位组件位于可视范围内
+     */
+    useLayoutEffect(() => {
+        /** 判断元素是否消失 */
+        const intersectionObserverInstance = new IntersectionObserver(
+            (entries) => {
+                entries.map((entry) => {
+                    if (!entry.intersectionRatio) {
+                        if (props.is_nested) {
+                            return;
+                        }
+                        shadow_widget_ref.current?.scrollIntoView({
+                            block: 'nearest',
+                            inline: 'nearest'
+                        });
+                    }
+                });
+            },
+            { root: canvas_viewport.current }
+        );
+
+        shadow_widget &&
+            shadow_widget_ref.current &&
+            intersectionObserverInstance.observe(shadow_widget_ref.current);
+        return () => {
+            shadow_widget &&
+                shadow_widget_ref.current &&
+                intersectionObserverInstance.unobserve(
+                    shadow_widget_ref.current
+                );
+        };
+    }, [JSON.stringify(shadow_widget)]);
 
     /** 监听容器变化，重新计算width、height、grid */
     useLayoutEffect(() => {
