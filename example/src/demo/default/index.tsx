@@ -69,7 +69,7 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_float: true,
-                is_unhoverable: false
+                is_nested: false
             },
             {
                 x: 0,
@@ -80,7 +80,7 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_float: false,
-                is_unhoverable: true
+                is_nested: true
             },
             {
                 x: 0,
@@ -91,7 +91,7 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_float: false,
-                is_unhoverable: false
+                is_nested: false
             }
             // {
             //     x: 0,

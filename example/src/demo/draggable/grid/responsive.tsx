@@ -27,7 +27,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_unhoverable: false
+                is_nested: false
             },
             {
                 w: 2,
@@ -38,7 +38,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_unhoverable: false
+                is_nested: false
             },
             {
                 w: 2,
@@ -49,7 +49,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_unhoverable: false
+                is_nested: false
             },
             {
                 w: 2,
@@ -60,7 +60,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_unhoverable: false
+                is_nested: false
             },
             {
                 w: 2,
@@ -71,7 +71,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_unhoverable: false
+                is_nested: false
             },
             {
                 w: 2,
@@ -82,7 +82,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_unhoverable: false
+                is_nested: false
             }
         ];
         // return Array.from({ length: 6 }).map((_, i) => {

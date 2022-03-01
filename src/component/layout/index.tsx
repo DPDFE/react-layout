@@ -109,7 +109,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         item.is_float = item.is_float ?? false;
         item.is_draggable = item.is_draggable ?? false;
         item.is_resizable = item.is_resizable ?? false;
-        item.is_unhoverable = item.is_unhoverable ?? false;
+        item.is_nested = item.is_nested ?? false;
 
         if (item.is_float) {
             return genWidgetPosition(item);
@@ -282,7 +282,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             props.scale
         );
 
-        if (collides && collides.is_unhoverable) {
+        if (collides && collides.is_nested) {
             setShadowWidget(undefined);
             setOldShadowWidget(undefined);
             compact(layout!, grid.row_height);
@@ -394,7 +394,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
         // if (type === OperatorType.drag || type === OperatorType.dragover) {
         //     const collides = getFirstCollision(layout ?? [], item);
-        //     if (collides && collides.is_unhoverable) {
+        //     if (collides && collides.is_nested) {
         //         return hasItemUnhoverable(item, is_save);
         //     }
         // }

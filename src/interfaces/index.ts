@@ -181,7 +181,7 @@ export interface GuideLineProps {
 export interface LayoutItem extends ItemPos {
     is_draggable?: boolean;
     is_resizable?: boolean;
-    is_unhoverable?: boolean;
+    is_nested?: boolean;
     covered?: boolean;
     moved?: boolean;
 }
