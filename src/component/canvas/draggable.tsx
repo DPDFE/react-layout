@@ -22,6 +22,14 @@ interface Props extends DraggableProps {
     children: any;
 }
 
+export const sloppyClickThreshold: number = 5;
+function isSloppyClickThresholdExceeded(original: Pos, current: Pos): boolean {
+    return (
+        Math.abs(current.x - original.x) >= sloppyClickThreshold ||
+        Math.abs(current.y - original.y) >= sloppyClickThreshold
+    );
+}
+
 const Draggable = (props: Props) => {
     const child = React.Children.only(props.children) as DOMElement<
         Props['children'],
@@ -70,17 +78,24 @@ const Draggable = (props: Props) => {
     const handleDrag = (e: MouseEvent) => {
         const { x, y } = offsetXYFromParent(e);
 
-        const delta_x = x - mouse_pos.x;
-        const delta_y = y - mouse_pos.y;
+        if (
+            isSloppyClickThresholdExceeded(mouse_pos, {
+                x,
+                y
+            })
+        ) {
+            const delta_x = x - mouse_pos.x;
+            const delta_y = y - mouse_pos.y;
 
-        const { max_x, max_y, min_x, min_y } = formatBound(props.bound);
+            const { max_x, max_y, min_x, min_y } = formatBound(props.bound);
 
-        const pos = {
-            x: clamp(start_pos.x + delta_x, min_x, max_x),
-            y: clamp(start_pos.y + delta_y, min_y, max_y)
-        };
+            const pos = {
+                x: clamp(start_pos.x + delta_x, min_x, max_x),
+                y: clamp(start_pos.y + delta_y, min_y, max_y)
+            };
 
-        props.onDrag?.(pos);
+            props.onDrag?.(pos);
+        }
     };
 
     /** 结束 */

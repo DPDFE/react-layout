@@ -34,11 +34,12 @@ import {
 import GuideLine from '../guide-line';
 import { copyObject, copyObjectArray, noop } from '@/utils/utils';
 import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
-import { LayoutContext } from './context';
+import { LayoutContext } from '../layout-context';
 import { useLayoutHooks } from './hooks';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
-    const { checked_index, setCurrentChecked } = useContext(LayoutContext);
+    const { checked_index, setCurrentChecked, setDragItem } =
+        useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
     const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
@@ -591,11 +592,15 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                     setCurrentChecked
                                                 }
                                                 onDragStart={() => {
-                                                    checked_index === widget.i
-                                                        ? (
-                                                              props as EditLayoutProps
-                                                          ).onDragStart?.()
-                                                        : noop;
+                                                    if (
+                                                        checked_index ===
+                                                        widget.i
+                                                    ) {
+                                                        (
+                                                            props as EditLayoutProps
+                                                        ).onDragStart?.();
+                                                        setDragItem(widget);
+                                                    }
                                                 }}
                                                 onDrag={(item) => {
                                                     if (
@@ -611,6 +616,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                         (
                                                             props as EditLayoutProps
                                                         ).onDrag?.(layout);
+                                                        setDragItem(item);
                                                     }
                                                 }}
                                                 onDragStop={(item) => {
@@ -627,6 +633,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                         (
                                                             props as EditLayoutProps
                                                         ).onDragStop?.(layout);
+                                                        setDragItem(undefined);
                                                     }
                                                 }}
                                                 onResizeStart={() => {
