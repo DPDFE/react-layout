@@ -129,6 +129,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
      * 组件信息补全
      */
     function getCurrentWidget(item: LayoutItem) {
+        item.w = Math.max(item.min_w ?? 1, item.w);
+        item.h = Math.max(item.min_h ?? 1, item.h);
+
         item.is_float = item.is_float ?? false;
         item.is_draggable = item.is_draggable ?? false;
         item.is_resizable = item.is_resizable ?? false;
@@ -343,7 +346,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     return (
         <div
-            className={`react-drag-layout ${styles.container}`}
+            className={`react-drag-layout ${styles.container} ${props.className}`}
             ref={container_ref}
         >
             {/* 水平标尺 */}
@@ -429,8 +432,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                 <WidgetItem
                                     ref={shadow_widget_ref}
                                     {...shadow_widget}
-                                    width={current_width}
-                                    height={current_height}
                                     bound={getCurrentBound(
                                         shadow_widget.is_float
                                     )}
@@ -442,6 +443,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     is_resizable={false}
                                     is_draggable={false}
                                     is_checked={false}
+                                    className={'react-drag-placeholder'}
                                 >
                                     <div
                                         className={`placeholder ${styles.placeholder}`}
@@ -456,9 +458,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     if (widget) {
                                         return (
                                             <WidgetItem
-                                                className={
-                                                    'react-drag-placeholder'
-                                                }
                                                 layout_type={props.layout_type}
                                                 key={widget.i}
                                                 {...widget}
@@ -469,8 +468,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                     widget.is_float
                                                 )}
                                                 children={child}
-                                                width={current_width}
-                                                height={current_height}
                                                 scale={props.scale}
                                                 margin={props.item_margin}
                                                 is_checked={
@@ -481,7 +478,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                     checked_index === widget.i
                                                 }
                                                 setCurrentChecked={
-                                                    setCurrentChecked
+                                                    props.mode ===
+                                                    LayoutType.edit
+                                                        ? setCurrentChecked
+                                                        : noop
                                                 }
                                                 onDragStart={() => {
                                                     checked_index === widget.i

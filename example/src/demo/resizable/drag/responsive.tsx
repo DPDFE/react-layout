@@ -62,6 +62,7 @@ const ResizableDragResponsiveLayout = () => {
                 {widgets.map((w) => {
                     return (
                         <div
+                            className={'widget_item'}
                             key={w.i}
                             data-drag={w}
                             style={{
