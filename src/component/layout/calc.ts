@@ -5,7 +5,8 @@ import {
     GridType,
     EditLayoutProps,
     ReactDragLayoutProps,
-    MarginType
+    MarginType,
+    BoundType
 } from '@/interfaces';
 import { copyObject, copyObjectArray } from '@/utils/utils';
 import React, { RefObject } from 'react';
@@ -16,30 +17,56 @@ export const WRAPPER_PADDING = 200; // 编辑状态下的边框
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
 
-export function snapToGrid(pos: ItemPos, grid: GridType) {
+export function snapToGrid(pos: LayoutItem, grid: GridType) {
     const { row_height, col_width } = grid;
 
-    pos.x = Math.round(pos.x / col_width) * col_width;
-    pos.y = Math.round(pos.y / row_height) * row_height;
-    pos.w = Math.round(pos.w / col_width) * col_width;
-    pos.h = Math.round(pos.h / row_height) * row_height;
+    pos.is_dragging = false;
+    pos.x = Math.round(pos.x / col_width);
+    pos.y = Math.round(pos.y / row_height);
+    pos.w = Math.round(pos.w / col_width);
+    pos.h = Math.round(pos.h / row_height);
     return pos;
 }
 
-export function formatLayoutItem(l: ItemPos, grid: GridType): ItemPos {
-    const { x, y, w, h, is_float } = l;
+export function snapToDrag(l: LayoutItem, grid: GridType) {
+    const { x, y, w, h, is_float, is_dragging } = l;
+    const { row_height, col_width } = grid;
+    if (is_float || is_dragging) {
+        return l;
+    }
+
+    return {
+        ...l,
+        x: x * col_width,
+        y: y * row_height,
+        w: w * col_width,
+        h: h * row_height
+    };
+}
+
+export function snapToDragBound(
+    pos: BoundType,
+    grid: GridType,
+    is_float: boolean
+) {
     const { row_height, col_width } = grid;
 
-    if (!is_float) {
-        return {
-            ...l,
-            x: Math.floor(x / col_width),
-            y: Math.floor(y / row_height),
-            w: Math.floor(w / col_width),
-            h: Math.floor(h / row_height)
-        };
+    if (is_float) {
+        return pos;
     }
-    return l;
+
+    pos.min_x = pos.min_x * col_width;
+    pos.min_y = pos.min_y * row_height;
+    pos.max_x = pos.max_x * col_width;
+    pos.max_y = pos.max_y * row_height;
+    return pos;
+}
+
+export function moveToWidget(target: LayoutItem, to: ItemPos) {
+    target.x = to.x;
+    target.y = to.y;
+    target.w = to.w;
+    target.h = to.h;
 }
 
 export function dynamicProgramming(
@@ -231,10 +258,9 @@ function bottom(layout: LayoutItem[]) {
 function resolveCompactionCollision(
     layout: LayoutItem[],
     item: LayoutItem,
-    move_to: number,
-    row_height: number
+    move_to: number
 ) {
-    item.y += row_height;
+    item.y += 1;
     const item_index = layout
         .map((layoutItem) => {
             return layoutItem.i;
@@ -247,7 +273,7 @@ function resolveCompactionCollision(
             break;
         }
         if (collides(item, l)) {
-            resolveCompactionCollision(layout, l, move_to + item.h, row_height);
+            resolveCompactionCollision(layout, l, move_to + item.h);
         }
     }
     item.y = move_to;
@@ -256,8 +282,7 @@ function resolveCompactionCollision(
 function compactItem(
     compare_with: LayoutItem[],
     l: LayoutItem,
-    sorted: LayoutItem[],
-    row_height: number
+    sorted: LayoutItem[]
 ) {
     l.y = Math.min(bottom(compare_with), l.y);
 
@@ -265,18 +290,13 @@ function compactItem(
         if (getFirstCollision(compare_with, l)) {
             break;
         } else {
-            l.y -= row_height;
+            l.y -= 1;
         }
     }
 
     let collides;
     while ((collides = getFirstCollision(compare_with, l))) {
-        resolveCompactionCollision(
-            sorted,
-            l,
-            collides.y + collides.h,
-            row_height
-        );
+        resolveCompactionCollision(sorted, l, collides.y + collides.h);
     }
 
     l.y = Math.max(l.y, 0);
@@ -284,13 +304,13 @@ function compactItem(
     return l;
 }
 
-export function compact(layout: LayoutItem[], row_height: number) {
+export function compact(layout: LayoutItem[]) {
     const compare_with: LayoutItem[] = [];
     const sorted = sortGridLayoutItems(layout);
 
     sorted.map((l) => {
         l.moved = false;
-        l = compactItem(compare_with, l, sorted, row_height);
+        l = compactItem(compare_with, l, sorted);
         compare_with.push(l);
     });
 }
@@ -303,7 +323,6 @@ function moveElementAwayFromCollision(
     layout: LayoutItem[],
     l: LayoutItem,
     collision: LayoutItem,
-    row_height: number,
     is_user_action: boolean = false
 ) {
     const fake_item: LayoutItem = {
@@ -324,18 +343,11 @@ function moveElementAwayFromCollision(
                 collision,
                 collision.x,
                 fake_item.y,
-                row_height,
                 is_user_action
             );
         }
     }
-    return moveElement(
-        layout,
-        collision,
-        collision.x,
-        collision.y + row_height,
-        row_height
-    );
+    return moveElement(layout, collision, collision.x, collision.y + 1);
 }
 
 export function moveElement(
@@ -343,7 +355,6 @@ export function moveElement(
     l: LayoutItem,
     x: number,
     y: number,
-    row_height: number,
     is_user_action: boolean = false
 ) {
     const old_y = l.y;
@@ -367,7 +378,6 @@ export function moveElement(
             sorted,
             l,
             collision,
-            row_height,
             is_user_action
         );
     }

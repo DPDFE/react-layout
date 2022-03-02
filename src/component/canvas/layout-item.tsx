@@ -1,7 +1,7 @@
 import { WidgetItemProps } from '@/interfaces';
 import isEqual from 'lodash.isequal';
-import React, { memo, ReactElement, useRef } from 'react';
-import { MIN_DRAG_LENGTH } from '../layout/calc';
+import React, { memo, ReactElement, useRef, useState } from 'react';
+import { MIN_DRAG_LENGTH, snapToDragBound } from '../layout/calc';
 import Draggable, { clamp } from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -26,9 +26,20 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const { col_width, row_height } = props.grid;
 
-    const { min_x, max_x, min_y, max_y } = props.bound;
+    const { i, is_float, is_dragging, is_draggable, is_resizable } = props;
 
-    const { i, is_float, is_draggable, is_resizable } = props;
+    const { min_x, max_x, min_y, max_y } = snapToDragBound(
+        props.bound,
+        props.grid,
+        is_float
+    );
+
+    const gridX = (count: number) => {
+        return is_float || is_dragging ? count : count * col_width;
+    };
+    const gridY = (count: number) => {
+        return is_float || is_dragging ? count : count * row_height;
+    };
 
     const margin_height = is_float ? 0 : props.margin[0];
     const margin_width = is_float ? 0 : props.margin[1];
@@ -36,11 +47,11 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const offset_x = is_float ? 0 : Math.max(margin_width, props.padding.left);
     const offset_y = is_float ? 0 : Math.max(margin_height, props.padding.top);
 
-    const w = Math.max(props.w - margin_width, 0);
-    const h = Math.max(props.h - margin_height, 0);
+    const w = Math.max(gridX(props.w) - margin_width, 0);
+    const h = Math.max(gridY(props.h) - margin_height, 0);
 
-    const x = clamp(props.x + offset_x, min_x, max_x - w);
-    const y = clamp(props.y + offset_y, min_y, max_y - h);
+    const x = clamp(gridX(props.x) + offset_x, min_x, max_x - w);
+    const y = clamp(gridY(props.y) + offset_y, min_y, max_y - h);
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {

@@ -11,13 +11,12 @@ import HorizontalRuler from '../horizontal-ruler';
 import WidgetItem from '../canvas/layout-item';
 import {
     compact,
-    formatLayoutItem,
-    dynamicProgramming,
     getDropItem,
     moveElement,
     snapToGrid,
     getCurrentMouseOverWidget,
-    getAllCollisions
+    getAllCollisions,
+    moveToWidget
 } from './calc';
 import styles from './styles.module.css';
 import {
@@ -57,7 +56,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         current_width,
         padding,
         grid,
-        bound,
         current_height,
         wrapper_width,
         wrapper_height,
@@ -106,9 +104,23 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     /** 根据类型配置计算边界状态 */
     const getCurrentBound = (is_float: boolean) => {
         if (is_float) {
-            return props.need_drag_bound ? bound : DEFAULT_BOUND;
+            return props.need_drag_bound
+                ? {
+                      min_x: padding.left,
+                      max_x: current_width - padding.right,
+                      min_y: padding.top,
+                      max_y: Infinity
+                  }
+                : DEFAULT_BOUND;
         } else {
-            return props.need_grid_bound ? bound : DEFAULT_BOUND;
+            return props.need_grid_bound
+                ? {
+                      min_x: 0,
+                      max_x: props.cols,
+                      min_y: 0,
+                      max_y: Infinity
+                  }
+                : DEFAULT_BOUND;
         }
     };
 
@@ -122,38 +134,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         item.is_resizable = item.is_resizable ?? false;
         item.is_nested = item.is_nested ?? false;
 
-        if (item.is_float) {
-            return item;
-        } else {
-            const { col_width, row_height } = grid;
-
-            item.x = item.x * col_width;
-            item.y = item.y * row_height;
-            item.w = item.w * col_width;
-            item.h = item.h * row_height;
-
-            const { max_x, min_x, max_y, min_y } = getCurrentBound(
-                item.is_float
-            );
-
-            const margin_height = item.is_float ? 0 : props.item_margin[0];
-            const margin_width = item.is_float ? 0 : props.item_margin[1];
-
-            const offset_x = item.is_float
-                ? 0
-                : Math.max(margin_width, padding.left);
-            const offset_y = item.is_float
-                ? 0
-                : Math.max(margin_height, padding.top);
-
-            const w = Math.max(item.w - margin_width, 0);
-            const h = Math.max(item.h - margin_height, 0);
-
-            item.x = clamp(item.x, min_x, max_x - w - offset_x);
-            item.y = clamp(item.y, min_y, max_y - h - offset_y);
-
-            return item;
-        }
+        return getBoundResult(item);
     }
 
     /**
@@ -166,7 +147,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 return getCurrentWidget(item);
             }
         );
-        compact(new_layout, grid.row_height);
+        compact(new_layout);
         setLayout(new_layout);
     }, [props.children, grid, padding]);
 
@@ -182,15 +163,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             // 如果是canvas内的子节点会被触发leave
             setShadowWidget(undefined);
             setOldShadowWidget(undefined);
-            compact(layout!, grid.row_height);
+            compact(layout ?? []);
             setLayout(layout);
         }
-    };
-
-    const dragToGridLayout = (layout: LayoutItem[]) => {
-        return layout.map((w) => {
-            return formatLayoutItem(w, grid);
-        });
     };
 
     /** 拖拽添加 */
@@ -200,10 +175,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         setOperatorType(OperatorType.dropover);
 
         if (shadow_widget) {
-            const grid_item = formatLayoutItem(shadow_widget!, grid);
             const item = (props as EditLayoutProps).onDrop?.(
-                dragToGridLayout(layout ?? []),
-                grid_item
+                layout ?? [],
+                shadow_widget
             );
 
             setShadowWidget(undefined);
@@ -216,23 +190,14 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     };
 
     /** 对drop节点做边界计算以后再排序 */
-    const formatDropItemBound = (pos: LayoutItem) => {
-        const { min_x, min_y } = getCurrentBound(
-            props.layout_type === LayoutType.GRID ? false : true
-        );
+    const getBoundResult = (item: LayoutItem) => {
+        const { max_x, min_x, max_y, min_y } = getCurrentBound(item.is_float);
+        item.w = clamp(item.w, min_x, max_x);
+        item.x = clamp(item.x, min_x, max_x - item.w);
+        item.h = clamp(item.h, min_y, max_y);
+        item.y = clamp(item.y, min_y, max_y - item.h);
 
-        pos.x = clamp(
-            pos.x,
-            min_x,
-            current_width - pos.w - props.item_margin[0]
-        );
-        pos.y = clamp(
-            pos.y,
-            min_y,
-            current_height - pos.h - props.item_margin[1]
-        );
-
-        return pos;
+        return item;
     };
 
     const onDragOver = (e: React.MouseEvent) => {
@@ -249,38 +214,38 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         if (collides && collides.is_nested) {
             setShadowWidget(undefined);
             setOldShadowWidget(undefined);
-            compact(layout!, grid.row_height);
+            compact(layout ?? []);
             setLayout(layout);
         } else {
-            const drop_item = formatDropItemBound(
+            const shadow_widget = getBoundResult(
                 getDropItem(canvas_ref, e, props, grid)
             );
 
             if (
                 old_shadow_widget &&
-                drop_item.x === old_shadow_widget.x &&
-                drop_item.y === old_shadow_widget.y
+                shadow_widget.x === old_shadow_widget.x &&
+                shadow_widget.y === old_shadow_widget.y
             ) {
                 return;
             }
-            setShadowWidget(drop_item);
-            setOldShadowWidget(copyObject(drop_item));
+            setShadowWidget(shadow_widget);
+            setOldShadowWidget(copyObject(shadow_widget));
 
-            const new_layout = [drop_item, ...layout!];
-            compact(new_layout!, grid.row_height);
-            // 排序新布局，保存旧布局
+            const new_layout = [shadow_widget, ...layout!];
+            compact(new_layout ?? []);
             setLayout(layout);
         }
     };
 
-    const getLayoutItem = (item: ItemPos) => {
-        return layout!.find((l) => {
-            return l.i == item.i;
-        }) as LayoutItem;
-    };
-
     /** 如果当前元素位于嵌套元素中 */
     const hasItemUnhoverable = (item: ItemPos, is_save?: boolean) => {
+        // if (type === OperatorType.drag || type === OperatorType.dragover) {
+        //     const collides = getFirstCollision(layout ?? [], item);
+        //     if (collides && collides.is_nested) {
+        //         return hasItemUnhoverable(item, is_save);
+        //     }
+        // }
+
         const current_item = getLayoutItem(item);
         const float_item = Object.assign({}, current_item, item);
 
@@ -289,15 +254,14 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         compact(
             (layout ?? []).filter((l) => {
                 return l.i != item.i;
-            }),
-            grid.row_height
+            })
         );
         setLayout(
             layout!.map((w) => {
                 return w.i === item.i && !is_save ? float_item : w;
             })
         );
-        return dragToGridLayout(layout ?? []);
+        return layout ?? [];
     };
 
     /**
@@ -321,54 +285,58 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         }
     };
 
+    const getLayoutItem = (item: ItemPos) => {
+        return layout!.find((l) => {
+            return l.i == item.i;
+        }) as LayoutItem;
+    };
+
+    const getFilterLayout = (item: ItemPos) => {
+        return layout!.filter((l) => {
+            return l.i !== item.i;
+        });
+    };
+
     const getCurrentLayoutByItem = (
         type: OperatorType,
         item: ItemPos,
         is_save?: boolean
     ) => {
         setOperatorType(type);
-        const current_item = getLayoutItem(item);
+        const current_widget = getLayoutItem(item);
         preventIframeMouseEvent(type, item);
 
-        // if (type === OperatorType.drag || type === OperatorType.dragover) {
-        //     const collides = getFirstCollision(layout ?? [], item);
-        //     if (collides && collides.is_nested) {
-        //         return hasItemUnhoverable(item, is_save);
-        //     }
-        // }
+        moveToWidget(current_widget, item);
 
-        Object.assign(current_item, item);
-        const old_layout = copyObjectArray(layout ?? []);
-
-        if (current_item.is_float) {
-            setLayout(old_layout);
-            return dragToGridLayout(old_layout ?? []);
+        if (current_widget.is_float) {
+            setLayout(copyObject(layout));
+            return layout;
         } else {
-            snapToGrid(item, grid);
+            const shadow_widget = copyObject(current_widget);
+            const filter_layout = getFilterLayout(item);
+            snapToGrid(shadow_widget, grid);
 
             moveElement(
-                layout!,
-                current_item,
-                item.x,
-                item.y,
-                grid.row_height,
+                filter_layout,
+                shadow_widget,
+                shadow_widget.x,
+                shadow_widget.y,
                 true
             );
 
-            current_item.w = item.w;
-            current_item.h = item.h;
-
-            compact(layout!, grid.row_height);
+            compact(filter_layout.concat([shadow_widget]));
 
             if (is_save) {
+                current_widget.is_dragging = false;
+                moveToWidget(current_widget, shadow_widget);
                 setShadowWidget(undefined);
-                setLayout(layout);
-                return dragToGridLayout(layout ?? []);
             } else {
-                setShadowWidget(current_item);
-                setLayout(old_layout);
-                return dragToGridLayout(old_layout ?? []);
+                current_widget.is_dragging = true;
+                setShadowWidget(shadow_widget);
             }
+
+            setLayout(copyObject(layout));
+            return filter_layout.concat([shadow_widget]);
         }
     };
 
@@ -534,7 +502,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                             );
                                                         (
                                                             props as EditLayoutProps
-                                                        ).onDrag?.(layout);
+                                                        ).onDrag?.(
+                                                            layout ?? []
+                                                        );
                                                     }
                                                 }}
                                                 onDragStop={(item) => {
@@ -550,7 +520,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                             );
                                                         (
                                                             props as EditLayoutProps
-                                                        ).onDragStop?.(layout);
+                                                        ).onDragStop?.(
+                                                            layout ?? []
+                                                        );
                                                     }
                                                 }}
                                                 onResizeStart={() => {
@@ -576,7 +548,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                             );
                                                         (
                                                             props as EditLayoutProps
-                                                        ).onResize?.(layout);
+                                                        ).onResize?.(
+                                                            layout ?? []
+                                                        );
                                                     }
                                                 }}
                                                 onResizeStop={(item) => {
@@ -593,7 +567,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                         (
                                                             props as EditLayoutProps
                                                         ).onResizeStop?.(
-                                                            layout
+                                                            layout ?? []
                                                         );
                                                     }
                                                 }}
@@ -611,7 +585,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                         (
                                                             props as EditLayoutProps
                                                         ).onPositionChange?.(
-                                                            layout
+                                                            layout ?? []
                                                         );
                                                     }
                                                 }}

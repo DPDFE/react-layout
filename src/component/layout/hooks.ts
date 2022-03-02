@@ -6,7 +6,12 @@ import {
     ReactDragLayoutProps
 } from '@/interfaces';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { calcOffset, completedPadding, WRAPPER_PADDING } from './calc';
+import {
+    calcOffset,
+    completedPadding,
+    snapToDrag,
+    WRAPPER_PADDING
+} from './calc';
 
 export const useLayoutHooks = (
     props: ReactDragLayoutProps,
@@ -114,10 +119,8 @@ export const useLayoutHooks = (
     const grid = useMemo(() => {
         const { item_margin, cols, row_height } = props;
 
-        const width =
-            current_width -
-            Math.max(padding.left, item_margin[1]) -
-            Math.max(padding.right - item_margin[1], 0);
+        const sub_left = current_width - Math.max(padding.left, item_margin[1]);
+        const width = sub_left - Math.max(item_margin[1] - padding.right, 0);
 
         return {
             col_width: width / cols,
@@ -131,16 +134,6 @@ export const useLayoutHooks = (
         padding
     ]);
 
-    /** 计算移动范围 */
-    const bound = useMemo(() => {
-        return {
-            min_y: padding.left,
-            min_x: padding.top,
-            max_y: Infinity,
-            max_x: current_width - padding.right
-        };
-    }, [current_width, padding]);
-
     /** 获取元素最大边界 */
     function getMaxLayoutBound(children: LayoutItem[]) {
         // 元素计算大小
@@ -151,7 +144,7 @@ export const useLayoutHooks = (
 
         if (children) {
             children.map((child) => {
-                const { x, y, h, w, is_float } = child;
+                const { x, y, h, w, is_float } = snapToDrag(child, grid);
 
                 max_left = Math.min(max_left, x); // 最左边最小值
                 max_right = Math.max(
@@ -161,7 +154,7 @@ export const useLayoutHooks = (
                         (is_float
                             ? padding.right
                             : Math.max(0, padding.left - props.item_margin[1]) +
-                              padding.right)
+                              Math.max(padding.right, props.item_margin[1]))
                 ); // 最大值
                 max_top = Math.min(max_top, y); // 最上边最小值
                 max_bottom = Math.max(
@@ -171,7 +164,7 @@ export const useLayoutHooks = (
                         (is_float
                             ? padding.bottom
                             : Math.max(0, padding.top - props.item_margin[0]) +
-                              padding.bottom)
+                              Math.max(padding.bottom, props.item_margin[0]))
                 ); // 最大值
             });
         }
@@ -272,7 +265,6 @@ export const useLayoutHooks = (
         current_width,
         padding,
         grid,
-        bound,
         current_height,
         wrapper_width,
         wrapper_height,
