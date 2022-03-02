@@ -192,6 +192,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     /** 对drop节点做边界计算以后再排序 */
     const getBoundResult = (item: LayoutItem) => {
         const { max_x, min_x, max_y, min_y } = getCurrentBound(item.is_float);
+
         item.w = clamp(item.w, min_x, max_x);
         item.x = clamp(item.x, min_x, max_x - item.w);
         item.h = clamp(item.h, min_y, max_y);

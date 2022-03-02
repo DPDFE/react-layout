@@ -55,11 +55,12 @@ export function snapToDragBound(
         return pos;
     }
 
-    pos.min_x = pos.min_x * col_width;
-    pos.min_y = pos.min_y * row_height;
-    pos.max_x = pos.max_x * col_width;
-    pos.max_y = pos.max_y * row_height;
-    return pos;
+    return {
+        min_x: pos.min_x * col_width,
+        min_y: pos.min_y * row_height,
+        max_x: pos.max_x * col_width,
+        max_y: pos.max_y * row_height
+    };
 }
 
 export function moveToWidget(target: LayoutItem, to: ItemPos) {

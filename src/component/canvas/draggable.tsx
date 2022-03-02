@@ -3,10 +3,10 @@ import { addEvent, removeEvent } from '@pearone/event-utils';
 import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
 
 export const DEFAULT_BOUND = {
-    min_x: -Infinity,
-    max_x: Infinity,
     min_y: -Infinity,
-    max_y: Infinity
+    max_y: Infinity,
+    min_x: -Infinity,
+    max_x: Infinity
 };
 interface Pos {
     x: number;
