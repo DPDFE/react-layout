@@ -9,13 +9,14 @@ import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import {
     calcOffset,
     completedPadding,
-    TOP_RULER_LEFT_MARGIN,
+    snapToDrag,
     WRAPPER_PADDING
 } from './calc';
 
 export const useLayoutHooks = (
     props: ReactDragLayoutProps,
     canvas_viewport: React.RefObject<HTMLDivElement>,
+    shadow_widget_ref: React.RefObject<HTMLDivElement>,
     shadow_widget?: ItemPos,
     layout?: LayoutItem[]
 ) => {
@@ -28,6 +29,40 @@ export const useLayoutHooks = (
     const [current_height, setCurrentHeight] = useState<number>(0); //高度;
 
     const [is_window_resize, setWindowResize] = useState<number>(Math.random());
+
+    /**
+     * 让阴影定位组件位于可视范围内
+     */
+    useLayoutEffect(() => {
+        /** 判断元素是否消失 */
+        const intersectionObserverInstance = new IntersectionObserver(
+            (entries) => {
+                entries.map((entry) => {
+                    if (!entry.intersectionRatio) {
+                        if (props.is_nested) {
+                            return;
+                        }
+                        shadow_widget_ref.current?.scrollIntoView({
+                            block: 'nearest',
+                            inline: 'nearest'
+                        });
+                    }
+                });
+            },
+            { root: canvas_viewport.current }
+        );
+
+        shadow_widget &&
+            shadow_widget_ref.current &&
+            intersectionObserverInstance.observe(shadow_widget_ref.current);
+        return () => {
+            shadow_widget &&
+                shadow_widget_ref.current &&
+                intersectionObserverInstance.unobserve(
+                    shadow_widget_ref.current
+                );
+        };
+    }, [JSON.stringify(shadow_widget)]);
 
     /** 监听容器变化，重新计算width、height、grid */
     useLayoutEffect(() => {
@@ -84,11 +119,8 @@ export const useLayoutHooks = (
     const grid = useMemo(() => {
         const { item_margin, cols, row_height } = props;
 
-        const width =
-            current_width -
-            (padding.right > item_margin[1]
-                ? padding.left - item_margin[1] + padding.right
-                : item_margin[1]);
+        const sub_left = current_width - Math.max(padding.left, item_margin[1]);
+        const width = sub_left - Math.max(item_margin[1] - padding.right, 0);
 
         return {
             col_width: width / cols,
@@ -102,16 +134,6 @@ export const useLayoutHooks = (
         padding
     ]);
 
-    /** 计算移动范围 */
-    const bound = useMemo(() => {
-        return {
-            min_y: 0,
-            min_x: 0,
-            max_y: Infinity,
-            max_x: current_width - padding.right - padding.left
-        };
-    }, [current_width, padding]);
-
     /** 获取元素最大边界 */
     function getMaxLayoutBound(children: LayoutItem[]) {
         // 元素计算大小
@@ -122,17 +144,27 @@ export const useLayoutHooks = (
 
         if (children) {
             children.map((child) => {
-                const { x, y, h, w, is_float } = child;
+                const { x, y, h, w, is_float } = snapToDrag(child, grid);
 
                 max_left = Math.min(max_left, x); // 最左边最小值
                 max_right = Math.max(
                     max_right,
-                    x + w + (is_float ? padding.right : 0)
+                    x +
+                        w +
+                        (is_float
+                            ? padding.right
+                            : Math.max(0, padding.left - props.item_margin[1]) +
+                              Math.max(padding.right, props.item_margin[1]))
                 ); // 最大值
                 max_top = Math.min(max_top, y); // 最上边最小值
                 max_bottom = Math.max(
                     max_bottom,
-                    y + h + (is_float ? padding.bottom : 0)
+                    y +
+                        h +
+                        (is_float
+                            ? padding.bottom
+                            : Math.max(0, padding.top - props.item_margin[0]) +
+                              Math.max(padding.bottom, props.item_margin[0]))
                 ); // 最大值
             });
         }
@@ -153,15 +185,9 @@ export const useLayoutHooks = (
         );
 
         /** 和视窗比较，找到实际最大边界 */
-        const max_b =
-            max_bottom > current_height
-                ? max_bottom + padding.bottom
-                : current_height;
+        const max_b = max_bottom > current_height ? max_bottom : current_height;
 
-        const max_r =
-            max_right > current_width
-                ? max_right + padding.right
-                : current_width;
+        const max_r = max_right > current_width ? max_right : current_width;
 
         // 如果没有宽高就是自适应模式
         if (layout_type === LayoutType.GRID) {
@@ -239,7 +265,6 @@ export const useLayoutHooks = (
         current_width,
         padding,
         grid,
-        bound,
         current_height,
         wrapper_width,
         wrapper_height,

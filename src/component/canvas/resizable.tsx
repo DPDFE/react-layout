@@ -5,7 +5,6 @@ import {
     ResizableProps
 } from '@/interfaces';
 import React, { memo } from 'react';
-import styles from './styles.module.css';
 import Cursor from './cursor';
 import { clamp, DEFAULT_BOUND } from './draggable';
 

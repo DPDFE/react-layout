@@ -184,6 +184,8 @@ export interface LayoutItem extends ItemPos {
     is_nested?: boolean;
     covered?: boolean;
     moved?: boolean;
+    is_dragging?: boolean;
+    is_checked?: boolean;
 }
 
 interface EventBaseProps {
@@ -201,7 +203,6 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     bound: BoundType;
     grid: GridType;
     margin: [number, number];
-    is_checked?: boolean;
     padding: MarginType;
     layout_type: LayoutType.DRAG | LayoutType.GRID;
     setCurrentChecked?: (idx: string) => void;
