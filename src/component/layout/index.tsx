@@ -36,7 +36,8 @@ import { LayoutContext } from './context';
 import { useLayoutHooks } from './hooks';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
-    const { checked_index, setCurrentChecked } = useContext(LayoutContext);
+    const { checked_index, setCurrentChecked, operator_type, setOperatorType } =
+        useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
     const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
@@ -50,8 +51,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const [old_shadow_widget, setOldShadowWidget] = useState<ItemPos>();
 
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
-
-    const [operator_type, setOperatorType] = useState<OperatorType>();
 
     const {
         current_width,
@@ -314,7 +313,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     ) => {
         setOperatorType(type);
         const current_widget = getLayoutItem(item);
-        preventIframeMouseEvent(type, item);
 
         moveToWidget(current_widget, item);
 

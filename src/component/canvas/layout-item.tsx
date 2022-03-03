@@ -1,7 +1,8 @@
 import { WidgetItemProps } from '@/interfaces';
 import isEqual from 'lodash.isequal';
-import React, { memo, ReactElement, useRef, useState } from 'react';
+import React, { memo, ReactElement, useContext, useRef, useState } from 'react';
 import { MIN_DRAG_LENGTH, snapToDragBound } from '../layout/calc';
+import { LayoutContext } from '../layout/context';
 import Draggable, { clamp } from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
@@ -23,6 +24,8 @@ import styles from './styles.module.css';
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children);
     const item_ref = ref ?? useRef<HTMLDivElement>(null);
+
+    const { operator_type } = useContext(LayoutContext);
 
     const { col_width, row_height } = props.grid;
 
@@ -122,7 +125,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         style: {
             transform: `translate(${x}px, ${y}px)`,
             transition: props.is_checked ? 'none' : 'all 0.1s linear',
-            pointerEvents: props.covered
+            zIndex: props.is_dragging ? 99 : 'auto',
+            pointerEvents: operator_type
                 ? 'none'
                 : 'auto' /* 处理iframe不响应mousemove事件 */,
             width: w,
