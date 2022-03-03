@@ -130,7 +130,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             ...child.props.style
         }
     });
-    console.log('render', i);
 
     /**
      * 获取模块最小范围
@@ -237,6 +236,7 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
         .map((key) => {
             if (
                 [
+                    'data-drag',
                     'setCurrentChecked',
                     'onDragStart',
                     'onDrag',
@@ -249,8 +249,9 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                !isEqual(prev[key], next[key]) &&
-                    console.log(key, prev[key], next[key]);
+                // if (key === 'children' && !isEqual(prev[key], next[key])) {
+                //     return childrenEqual(prev['children'], next['children']);
+                // }
                 return isEqual(prev[key], next[key]);
             }
         })

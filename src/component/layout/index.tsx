@@ -70,8 +70,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         shadow_widget
     );
 
-    console.log('render layout');
-
     /**
      * @description 当操作结束以后更新操作状态为undefined
      */
@@ -159,7 +157,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         );
         compact(new_layout);
         setLayout(new_layout);
-        console.log(new_layout);
     }, [props.children, grid, padding]);
 
     const onDragEnter = (e: React.MouseEvent) => {
