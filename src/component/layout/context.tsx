@@ -13,11 +13,17 @@ export const LayoutContext = React.createContext<LayoutContext>({
 
 const ReactLayoutContext = (props: any) => {
     const [checked_index, setCurrentChecked] = useState<string>();
-    const value = { checked_index, setCurrentChecked };
+
+    const value = React.useMemo(
+        () => ({ checked_index, setCurrentChecked }),
+        [checked_index, setCurrentChecked]
+    );
+
     return (
-        <LayoutContext.Provider value={value}>
-            {props.children}
-        </LayoutContext.Provider>
+        <LayoutContext.Provider
+            value={value}
+            children={props.children}
+        ></LayoutContext.Provider>
     );
 };
 

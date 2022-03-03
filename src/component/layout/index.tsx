@@ -16,7 +16,8 @@ import {
     snapToGrid,
     getCurrentMouseOverWidget,
     getAllCollisions,
-    moveToWidget
+    moveToWidget,
+    replaceWidget
 } from './calc';
 import styles from './styles.module.css';
 import {
@@ -48,7 +49,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const [shadow_widget, setShadowWidget] = useState<ItemPos>();
     const [old_shadow_widget, setOldShadowWidget] = useState<ItemPos>();
 
-    const [layout, setLayout] = useState<LayoutItem[]>(); // 真实定位位置
+    const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
     const [operator_type, setOperatorType] = useState<OperatorType>();
 
@@ -62,12 +63,14 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         t_offset,
         l_offset
     } = useLayoutHooks(
+        layout,
         props,
         canvas_viewport,
         shadow_widget_ref,
-        shadow_widget,
-        layout
+        shadow_widget
     );
+
+    console.log('render layout');
 
     /**
      * @description 当操作结束以后更新操作状态为undefined
@@ -136,6 +139,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         item.is_draggable = item.is_draggable ?? false;
         item.is_resizable = item.is_resizable ?? false;
         item.is_nested = item.is_nested ?? false;
+        item.covered = item.covered ?? false;
+        item.is_dragging = item.is_dragging ?? false;
+        item.is_checked = item.is_checked ?? false;
+        item.moved = item.moved ?? false;
 
         return getBoundResult(item);
     }
@@ -152,6 +159,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         );
         compact(new_layout);
         setLayout(new_layout);
+        console.log(new_layout);
     }, [props.children, grid, padding]);
 
     const onDragEnter = (e: React.MouseEvent) => {
@@ -340,7 +348,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             }
 
             setLayout(copyObject(layout));
-            return filter_layout.concat([shadow_widget]);
+            return replaceWidget(layout, shadow_widget);
         }
     };
 
@@ -424,9 +432,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                         ? 'unset'
                                         : 'hidden'
                             }}
-                            onContextMenu={(e) => {
-                                e.preventDefault();
-                            }}
+                            // onContextMenu={(e) => {
+                            //     e.preventDefault();
+                            // }}
                         >
                             {shadow_widget && (
                                 <WidgetItem
@@ -443,10 +451,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     is_resizable={false}
                                     is_draggable={false}
                                     is_checked={false}
-                                    className={'react-drag-placeholder'}
                                 >
                                     <div
-                                        className={`placeholder ${styles.placeholder}`}
+                                        className={`react-drag-placeholder ${styles.placeholder}`}
                                     ></div>
                                 </WidgetItem>
                             )}

@@ -20,8 +20,10 @@ const ChangeDragLayout = () => {
 
     function generateLayout() {
         return Array.from({ length: 6 }).map((_, i) => {
-            const random = parseInt((Math.random() * 500).toFixed());
             const boolean = Boolean(Math.round(Math.random()));
+            const random = parseInt(
+                (Math.random() * (boolean ? 500 : 10)).toFixed()
+            );
 
             return {
                 w: boolean ? 100 : 2,
@@ -75,12 +77,12 @@ const ChangeDragLayout = () => {
             </div>
             <ReactLayoutContext>
                 <ReactDragLayout
-                    need_ruler
+                    // need_ruler
                     height={height}
                     width={width}
                     item_margin={[10, 10]}
                     container_padding={[10]}
-                    layout_type={LayoutType.DRAG}
+                    layout_type={LayoutType.GRID}
                     mode={LayoutType.edit}
                     need_drag_bound={false}
                     scale={scale}

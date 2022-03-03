@@ -33,7 +33,7 @@ const DraggableDragResponsiveLayout = () => {
     return (
         <ReactLayoutContext>
             <ReactDragLayout
-                need_ruler
+                // need_ruler
                 layout_type={LayoutType.GRID}
                 mode={LayoutType.edit}
                 container_padding={[10]}

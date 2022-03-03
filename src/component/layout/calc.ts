@@ -70,6 +70,10 @@ export function moveToWidget(target: LayoutItem, to: ItemPos) {
     target.h = to.h;
 }
 
+export function replaceWidget(arr: LayoutItem[], item: LayoutItem) {
+    return arr.map((obj) => [item].find((o) => o.i === obj.i) || obj);
+}
+
 export function dynamicProgramming(
     item: ItemPos,
     widgets: LayoutItem[],
