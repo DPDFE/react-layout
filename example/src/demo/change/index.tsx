@@ -82,7 +82,7 @@ const ChangeDragLayout = () => {
                     width={width}
                     item_margin={[10, 10]}
                     container_padding={[10]}
-                    layout_type={LayoutType.GRID}
+                    layout_type={LayoutType.DRAG}
                     mode={LayoutType.edit}
                     need_drag_bound={false}
                     scale={scale}

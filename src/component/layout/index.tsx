@@ -67,7 +67,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         props,
         canvas_viewport,
         shadow_widget_ref,
-        shadow_widget
+        shadow_widget,
+        operator_type
     );
 
     /**

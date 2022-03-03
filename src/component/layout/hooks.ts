@@ -3,6 +3,7 @@ import {
     ItemPos,
     LayoutItem,
     LayoutType,
+    OperatorType,
     ReactDragLayoutProps
 } from '@/interfaces';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
@@ -18,7 +19,8 @@ export const useLayoutHooks = (
     props: ReactDragLayoutProps,
     canvas_viewport: React.RefObject<HTMLDivElement>,
     shadow_widget_ref: React.RefObject<HTMLDivElement>,
-    shadow_widget?: ItemPos
+    shadow_widget?: ItemPos,
+    operator_type?: OperatorType
 ) => {
     const [wrapper_width, setCanvasWrapperWidth] = useState<number>(0); // 画板宽度
     const [wrapper_height, setCanvasWrapperHeight] = useState<number>(0); // 画板高度
@@ -172,6 +174,9 @@ export const useLayoutHooks = (
     }
 
     const GetCurrentContainerHeight = () => {
+        if (props.layout_type === LayoutType.DRAG && operator_type) {
+            return;
+        }
         if (client_width && client_height) {
             const { layout_type, mode, scale } = props;
 
@@ -263,6 +268,7 @@ export const useLayoutHooks = (
         (props as DragLayoutProps).width,
         props.scale,
         layout,
+        operator_type,
         client_height,
         client_width
     ]);
