@@ -125,7 +125,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         style: {
             transform: `translate(${x}px, ${y}px)`,
             transition: props.is_checked ? 'none' : 'all 0.1s linear',
-            zIndex: props.is_dragging ? 99 : 'auto',
             pointerEvents: operator_type
                 ? 'none'
                 : 'auto' /* 处理iframe不响应mousemove事件 */,
@@ -153,16 +152,51 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     };
 
     return (
-        <React.Fragment>
-            <Resizable
+        <Resizable
+            {...{ x, y, h, w, i, is_float }}
+            scale={props.scale}
+            is_resizable={is_resizable}
+            onResizeStart={() => {
+                props.onResizeStart?.();
+            }}
+            onResize={({ x, y, h, w }) => {
+                props.onResize?.({
+                    x: x - offset_x,
+                    y: y - offset_y,
+                    w: w + margin_width,
+                    h: h + margin_height,
+                    is_float,
+                    i
+                });
+            }}
+            grid={getCurrentGrid()}
+            bound={{ max_x, max_y, min_x, min_y }}
+            onResizeStop={({ x, y, h, w }) => {
+                props.onResizeStop?.({
+                    x: x - offset_x,
+                    y: y - offset_y,
+                    w: w + margin_width,
+                    h: h + margin_height,
+                    is_float,
+                    i
+                });
+            }}
+        >
+            <Draggable
                 {...{ x, y, h, w, i, is_float }}
                 scale={props.scale}
-                is_resizable={is_resizable}
-                onResizeStart={() => {
-                    props.onResizeStart?.();
+                is_draggable={is_draggable}
+                onDragStart={() => {
+                    props.onDragStart?.();
                 }}
-                onResize={({ x, y, h, w }) => {
-                    props.onResize?.({
+                bound={{
+                    max_y: max_y - h,
+                    min_y,
+                    max_x: max_x - w,
+                    min_x
+                }}
+                onDrag={({ x, y }) => {
+                    props.onDrag?.({
                         x: x - offset_x,
                         y: y - offset_y,
                         w: w + margin_width,
@@ -171,10 +205,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         i
                     });
                 }}
-                grid={getCurrentGrid()}
-                bound={{ max_x, max_y, min_x, min_y }}
-                onResizeStop={({ x, y, h, w }) => {
-                    props.onResizeStop?.({
+                onDragStop={({ x, y }) => {
+                    props.onDragStop?.({
                         x: x - offset_x,
                         y: y - offset_y,
                         w: w + margin_width,
@@ -184,44 +216,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     });
                 }}
             >
-                <Draggable
-                    {...{ x, y, h, w, i, is_float }}
-                    scale={props.scale}
-                    is_draggable={is_draggable}
-                    onDragStart={() => {
-                        props.onDragStart?.();
-                    }}
-                    bound={{
-                        max_y: max_y - h,
-                        min_y,
-                        max_x: max_x - w,
-                        min_x
-                    }}
-                    onDrag={({ x, y }) => {
-                        props.onDrag?.({
-                            x: x - offset_x,
-                            y: y - offset_y,
-                            w: w + margin_width,
-                            h: h + margin_height,
-                            is_float,
-                            i
-                        });
-                    }}
-                    onDragStop={({ x, y }) => {
-                        props.onDragStop?.({
-                            x: x - offset_x,
-                            y: y - offset_y,
-                            w: w + margin_width,
-                            h: h + margin_height,
-                            is_float,
-                            i
-                        });
-                    }}
-                >
-                    {new_child}
-                </Draggable>
-            </Resizable>
-        </React.Fragment>
+                {new_child}
+            </Draggable>
+        </Resizable>
     );
 });
 

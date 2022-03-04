@@ -15,7 +15,7 @@ const ResizableDragResponsiveLayout = () => {
     }, []);
 
     function generateLayout() {
-        return Array.from({ length: 6 }).map((_, i) => {
+        return Array.from({ length: 2 }).map((_, i) => {
             const random = parseInt((Math.random() * 500).toFixed());
             return {
                 w: 100,
@@ -70,8 +70,17 @@ const ResizableDragResponsiveLayout = () => {
                                 padding: 10
                             }}
                         >
+                            {/* <iframe
+                                title='111'
+                                src='http://www.baidu.com'
+                                frameBorder='0'
+                                width='100%'
+                                height='100%'
+                            ></iframe>
+                            <div> */}
                             我是第{w.i}个div, height: {w.h}, width:
                             {w.w}
+                            {/* </div> */}
                         </div>
                     );
                 })}

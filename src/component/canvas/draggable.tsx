@@ -98,20 +98,6 @@ const Draggable = (props: Props) => {
      * 所以在react内部调用stopPropagation阻止冒泡的时候，只能阻止到document自己或者以上的事件
      * 为了阻止其他非document元素上的冒泡事件，在此处使用原生处理
      */
-    const CurrentMouseUp = (e: MouseEvent) => {
-        child.props.onMouseUp?.(e);
-        handleDragStop();
-    };
-
-    useEffect(() => {
-        const current = (child.ref as RefObject<HTMLElement>).current;
-        addEvent(current, 'mouseup', CurrentMouseUp);
-        return () => {
-            const current = (child.ref as RefObject<HTMLElement>).current;
-            removeEvent(current, 'mouseup', CurrentMouseUp);
-        };
-    }, [child]);
-
     useEffect(() => {
         if (drag_state === DragStates.dragging) {
             addEvent(document, 'mousemove', handleDrag);
