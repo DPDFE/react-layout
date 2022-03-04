@@ -4,12 +4,13 @@ import {
     CursorType,
     ResizableProps
 } from '@/interfaces';
-import React, { memo } from 'react';
+import React, { memo, useRef } from 'react';
 import Cursor from './cursor';
 import { clamp, DEFAULT_BOUND } from './draggable';
 
-const Resizable = (props: ResizableProps) => {
+const Resizable = React.forwardRef((props: ResizableProps, ref) => {
     const child = React.Children.only(props.children);
+    const resize_ref = ref ?? useRef<HTMLDivElement>(null);
 
     const handleResizeStart = () => {
         if (!props.is_resizable) {
@@ -77,12 +78,22 @@ const Resizable = (props: ResizableProps) => {
     };
 
     const new_child = React.cloneElement(child, {
-        className: 'react-resizable',
+        onMouseDown: (e: React.MouseEvent) => {
+            props.onMouseDown?.(e);
+            child.props.onMouseDown?.(e);
+        },
+        props: child.props,
+        className: `react-resizable ${props.className ? props.className : ''} ${
+            child.props.className ? child.props.className : ''
+        }`,
+        ref: resize_ref,
         style: {
             ...props.style,
             transform: `translate(${props.x}px, ${props.y}px)`,
             width: props.w,
-            height: props.h
+            height: props.h,
+            ...props.style,
+            ...child.props.style
         }
     });
 
@@ -151,7 +162,7 @@ const Resizable = (props: ResizableProps) => {
             )}
         </React.Fragment>
     );
-};
+});
 
 Resizable.defaultProps = {
     is_resizable: false,
