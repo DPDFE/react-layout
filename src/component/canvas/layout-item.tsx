@@ -1,13 +1,6 @@
 import { LayoutType, WidgetItemProps } from '@/interfaces';
 import isEqual from 'lodash.isequal';
-import React, {
-    Fragment,
-    memo,
-    ReactElement,
-    useContext,
-    useRef,
-    useState
-} from 'react';
+import React, { Fragment, memo, ReactElement, useContext, useRef } from 'react';
 import { MIN_DRAG_LENGTH, snapToDragBound } from '../layout/calc';
 import { LayoutContext } from '../layout/context';
 import Draggable, { clamp } from './draggable';
@@ -93,23 +86,20 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     };
 
     // 如果child是一个iframe，就是一个黑洞，用遮罩把黑洞填上
-    const mask_dom =
-        props.mode === LayoutType.edit && need_mask ? (
-            <div
-                key={'mask'}
-                className={`react-drag-item-mask`}
-                style={{
-                    border: 'none',
-                    width: '100%',
-                    height: '100%',
-                    position: 'absolute',
-                    top: 0,
-                    left: 0
-                }}
-            ></div>
-        ) : (
-            <Fragment></Fragment>
-        );
+    const mask_dom = (
+        <div
+            key={'mask'}
+            className={`react-drag-item-mask`}
+            style={{
+                border: 'none',
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
+                top: 0,
+                left: 0
+            }}
+        ></div>
+    );
 
     const new_child = React.cloneElement(child, {
         tabIndex: i,
@@ -159,7 +149,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             height: h,
             ...child.props.style
         },
-        children: [child.props.children, mask_dom]
+        children:
+            props.mode === LayoutType.edit && need_mask
+                ? [child.props.children, mask_dom]
+                : child.props.children
     });
 
     /**
@@ -180,15 +173,21 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     };
 
     return (
-        <Resizable
+        <Draggable
             {...{ x, y, h, w, i, is_float }}
             scale={props.scale}
-            is_resizable={is_resizable}
-            onResizeStart={() => {
-                props.onResizeStart?.();
+            is_draggable={is_draggable}
+            onDragStart={() => {
+                props.onDragStart?.();
             }}
-            onResize={({ x, y, h, w }) => {
-                props.onResize?.({
+            bound={{
+                max_y: max_y - h,
+                min_y,
+                max_x: max_x - w,
+                min_x
+            }}
+            onDrag={({ x, y }) => {
+                props.onDrag?.({
                     x: x - offset_x,
                     y: y - offset_y,
                     w: w + margin_width,
@@ -197,10 +196,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     i
                 });
             }}
-            grid={getCurrentGrid()}
-            bound={{ max_x, max_y, min_x, min_y }}
-            onResizeStop={({ x, y, h, w }) => {
-                props.onResizeStop?.({
+            onDragStop={({ x, y }) => {
+                props.onDragStop?.({
                     x: x - offset_x,
                     y: y - offset_y,
                     w: w + margin_width,
@@ -210,21 +207,16 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 });
             }}
         >
-            <Draggable
+            <Resizable
+                ref={item_ref}
                 {...{ x, y, h, w, i, is_float }}
                 scale={props.scale}
-                is_draggable={is_draggable}
-                onDragStart={() => {
-                    props.onDragStart?.();
+                is_resizable={is_resizable}
+                onResizeStart={() => {
+                    props.onResizeStart?.();
                 }}
-                bound={{
-                    max_y: max_y - h,
-                    min_y,
-                    max_x: max_x - w,
-                    min_x
-                }}
-                onDrag={({ x, y }) => {
-                    props.onDrag?.({
+                onResize={({ x, y, h, w }) => {
+                    props.onResize?.({
                         x: x - offset_x,
                         y: y - offset_y,
                         w: w + margin_width,
@@ -233,8 +225,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         i
                     });
                 }}
-                onDragStop={({ x, y }) => {
-                    props.onDragStop?.({
+                grid={getCurrentGrid()}
+                bound={{ max_x, max_y, min_x, min_y }}
+                onResizeStop={({ x, y, h, w }) => {
+                    props.onResizeStop?.({
                         x: x - offset_x,
                         y: y - offset_y,
                         w: w + margin_width,
@@ -245,8 +239,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 }}
             >
                 {new_child}
-            </Draggable>
-        </Resizable>
+            </Resizable>
+        </Draggable>
     );
 });
 

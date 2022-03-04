@@ -40,6 +40,7 @@ const Draggable = (props: Props) => {
     /** 获取相对父元素偏移量 */
     const offsetXYFromParent = (e: MouseEvent) => {
         const current = (child.ref as RefObject<HTMLElement>).current;
+
         const parent = current?.parentElement as HTMLElement;
 
         const { left, top } = parent?.getBoundingClientRect();

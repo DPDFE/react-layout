@@ -240,6 +240,7 @@ export interface CursorProps extends DraggableProps {
 
 /** resize */
 export interface ResizableProps extends EventBaseProps, ItemPos {
+    onMouseDown?: (e: React.MouseEvent) => void;
     scale: number;
     grid: GridType;
     bound: BoundType;

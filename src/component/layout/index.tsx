@@ -141,6 +141,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         item.is_dragging = item.is_dragging ?? false;
         item.is_checked = item.is_checked ?? false;
         item.moved = item.moved ?? false;
+        item.need_mask = item.need_mask ?? false;
 
         return getBoundResult(item);
     }
@@ -247,13 +248,13 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     };
 
     /** 如果当前元素位于嵌套元素中 */
-    // const hasItemUnhoverable = (item: ItemPos, is_save?: boolean) => {
-    //     // if (type === OperatorType.drag || type === OperatorType.dragover) {
-    //     //     const collides = getFirstCollision(layout ?? [], item);
-    //     //     if (collides && collides.is_nested) {
-    //     //         return hasItemUnhoverable(item, is_save);
-    //     //     }
-    //     // }
+    // const getCurrentNested = (item: ItemPos, is_save?: boolean) => {
+    //     if (type === OperatorType.drag || type === OperatorType.dragover) {
+    //         const collides = getFirstCollision(layout ?? [], item);
+    //         if (collides && collides.is_nested) {
+    //             return hasItemUnhoverable(item, is_save);
+    //         }
+    //     }
 
     //     const current_item = getLayoutItem(item);
     //     const float_item = Object.assign({}, current_item, item);
@@ -271,27 +272,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     //         })
     //     );
     //     return layout ?? [];
-    // };
-
-    /**
-     * iframe 会阻止mousemove事件在拖拽过程中处理一下
-     */
-    // const preventIframeMouseEvent = (type: OperatorType, item: ItemPos) => {
-    //     if (OperatorType.drag == type) {
-    //         const collisions = getAllCollisions(layout ?? [], item);
-    //         collisions.map((collision) => {
-    //             collision.covered = true;
-    //         });
-    //     }
-    //     if (OperatorType.resize == type) {
-    //         const collision = getLayoutItem(item);
-    //         collision.covered = true;
-    //     }
-    //     if ([OperatorType.dragover, OperatorType.resizeover].includes(type)) {
-    //         (layout ?? []).map((l) => {
-    //             l.covered = false;
-    //         });
-    //     }
     // };
 
     const getLayoutItem = (item: ItemPos) => {
@@ -421,8 +401,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                 height: current_height,
                                 top: t_offset,
                                 left: l_offset,
-                                transform: `scale(${props.scale})`,
-                                transformOrigin: '0 0',
+                                transform: props.is_nested
+                                    ? 'none'
+                                    : `scale(${props.scale})`,
+                                transformOrigin: props.is_nested
+                                    ? 'none'
+                                    : '0 0',
                                 overflow:
                                     props.mode === LayoutType.edit
                                         ? 'unset'

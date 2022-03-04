@@ -43,7 +43,8 @@ const DefaultLayout = () => {
                 y: 100,
                 is_float: true,
                 is_resizable: true,
-                is_draggable: true
+                is_draggable: true,
+                is_nested: true
             },
             {
                 i: '1-1',
@@ -53,7 +54,8 @@ const DefaultLayout = () => {
                 y: 0,
                 is_float: false,
                 is_resizable: true,
-                is_draggable: true
+                is_draggable: true,
+                is_nested: true
             }
         ];
     }
