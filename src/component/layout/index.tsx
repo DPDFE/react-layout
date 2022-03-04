@@ -491,7 +491,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                         (
                                                             props as EditLayoutProps
                                                         ).onDragStart?.();
-                                                        setDragItem(widget);
                                                     }
                                                 }}
                                                 onDrag={(item) => {
@@ -510,7 +509,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                         ).onDrag?.(
                                                             layout ?? []
                                                         );
-                                                        setDragItem(item);
                                                     }
                                                 }}
                                                 onDragStop={(item) => {
@@ -529,7 +527,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                         ).onDragStop?.(
                                                             layout ?? []
                                                         );
-                                                        setDragItem(undefined);
                                                     }
                                                 }}
                                                 onResizeStart={() => {

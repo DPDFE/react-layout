@@ -1,10 +1,11 @@
 import { WidgetItemProps } from '@/interfaces';
 import isEqual from 'lodash.isequal';
-import React, { memo, ReactElement, useRef, useState } from 'react';
+import React, { memo, ReactElement, useRef, useContext } from 'react';
 import { MIN_DRAG_LENGTH, snapToDragBound } from '../layout/calc';
 import Draggable, { clamp } from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
+import { LayoutContext } from '../layout-context';
 
 /**
  * WidgetItem、resizable、draggable（props、child）流转：
@@ -24,6 +25,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children);
     const item_ref = ref ?? useRef<HTMLDivElement>(null);
 
+    const { setDragItem } = useContext(LayoutContext);
     const { col_width, row_height } = props.grid;
 
     const { i, is_float, is_dragging, is_draggable, is_resizable } = props;
@@ -180,13 +182,17 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         min_x
                     }}
                     onDrag={({ x, y }) => {
-                        props.onDrag?.({
+                        const item = {
                             x: x - offset_x,
                             y: y - offset_y,
                             w: w + margin_width,
                             h: h + margin_height,
                             is_float,
                             i
+                        };
+                        props.onDrag?.(item);
+                        setDragItem({
+                            ...item
                         });
                     }}
                     onDragStop={({ x, y }) => {
@@ -198,6 +204,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                             is_float,
                             i
                         });
+                        setDragItem(undefined);
                     }}
                 >
                     {new_child}
