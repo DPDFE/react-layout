@@ -1,6 +1,6 @@
 import { WidgetItemProps } from '@/interfaces';
 import isEqual from 'lodash.isequal';
-import React, { memo, ReactElement, useRef, useContext } from 'react';
+import React, { memo, ReactElement, useContext, useRef, useState } from 'react';
 import { MIN_DRAG_LENGTH, snapToDragBound } from '../layout/calc';
 import Draggable, { clamp } from './draggable';
 import Resizable from './resizable';
@@ -25,7 +25,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children);
     const item_ref = ref ?? useRef<HTMLDivElement>(null);
 
-    const { setDragItem } = useContext(LayoutContext);
+    const { operator_type, setDragItem } = useContext(LayoutContext);
+
     const { col_width, row_height } = props.grid;
 
     const { i, is_float, is_dragging, is_draggable, is_resizable } = props;
@@ -124,7 +125,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         style: {
             transform: `translate(${x}px, ${y}px)`,
             transition: props.is_checked ? 'none' : 'all 0.1s linear',
-            pointerEvents: props.covered
+            zIndex: props.is_dragging ? 99 : 'auto',
+            pointerEvents: operator_type
                 ? 'none'
                 : 'auto' /* 处理iframe不响应mousemove事件 */,
             width: w,
@@ -132,6 +134,23 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             ...child.props.style
         }
     });
+
+    /**
+     * 获取模块最小范围
+     */
+    const getCurrentGrid = () => {
+        if (is_float) {
+            return {
+                col_width: props.min_w ?? MIN_DRAG_LENGTH,
+                row_height: props.min_h ?? MIN_DRAG_LENGTH
+            };
+        } else {
+            return {
+                col_width: (props.min_w ?? 1) * col_width,
+                row_height: (props.min_h ?? 1) * row_height
+            };
+        }
+    };
 
     return (
         <React.Fragment>
@@ -152,11 +171,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         i
                     });
                 }}
-                grid={{
-                    col_width: is_float ? MIN_DRAG_LENGTH : col_width,
-                    row_height: is_float ? MIN_DRAG_LENGTH : row_height
-                }}
-                bound={props.bound}
+                grid={getCurrentGrid()}
+                bound={{ max_x, max_y, min_x, min_y }}
                 onResizeStop={({ x, y, h, w }) => {
                     props.onResizeStop?.({
                         x: x - offset_x,
@@ -229,6 +245,7 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
         .map((key) => {
             if (
                 [
+                    'data-drag',
                     'setCurrentChecked',
                     'onDragStart',
                     'onDrag',
@@ -241,6 +258,9 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
+                // if (key === 'children' && !isEqual(prev[key], next[key])) {
+                //     return childrenEqual(prev['children'], next['children']);
+                // }
                 return isEqual(prev[key], next[key]);
             }
         })

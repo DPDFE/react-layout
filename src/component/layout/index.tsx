@@ -16,7 +16,8 @@ import {
     snapToGrid,
     getCurrentMouseOverWidget,
     getAllCollisions,
-    moveToWidget
+    moveToWidget,
+    replaceWidget
 } from './calc';
 import styles from './styles.module.css';
 import {
@@ -35,8 +36,13 @@ import { LayoutContext } from '../layout-context';
 import { useLayoutHooks } from './hooks';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
-    const { checked_index, setCurrentChecked, setDragItem } =
-        useContext(LayoutContext);
+    const {
+        checked_index,
+        setCurrentChecked,
+        setDragItem,
+        operator_type,
+        setOperatorType
+    } = useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
     const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
@@ -49,9 +55,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const [shadow_widget, setShadowWidget] = useState<ItemPos>();
     const [old_shadow_widget, setOldShadowWidget] = useState<ItemPos>();
 
-    const [layout, setLayout] = useState<LayoutItem[]>(); // 真实定位位置
-
-    const [operator_type, setOperatorType] = useState<OperatorType>();
+    const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
     const {
         current_width,
@@ -63,11 +67,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         t_offset,
         l_offset
     } = useLayoutHooks(
+        layout,
         props,
         canvas_viewport,
         shadow_widget_ref,
         shadow_widget,
-        layout
+        operator_type
     );
 
     /**
@@ -130,10 +135,17 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
      * 组件信息补全
      */
     function getCurrentWidget(item: LayoutItem) {
+        item.w = Math.max(item.min_w ?? 1, item.w);
+        item.h = Math.max(item.min_h ?? 1, item.h);
+
         item.is_float = item.is_float ?? false;
         item.is_draggable = item.is_draggable ?? false;
         item.is_resizable = item.is_resizable ?? false;
         item.is_nested = item.is_nested ?? false;
+        item.covered = item.covered ?? false;
+        item.is_dragging = item.is_dragging ?? false;
+        item.is_checked = item.is_checked ?? false;
+        item.moved = item.moved ?? false;
 
         return getBoundResult(item);
     }
@@ -193,6 +205,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     /** 对drop节点做边界计算以后再排序 */
     const getBoundResult = (item: LayoutItem) => {
         const { max_x, min_x, max_y, min_y } = getCurrentBound(item.is_float);
+
         item.w = clamp(item.w, min_x, max_x);
         item.x = clamp(item.x, min_x, max_x - item.w);
         item.h = clamp(item.h, min_y, max_y);
@@ -305,7 +318,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     ) => {
         setOperatorType(type);
         const current_widget = getLayoutItem(item);
-        preventIframeMouseEvent(type, item);
 
         moveToWidget(current_widget, item);
 
@@ -337,13 +349,13 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             }
 
             setLayout(copyObject(layout));
-            return filter_layout.concat([shadow_widget]);
+            return replaceWidget(layout, shadow_widget);
         }
     };
 
     return (
         <div
-            className={`react-drag-layout ${styles.container}`}
+            className={`react-drag-layout ${styles.container} ${props.className}`}
             ref={container_ref}
         >
             {/* 水平标尺 */}
@@ -421,16 +433,14 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                         ? 'unset'
                                         : 'hidden'
                             }}
-                            onContextMenu={(e) => {
-                                e.preventDefault();
-                            }}
+                            // onContextMenu={(e) => {
+                            //     e.preventDefault();
+                            // }}
                         >
                             {shadow_widget && (
                                 <WidgetItem
                                     ref={shadow_widget_ref}
                                     {...shadow_widget}
-                                    width={current_width}
-                                    height={current_height}
                                     bound={getCurrentBound(
                                         shadow_widget.is_float
                                     )}
@@ -444,7 +454,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     is_checked={false}
                                 >
                                     <div
-                                        className={`placeholder ${styles.placeholder}`}
+                                        className={`react-drag-placeholder ${styles.placeholder}`}
                                     ></div>
                                 </WidgetItem>
                             )}
@@ -456,9 +466,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     if (widget) {
                                         return (
                                             <WidgetItem
-                                                className={
-                                                    'react-drag-placeholder'
-                                                }
                                                 layout_type={props.layout_type}
                                                 key={widget.i}
                                                 {...widget}
@@ -469,8 +476,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                     widget.is_float
                                                 )}
                                                 children={child}
-                                                width={current_width}
-                                                height={current_height}
                                                 scale={props.scale}
                                                 margin={props.item_margin}
                                                 is_checked={
@@ -481,7 +486,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                     checked_index === widget.i
                                                 }
                                                 setCurrentChecked={
-                                                    setCurrentChecked
+                                                    props.mode ===
+                                                    LayoutType.edit
+                                                        ? setCurrentChecked
+                                                        : noop
                                                 }
                                                 onDragStart={() => {
                                                     if (

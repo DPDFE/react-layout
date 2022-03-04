@@ -130,8 +130,10 @@ const DraggableGridResponsiveLayout = () => {
                                 padding: 10
                             }}
                         >
-                            我是第{w.i}个div, height: {w.h}, width:
-                            {w.w}
+                            <div>
+                                我是第{w.i}个div, height: {w.h}, width:
+                                {w.w}
+                            </div>
                         </div>
                     );
                 })}

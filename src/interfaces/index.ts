@@ -79,6 +79,7 @@ type LayoutBase = {
     need_grid_bound: boolean;
     need_drag_bound: boolean;
     is_nested: boolean;
+    className?: string;
 };
 
 type EditLayoutBase = LayoutBase & {
@@ -179,6 +180,8 @@ export interface GuideLineProps {
 
 /** 单节点属性 */
 export interface LayoutItem extends ItemPos {
+    min_w?: number;
+    min_h?: number;
     is_draggable?: boolean;
     is_resizable?: boolean;
     is_nested?: boolean;
@@ -197,8 +200,6 @@ interface EventBaseProps {
 
 /** 子元素 */
 export interface WidgetItemProps extends EventBaseProps, LayoutItem {
-    width: number;
-    height: number;
     scale: number;
     bound: BoundType;
     grid: GridType;
