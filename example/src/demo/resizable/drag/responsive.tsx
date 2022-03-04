@@ -25,7 +25,8 @@ const ResizableDragResponsiveLayout = () => {
                 y: random,
                 is_resizable: true,
                 is_draggable: true,
-                is_float: true
+                is_float: true,
+                need_mask: true
             };
         });
     }
@@ -70,17 +71,17 @@ const ResizableDragResponsiveLayout = () => {
                                 padding: 10
                             }}
                         >
-                            {/* <iframe
+                            <iframe
                                 title='111'
                                 src='http://www.baidu.com'
                                 frameBorder='0'
                                 width='100%'
                                 height='100%'
                             ></iframe>
-                            <div> */}
-                            我是第{w.i}个div, height: {w.h}, width:
-                            {w.w}
-                            {/* </div> */}
+                            <div>
+                                我是第{w.i}个div, height: {w.h}, width:
+                                {w.w}
+                            </div>
                         </div>
                     );
                 })}

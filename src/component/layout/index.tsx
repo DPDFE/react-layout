@@ -348,30 +348,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         }
     };
 
-    /**
-     * 因为有iframe的情况，
-     * 在编辑模式下，给页面增加一层遮罩，让遮罩处理事件
-     */
-    const getCurrentChildren = (child: React.ReactElement) => {
-        const new_child = React.cloneElement(child, {
-            className: `${styles.abundant} ${child.props.className}`
-        });
-        return (
-            <div>
-                {new_child}
-                {props.mode === LayoutType.edit && (
-                    <div
-                        className={`react-drag-item-mask ${styles.abundant}`}
-                        style={{
-                            border: 'none',
-                            zIndex: -1
-                        }}
-                    ></div>
-                )}
-            </div>
-        );
-    };
-
     return (
         <div
             className={`react-drag-layout ${styles.container} ${props.className}`}
@@ -466,6 +442,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     padding={padding}
                                     scale={props.scale}
                                     margin={props.item_margin}
+                                    mode={LayoutType.view}
                                     grid={grid}
                                     layout_type={props.layout_type}
                                     is_resizable={false}
@@ -494,9 +471,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                 bound={getCurrentBound(
                                                     widget.is_float
                                                 )}
-                                                children={getCurrentChildren(
-                                                    child
-                                                )}
+                                                mode={props.mode}
+                                                children={child}
                                                 scale={props.scale}
                                                 margin={props.item_margin}
                                                 is_checked={

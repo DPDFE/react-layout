@@ -189,6 +189,9 @@ export interface LayoutItem extends ItemPos {
     moved?: boolean;
     is_dragging?: boolean;
     is_checked?: boolean;
+    // 可以通过mask在操作布局的时候屏蔽元素细节
+    // 处理有iframe情况下，出现事件黑洞的情况
+    need_mask?: boolean;
 }
 
 interface EventBaseProps {
@@ -205,6 +208,7 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     grid: GridType;
     margin: [number, number];
     padding: MarginType;
+    mode: LayoutType.edit | LayoutType.view;
     layout_type: LayoutType.DRAG | LayoutType.GRID;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: () => void;

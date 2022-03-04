@@ -1,6 +1,13 @@
-import { WidgetItemProps } from '@/interfaces';
+import { LayoutType, WidgetItemProps } from '@/interfaces';
 import isEqual from 'lodash.isequal';
-import React, { memo, ReactElement, useContext, useRef, useState } from 'react';
+import React, {
+    Fragment,
+    memo,
+    ReactElement,
+    useContext,
+    useRef,
+    useState
+} from 'react';
 import { MIN_DRAG_LENGTH, snapToDragBound } from '../layout/calc';
 import { LayoutContext } from '../layout/context';
 import Draggable, { clamp } from './draggable';
@@ -29,7 +36,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const { col_width, row_height } = props.grid;
 
-    const { i, is_float, is_dragging, is_draggable, is_resizable } = props;
+    const { i, is_float, is_dragging, is_draggable, is_resizable, need_mask } =
+        props;
 
     const { min_x, max_x, min_y, max_y } = snapToDragBound(
         props.bound,
@@ -84,6 +92,25 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         return undefined;
     };
 
+    // 如果child是一个iframe，就是一个黑洞，用遮罩把黑洞填上
+    const mask_dom =
+        props.mode === LayoutType.edit && need_mask ? (
+            <div
+                key={'mask'}
+                className={`react-drag-item-mask`}
+                style={{
+                    border: 'none',
+                    width: '100%',
+                    height: '100%',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0
+                }}
+            ></div>
+        ) : (
+            <Fragment></Fragment>
+        );
+
     const new_child = React.cloneElement(child, {
         tabIndex: i,
         onMouseDown: () => {
@@ -131,7 +158,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             width: w,
             height: h,
             ...child.props.style
-        }
+        },
+        children: [child.props.children, mask_dom]
     });
 
     /**
