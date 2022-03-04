@@ -349,7 +349,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     };
 
     /**
-     * 因为有iframe的情况，在编辑模式下，给页面增加一层遮罩
+     * 因为有iframe的情况，
+     * 在编辑模式下，给页面增加一层遮罩，让遮罩处理事件
      */
     const getCurrentChildren = (child: React.ReactElement) => {
         const new_child = React.cloneElement(child, {
@@ -362,7 +363,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     <div
                         className={`react-drag-item-mask ${styles.abundant}`}
                         style={{
-                            border: 'none'
+                            border: 'none',
+                            zIndex: -1
                         }}
                     ></div>
                 )}
