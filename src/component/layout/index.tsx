@@ -247,52 +247,52 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     };
 
     /** 如果当前元素位于嵌套元素中 */
-    const hasItemUnhoverable = (item: ItemPos, is_save?: boolean) => {
-        // if (type === OperatorType.drag || type === OperatorType.dragover) {
-        //     const collides = getFirstCollision(layout ?? [], item);
-        //     if (collides && collides.is_nested) {
-        //         return hasItemUnhoverable(item, is_save);
-        //     }
-        // }
+    // const hasItemUnhoverable = (item: ItemPos, is_save?: boolean) => {
+    //     // if (type === OperatorType.drag || type === OperatorType.dragover) {
+    //     //     const collides = getFirstCollision(layout ?? [], item);
+    //     //     if (collides && collides.is_nested) {
+    //     //         return hasItemUnhoverable(item, is_save);
+    //     //     }
+    //     // }
 
-        const current_item = getLayoutItem(item);
-        const float_item = Object.assign({}, current_item, item);
+    //     const current_item = getLayoutItem(item);
+    //     const float_item = Object.assign({}, current_item, item);
 
-        setShadowWidget(undefined);
-        setOldShadowWidget(undefined);
-        compact(
-            (layout ?? []).filter((l) => {
-                return l.i != item.i;
-            })
-        );
-        setLayout(
-            layout!.map((w) => {
-                return w.i === item.i && !is_save ? float_item : w;
-            })
-        );
-        return layout ?? [];
-    };
+    //     setShadowWidget(undefined);
+    //     setOldShadowWidget(undefined);
+    //     compact(
+    //         (layout ?? []).filter((l) => {
+    //             return l.i != item.i;
+    //         })
+    //     );
+    //     setLayout(
+    //         layout!.map((w) => {
+    //             return w.i === item.i && !is_save ? float_item : w;
+    //         })
+    //     );
+    //     return layout ?? [];
+    // };
 
     /**
      * iframe 会阻止mousemove事件在拖拽过程中处理一下
      */
-    const preventIframeMouseEvent = (type: OperatorType, item: ItemPos) => {
-        if (OperatorType.drag == type) {
-            const collisions = getAllCollisions(layout ?? [], item);
-            collisions.map((collision) => {
-                collision.covered = true;
-            });
-        }
-        if (OperatorType.resize == type) {
-            const collision = getLayoutItem(item);
-            collision.covered = true;
-        }
-        if ([OperatorType.dragover, OperatorType.resizeover].includes(type)) {
-            (layout ?? []).map((l) => {
-                l.covered = false;
-            });
-        }
-    };
+    // const preventIframeMouseEvent = (type: OperatorType, item: ItemPos) => {
+    //     if (OperatorType.drag == type) {
+    //         const collisions = getAllCollisions(layout ?? [], item);
+    //         collisions.map((collision) => {
+    //             collision.covered = true;
+    //         });
+    //     }
+    //     if (OperatorType.resize == type) {
+    //         const collision = getLayoutItem(item);
+    //         collision.covered = true;
+    //     }
+    //     if ([OperatorType.dragover, OperatorType.resizeover].includes(type)) {
+    //         (layout ?? []).map((l) => {
+    //             l.covered = false;
+    //         });
+    //     }
+    // };
 
     const getLayoutItem = (item: ItemPos) => {
         return layout!.find((l) => {
