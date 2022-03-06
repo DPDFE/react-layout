@@ -130,8 +130,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
      * 组件信息补全
      */
     function getCurrentWidget(item: LayoutItem) {
-        item.w = Math.max(item.min_w ?? 1, item.w);
-        item.h = Math.max(item.min_h ?? 1, item.h);
+        item.w = Math.max(item.min_w ?? (item.is_float ? 5 : 1), item.w);
+        item.h = Math.max(item.min_h ?? (item.is_float ? 5 : 1), item.h);
 
         item.is_float = item.is_float ?? false;
         item.is_draggable = item.is_draggable ?? false;
@@ -172,7 +172,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             // 如果是canvas内的子节点会被触发leave
             setShadowWidget(undefined);
             setOldShadowWidget(undefined);
-            compact(layout ?? []);
+            compact(layout);
             setLayout(layout);
         }
     };
@@ -212,25 +212,24 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     const onDragOver = (e: React.MouseEvent) => {
         e.preventDefault();
-        setOperatorType(OperatorType.drop);
 
         const collides = getCurrentMouseOverWidget(
             layout!,
             canvas_ref,
             e,
-            props.scale
+            props.scale,
+            grid
         );
 
         if (collides && collides.is_nested) {
             setShadowWidget(undefined);
             setOldShadowWidget(undefined);
-            compact(layout ?? []);
+            compact(layout);
             setLayout(layout);
         } else {
             const shadow_widget = getBoundResult(
                 getDropItem(canvas_ref, e, props, grid)
             );
-
             if (
                 old_shadow_widget &&
                 shadow_widget.x === old_shadow_widget.x &&
@@ -240,9 +239,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             }
             setShadowWidget(shadow_widget);
             setOldShadowWidget(copyObject(shadow_widget));
-
-            const new_layout = [shadow_widget, ...layout!];
-            compact(new_layout ?? []);
+            const new_layout = [shadow_widget, ...layout];
+            compact(new_layout);
             setLayout(layout);
         }
     };
@@ -344,8 +342,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     canvas_viewport={canvas_viewport}
                 ></HorizontalRuler>
             )}
-
-            <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+            {/* 可视区域窗口 */}
+            <div
+                style={{ display: 'flex', flex: 1, overflow: 'hidden' }}
+                ref={canvas_viewport}
+                id={'canvas_viewport'}
+            >
                 {/* 垂直标尺 */}
                 {canvas_viewport.current && props.need_ruler && (
                     <VerticalRuler
@@ -358,7 +360,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     ></VerticalRuler>
                 )}
 
-                {/* 可视区域窗口 */}
                 <div
                     style={{
                         overflowX: props.is_nested ? 'hidden' : 'auto',
@@ -367,8 +368,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                         flex: 1,
                         scrollBehavior: 'smooth'
                     }}
-                    ref={canvas_viewport}
-                    id={'canvas_viewport'}
                 >
                     {/* 画板区域 */}
                     <div
@@ -432,6 +431,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     is_resizable={false}
                                     is_draggable={false}
                                     is_checked={false}
+                                    layout_nested={props.is_nested}
                                 >
                                     <div
                                         className={`react-drag-placeholder ${styles.placeholder}`}
@@ -455,6 +455,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                                 bound={getCurrentBound(
                                                     widget.is_float
                                                 )}
+                                                layout_nested={props.is_nested}
                                                 mode={props.mode}
                                                 children={child}
                                                 scale={props.scale}
@@ -587,6 +588,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                 }
                             )}
                         </div>
+                        <span style={{ position: 'fixed' }}>{layout_name}</span>
                     </div>
                 </div>
             </div>

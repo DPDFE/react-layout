@@ -210,6 +210,7 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     padding: MarginType;
     mode: LayoutType.edit | LayoutType.view;
     layout_type: LayoutType.DRAG | LayoutType.GRID;
+    layout_nested?: boolean;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: () => void;
     onDrag?: (item: ItemPos) => void;

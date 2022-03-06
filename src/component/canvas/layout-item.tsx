@@ -3,7 +3,7 @@ import isEqual from 'lodash.isequal';
 import React, { Fragment, memo, ReactElement, useContext, useRef } from 'react';
 import { MIN_DRAG_LENGTH, snapToDragBound } from '../layout/calc';
 import { LayoutContext } from '../layout/context';
-import Draggable, { clamp } from './draggable';
+import Draggable, { clamp, DEFAULT_BOUND } from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
 
@@ -29,8 +29,15 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const { col_width, row_height } = props.grid;
 
-    const { i, is_float, is_dragging, is_draggable, is_resizable, need_mask } =
-        props;
+    const {
+        i,
+        is_float,
+        is_dragging,
+        is_draggable,
+        is_resizable,
+        need_mask,
+        layout_nested
+    } = props;
 
     const { min_x, max_x, min_y, max_y } = snapToDragBound(
         props.bound,
@@ -180,12 +187,16 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             onDragStart={() => {
                 props.onDragStart?.();
             }}
-            bound={{
-                max_y: max_y - h,
-                min_y,
-                max_x: max_x - w,
-                min_x
-            }}
+            bound={
+                layout_nested
+                    ? DEFAULT_BOUND
+                    : {
+                          max_y: max_y - h,
+                          min_y,
+                          max_x: max_x - w,
+                          min_x
+                      }
+            }
             onDrag={({ x, y }) => {
                 props.onDrag?.({
                     x: x - offset_x,
