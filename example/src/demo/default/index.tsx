@@ -242,6 +242,7 @@ const DefaultLayout = () => {
 
                             const new_widgets = layout.concat([drop_element]);
                             setWidgets(new_widgets);
+                            console.log('add widgets');
                             return drop_element;
                         }}
                         onDragStart={() => {
@@ -319,10 +320,13 @@ const DefaultLayout = () => {
                                         padding: 10
                                     }}
                                 >
-                                    <div className='test'>
-                                        我是第{w.i}个div, height: {w.h}, width:
-                                        {w.w}
-                                    </div>
+                                    {w.i !== '1' && (
+                                        <div className='test'>
+                                            我是第{w.i}个div, height: {w.h},
+                                            width:
+                                            {w.w}
+                                        </div>
+                                    )}
                                     {w.i === '1' && (
                                         <Tabs
                                             defaultActiveKey='1'
@@ -343,8 +347,8 @@ const DefaultLayout = () => {
                                                     row_height={50}
                                                     cols={8}
                                                     item_margin={[10, 10]}
-                                                    need_drag_bound={false}
-                                                    need_grid_bound={false}
+                                                    need_drag_bound={true}
+                                                    need_grid_bound={true}
                                                     is_nested={true}
                                                     onDrop={(
                                                         layout: LayoutItem[],

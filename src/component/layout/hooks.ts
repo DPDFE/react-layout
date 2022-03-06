@@ -11,6 +11,7 @@ import {
     calcOffset,
     completedPadding,
     snapToDrag,
+    TOP_RULER_LEFT_MARGIN,
     WRAPPER_PADDING
 } from './calc';
 
@@ -89,7 +90,8 @@ export const useLayoutHooks = (
     /** 视窗宽度 */
     const client_width = useMemo(() => {
         return canvas_viewport.current
-            ? canvas_viewport.current.clientWidth
+            ? canvas_viewport.current.clientWidth -
+                  (props.need_ruler ? TOP_RULER_LEFT_MARGIN : 0)
             : 0;
     }, [is_window_resize]);
 
