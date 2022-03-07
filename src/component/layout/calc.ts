@@ -73,6 +73,11 @@ export function moveToWidget(target: LayoutItem, to: ItemPos) {
 export function replaceWidget(arr: LayoutItem[], item: LayoutItem) {
     return arr.map((obj) => [item].find((o) => o.i === obj.i) || obj);
 }
+export function cloneWidget(w: LayoutItem) {
+    return {
+        ...w
+    };
+}
 
 export function dynamicProgramming(
     item: ItemPos,
