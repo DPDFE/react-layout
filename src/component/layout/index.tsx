@@ -31,7 +31,7 @@ import {
     RulerPointer
 } from '@/interfaces';
 import GuideLine from '../guide-line';
-import { noop } from '@/utils/utils';
+import { copyObject, copyObjectArray, noop } from '@/utils/utils';
 import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
 import { LayoutContext } from './context';
 import { useLayoutHooks } from './hooks';
@@ -298,7 +298,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         moveToWidget(current_widget, item);
 
         if (current_widget.is_float) {
-            setLayout(layout);
+            setLayout(copyObject(layout));
             return layout;
         } else {
             const shadow_widget = cloneWidget(current_widget);
@@ -311,6 +311,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 shadow_widget.y,
                 true
             );
+
             compact(filter_layout.concat([shadow_widget]));
             if (is_save) {
                 current_widget.is_dragging = false;
