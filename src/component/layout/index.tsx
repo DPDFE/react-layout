@@ -295,13 +295,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         moveToWidget(current_widget, item);
 
         if (current_widget.is_float) {
-            setLayout(copyObject(layout));
+            setLayout(layout);
             return layout;
         } else {
             const shadow_widget = copyObject(current_widget);
             const filter_layout = getFilterLayout(item);
             snapToGrid(shadow_widget, grid);
-
             moveElement(
                 filter_layout,
                 shadow_widget,
@@ -309,9 +308,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 shadow_widget.y,
                 true
             );
-
             compact(filter_layout.concat([shadow_widget]));
-
             if (is_save) {
                 current_widget.is_dragging = false;
                 moveToWidget(current_widget, shadow_widget);
@@ -320,9 +317,132 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 current_widget.is_dragging = true;
                 setShadowWidget(shadow_widget);
             }
-
-            setLayout(copyObject(layout));
+            setLayout(layout);
             return replaceWidget(layout, shadow_widget);
+        }
+    };
+
+    const shadowGridItem = () => {
+        return (
+            shadow_widget && (
+                <WidgetItem
+                    ref={shadow_widget_ref}
+                    {...shadow_widget}
+                    bound={getCurrentBound(shadow_widget.is_float)}
+                    padding={padding}
+                    scale={props.scale}
+                    margin={props.item_margin}
+                    mode={LayoutType.view}
+                    grid={grid}
+                    layout_type={props.layout_type}
+                    is_resizable={false}
+                    is_draggable={false}
+                    is_checked={false}
+                    layout_nested={props.is_nested}
+                >
+                    <div
+                        className={`react-drag-placeholder ${styles.placeholder}`}
+                    ></div>
+                </WidgetItem>
+            )
+        );
+    };
+
+    const processGridItem = (widget: LayoutItem, child: React.ReactElement) => {
+        if (widget) {
+            return (
+                <WidgetItem
+                    layout_type={props.layout_type}
+                    key={widget.i}
+                    {...widget}
+                    {...child.props}
+                    padding={padding}
+                    grid={grid}
+                    bound={getCurrentBound(widget.is_float)}
+                    layout_nested={props.is_nested}
+                    mode={props.mode}
+                    children={child}
+                    scale={props.scale}
+                    margin={props.item_margin}
+                    is_checked={checked_index === widget.i}
+                    is_resizable={
+                        widget.is_resizable && checked_index === widget.i
+                    }
+                    setCurrentChecked={
+                        props.mode === LayoutType.edit
+                            ? setCurrentChecked
+                            : noop
+                    }
+                    onDragStart={() => {
+                        checked_index === widget.i
+                            ? (props as EditLayoutProps).onDragStart?.()
+                            : noop;
+                    }}
+                    onDrag={(item) => {
+                        if (checked_index === widget.i) {
+                            const layout = getCurrentLayoutByItem(
+                                OperatorType.drag,
+                                item,
+                                false
+                            );
+                            (props as EditLayoutProps).onDrag?.(layout ?? []);
+                        }
+                    }}
+                    onDragStop={(item) => {
+                        if (checked_index === widget.i) {
+                            const layout = getCurrentLayoutByItem(
+                                OperatorType.dragover,
+                                item,
+                                true
+                            );
+                            (props as EditLayoutProps).onDragStop?.(
+                                layout ?? []
+                            );
+                        }
+                    }}
+                    onResizeStart={() => {
+                        if (checked_index === widget.i) {
+                            (props as EditLayoutProps).onResizeStart?.();
+                        }
+                    }}
+                    onResize={(item) => {
+                        if (checked_index === widget.i) {
+                            const layout = getCurrentLayoutByItem(
+                                OperatorType.resize,
+                                item,
+                                false
+                            );
+                            (props as EditLayoutProps).onResize?.(layout ?? []);
+                        }
+                    }}
+                    onResizeStop={(item) => {
+                        if (checked_index === widget.i) {
+                            const layout = getCurrentLayoutByItem(
+                                OperatorType.resizeover,
+                                item,
+                                true
+                            );
+                            (props as EditLayoutProps).onResizeStop?.(
+                                layout ?? []
+                            );
+                        }
+                    }}
+                    onPositionChange={(item) => {
+                        if (checked_index === widget.i) {
+                            const layout = getCurrentLayoutByItem(
+                                OperatorType.changeover,
+                                item,
+                                true
+                            );
+                            (props as EditLayoutProps).onPositionChange?.(
+                                layout ?? []
+                            );
+                        }
+                    }}
+                />
+            );
+        } else {
+            return <Fragment></Fragment>;
         }
     };
 
@@ -415,180 +535,15 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             //     e.preventDefault();
                             // }}
                         >
-                            {shadow_widget && (
-                                <WidgetItem
-                                    ref={shadow_widget_ref}
-                                    {...shadow_widget}
-                                    bound={getCurrentBound(
-                                        shadow_widget.is_float
-                                    )}
-                                    padding={padding}
-                                    scale={props.scale}
-                                    margin={props.item_margin}
-                                    mode={LayoutType.view}
-                                    grid={grid}
-                                    layout_type={props.layout_type}
-                                    is_resizable={false}
-                                    is_draggable={false}
-                                    is_checked={false}
-                                    layout_nested={props.is_nested}
-                                >
-                                    <div
-                                        className={`react-drag-placeholder ${styles.placeholder}`}
-                                    ></div>
-                                </WidgetItem>
-                            )}
-
+                            {shadowGridItem()}
                             {React.Children.map(
                                 props.children,
                                 (child, idx) => {
                                     const widget = layout?.[idx];
-                                    if (widget) {
-                                        return (
-                                            <WidgetItem
-                                                layout_type={props.layout_type}
-                                                key={widget.i}
-                                                {...widget}
-                                                {...child.props}
-                                                padding={padding}
-                                                grid={grid}
-                                                bound={getCurrentBound(
-                                                    widget.is_float
-                                                )}
-                                                layout_nested={props.is_nested}
-                                                mode={props.mode}
-                                                children={child}
-                                                scale={props.scale}
-                                                margin={props.item_margin}
-                                                is_checked={
-                                                    checked_index === widget.i
-                                                }
-                                                is_resizable={
-                                                    widget.is_resizable &&
-                                                    checked_index === widget.i
-                                                }
-                                                setCurrentChecked={
-                                                    props.mode ===
-                                                    LayoutType.edit
-                                                        ? setCurrentChecked
-                                                        : noop
-                                                }
-                                                onDragStart={() => {
-                                                    checked_index === widget.i
-                                                        ? (
-                                                              props as EditLayoutProps
-                                                          ).onDragStart?.()
-                                                        : noop;
-                                                }}
-                                                onDrag={(item) => {
-                                                    if (
-                                                        checked_index ===
-                                                        widget.i
-                                                    ) {
-                                                        const layout =
-                                                            getCurrentLayoutByItem(
-                                                                OperatorType.drag,
-                                                                item,
-                                                                false
-                                                            );
-                                                        (
-                                                            props as EditLayoutProps
-                                                        ).onDrag?.(
-                                                            layout ?? []
-                                                        );
-                                                    }
-                                                }}
-                                                onDragStop={(item) => {
-                                                    if (
-                                                        checked_index ===
-                                                        widget.i
-                                                    ) {
-                                                        const layout =
-                                                            getCurrentLayoutByItem(
-                                                                OperatorType.dragover,
-                                                                item,
-                                                                true
-                                                            );
-                                                        (
-                                                            props as EditLayoutProps
-                                                        ).onDragStop?.(
-                                                            layout ?? []
-                                                        );
-                                                    }
-                                                }}
-                                                onResizeStart={() => {
-                                                    if (
-                                                        checked_index ===
-                                                        widget.i
-                                                    ) {
-                                                        (
-                                                            props as EditLayoutProps
-                                                        ).onResizeStart?.();
-                                                    }
-                                                }}
-                                                onResize={(item) => {
-                                                    if (
-                                                        checked_index ===
-                                                        widget.i
-                                                    ) {
-                                                        const layout =
-                                                            getCurrentLayoutByItem(
-                                                                OperatorType.resize,
-                                                                item,
-                                                                false
-                                                            );
-                                                        (
-                                                            props as EditLayoutProps
-                                                        ).onResize?.(
-                                                            layout ?? []
-                                                        );
-                                                    }
-                                                }}
-                                                onResizeStop={(item) => {
-                                                    if (
-                                                        checked_index ===
-                                                        widget.i
-                                                    ) {
-                                                        const layout =
-                                                            getCurrentLayoutByItem(
-                                                                OperatorType.resizeover,
-                                                                item,
-                                                                true
-                                                            );
-                                                        (
-                                                            props as EditLayoutProps
-                                                        ).onResizeStop?.(
-                                                            layout ?? []
-                                                        );
-                                                    }
-                                                }}
-                                                onPositionChange={(item) => {
-                                                    if (
-                                                        checked_index ===
-                                                        widget.i
-                                                    ) {
-                                                        const layout =
-                                                            getCurrentLayoutByItem(
-                                                                OperatorType.changeover,
-                                                                item,
-                                                                true
-                                                            );
-                                                        (
-                                                            props as EditLayoutProps
-                                                        ).onPositionChange?.(
-                                                            layout ?? []
-                                                        );
-                                                    }
-                                                }}
-                                            />
-                                        );
-                                    } else {
-                                        return <Fragment></Fragment>;
-                                    }
+                                    return processGridItem(widget, child);
                                 }
                             )}
                         </div>
-                        <span style={{ position: 'fixed' }}>{layout_name}</span>
                     </div>
                 </div>
             </div>
