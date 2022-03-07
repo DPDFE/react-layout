@@ -28,14 +28,8 @@ const Draggable = (props: Props) => {
         Element
     >;
 
-    const pos = {
-        x: props.x,
-        y: props.y
-    };
-
     const [drag_state, setDragState] = useState<DragStates>();
     const [mouse_pos, setMousePos] = useState<Pos>({ x: NaN, y: NaN }); // 鼠标点击坐标
-    const [start_pos, setStartPosition] = useState<Pos>(pos); // 放置当前坐标
 
     /** 获取相对父元素偏移量 */
     const offsetXYFromParent = (e: MouseEvent) => {
@@ -60,7 +54,6 @@ const Draggable = (props: Props) => {
 
         const { x, y } = offsetXYFromParent(e);
 
-        setStartPosition({ x: props.x, y: props.y });
         setMousePos({ x, y });
     };
 
@@ -77,8 +70,8 @@ const Draggable = (props: Props) => {
         const { max_x, max_y, min_x, min_y } = formatBound(props.bound);
 
         const pos = {
-            x: clamp(start_pos.x + delta_x, min_x, max_x),
-            y: clamp(start_pos.y + delta_y, min_y, max_y)
+            x: clamp(props.x + delta_x, min_x, max_x),
+            y: clamp(props.y + delta_y, min_y, max_y)
         };
 
         props.onDrag?.(pos);

@@ -283,9 +283,6 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                // if (key === 'children' && !isEqual(prev[key], next[key])) {
-                //     return childrenEqual(prev['children'], next['children']);
-                // }
                 return isEqual(prev[key], next[key]);
             }
         })
