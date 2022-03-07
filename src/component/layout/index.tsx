@@ -17,7 +17,8 @@ import {
     getCurrentMouseOverWidget,
     getAllCollisions,
     moveToWidget,
-    replaceWidget
+    replaceWidget,
+    cloneWidget
 } from './calc';
 import styles from './styles.module.css';
 import {
@@ -30,7 +31,7 @@ import {
     RulerPointer
 } from '@/interfaces';
 import GuideLine from '../guide-line';
-import { copyObject, copyObjectArray, noop } from '@/utils/utils';
+import { noop } from '@/utils/utils';
 import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
 import { LayoutContext } from './context';
 import { useLayoutHooks } from './hooks';
@@ -152,7 +153,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     useEffect(() => {
         const new_layout = React.Children.toArray(props.children).map(
             (child: React.ReactElement) => {
-                const item = copyObject(child.props['data-drag']) as LayoutItem;
+                const item = cloneWidget(
+                    child.props['data-drag']
+                ) as LayoutItem;
                 return getCurrentWidget(item);
             }
         );
@@ -238,7 +241,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 return;
             }
             setShadowWidget(shadow_widget);
-            setOldShadowWidget(copyObject(shadow_widget));
+            setOldShadowWidget(cloneWidget(shadow_widget));
             const new_layout = [shadow_widget, ...layout];
             compact(new_layout);
             setLayout(layout);
@@ -298,7 +301,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             setLayout(layout);
             return layout;
         } else {
-            const shadow_widget = copyObject(current_widget);
+            const shadow_widget = cloneWidget(current_widget);
             const filter_layout = getFilterLayout(item);
             snapToGrid(shadow_widget, grid);
             moveElement(
