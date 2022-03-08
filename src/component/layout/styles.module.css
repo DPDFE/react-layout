@@ -12,7 +12,7 @@
 
 .canvas {
     position: absolute;
-    background-color: #fff;
+    background-color: transparent;
 }
 
 .placeholder {

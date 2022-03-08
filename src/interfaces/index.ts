@@ -1,4 +1,9 @@
-import React, { ReactChild, ReactElement, RefObject } from 'react';
+import React, {
+    CSSProperties,
+    ReactChild,
+    ReactElement,
+    RefObject
+} from 'react';
 
 export enum OperatorType {
     drag = 'drag',
@@ -80,6 +85,7 @@ type LayoutBase = {
     need_drag_bound: boolean;
     is_nested: boolean;
     className?: string;
+    style: CSSProperties;
 };
 
 type EditLayoutBase = LayoutBase & {
@@ -220,6 +226,11 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     onResizeStop?: (item: ItemPos) => void;
     onPositionChange?: (item: ItemPos) => void;
 }
+
+export interface LayoutRef {
+    getWrapperSize: () => { wrapper_width: number; wrapper_height: number };
+}
+
 /** drag */
 export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
     x: number;
