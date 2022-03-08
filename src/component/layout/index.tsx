@@ -294,44 +294,43 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     //     return layout ?? [];
     // };
 
-    const getCurrentLayoutByItem = (
-        type: OperatorType,
-        item: ItemPos,
-        is_save?: boolean
-    ) => {
-        setOperatorType(type);
-        const current_widget = getLayoutItem(item);
+    const getCurrentLayoutByItem = useCallback(
+        (type: OperatorType, item: ItemPos, is_save?: boolean) => {
+            setOperatorType(type);
+            const current_widget = getLayoutItem(item);
 
-        moveToWidget(current_widget, item);
+            moveToWidget(current_widget, item);
 
-        if (current_widget.is_float) {
-            setLayout(copyObject(layout));
-            return layout;
-        } else {
-            const shadow_widget = cloneWidget(current_widget);
-            const filter_layout = getFilterLayout(item);
-            snapToGrid(shadow_widget, grid);
-            moveElement(
-                filter_layout,
-                shadow_widget,
-                shadow_widget.x,
-                shadow_widget.y,
-                true
-            );
-
-            compact(filter_layout.concat([shadow_widget]));
-            if (is_save) {
-                current_widget.is_dragging = false;
-                moveToWidget(current_widget, shadow_widget);
-                setShadowWidget(undefined);
+            if (current_widget.is_float) {
+                setLayout(copyObject(layout));
+                return layout;
             } else {
-                current_widget.is_dragging = true;
-                setShadowWidget(shadow_widget);
+                const shadow_widget = cloneWidget(current_widget);
+                const filter_layout = getFilterLayout(item);
+                snapToGrid(shadow_widget, grid);
+                moveElement(
+                    filter_layout,
+                    shadow_widget,
+                    shadow_widget.x,
+                    shadow_widget.y,
+                    true
+                );
+
+                compact(filter_layout.concat([shadow_widget]));
+                if (is_save) {
+                    current_widget.is_dragging = false;
+                    moveToWidget(current_widget, shadow_widget);
+                    setShadowWidget(undefined);
+                } else {
+                    current_widget.is_dragging = true;
+                    setShadowWidget(shadow_widget);
+                }
+                setLayout(copyObject(layout));
+                return replaceWidget(layout, shadow_widget);
             }
-            setLayout(layout);
-            return replaceWidget(layout, shadow_widget);
-        }
-    };
+        },
+        [layout, grid]
+    );
 
     const shadowGridItem = () => {
         return (
@@ -366,6 +365,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             return (
                 <WidgetItem
                     layout_type={props.layout_type}
+                    layout_id={props.layout_id}
                     key={widget.i}
                     {...widget}
                     {...child.props}
@@ -548,7 +548,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     useEffect(() => {
         const onMouseMouve = (event: MouseEvent) => {
             event.stopPropagation();
-            console.log('mouse move', layout_name);
             const { pageX, pageY } = event;
             const newState = {
                 elementX: NaN,
@@ -711,7 +710,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                         }
                         onClick={onClick}
                         onMouseMove={(e) => {
-                            console.log(e, 'move on');
+                            // console.log(e, 'move on');
                         }}
                     >
                         {/* 实际画布区域 */}
