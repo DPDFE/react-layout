@@ -234,8 +234,53 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     }, [entry, registry.draggable]);
 
     return (
-        <React.Fragment>
+        <Draggable
+            {...{ x, y, h, w, i, is_float, is_nested }}
+            scale={props.scale}
+            is_draggable={is_draggable}
+            onDragStart={() => {
+                props.onDragStart?.();
+            }}
+            bound={
+                layout_nested
+                    ? DEFAULT_BOUND
+                    : {
+                          max_y: max_y - h,
+                          min_y,
+                          max_x: max_x - w,
+                          min_x
+                      }
+            }
+            onDrag={({ x, y }) => {
+                const item = {
+                    x: x - offset_x,
+                    y: y - offset_y,
+                    w: w + margin_width,
+                    h: h + margin_height,
+                    is_float,
+                    i
+                };
+                props.onDrag?.(item);
+                setDragItem({
+                    ...item,
+                    layout_id: props.layout_id,
+                    element: getLayoutItemRef()
+                });
+            }}
+            onDragStop={({ x, y }) => {
+                props.onDragStop?.({
+                    x: x - offset_x,
+                    y: y - offset_y,
+                    w: w + margin_width,
+                    h: h + margin_height,
+                    is_float,
+                    i
+                });
+                setDragItem(undefined);
+            }}
+        >
             <Resizable
+                ref={item_ref}
                 {...{ x, y, h, w, i, is_float, is_nested }}
                 scale={props.scale}
                 is_resizable={is_resizable}
@@ -265,51 +310,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     });
                 }}
             >
-                <Draggable
-                    {...{ x, y, h, w, i, is_float, is_nested }}
-                    scale={props.scale}
-                    is_draggable={is_draggable}
-                    onDragStart={() => {
-                        props.onDragStart?.();
-                    }}
-                    bound={{
-                        max_y: max_y - h,
-                        min_y,
-                        max_x: max_x - w,
-                        min_x
-                    }}
-                    onDrag={({ x, y }) => {
-                        const item = {
-                            x: x - offset_x,
-                            y: y - offset_y,
-                            w: w + margin_width,
-                            h: h + margin_height,
-                            is_float,
-                            i
-                        };
-                        props.onDrag?.(item);
-                        setDragItem({
-                            ...item,
-                            layout_id: props.layout_id,
-                            element: getLayoutItemRef()
-                        });
-                    }}
-                    onDragStop={({ x, y }) => {
-                        props.onDragStop?.({
-                            x: x - offset_x,
-                            y: y - offset_y,
-                            w: w + margin_width,
-                            h: h + margin_height,
-                            is_float,
-                            i
-                        });
-                        setDragItem(undefined);
-                    }}
-                >
-                    {new_child}
-                </Draggable>
+                {new_child}
             </Resizable>
-        </React.Fragment>
+        </Draggable>
     );
 });
 
