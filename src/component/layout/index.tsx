@@ -2,6 +2,7 @@ import React, {
     Fragment,
     useContext,
     useEffect,
+    useImperativeHandle,
     useMemo,
     useRef,
     useState
@@ -15,7 +16,6 @@ import {
     moveElement,
     snapToGrid,
     getCurrentMouseOverWidget,
-    getAllCollisions,
     moveToWidget,
     replaceWidget,
     cloneWidget
@@ -70,6 +70,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         shadow_widget,
         operator_type
     );
+
+    // useImperativeHandle(ref, () => ({
+    //     getWrapperSize: () => {
+    //         return { wrapper_width, wrapper_height };
+    //     }
+    // }));
 
     /**
      * @description 当操作结束以后更新操作状态为undefined
@@ -513,6 +519,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             props.mode === LayoutType.edit ? onDragEnter : noop
                         }
                         onClick={onClick}
+                        onMouseMove={(e) => {
+                            console.log(e, 'move on');
+                        }}
                     >
                         {/* 实际画布区域 */}
                         <div
@@ -520,6 +529,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             ref={canvas_ref}
                             className={styles.canvas}
                             style={{
+                                ...props.style,
                                 width: current_width,
                                 height: current_height,
                                 top: t_offset,
@@ -567,13 +577,15 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     );
 };
 
+ReactDragLayout.displayName = 'ReactDragLayout';
+
 ReactDragLayout.defaultProps = {
     scale: 1,
     cols: 10,
     width: 200,
     height: 200,
     row_height: 20,
-    container_padding: [0],
+    container_padding: [0] as [number],
     item_margin: [0, 0],
     mode: LayoutType.view,
     need_ruler: false,

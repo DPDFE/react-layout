@@ -11,8 +11,8 @@ import 'react-drag-layout/dist/index.css';
 const ChangeDragLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
     const [scale, setScale] = useState<number>(1);
-    const [width, setWidth] = useState<number | string>(400);
-    const [height, setHeight] = useState<number | string>(400);
+    const [width, setWidth] = useState<number>(400);
+    const [height, setHeight] = useState<number>(400);
 
     useEffect(() => {
         setWidgets(generateLayout());
