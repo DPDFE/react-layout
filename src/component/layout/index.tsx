@@ -519,9 +519,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             props.mode === LayoutType.edit ? onDragEnter : noop
                         }
                         onClick={onClick}
-                        onMouseMove={(e) => {
-                            console.log(e, 'move on');
-                        }}
                     >
                         {/* 实际画布区域 */}
                         <div
