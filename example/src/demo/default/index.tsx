@@ -349,8 +349,8 @@ const DefaultLayout = () => {
                                                     row_height={50}
                                                     cols={8}
                                                     item_margin={[10, 10]}
-                                                    need_drag_bound={true}
-                                                    need_grid_bound={true}
+                                                    need_drag_bound={false}
+                                                    need_grid_bound={false}
                                                     is_nested={true}
                                                     onDrop={(
                                                         layout: LayoutItem[],
