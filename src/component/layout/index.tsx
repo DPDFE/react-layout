@@ -1,11 +1,12 @@
 import React, {
     Fragment,
+    useCallback,
     useContext,
     useEffect,
-    useImperativeHandle,
     useMemo,
     useRef,
-    useState
+    useState,
+    useLayoutEffect
 } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
@@ -16,9 +17,9 @@ import {
     moveElement,
     snapToGrid,
     getCurrentMouseOverWidget,
+    cloneWidget,
     moveToWidget,
-    replaceWidget,
-    cloneWidget
+    replaceWidget
 } from './calc';
 import styles from './styles.module.css';
 import {
@@ -28,17 +29,29 @@ import {
     LayoutType,
     OperatorType,
     ReactDragLayoutProps,
-    RulerPointer
+    RulerPointer,
+    LayoutItemDimesion,
+    LayoutEntry
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, copyObjectArray, noop } from '@/utils/utils';
+import { addEvent, removeEvent } from '@pearone/event-utils';
 import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
-import { LayoutContext } from './context';
+import { LayoutContext } from '../layout-context';
 import { useLayoutHooks } from './hooks';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
-    const { checked_index, setCurrentChecked, operator_type, setOperatorType } =
-        useContext(LayoutContext);
+    const {
+        checked_index,
+        setCurrentChecked,
+        drag_item,
+        setDragItem,
+        operator_type,
+        setOperatorType,
+        drag_to_layout,
+        setDragLayout,
+        registry
+    } = useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
     const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
@@ -281,18 +294,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     //     return layout ?? [];
     // };
 
-    const getLayoutItem = (item: ItemPos) => {
-        return layout!.find((l) => {
-            return l.i == item.i;
-        }) as LayoutItem;
-    };
-
-    const getFilterLayout = (item: ItemPos) => {
-        return layout!.filter((l) => {
-            return l.i !== item.i;
-        });
-    };
-
     const getCurrentLayoutByItem = (
         type: OperatorType,
         item: ItemPos,
@@ -336,8 +337,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         return (
             shadow_widget && (
                 <WidgetItem
+                    layout_id={props.layout_id}
                     ref={shadow_widget_ref}
                     {...shadow_widget}
+                    is_placeholder={true}
                     bound={getCurrentBound(shadow_widget.is_float)}
                     padding={padding}
                     scale={props.scale}
@@ -455,6 +458,194 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             return <Fragment></Fragment>;
         }
     };
+    const hasItemUnhoverable = (item: ItemPos, is_save?: boolean) => {
+        // if (type === OperatorType.drag || type === OperatorType.dragover) {
+        //     const collides = getFirstCollision(layout ?? [], item);
+        //     if (collides && collides.is_nested) {
+        //         return hasItemUnhoverable(item, is_save);
+        //     }
+        // }
+
+        const current_item = getLayoutItem(item);
+        const float_item = Object.assign({}, current_item, item);
+
+        setShadowWidget(undefined);
+        setOldShadowWidget(undefined);
+        compact(
+            (layout ?? []).filter((l) => {
+                return l.i != item.i;
+            })
+        );
+        setLayout(
+            layout!.map((w) => {
+                return w.i === item.i && !is_save ? float_item : w;
+            })
+        );
+        return layout ?? [];
+    };
+
+    const getLayoutItem = useCallback(
+        (item: ItemPos) => {
+            return layout!.find((l) => {
+                return l.i == item.i;
+            }) as LayoutItem;
+        },
+        [layout]
+    );
+
+    const getFilterLayout = useCallback(
+        (item: ItemPos) => {
+            return layout!.filter((l) => {
+                return l.i !== item.i;
+            });
+        },
+        [layout]
+    );
+
+    const offsetXYFromLayout = (element: HTMLElement) => {
+        const child = element.getBoundingClientRect();
+        const parent = canvas_ref.current!.getBoundingClientRect();
+        return { x: child.x - parent.x, y: child.y - parent.y };
+    };
+
+    const compactLayoutByDraggingItem = useCallback(
+        (dragging_item: NonNullable<LayoutItemDimesion>) => {
+            const { x, y } = offsetXYFromLayout(dragging_item.element!);
+            const placeholder = {
+                x,
+                y,
+                i: dragging_item.i,
+                h: dragging_item.h,
+                w: dragging_item.w,
+                is_float: dragging_item.is_float
+            };
+
+            snapToGrid(placeholder, grid);
+            compact(layout.concat(placeholder));
+            setShadowWidget(placeholder);
+        },
+        [layout]
+    );
+
+    const getLayoutStyle = () => {
+        const transform = props.is_nested
+            ? {}
+            : {
+                  transform: `scale(${props.scale})`,
+                  transformOrigin: '0 0'
+              };
+
+        return {
+            width: current_width,
+            height: current_height,
+            top: t_offset,
+            left: l_offset,
+            overflow: props.mode === LayoutType.edit ? 'unset' : 'hidden',
+            ...transform
+        };
+    };
+
+    useEffect(() => {
+        const onMouseMouve = (event: MouseEvent) => {
+            event.stopPropagation();
+            console.log('mouse move', layout_name);
+            const { pageX, pageY } = event;
+            const newState = {
+                elementX: NaN,
+                elementY: NaN,
+                elementH: NaN,
+                elementW: NaN,
+                elementPosX: NaN,
+                elementPosY: NaN
+            };
+            const targetElement = canvas_ref.current;
+            if (targetElement) {
+                const { left, top, width, height } =
+                    targetElement.getBoundingClientRect();
+                newState.elementPosX = left + window.pageXOffset;
+                newState.elementPosY = top + window.pageYOffset;
+                newState.elementX = pageX - newState.elementPosX;
+                newState.elementY = pageY - newState.elementPosY;
+                newState.elementW = width;
+                newState.elementH = height;
+
+                const { elementW, elementH, elementX, elementY } = newState;
+
+                const cursor_in_element =
+                    elementX > 0 &&
+                    elementY > 0 &&
+                    elementX < elementW &&
+                    elementY < elementH;
+
+                if (cursor_in_element) {
+                    event.stopImmediatePropagation();
+                    setDragLayout(props.layout_id);
+                }
+            }
+        };
+
+        drag_item && addEvent(window, 'mousemove', onMouseMouve);
+
+        return () => {
+            removeEvent(window, 'mousemove', onMouseMouve);
+        };
+    }, [drag_item?.i]);
+
+    useEffect(() => {
+        // 从当前Layou 移除
+        if (
+            drag_item?.layout_id === props.layout_id &&
+            drag_to_layout !== props.layout_id
+        ) {
+            setShadowWidget(undefined);
+            const filter_layout = getFilterLayout(drag_item!);
+            compact(filter_layout);
+            setLayout(layout);
+        }
+
+        if (drag_to_layout === props.layout_id) {
+            // 自身排序
+            if (drag_item?.layout_id === props.layout_id) {
+                return;
+            }
+            // 移动到当前layout
+            drag_item && compactLayoutByDraggingItem(drag_item);
+        } else if (shadow_widget) {
+            setShadowWidget(undefined);
+        }
+    }, [
+        drag_to_layout,
+        props.layout_id,
+        drag_item,
+        compactLayoutByDraggingItem,
+        layout
+    ]);
+
+    const descriptor = useMemo(
+        () => ({
+            id: props.layout_id,
+            type: props.layout_type,
+            mode: props.mode
+        }),
+        [props.layout_id, props.layout_type, props.mode]
+    );
+
+    const getRef = useCallback(() => canvas_ref.current, []);
+
+    const entry: LayoutEntry = useMemo(
+        () => ({
+            compactLayoutByDraggingItem,
+            descriptor,
+            getRef,
+            unique_id: layout_name
+        }),
+        [compactLayoutByDraggingItem, descriptor, layout_name]
+    );
+
+    useLayoutEffect(() => {
+        registry.droppable.register(entry);
+        return () => registry.droppable.unregister(entry);
+    }, [registry.droppable, entry]);
 
     return (
         <div
@@ -528,23 +719,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             id={layout_name}
                             ref={canvas_ref}
                             className={styles.canvas}
-                            style={{
-                                ...props.style,
-                                width: current_width,
-                                height: current_height,
-                                top: t_offset,
-                                left: l_offset,
-                                transform: props.is_nested
-                                    ? 'none'
-                                    : `scale(${props.scale})`,
-                                transformOrigin: props.is_nested
-                                    ? 'none'
-                                    : '0 0',
-                                overflow:
-                                    props.mode === LayoutType.edit
-                                        ? 'unset'
-                                        : 'hidden'
-                            }}
+                            style={getLayoutStyle()}
                             // onContextMenu={(e) => {
                             //     e.preventDefault();
                             // }}
