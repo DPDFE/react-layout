@@ -7,6 +7,7 @@ import {
 import React, { memo } from 'react';
 import Cursor from './cursor';
 import { clamp, DEFAULT_BOUND } from './draggable';
+import { handlerNestedStyle } from '@/utils/utils';
 
 const Resizable = (props: ResizableProps) => {
     const child = React.Children.only(props.children);
@@ -80,7 +81,7 @@ const Resizable = (props: ResizableProps) => {
         className: 'react-resizable',
         style: {
             ...props.style,
-            transform: `translate(${props.x}px, ${props.y}px)`,
+            ...handlerNestedStyle({ x: props.x, y: props.y }, props.is_nested),
             width: props.w,
             height: props.h
         }

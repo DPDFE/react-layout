@@ -217,6 +217,7 @@ const DefaultLayout = () => {
                         //         i: 'drop_element'
                         //     };
                         // }}
+                        layout_id={'root'}
                         layout_type={LayoutType.GRID}
                         width={width}
                         height={height}
@@ -331,6 +332,7 @@ const DefaultLayout = () => {
                                         >
                                             <TabPane tab='Tab 1' key='1'>
                                                 <ReactDragLayout
+                                                    layout_id={'tab 1'}
                                                     layout_type={
                                                         LayoutType.GRID
                                                     }
@@ -407,6 +409,7 @@ const DefaultLayout = () => {
                                             </TabPane>
                                             <TabPane tab='Tab 2' key='2'>
                                                 <ReactDragLayout
+                                                    layout_id={'tab 2'}
                                                     layout_type={
                                                         LayoutType.GRID
                                                     }
@@ -468,6 +471,7 @@ const DefaultLayout = () => {
                                             </TabPane>
                                             <TabPane tab='Tab 3' key='3'>
                                                 <ReactDragLayout
+                                                    layout_id={'tab 3'}
                                                     layout_type={
                                                         LayoutType.GRID
                                                     }

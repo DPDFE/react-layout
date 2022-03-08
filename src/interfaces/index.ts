@@ -70,6 +70,7 @@ export type ItemPos = {
 };
 
 type LayoutBase = {
+    layout_id: string;
     scale: number;
     cols: number;
     row_height: number;
@@ -191,6 +192,11 @@ export interface LayoutItem extends ItemPos {
     is_checked?: boolean;
 }
 
+export interface LayoutItemDimesion extends LayoutItem {
+    layout_id: string;
+    element: HTMLElement | null;
+}
+
 interface EventBaseProps {
     id?: string;
     className?: string;
@@ -200,12 +206,14 @@ interface EventBaseProps {
 
 /** 子元素 */
 export interface WidgetItemProps extends EventBaseProps, LayoutItem {
+    layout_id: string;
     scale: number;
     bound: BoundType;
     grid: GridType;
     margin: [number, number];
     padding: MarginType;
     layout_type: LayoutType.DRAG | LayoutType.GRID;
+    is_placeholder: boolean;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: () => void;
     onDrag?: (item: ItemPos) => void;
@@ -222,6 +230,7 @@ export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
     scale: number;
     bound?: Partial<BoundType>;
     is_draggable?: boolean;
+    is_nested?: boolean;
     onDragStart?: () => void;
     onDrag?: ({ x, y }: { x: number; y: number }) => void;
     onDragStop?: ({ x, y }: { x: number; y: number }) => void;
@@ -241,6 +250,7 @@ export interface ResizableProps extends EventBaseProps, ItemPos {
     bound: BoundType;
     margin?: [number, number];
     is_resizable?: boolean;
+    is_nested?: boolean;
     onResizeStart?: () => void;
     onResize?: ({
         x,
@@ -273,4 +283,30 @@ export interface MenuProps {
 
 export interface MenuItemProps {
     children: ReactChild;
+}
+
+export interface LayoutDescriptor {
+    id: string;
+    type: LayoutType;
+    mode: LayoutType;
+}
+
+export interface LayoutEntry {
+    unique_id: string;
+    descriptor: LayoutDescriptor;
+    compactLayoutByDraggingItem: (
+        dragging_item: NonNullable<LayoutItemDimesion>
+    ) => void;
+    getRef: () => HTMLDivElement | null;
+}
+
+export interface LayoutItemDescriptor {
+    id: string;
+    is_placeholder: boolean;
+}
+
+export interface LayoutItemEntry {
+    unique_id: string;
+    descriptor: LayoutItemDescriptor;
+    getRef: () => HTMLElement | null;
 }

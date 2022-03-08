@@ -1,5 +1,6 @@
 import { BoundType, DraggableProps } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
+import { handlerNestedStyle } from '@/utils/utils';
 import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
 
 export const DEFAULT_BOUND = {
@@ -152,13 +153,14 @@ const Draggable = (props: Props) => {
             child.props.className ? child.props.className : ''
         }`,
         style: {
-            transform: `translate(${props.x}px, ${props.y}px)`,
+            ...handlerNestedStyle({ x: props.x, y: props.y }, props.is_nested),
             cursor: props.is_draggable ? 'grab' : 'inherit',
             userSelect: drag_state === DragStates.draged ? 'inherit' : 'none',
-            willChange:
-                drag_state === DragStates.dragging ? 'transform' : 'none',
             ...props.style,
-            ...child.props.style
+            ...child.props.style,
+            position: drag_state === DragStates.dragging ? 'fixed' : 'absolute',
+            willChange:
+                drag_state === DragStates.dragging ? 'transform' : 'auto'
         }
     });
 
