@@ -1,7 +1,15 @@
 import { BoundType, DraggableProps } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
-import { handlerNestedStyle } from '@/utils/utils';
-import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
+import { handlerNestedStyle, copyObject } from '@/utils/utils';
+import { LayoutContext } from '@/component/layout-context';
+import React, {
+    DOMElement,
+    memo,
+    RefObject,
+    useEffect,
+    useState,
+    useContext
+} from 'react';
 
 export const DEFAULT_BOUND = {
     min_y: -Infinity,
@@ -36,6 +44,8 @@ const Draggable = (props: Props) => {
         Props['children'],
         Element
     >;
+
+    // const { registry } = useContext(LayoutContext);
 
     const [drag_state, setDragState] = useState<DragStates>();
     const [mouse_pos, setMousePos] = useState<Pos>({ x: NaN, y: NaN }); // 鼠标点击坐标
@@ -87,7 +97,6 @@ const Draggable = (props: Props) => {
                 x: clamp(props.x + delta_x, min_x, max_x),
                 y: clamp(props.y + delta_y, min_y, max_y)
             };
-
             props.onDrag?.(pos);
         }
     };

@@ -31,7 +31,8 @@ import {
     ReactDragLayoutProps,
     RulerPointer,
     LayoutItemDimesion,
-    LayoutEntry
+    LayoutEntry,
+    LayoutDescriptor
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, copyObjectArray, noop } from '@/utils/utils';
@@ -44,13 +45,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const {
         checked_index,
         setCurrentChecked,
-        drag_item,
-        setDragItem,
         operator_type,
         setOperatorType,
-        drag_to_layout,
-        setDragLayout,
-        registry
+        registry,
+        dragging_layout
     } = useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
@@ -302,6 +300,18 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
             moveToWidget(current_widget, item);
 
+            // 当前拖拽元素 原Layout 处理元素移除逻辑
+            if (
+                dragging_layout.current?.layout.descriptor.id &&
+                dragging_layout.current?.layout.descriptor.id !==
+                    props.layout_id
+            ) {
+                const filter_layout = getFilterLayout(item);
+                setLayout(copyObject(layout));
+                compact(filter_layout);
+                return layout;
+            }
+
             if (current_widget.is_float) {
                 setLayout(copyObject(layout));
                 return layout;
@@ -335,6 +345,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
     const shadowGridItem = () => {
         return (
+            dragging_layout.current?.layout.descriptor.id === props.layout_id &&
             shadow_widget && (
                 <WidgetItem
                     layout_id={props.layout_id}
@@ -404,14 +415,14 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     }}
                     onDragStop={(item) => {
                         if (checked_index === widget.i) {
-                            const layout = getCurrentLayoutByItem(
+                            getCurrentLayoutByItem(
                                 OperatorType.dragover,
                                 item,
                                 true
                             );
-                            (props as EditLayoutProps).onDragStop?.(
-                                layout ?? []
-                            );
+                            // (props as EditLayoutProps).onDragStop?.(
+                            //     layout ?? []
+                            // );
                         }
                     }}
                     onResizeStart={() => {
@@ -485,7 +496,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     };
 
     const compactLayoutByDraggingItem = useCallback(
-        (dragging_item: NonNullable<LayoutItemDimesion>) => {
+        (dragging_item: NonNullable<LayoutItemDimesion>, is_save = false) => {
             const { x, y } = offsetXYFromLayout(dragging_item.element!);
             const placeholder = {
                 x,
@@ -493,12 +504,19 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 i: dragging_item.i,
                 h: dragging_item.h,
                 w: dragging_item.w,
-                is_float: dragging_item.is_float
+                is_float: dragging_item.is_float,
+                is_nested: dragging_item.is_nested
             };
 
-            snapToGrid(placeholder, grid);
-            compact(layout.concat(placeholder));
-            setShadowWidget(placeholder);
+            if (is_save) {
+                snapToGrid(placeholder, grid);
+                compact(layout.concat(placeholder));
+                (props as EditLayoutProps).onDrop?.(layout ?? [], placeholder);
+            } else {
+                snapToGrid(placeholder, grid);
+                compact(layout.concat(placeholder));
+                setShadowWidget(placeholder);
+            }
         },
         [layout]
     );
@@ -522,100 +540,73 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         };
     };
 
-    useEffect(() => {
-        const onMouseMouve = (event: MouseEvent) => {
-            event.stopPropagation();
-            const { pageX, pageY } = event;
-            const newState = {
-                elementX: NaN,
-                elementY: NaN,
-                elementH: NaN,
-                elementW: NaN,
-                elementPosX: NaN,
-                elementPosY: NaN
-            };
-            const targetElement = canvas_ref.current;
-            if (targetElement) {
-                const { left, top, width, height } =
-                    targetElement.getBoundingClientRect();
-                newState.elementPosX = left + window.pageXOffset;
-                newState.elementPosY = top + window.pageYOffset;
-                newState.elementX = pageX - newState.elementPosX;
-                newState.elementY = pageY - newState.elementPosY;
-                newState.elementW = width;
-                newState.elementH = height;
-
-                const { elementW, elementH, elementX, elementY } = newState;
-
-                const cursor_in_element =
-                    elementX > 0 &&
-                    elementY > 0 &&
-                    elementX < elementW &&
-                    elementY < elementH;
-
-                if (cursor_in_element) {
-                    event.stopImmediatePropagation();
-                    setDragLayout(props.layout_id);
-                }
+    const handlerShadowByDraggingItem = useCallback(
+        (dragging_item: NonNullable<LayoutItemDimesion>) => {
+            if (dragging_item.layout_id === props.layout_id) {
+                return;
+            } else {
+                compactLayoutByDraggingItem(dragging_item);
             }
-        };
+        },
+        [layout, props.layout_id, compactLayoutByDraggingItem]
+    );
 
-        drag_item && addEvent(window, 'mousemove', onMouseMouve);
-
-        return () => {
-            removeEvent(window, 'mousemove', onMouseMouve);
-        };
-    }, [drag_item?.i]);
-
-    useEffect(() => {
-        // 从当前Layou 移除
-        if (
-            drag_item?.layout_id === props.layout_id &&
-            drag_to_layout !== props.layout_id
-        ) {
+    const handlerDraggingItemOut = useCallback(
+        (dragging_item: NonNullable<LayoutItemDimesion>) => {
             setShadowWidget(undefined);
-            const filter_layout = getFilterLayout(drag_item!);
+            const filter_layout = getFilterLayout(dragging_item);
             compact(filter_layout);
             setLayout(layout);
-        }
+        },
+        [layout, getFilterLayout]
+    );
 
-        if (drag_to_layout === props.layout_id) {
-            // 自身排序
-            if (drag_item?.layout_id === props.layout_id) {
-                return;
-            }
-            // 移动到当前layout
-            drag_item && compactLayoutByDraggingItem(drag_item);
-        } else if (shadow_widget) {
-            setShadowWidget(undefined);
-        }
-    }, [
-        drag_to_layout,
-        props.layout_id,
-        drag_item,
-        compactLayoutByDraggingItem,
-        layout
-    ]);
+    const handlerRemoveWidget = useCallback(
+        (dragging_item: NonNullable<LayoutItemDimesion>) => {
+            (props as EditLayoutProps).onDragStop?.(
+                layout.filter((l) => l.i !== dragging_item.i) ?? []
+            );
+        },
+        [layout]
+    );
 
-    const descriptor = useMemo(
+    const handlerAddWidget = useCallback(
+        (dragging_item: NonNullable<LayoutItemDimesion>) => {
+            compactLayoutByDraggingItem(dragging_item, true);
+            // setLayout(
+            //     layout.concat({
+            //         ...shadow_widget!,
+            //         i: dragging_item.i,
+            //         is_nested: dragging_item.is_nested
+            //     })
+            // );
+        },
+        [compactLayoutByDraggingItem]
+    );
+
+    const descriptor: LayoutDescriptor = useMemo(
         () => ({
             id: props.layout_id,
             type: props.layout_type,
-            mode: props.mode
+            mode: props.mode,
+            is_root: !props.is_nested
         }),
-        [props.layout_id, props.layout_type, props.mode]
+        [props.layout_id, props.layout_type, props.mode, props.is_nested]
     );
 
     const getRef = useCallback(() => canvas_ref.current, []);
 
     const entry: LayoutEntry = useMemo(
         () => ({
-            compactLayoutByDraggingItem,
+            handlerShadowByDraggingItem,
+            handlerDraggingItemOut,
+            handlerRemoveWidget,
+            handlerAddWidget,
             descriptor,
             getRef,
             unique_id: layout_name
         }),
-        [compactLayoutByDraggingItem, descriptor, layout_name]
+        [handlerShadowByDraggingItem, descriptor, layout_name]
     );
 
     useLayoutEffect(() => {

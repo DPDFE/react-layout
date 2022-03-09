@@ -1,4 +1,9 @@
-import { WidgetItemProps, LayoutType } from '@/interfaces';
+import {
+    WidgetItemProps,
+    LayoutType,
+    LayoutItemEntry,
+    LayoutItemDescriptor
+} from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, {
     memo,
@@ -38,7 +43,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         if (item_ref instanceof Function) {
             return null;
         }
-        return item_ref.current as HTMLDivElement;
+        return item_ref.current as HTMLElement;
     }, []);
 
     const { operator_type, setDragItem, registry } = useContext(LayoutContext);
@@ -54,7 +59,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         need_mask,
         layout_nested,
         is_nested,
-        is_placeholder
+        is_placeholder,
+        layout_id
     } = props;
 
     const { min_x, max_x, min_y, max_y } = snapToDragBound(
@@ -201,12 +207,12 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         return `layout_item_${(Math.random() * 100).toFixed(0)}`;
     }, []);
 
-    const descriptor = useMemo(
-        () => ({ id: i, is_placeholder }),
-        [i, is_placeholder]
+    const descriptor: LayoutItemDescriptor = useMemo(
+        () => ({ id: i, is_placeholder, layout_id }),
+        [i, is_placeholder, layout_id]
     );
 
-    const entry = useMemo(
+    const entry: LayoutItemEntry = useMemo(
         () => ({
             descriptor,
             getRef: getLayoutItemRef,
@@ -214,7 +220,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         }),
         [descriptor, getLayoutItemRef, layout_item_unique_id]
     );
-    const publishedRef = useRef(entry);
+    const publishedRef = useRef<LayoutItemEntry>(entry);
     const isFirstPublishRef = useRef<boolean>(true);
 
     useLayoutEffect(() => {

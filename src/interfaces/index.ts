@@ -304,22 +304,26 @@ export interface MenuItemProps {
 
 export interface LayoutDescriptor {
     id: string;
+    is_root: boolean;
     type: LayoutType;
     mode: LayoutType;
 }
 
+type LayoutEntryApi = (dragging_item: NonNullable<LayoutItemDimesion>) => void;
 export interface LayoutEntry {
     unique_id: string;
     descriptor: LayoutDescriptor;
-    compactLayoutByDraggingItem: (
-        dragging_item: NonNullable<LayoutItemDimesion>
-    ) => void;
+    handlerShadowByDraggingItem: LayoutEntryApi;
+    handlerDraggingItemOut: LayoutEntryApi;
+    handlerRemoveWidget: LayoutEntryApi;
+    handlerAddWidget: LayoutEntryApi;
     getRef: () => HTMLDivElement | null;
 }
 
 export interface LayoutItemDescriptor {
     id: string;
     is_placeholder: boolean;
+    layout_id: string;
 }
 
 export interface LayoutItemEntry {
