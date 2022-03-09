@@ -23,7 +23,6 @@ export default function createRegistry() {
         register: (entry: LayoutItemEntry) => {
             if (entry.descriptor.is_placeholder) return;
             entries.draggables[entry.descriptor.id] = entry;
-            console.log(entries);
         },
         update: (entry: LayoutItemEntry, last: LayoutItemEntry) => {
             if (entry.descriptor.is_placeholder) return;

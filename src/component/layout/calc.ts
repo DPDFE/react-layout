@@ -80,11 +80,6 @@ export function cloneWidget(w: LayoutItem) {
         ...w
     };
 }
-export function cloneWidget(w: LayoutItem) {
-    return {
-        ...w
-    };
-}
 
 export function dynamicProgramming(
     item: ItemPos,
