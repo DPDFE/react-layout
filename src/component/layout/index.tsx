@@ -512,6 +512,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
               };
 
         return {
+            ...props.style,
             width: current_width,
             height: current_height,
             top: t_offset,
