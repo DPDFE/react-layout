@@ -150,6 +150,10 @@ const DefaultLayout = () => {
         // });
     }
 
+    const event = {
+        type: 'dragstop'
+    };
+
     return (
         <div
             style={{
@@ -255,8 +259,8 @@ const DefaultLayout = () => {
                         //     setWidgets(layout);
                         // }}
                         onDragStop={(layout: LayoutItem[]) => {
-                            // console.log(layout);
-                            // console.log('onDragStop');
+                            console.log(layout);
+                            console.log('onDragStop', 'root');
                             setWidgets(layout);
                         }}
                         onResizeStart={() => {
@@ -356,6 +360,10 @@ const DefaultLayout = () => {
                                                     onDragStop={(
                                                         layout: LayoutItem[]
                                                     ) => {
+                                                        console.log(
+                                                            'tab 1',
+                                                            layout
+                                                        );
                                                         setWidgets2(layout);
                                                     }}
                                                     onDrop={(

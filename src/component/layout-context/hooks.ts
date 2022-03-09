@@ -66,13 +66,33 @@ export const useLayoutContext = () => {
                     const curr_dom = curr.getRef()!;
                     const postion = pre_dom.compareDocumentPosition(curr_dom);
 
-                    if (postion & 16 || postion & 4) return curr;
-                    if (postion & 8 || postion & 2) return prev;
+                    // 判断元素相对位置
+                    // https://developer.mozilla.org/zh-CN/docs/Web/API/Node/compareDocumentPosition
+                    if (
+                        postion & Node.DOCUMENT_POSITION_CONTAINED_BY ||
+                        postion & Node.DOCUMENT_POSITION_FOLLOWING
+                    )
+                        return curr;
+                    if (
+                        postion & Node.DOCUMENT_POSITION_CONTAINS ||
+                        postion & Node.DOCUMENT_POSITION_PRECEDING
+                    )
+                        return prev;
 
                     return curr;
                 });
 
                 if (layout && drag_item) {
+                    const layout_dom = layout.getRef()!;
+                    const drag_item_dom = drag_item.element!;
+
+                    // 排除拖拽元素拖进自己内部Layout情况
+                    if (
+                        drag_item_dom.compareDocumentPosition(layout_dom) &
+                        Node.DOCUMENT_POSITION_CONTAINED_BY
+                    )
+                        return;
+
                     if (dragging_layout.current) {
                         if (
                             dragging_layout.current.layout.descriptor.id ===
