@@ -5,6 +5,7 @@ type EntryMap = {
 };
 
 export default function createRegistry() {
+    let root_droppable_id = '';
     const entries: EntryMap = {
         draggables: {},
         droppables: {}
@@ -71,6 +72,8 @@ export default function createRegistry() {
     const DroppableAPI = {
         register: (entry: LayoutEntry) => {
             entries.droppables[entry.descriptor.id] = entry;
+            entry.descriptor.is_root &&
+                (root_droppable_id = entry.descriptor.id);
         },
         unregister: (entry: LayoutEntry) => {
             const current = findDroppableById(entry.descriptor.id);
@@ -83,10 +86,12 @@ export default function createRegistry() {
                 return;
             }
 
+            entry.descriptor.is_root && (root_droppable_id = '');
             delete entries.droppables[entry.descriptor.id];
         },
         getById: getDroppableById,
         findById: findDroppableById,
+        getRoot: () => entries.droppables[root_droppable_id],
         getAll: () => Object.values(entries.droppables),
         exists: (id: string): boolean => Boolean(findDroppableById(id))
     };
