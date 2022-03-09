@@ -181,6 +181,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     }, [props.children, grid, padding]);
 
     const onDragEnter = (e: React.MouseEvent) => {
+        console.log('onDragEnter');
         e.preventDefault();
     };
 
@@ -469,31 +470,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             return <Fragment></Fragment>;
         }
     };
-    const hasItemUnhoverable = (item: ItemPos, is_save?: boolean) => {
-        // if (type === OperatorType.drag || type === OperatorType.dragover) {
-        //     const collides = getFirstCollision(layout ?? [], item);
-        //     if (collides && collides.is_nested) {
-        //         return hasItemUnhoverable(item, is_save);
-        //     }
-        // }
-
-        const current_item = getLayoutItem(item);
-        const float_item = Object.assign({}, current_item, item);
-
-        setShadowWidget(undefined);
-        setOldShadowWidget(undefined);
-        compact(
-            (layout ?? []).filter((l) => {
-                return l.i != item.i;
-            })
-        );
-        setLayout(
-            layout!.map((w) => {
-                return w.i === item.i && !is_save ? float_item : w;
-            })
-        );
-        return layout ?? [];
-    };
 
     const getLayoutItem = useCallback(
         (item: ItemPos) => {
@@ -700,9 +676,13 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             props.mode === LayoutType.edit ? onDragEnter : noop
                         }
                         onClick={onClick}
-                        onMouseMove={(e) => {
-                            // console.log(e, 'move on');
-                        }}
+                        // onMouseMove={(e) => {
+                        //     e.stopPropagation();
+                        //     e.nativeEvent.console.log(
+                        //         'move on aaa',
+                        //         layout_name
+                        //     );
+                        // }}
                     >
                         {/* 实际画布区域 */}
                         <div
@@ -710,9 +690,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             ref={canvas_ref}
                             className={styles.canvas}
                             style={getLayoutStyle()}
-                            // onContextMenu={(e) => {
-                            //     e.preventDefault();
-                            // }}
                         >
                             {shadowGridItem()}
                             {React.Children.map(
@@ -722,6 +699,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                     return processGridItem(widget, child);
                                 }
                             )}
+                        </div>
+                        <div style={{ position: 'absolute', zIndex: 100 }}>
+                            {layout_name}
                         </div>
                     </div>
                 </div>
@@ -741,8 +721,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         </div>
     );
 };
-
-ReactDragLayout.displayName = 'ReactDragLayout';
 
 ReactDragLayout.defaultProps = {
     scale: 1,
