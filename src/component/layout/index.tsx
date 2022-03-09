@@ -266,33 +266,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         }
     };
 
-    /** 如果当前元素位于嵌套元素中 */
-    // const getCurrentNested = (item: ItemPos, is_save?: boolean) => {
-    //     if (type === OperatorType.drag || type === OperatorType.dragover) {
-    //         const collides = getFirstCollision(layout ?? [], item);
-    //         if (collides && collides.is_nested) {
-    //             return hasItemUnhoverable(item, is_save);
-    //         }
-    //     }
-
-    //     const current_item = getLayoutItem(item);
-    //     const float_item = Object.assign({}, current_item, item);
-
-    //     setShadowWidget(undefined);
-    //     setOldShadowWidget(undefined);
-    //     compact(
-    //         (layout ?? []).filter((l) => {
-    //             return l.i != item.i;
-    //         })
-    //     );
-    //     setLayout(
-    //         layout!.map((w) => {
-    //             return w.i === item.i && !is_save ? float_item : w;
-    //         })
-    //     );
-    //     return layout ?? [];
-    // };
-
     const getCurrentLayoutByItem = useCallback(
         (type: OperatorType, item: ItemPos, is_save?: boolean) => {
             setOperatorType(type);
@@ -312,10 +285,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 return layout;
             }
 
-            if (current_widget.is_float) {
-                setLayout(copyObject(layout));
-                return layout;
-            } else {
+            if (!current_widget.is_float) {
                 const shadow_widget = cloneWidget(current_widget);
                 const filter_layout = getFilterLayout(item);
                 snapToGrid(shadow_widget, grid);
@@ -336,9 +306,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     current_widget.is_dragging = true;
                     setShadowWidget(shadow_widget);
                 }
-                setLayout(copyObject(layout));
-                return replaceWidget(layout, shadow_widget);
             }
+            setLayout(layout);
+            return replaceWidget(layout, shadow_widget);
         },
         [layout, grid]
     );
@@ -530,6 +500,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
               };
 
         return {
+            ...props.style,
             width: current_width,
             height: current_height,
             top: t_offset,
