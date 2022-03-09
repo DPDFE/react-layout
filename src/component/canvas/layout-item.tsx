@@ -172,10 +172,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ].join(' ')}`,
         style: {
             transition: props.is_checked ? 'none' : 'all 0.1s linear',
-            zIndex: props.is_dragging ? 99 : 'auto',
-            pointerEvents: operator_type
-                ? 'none'
-                : 'auto' /* 处理iframe不响应mousemove事件 */,
             width: w,
             height: h,
             ...child.props.style
