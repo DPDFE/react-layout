@@ -279,6 +279,15 @@ const DefaultLayout = () => {
                                 destination.widgets
                             );
                     }}
+                    onResize={(start: DragStart) => {
+                        console.log(start, 'on resize');
+                    }}
+                    onResizeStart={(result: DragStart) => {
+                        console.log(result, 'on resize start');
+                    }}
+                    onResizeStop={(result: DragStart) => {
+                        console.log(result, 'on resize stop');
+                    }}
                 >
                     <ReactDragLayout
                         // getDroppingItem={() => {
