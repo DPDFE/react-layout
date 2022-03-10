@@ -12,4 +12,18 @@ export function copyObject<T>(obj: T): T {
     return JSON.parse(JSON.stringify(obj));
 }
 
+export function handlerNestedStyle(
+    pos: { x: number; y: number },
+    is_nested?: boolean
+) {
+    return !is_nested
+        ? {
+              transform: `translate(${pos.x}px, ${pos.y}px)`
+          }
+        : {
+              top: `${pos.y}px`,
+              left: `${pos.x}px`
+          };
+}
+
 export const noop = () => {};

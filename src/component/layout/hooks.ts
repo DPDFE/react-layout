@@ -90,8 +90,7 @@ export const useLayoutHooks = (
     /** 视窗宽度 */
     const client_width = useMemo(() => {
         return canvas_viewport.current
-            ? canvas_viewport.current.clientWidth -
-                  (props.need_ruler ? TOP_RULER_LEFT_MARGIN : 0)
+            ? canvas_viewport.current.clientWidth
             : 0;
     }, [is_window_resize]);
 

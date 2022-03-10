@@ -4,6 +4,7 @@ import {
     CursorType,
     ResizableProps
 } from '@/interfaces';
+import { handlerNestedStyle } from '@/utils/utils';
 import React, { memo, useRef } from 'react';
 import Cursor from './cursor';
 import { clamp, DEFAULT_BOUND } from './draggable';
@@ -89,7 +90,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
         ref: resize_ref,
         style: {
             ...props.style,
-            transform: `translate(${props.x}px, ${props.y}px)`,
+            ...handlerNestedStyle({ x: props.x, y: props.y }, props.is_nested),
             width: props.w,
             height: props.h,
             ...props.style,

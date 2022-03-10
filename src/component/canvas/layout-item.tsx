@@ -1,11 +1,25 @@
-import { LayoutType, WidgetItemProps } from '@/interfaces';
+import {
+    WidgetItemProps,
+    LayoutType,
+    LayoutItemEntry,
+    LayoutItemDescriptor
+} from '@/interfaces';
 import isEqual from 'lodash.isequal';
-import React, { Fragment, memo, ReactElement, useContext, useRef } from 'react';
+import React, {
+    memo,
+    ReactElement,
+    useContext,
+    useRef,
+    useState,
+    useCallback,
+    useMemo,
+    useLayoutEffect
+} from 'react';
 import { MIN_DRAG_LENGTH, snapToDragBound } from '../layout/calc';
-import { LayoutContext } from '../layout/context';
 import Draggable, { clamp, DEFAULT_BOUND } from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
+import { LayoutContext } from '../layout-context';
 
 /**
  * WidgetItem、resizable、draggable（props、child）流转：
@@ -25,7 +39,14 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children);
     const item_ref = ref ?? useRef<HTMLDivElement>(null);
 
-    const { operator_type } = useContext(LayoutContext);
+    const getLayoutItemRef = useCallback((): HTMLElement | null => {
+        if (item_ref instanceof Function) {
+            return null;
+        }
+        return item_ref.current as HTMLElement;
+    }, []);
+
+    const { operator_type, setDragItem, registry } = useContext(LayoutContext);
 
     const { col_width, row_height } = props.grid;
 
@@ -36,7 +57,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         is_draggable,
         is_resizable,
         need_mask,
-        layout_nested
+        layout_nested,
+        is_nested,
+        is_placeholder,
+        layout_id
     } = props;
 
     const { min_x, max_x, min_y, max_y } = snapToDragBound(
@@ -147,11 +171,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 : styles['no-border']
         ].join(' ')}`,
         style: {
-            transform: `translate(${x}px, ${y}px)`,
             transition: props.is_checked ? 'none' : 'all 0.1s linear',
-            pointerEvents: operator_type
-                ? 'none'
-                : 'auto' /* 处理iframe不响应mousemove事件 */,
             width: w,
             height: h,
             ...child.props.style
@@ -179,9 +199,45 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         }
     };
 
+    const layout_item_unique_id = useMemo(() => {
+        return `layout_item_${(Math.random() * 100).toFixed(0)}`;
+    }, []);
+
+    const descriptor: LayoutItemDescriptor = useMemo(
+        () => ({ id: i, is_placeholder, layout_id }),
+        [i, is_placeholder, layout_id]
+    );
+
+    const entry: LayoutItemEntry = useMemo(
+        () => ({
+            descriptor,
+            getRef: getLayoutItemRef,
+            unique_id: layout_item_unique_id
+        }),
+        [descriptor, getLayoutItemRef, layout_item_unique_id]
+    );
+    const publishedRef = useRef<LayoutItemEntry>(entry);
+    const isFirstPublishRef = useRef<boolean>(true);
+
+    useLayoutEffect(() => {
+        registry.draggable.register(publishedRef.current);
+        return () => registry.draggable.unregister(publishedRef.current);
+    }, [registry.draggable]);
+
+    useLayoutEffect(() => {
+        if (isFirstPublishRef.current) {
+            isFirstPublishRef.current = false;
+            return;
+        }
+
+        const last = publishedRef.current;
+        publishedRef.current = entry;
+        registry.draggable.update(entry, last);
+    }, [entry, registry.draggable]);
+
     return (
         <Draggable
-            {...{ x, y, h, w, i, is_float }}
+            {...{ x, y, h, w, i, is_float, is_nested }}
             scale={props.scale}
             is_draggable={is_draggable}
             onDragStart={() => {
@@ -198,13 +254,19 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                       }
             }
             onDrag={({ x, y }) => {
-                props.onDrag?.({
+                const item = {
                     x: x - offset_x,
                     y: y - offset_y,
                     w: w + margin_width,
                     h: h + margin_height,
                     is_float,
                     i
+                };
+                props.onDrag?.(item);
+                setDragItem({
+                    ...item,
+                    layout_id: props.layout_id,
+                    element: getLayoutItemRef()
                 });
             }}
             onDragStop={({ x, y }) => {
@@ -216,11 +278,12 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     is_float,
                     i
                 });
+                setDragItem(undefined);
             }}
         >
             <Resizable
                 ref={item_ref}
-                {...{ x, y, h, w, i, is_float }}
+                {...{ x, y, h, w, i, is_float, is_nested }}
                 scale={props.scale}
                 is_resizable={is_resizable}
                 onResizeStart={() => {
@@ -259,6 +322,7 @@ WidgetItem.defaultProps = {
     scale: 1,
     is_float: false,
     is_checked: false,
+    is_placeholder: false,
     style: {},
     margin: [0, 0] as [number, number]
 };

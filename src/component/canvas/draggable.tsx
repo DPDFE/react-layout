@@ -1,6 +1,15 @@
 import { BoundType, DraggableProps } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
-import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
+import { handlerNestedStyle, copyObject } from '@/utils/utils';
+import { LayoutContext } from '@/component/layout-context';
+import React, {
+    DOMElement,
+    memo,
+    RefObject,
+    useEffect,
+    useState,
+    useContext
+} from 'react';
 
 export const DEFAULT_BOUND = {
     min_y: -Infinity,
@@ -22,11 +31,21 @@ interface Props extends DraggableProps {
     children: any;
 }
 
+export const sloppyClickThreshold: number = 5;
+function isSloppyClickThresholdExceeded(original: Pos, current: Pos): boolean {
+    return (
+        Math.abs(current.x - original.x) >= sloppyClickThreshold ||
+        Math.abs(current.y - original.y) >= sloppyClickThreshold
+    );
+}
+
 const Draggable = (props: Props) => {
     const child = React.Children.only(props.children) as DOMElement<
         Props['children'],
         Element
     >;
+
+    // const { registry } = useContext(LayoutContext);
 
     const [drag_state, setDragState] = useState<DragStates>();
     const [mouse_pos, setMousePos] = useState<Pos>({ x: NaN, y: NaN }); // 鼠标点击坐标
@@ -34,7 +53,6 @@ const Draggable = (props: Props) => {
     /** 获取相对父元素偏移量 */
     const offsetXYFromParent = (e: MouseEvent) => {
         const current = (child.ref as RefObject<HTMLElement>).current;
-
         const parent = current?.parentElement as HTMLElement;
 
         const { left, top } = parent?.getBoundingClientRect();
@@ -64,17 +82,23 @@ const Draggable = (props: Props) => {
     const handleDrag = (e: MouseEvent) => {
         const { x, y } = offsetXYFromParent(e);
 
-        const delta_x = x - mouse_pos.x;
-        const delta_y = y - mouse_pos.y;
+        if (
+            isSloppyClickThresholdExceeded(mouse_pos, {
+                x,
+                y
+            })
+        ) {
+            const delta_x = x - mouse_pos.x;
+            const delta_y = y - mouse_pos.y;
 
-        const { max_x, max_y, min_x, min_y } = formatBound(props.bound);
+            const { max_x, max_y, min_x, min_y } = formatBound(props.bound);
 
-        const pos = {
-            x: clamp(props.x + delta_x, min_x, max_x),
-            y: clamp(props.y + delta_y, min_y, max_y)
-        };
-
-        props.onDrag?.(pos);
+            const pos = {
+                x: clamp(props.x + delta_x, min_x, max_x),
+                y: clamp(props.y + delta_y, min_y, max_y)
+            };
+            props.onDrag?.(pos);
+        }
     };
 
     /** 结束 */
@@ -117,13 +141,14 @@ const Draggable = (props: Props) => {
             child.props.className ? child.props.className : ''
         }`,
         style: {
-            transform: `translate(${props.x}px, ${props.y}px)`,
+            ...handlerNestedStyle({ x: props.x, y: props.y }, props.is_nested),
             cursor: props.is_draggable ? 'grab' : 'inherit',
             userSelect: drag_state === DragStates.draged ? 'inherit' : 'none',
-            willChange:
-                drag_state === DragStates.dragging ? 'transform' : 'none',
             ...props.style,
-            ...child.props.style
+            ...child.props.style,
+            position: drag_state === DragStates.dragging ? 'fixed' : 'absolute',
+            willChange:
+                drag_state === DragStates.dragging ? 'transform' : 'auto'
         }
     });
 

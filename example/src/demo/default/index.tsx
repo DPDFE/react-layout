@@ -44,7 +44,7 @@ const DefaultLayout = () => {
                 is_float: true,
                 is_resizable: true,
                 is_draggable: true,
-                is_nested: true
+                is_nested: false
             },
             {
                 i: '1-1',
@@ -55,7 +55,7 @@ const DefaultLayout = () => {
                 is_float: false,
                 is_resizable: true,
                 is_draggable: true,
-                is_nested: true
+                is_nested: false
             }
         ];
     }
@@ -150,6 +150,10 @@ const DefaultLayout = () => {
         // });
     }
 
+    const event = {
+        type: 'dragstop'
+    };
+
     return (
         <div
             style={{
@@ -219,6 +223,7 @@ const DefaultLayout = () => {
                         //         i: 'drop_element'
                         //     };
                         // }}
+                        layout_id={'root'}
                         layout_type={LayoutType.GRID}
                         width={width}
                         height={height}
@@ -234,11 +239,12 @@ const DefaultLayout = () => {
                             const drop_element = JSON.parse(
                                 JSON.stringify({
                                     ...item,
-                                    i: widgets.length.toString(),
                                     is_resizable: true,
                                     is_draggable: true
                                 })
                             );
+                            drop_element.i ||
+                                (drop_element.i = layout.length.toString());
 
                             const new_widgets = layout.concat([drop_element]);
                             setWidgets(new_widgets);
@@ -253,8 +259,8 @@ const DefaultLayout = () => {
                         //     setWidgets(layout);
                         // }}
                         onDragStop={(layout: LayoutItem[]) => {
-                            // console.log(layout);
-                            // console.log('onDragStop');
+                            console.log(layout);
+                            console.log('onDragStop', 'root');
                             setWidgets(layout);
                         }}
                         onResizeStart={() => {
@@ -337,6 +343,7 @@ const DefaultLayout = () => {
                                         >
                                             <TabPane tab='Tab 1' key='1'>
                                                 <ReactDragLayout
+                                                    layout_id={'tab 1'}
                                                     layout_type={
                                                         LayoutType.GRID
                                                     }
@@ -347,9 +354,18 @@ const DefaultLayout = () => {
                                                     row_height={50}
                                                     cols={8}
                                                     item_margin={[10, 10]}
-                                                    need_drag_bound={true}
-                                                    need_grid_bound={true}
+                                                    need_drag_bound={false}
+                                                    need_grid_bound={false}
                                                     is_nested={true}
+                                                    onDragStop={(
+                                                        layout: LayoutItem[]
+                                                    ) => {
+                                                        console.log(
+                                                            'tab 1',
+                                                            layout
+                                                        );
+                                                        setWidgets2(layout);
+                                                    }}
                                                     onDrop={(
                                                         layout: LayoutItem[],
                                                         item: ItemPos
@@ -358,17 +374,19 @@ const DefaultLayout = () => {
                                                             JSON.parse(
                                                                 JSON.stringify({
                                                                     ...item,
-                                                                    i:
-                                                                        '1-' +
-                                                                        widgets.length.toString() +
-                                                                        '-' +
-                                                                        Math.random(),
                                                                     is_resizable:
                                                                         true,
                                                                     is_draggable:
                                                                         true
                                                                 })
                                                             );
+
+                                                        drop_element.i ||
+                                                            (drop_element.i =
+                                                                '1-' +
+                                                                widgets.length.toString() +
+                                                                '-' +
+                                                                Math.random());
 
                                                         const new_widgets =
                                                             layout.concat([
@@ -413,6 +431,7 @@ const DefaultLayout = () => {
                                             </TabPane>
                                             <TabPane tab='Tab 2' key='2'>
                                                 <ReactDragLayout
+                                                    layout_id={'tab 2'}
                                                     layout_type={
                                                         LayoutType.GRID
                                                     }
@@ -474,6 +493,7 @@ const DefaultLayout = () => {
                                             </TabPane>
                                             <TabPane tab='Tab 3' key='3'>
                                                 <ReactDragLayout
+                                                    layout_id={'tab 3'}
                                                     layout_type={
                                                         LayoutType.GRID
                                                     }
