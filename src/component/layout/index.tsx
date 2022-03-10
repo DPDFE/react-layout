@@ -497,14 +497,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
 
             const new_layout = layout.concat(placeholder);
 
-            if (is_save) {
-                !placeholder.is_float && snapToGrid(placeholder, grid);
-                compact(new_layout);
-            } else {
-                snapToGrid(placeholder, grid);
-                compact(new_layout);
-                setShadowWidget(placeholder);
-            }
+            !placeholder.is_float && snapToGrid(placeholder, grid);
+            compact(new_layout);
+
+            if (!is_save) setShadowWidget(placeholder);
 
             return copyObject(new_layout);
         },
