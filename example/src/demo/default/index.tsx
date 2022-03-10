@@ -6,7 +6,9 @@ import {
     LayoutItem,
     DirectionType,
     ItemPos,
-    ReactLayoutContext
+    ReactLayoutContext,
+    DragStart,
+    DragResult
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 import 'antd/dist/antd.css';
@@ -20,6 +22,7 @@ const DefaultLayout = () => {
     const [scale, setScale] = useState<number>(1);
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
     const [widgets2, setWidgets2] = useState<LayoutItem[]>([]);
+    const [widgets3, setWidgets3] = useState<LayoutItem[]>([]);
     const [guide_line, setGuideLine] = useState<
         {
             x: number;
@@ -31,7 +34,35 @@ const DefaultLayout = () => {
     useEffect(() => {
         setWidgets(generateLayout());
         setWidgets2(generateLayout2());
+        setWidgets3(generateLayout3());
     }, []);
+
+    function generateLayout3() {
+        return [
+            {
+                i: '3-0',
+                w: 100,
+                h: 100,
+                x: 100,
+                y: 100,
+                is_float: true,
+                is_resizable: true,
+                is_draggable: true,
+                is_nested: false
+            },
+            {
+                i: '3-1',
+                w: 2,
+                h: 2,
+                x: 0,
+                y: 0,
+                is_float: false,
+                is_resizable: true,
+                is_draggable: true,
+                is_nested: false
+            }
+        ];
+    }
 
     function generateLayout2() {
         return [
@@ -76,7 +107,7 @@ const DefaultLayout = () => {
             {
                 x: 0,
                 y: 0,
-                w: 5,
+                w: 4,
                 h: 10,
                 i: '1',
                 is_resizable: true,
@@ -94,6 +125,17 @@ const DefaultLayout = () => {
                 is_draggable: true,
                 is_float: false,
                 is_nested: false
+            },
+            {
+                x: 5,
+                y: 0,
+                w: 4,
+                h: 10,
+                i: '3',
+                is_resizable: true,
+                is_draggable: true,
+                is_float: false,
+                is_nested: true
             }
             // {
             //     x: 0,
@@ -150,8 +192,17 @@ const DefaultLayout = () => {
         // });
     }
 
-    const event = {
-        type: 'dragstop'
+    const handleWidgetsChange = (id: string, widgets: LayoutItem[]) => {
+        switch (id) {
+            case 'root':
+                setWidgets(widgets);
+                break;
+            case 'tab 1':
+                setWidgets2(widgets);
+                break;
+            case 'widgets3':
+                setWidgets3(widgets);
+        }
     };
 
     return (
@@ -214,7 +265,21 @@ const DefaultLayout = () => {
                         onChange={setScale}
                     />
                 </div>
-                <ReactLayoutContext>
+                <ReactLayoutContext
+                    onDragStart={(start: DragStart) =>
+                        console.log(start, 'on drag start')
+                    }
+                    onDragStop={(result: DragResult) => {
+                        console.log(result, 'on drag stop');
+                        const { source, destination } = result;
+                        handleWidgetsChange(source.layout_id, source.widgets);
+                        destination &&
+                            handleWidgetsChange(
+                                destination.layout_id,
+                                destination.widgets
+                            );
+                    }}
+                >
                     <ReactDragLayout
                         // getDroppingItem={() => {
                         //     return {
@@ -259,9 +324,9 @@ const DefaultLayout = () => {
                         //     setWidgets(layout);
                         // }}
                         onDragStop={(layout: LayoutItem[]) => {
-                            console.log(layout);
-                            console.log('onDragStop', 'root');
-                            setWidgets(layout);
+                            // console.log(layout);
+                            // console.log('onDragStop', 'root');
+                            // setWidgets(layout);
                         }}
                         onResizeStart={() => {
                             // console.log('onResizeStart');
@@ -332,6 +397,79 @@ const DefaultLayout = () => {
                                             width:
                                             {w.w}
                                         </div>
+                                    )}
+                                    {w.i === '3' && (
+                                        <ReactDragLayout
+                                            layout_id={'widgets3'}
+                                            layout_type={LayoutType.GRID}
+                                            mode={LayoutType.edit}
+                                            container_padding={[10, 10, 10, 10]}
+                                            row_height={50}
+                                            cols={8}
+                                            item_margin={[10, 10]}
+                                            need_drag_bound={false}
+                                            need_grid_bound={false}
+                                            is_nested={true}
+                                            onDragStop={(
+                                                layout: LayoutItem[]
+                                            ) => {
+                                                // console.log('widgets3', layout);
+                                                // setWidgets3(layout);
+                                            }}
+                                            onDrop={(
+                                                layout: LayoutItem[],
+                                                item: ItemPos
+                                            ) => {
+                                                const drop_element = JSON.parse(
+                                                    JSON.stringify({
+                                                        ...item,
+                                                        is_resizable: true,
+                                                        is_draggable: true
+                                                    })
+                                                );
+
+                                                drop_element.i ||
+                                                    (drop_element.i =
+                                                        '1-' +
+                                                        widgets.length.toString() +
+                                                        '-' +
+                                                        Math.random());
+
+                                                const new_widgets =
+                                                    layout.concat([
+                                                        drop_element
+                                                    ]);
+
+                                                setWidgets3(new_widgets);
+                                                console.log('add widgets3');
+
+                                                return drop_element;
+                                            }}
+                                        >
+                                            {widgets3.map((w) => {
+                                                return (
+                                                    <div
+                                                        key={w.i}
+                                                        data-drag={w}
+                                                        style={{
+                                                            border: '1px solid',
+                                                            background:
+                                                                w.is_float
+                                                                    ? '#9eb3f1'
+                                                                    : '#f19e9e'
+                                                        }}
+                                                    >
+                                                        <div className='test'>
+                                                            我是第{w.i}
+                                                            个div, height: {w.h}
+                                                            , width:
+                                                            {w.w}
+                                                            {new Date().getTime()}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            })}
+                                        </ReactDragLayout>
                                     )}
                                     {w.i === '1' && (
                                         <Tabs
@@ -423,6 +561,7 @@ const DefaultLayout = () => {
                                                                     {w.h},
                                                                     width:
                                                                     {w.w}
+                                                                    {new Date().getTime()}
                                                                 </div>
                                                             </div>
                                                         );
@@ -578,6 +717,7 @@ const DefaultLayout = () => {
                                 >
                                     删除我自己
                                 </Button> */}
+                                    {new Date().getTime()}
                                 </div>
                             );
                         })}

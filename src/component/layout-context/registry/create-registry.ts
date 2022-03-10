@@ -19,6 +19,12 @@ export default function createRegistry() {
         return findDraggableById(id);
     }
 
+    function getDraggablesByDroppableId(droppableId: string) {
+        return Object.values(entries.draggables).filter(
+            (entry) => entry.descriptor.layout_id === droppableId
+        );
+    }
+
     const DraggableAPI = {
         register: (entry: LayoutItemEntry) => {
             if (entry.descriptor.is_placeholder) return;
@@ -56,6 +62,7 @@ export default function createRegistry() {
         },
         getById: getDraggableById,
         findById: findDraggableById,
+        getDraggablesByDroppableId,
         exists: (id: string): boolean => Boolean(findDraggableById(id))
     };
 

@@ -1,17 +1,49 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { LayoutEntry, LayoutItemDimesion, OperatorType } from '@/interfaces';
+import {
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef,
+    useState
+} from 'react';
+import {
+    LayoutEntry,
+    LayoutItem,
+    LayoutItemEntry,
+    OperatorType,
+    ReactLayoutContextProps,
+    WidgetLocation
+} from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
 
 import useRegistry from './registry/use-registry';
 
-export const useLayoutContext = () => {
+export const useLayoutContext = (props: ReactLayoutContextProps) => {
     const [checked_index, setCurrentChecked] = useState<string>();
-    const [drag_item, setDragItem] = useState<LayoutItemDimesion>();
+    const [drag_item, setDragItem] = useState<LayoutItemEntry>();
     const [operator_type, setOperatorType] = useState<OperatorType>();
     const dragging_layout = useRef<{
         layout: LayoutEntry;
-        drag_item: LayoutItemDimesion;
+        drag_item: LayoutItemEntry;
     }>();
+
+    const change_store = useRef<{
+        type: OperatorType;
+        widget_id: string;
+        source: WidgetLocation;
+        destination?: WidgetLocation;
+    }>();
+
+    const getResponders = useCallback(() => {
+        const { onDragStart, onDrag, onDragStop, onDrop, onChange } = props;
+        return {
+            onDragStart,
+            onDrag,
+            onDragStop,
+            onDrop,
+            onChange
+        };
+    }, [props]);
 
     const registry = useRegistry();
 
@@ -84,7 +116,8 @@ export const useLayoutContext = () => {
 
                 if (layout && drag_item) {
                     const layout_dom = layout.getRef()!;
-                    const drag_item_dom = drag_item.element!;
+                    const drag_item_dom = drag_item.getRef()!;
+                    let destination_layout: LayoutItem[] | undefined;
 
                     // 排除拖拽元素拖进自己内部Layout情况
                     if (
@@ -94,57 +127,80 @@ export const useLayoutContext = () => {
                         return;
 
                     if (dragging_layout.current) {
+                        destination_layout =
+                            layout.handlerShadowByDraggingItem(drag_item);
                         if (
-                            dragging_layout.current.layout.descriptor.id ===
+                            dragging_layout.current.layout.descriptor.id !==
                             layout.descriptor.id
                         ) {
-                            dragging_layout.current.layout.handlerShadowByDraggingItem(
-                                drag_item
-                            );
-                        } else {
                             dragging_layout.current.layout.handlerDraggingItemOut(
                                 drag_item
                             );
-                            dragging_layout.current = {
-                                layout: layout,
-                                drag_item: drag_item
-                            };
-                            dragging_layout.current.layout.handlerShadowByDraggingItem(
-                                drag_item
-                            );
                         }
+                        dragging_layout.current = {
+                            layout: layout,
+                            drag_item: drag_item
+                        };
                     } else {
                         dragging_layout.current = {
                             layout: layout,
                             drag_item: drag_item
                         };
                     }
+
+                    if (change_store.current) {
+                        change_store.current.destination = destination_layout
+                            ? {
+                                  layout_id: layout.descriptor.id,
+                                  widgets: destination_layout
+                              }
+                            : undefined;
+                        getResponders().onDrag?.(change_store.current);
+                    }
                 }
             }
         };
 
-        drag_item && addEvent(window, 'mousemove', onMouseMouve);
+        operator_type === OperatorType.drag &&
+            drag_item &&
+            addEvent(window, 'mousemove', onMouseMouve);
 
         return () => {
             removeEvent(window, 'mousemove', onMouseMouve);
         };
-    }, [drag_item?.i]);
+    }, [drag_item, operator_type]);
 
     useLayoutEffect(() => {
-        if (operator_type === OperatorType.dragover) {
-            if (dragging_layout.current) {
-                const { layout, drag_item } = dragging_layout.current;
-                if (layout.descriptor.id !== drag_item.layout_id) {
-                    const pre_layout = registry.droppable.getById(
-                        drag_item.layout_id
-                    );
-                    pre_layout?.handlerRemoveWidget(drag_item);
-                    layout.handlerAddWidget(drag_item);
-                }
+        if (checked_index && operator_type && change_store.current) {
+            change_store.current.type = operator_type;
+            switch (operator_type) {
+                case OperatorType.drag:
+                    const dragging_item =
+                        registry.draggable.getById(checked_index);
+                    setDragItem(dragging_item);
+                    break;
+                case OperatorType.dragover:
+                    if (dragging_layout.current) {
+                        const { layout, drag_item } = dragging_layout.current;
+                        if (
+                            layout.descriptor.id !==
+                            drag_item.descriptor.layout_id
+                        ) {
+                            const pre_layout = registry.droppable.getById(
+                                drag_item.descriptor.layout_id
+                            );
+                            pre_layout?.handlerRemoveWidget(drag_item);
+                            layout.handlerAddWidget(drag_item);
+                        }
+                    }
+                    getResponders().onDragStop?.(change_store.current!);
+                    setDragItem(undefined);
+                    dragging_layout.current = undefined;
+                    change_store.current = undefined;
+                    break;
             }
-            dragging_layout.current = undefined;
         }
-    }, [operator_type, drag_item, registry]);
+    }, [operator_type, registry, checked_index]);
 
     return useMemo(() => {
         return {
@@ -155,7 +211,9 @@ export const useLayoutContext = () => {
             operator_type,
             setOperatorType,
             dragging_layout,
-            registry
+            registry,
+            getResponders,
+            change_store
         };
     }, [
         checked_index,
@@ -165,7 +223,9 @@ export const useLayoutContext = () => {
         operator_type,
         setOperatorType,
         dragging_layout,
-        registry
+        registry,
+        getResponders,
+        change_store
     ]);
 };
 

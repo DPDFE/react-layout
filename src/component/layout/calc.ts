@@ -8,7 +8,7 @@ import {
     MarginType,
     BoundType
 } from '@/interfaces';
-import { copyObject, copyObjectArray } from '@/utils/utils';
+import { copyObject } from '@/utils/utils';
 import React, { RefObject } from 'react';
 
 export const RULER_GAP = 100; // 标尺间隔大小
