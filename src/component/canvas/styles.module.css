@@ -4,9 +4,7 @@
 @value transition_time: all 0.1s linear;
 
 .layout_item {
-    background-color: #fff;
     position: absolute;
-    overflow: hidden;
     outline: none;
 }
 

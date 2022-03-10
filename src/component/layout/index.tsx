@@ -58,6 +58,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const canvas_wrapper = useRef<HTMLDivElement>(null); // canvas存放的画布，增加边距支持滚动
     const canvas_ref = useRef<HTMLDivElement>(null);
     const shadow_widget_ref = useRef<HTMLDivElement>(null);
+    const flex_container_ref = useRef<HTMLDivElement>(null);
 
     const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
 
@@ -623,11 +624,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     canvas_viewport={canvas_viewport}
                 ></HorizontalRuler>
             )}
-            {/* 可视区域窗口 */}
+
             <div
                 style={{ display: 'flex', flex: 1, overflow: 'hidden' }}
-                ref={canvas_viewport}
-                id={'canvas_viewport'}
+                ref={flex_container_ref}
             >
                 {/* 垂直标尺 */}
                 {canvas_viewport.current && props.need_ruler && (
@@ -641,7 +641,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     ></VerticalRuler>
                 )}
 
+                {/* 可视区域窗口 */}
                 <div
+                    ref={canvas_viewport}
+                    id={'canvas_viewport'}
                     style={{
                         overflowX: props.is_nested ? 'hidden' : 'auto',
                         overflowY: 'auto',
