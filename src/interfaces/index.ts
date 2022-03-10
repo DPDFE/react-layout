@@ -6,6 +6,7 @@ import React, {
 } from 'react';
 
 export enum OperatorType {
+    dragstart = 'dragstart',
     drag = 'drag',
     dragover = 'dragover',
     resize = 'resize',
@@ -309,7 +310,9 @@ export interface LayoutDescriptor {
     mode: LayoutType;
 }
 
-type LayoutEntryApi = (dragging_item: NonNullable<LayoutItemDimesion>) => void;
+type LayoutEntryApi = (
+    dragging_item: LayoutItemEntry
+) => LayoutItem[] | undefined;
 export interface LayoutEntry {
     unique_id: string;
     descriptor: LayoutDescriptor;
@@ -324,10 +327,34 @@ export interface LayoutItemDescriptor {
     id: string;
     is_placeholder: boolean;
     layout_id: string;
+    pos: LayoutItem;
 }
 
 export interface LayoutItemEntry {
     unique_id: string;
     descriptor: LayoutItemDescriptor;
     getRef: () => HTMLElement | null;
+}
+
+export type WidgetLocation = {
+    layout_id: string;
+    widgets: LayoutItem[];
+};
+
+export type DragStart = {
+    type: OperatorType;
+    widget_id: string;
+    source: WidgetLocation;
+};
+
+export type DragResult = DragStart & {
+    destination?: WidgetLocation;
+};
+
+export interface ReactLayoutContextProps {
+    onDragStart?: (start: DragStart) => void;
+    onDrag?: (result: DragResult) => void;
+    onDragStop?: (result: DragResult) => void;
+    onDrop?: () => void;
+    onChange?: () => void;
 }

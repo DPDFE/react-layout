@@ -30,9 +30,9 @@ import {
     OperatorType,
     ReactDragLayoutProps,
     RulerPointer,
-    LayoutItemDimesion,
     LayoutEntry,
-    LayoutDescriptor
+    LayoutDescriptor,
+    LayoutItemEntry
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, copyObjectArray, noop } from '@/utils/utils';
@@ -48,7 +48,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         operator_type,
         setOperatorType,
         registry,
-        dragging_layout
+        dragging_layout,
+        getResponders,
+        change_store
     } = useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
@@ -282,11 +284,11 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 const filter_layout = getFilterLayout(item);
                 setLayout(copyObject(layout));
                 compact(filter_layout);
-                return layout;
+                return filter_layout;
             }
 
+            const shadow_widget = cloneWidget(current_widget);
             if (!current_widget.is_float) {
-                const shadow_widget = cloneWidget(current_widget);
                 const filter_layout = getFilterLayout(item);
                 snapToGrid(shadow_widget, grid);
                 moveElement(
@@ -307,7 +309,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     setShadowWidget(shadow_widget);
                 }
             }
-            setLayout(layout);
+            setLayout(copyObject(layout));
             return replaceWidget(layout, shadow_widget);
         },
         [layout, grid]
@@ -369,9 +371,19 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             : noop
                     }
                     onDragStart={() => {
-                        checked_index === widget.i
-                            ? (props as EditLayoutProps).onDragStart?.()
-                            : noop;
+                        const drag_start = {
+                            type: OperatorType.dragstart,
+                            widget_id: widget.i,
+                            source: {
+                                layout_id: props.layout_id,
+                                widgets: layout
+                            }
+                        };
+                        change_store.current = {
+                            ...drag_start
+                        };
+                        // 触发onDragStart事件
+                        getResponders().onDragStart?.(drag_start);
                     }}
                     onDrag={(item) => {
                         if (checked_index === widget.i) {
@@ -380,19 +392,26 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                                 item,
                                 false
                             );
-                            (props as EditLayoutProps).onDrag?.(layout ?? []);
+                            change_store.current = {
+                                type: OperatorType.drag,
+                                widget_id: widget.i,
+                                source: {
+                                    layout_id: props.layout_id,
+                                    widgets: copyObject(layout)
+                                }
+                            };
                         }
                     }}
                     onDragStop={(item) => {
-                        if (checked_index === widget.i) {
+                        if (
+                            checked_index === widget.i &&
+                            operator_type === OperatorType.drag
+                        ) {
                             getCurrentLayoutByItem(
                                 OperatorType.dragover,
                                 item,
                                 true
                             );
-                            // (props as EditLayoutProps).onDragStop?.(
-                            //     layout ?? []
-                            // );
                         }
                     }}
                     onResizeStart={() => {
@@ -466,27 +485,27 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     };
 
     const compactLayoutByDraggingItem = useCallback(
-        (dragging_item: NonNullable<LayoutItemDimesion>, is_save = false) => {
-            const { x, y } = offsetXYFromLayout(dragging_item.element!);
+        (dragging_item: LayoutItemEntry, is_save = false) => {
+            const { x, y } = offsetXYFromLayout(dragging_item.getRef()!);
+            const postion = dragging_item.descriptor.pos;
             const placeholder = {
+                ...postion,
                 x,
-                y,
-                i: dragging_item.i,
-                h: dragging_item.h,
-                w: dragging_item.w,
-                is_float: dragging_item.is_float,
-                is_nested: dragging_item.is_nested
+                y
             };
 
+            const new_layout = layout.concat(placeholder);
+
             if (is_save) {
-                snapToGrid(placeholder, grid);
-                compact(layout.concat(placeholder));
-                (props as EditLayoutProps).onDrop?.(layout ?? [], placeholder);
+                !placeholder.is_float && snapToGrid(placeholder, grid);
+                compact(new_layout);
             } else {
                 snapToGrid(placeholder, grid);
-                compact(layout.concat(placeholder));
+                compact(new_layout);
                 setShadowWidget(placeholder);
             }
+
+            return copyObject(new_layout);
         },
         [layout]
     );
@@ -511,45 +530,41 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     };
 
     const handlerShadowByDraggingItem = useCallback(
-        (dragging_item: NonNullable<LayoutItemDimesion>) => {
-            if (dragging_item.layout_id === props.layout_id) {
+        (dragging_item: LayoutItemEntry) => {
+            if (dragging_item.descriptor.layout_id === props.layout_id) {
                 return;
             } else {
-                compactLayoutByDraggingItem(dragging_item);
+                return compactLayoutByDraggingItem(dragging_item);
             }
         },
         [layout, props.layout_id, compactLayoutByDraggingItem]
     );
 
     const handlerDraggingItemOut = useCallback(
-        (dragging_item: NonNullable<LayoutItemDimesion>) => {
+        (dragging_item: LayoutItemEntry) => {
             setShadowWidget(undefined);
-            const filter_layout = getFilterLayout(dragging_item);
+            const filter_layout = getFilterLayout(dragging_item.descriptor.pos);
             compact(filter_layout);
-            setLayout(layout);
+            setLayout(copyObject(layout));
+            return copyObject(filter_layout);
         },
         [layout, getFilterLayout]
     );
 
     const handlerRemoveWidget = useCallback(
-        (dragging_item: NonNullable<LayoutItemDimesion>) => {
-            (props as EditLayoutProps).onDragStop?.(
-                layout.filter((l) => l.i !== dragging_item.i) ?? []
+        (dragging_item: LayoutItemEntry) => {
+            const new_layout = layout.filter(
+                (l) => l.i !== dragging_item.descriptor.pos.i
             );
+            setLayout(copyObject(new_layout));
+            return new_layout;
         },
         [layout]
     );
 
     const handlerAddWidget = useCallback(
-        (dragging_item: NonNullable<LayoutItemDimesion>) => {
-            compactLayoutByDraggingItem(dragging_item, true);
-            // setLayout(
-            //     layout.concat({
-            //         ...shadow_widget!,
-            //         i: dragging_item.i,
-            //         is_nested: dragging_item.is_nested
-            //     })
-            // );
+        (dragging_item: LayoutItemEntry) => {
+            return compactLayoutByDraggingItem(dragging_item, true);
         },
         [compactLayoutByDraggingItem]
     );
@@ -576,7 +591,15 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             getRef,
             unique_id: layout_name
         }),
-        [handlerShadowByDraggingItem, descriptor, layout_name]
+        [
+            handlerShadowByDraggingItem,
+            handlerDraggingItemOut,
+            handlerRemoveWidget,
+            handlerAddWidget,
+            getRef,
+            descriptor,
+            layout_name
+        ]
     );
 
     useLayoutEffect(() => {

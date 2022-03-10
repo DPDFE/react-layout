@@ -23,6 +23,7 @@ interface Pos {
 }
 
 export enum DragStates {
+    beforestart = 'before_start',
     dragging = 'dragging',
     draged = 'draged'
 }
@@ -61,15 +62,29 @@ const Draggable = (props: Props) => {
         return { x, y };
     };
 
-    /** 开始 */
+    /** 开始 偏移量大于5px 判断为开始拖拽 */
     const handleDragStart = (e: MouseEvent) => {
         if (!props.is_draggable) {
             return;
         }
-        props.onDragStart?.();
+        const { x, y } = offsetXYFromParent(e);
+        if (
+            isSloppyClickThresholdExceeded(mouse_pos, {
+                x,
+                y
+            })
+        ) {
+            props.onDragStart?.();
+            setDragState(DragStates.dragging);
+        }
+    };
 
-        setDragState(DragStates.dragging);
-
+    /** 开始前 */
+    const hanldeBeforDragStart = (e: MouseEvent) => {
+        if (!props.is_draggable) {
+            return;
+        }
+        setDragState(DragStates.beforestart);
         const { x, y } = offsetXYFromParent(e);
 
         setMousePos({ x, y });
@@ -82,23 +97,16 @@ const Draggable = (props: Props) => {
     const handleDrag = (e: MouseEvent) => {
         const { x, y } = offsetXYFromParent(e);
 
-        if (
-            isSloppyClickThresholdExceeded(mouse_pos, {
-                x,
-                y
-            })
-        ) {
-            const delta_x = x - mouse_pos.x;
-            const delta_y = y - mouse_pos.y;
+        const delta_x = x - mouse_pos.x;
+        const delta_y = y - mouse_pos.y;
 
-            const { max_x, max_y, min_x, min_y } = formatBound(props.bound);
+        const { max_x, max_y, min_x, min_y } = formatBound(props.bound);
 
-            const pos = {
-                x: clamp(props.x + delta_x, min_x, max_x),
-                y: clamp(props.y + delta_y, min_y, max_y)
-            };
-            props.onDrag?.(pos);
-        }
+        const pos = {
+            x: clamp(props.x + delta_x, min_x, max_x),
+            y: clamp(props.y + delta_y, min_y, max_y)
+        };
+        props.onDrag?.(pos);
     };
 
     /** 结束 */
@@ -106,9 +114,10 @@ const Draggable = (props: Props) => {
         if (!props.is_draggable) {
             return;
         }
-        if (drag_state !== DragStates.draged) {
-            setDragState(DragStates.draged);
-        }
+
+        setDragState(
+            drag_state === DragStates.dragging ? DragStates.draged : undefined
+        );
     };
 
     /**
@@ -117,15 +126,22 @@ const Draggable = (props: Props) => {
      * 为了阻止其他非document元素上的冒泡事件，在此处使用原生处理
      */
     useEffect(() => {
-        if (drag_state === DragStates.dragging) {
-            addEvent(document, 'mousemove', handleDrag);
-            addEvent(document, 'mouseup', handleDragStop);
-        }
-        if (drag_state === DragStates.draged) {
-            props.onDragStop?.({ x: props.x, y: props.y });
-            setDragState(undefined);
+        switch (drag_state) {
+            case DragStates.beforestart:
+                addEvent(document, 'mousemove', handleDragStart);
+                addEvent(document, 'mouseup', handleDragStop);
+                break;
+            case DragStates.dragging:
+                addEvent(document, 'mousemove', handleDrag);
+                addEvent(document, 'mouseup', handleDragStop);
+                break;
+            case DragStates.draged:
+                props.onDragStop?.({ x: props.x, y: props.y });
+                setDragState(undefined);
+                break;
         }
         return () => {
+            removeEvent(document, 'mousemove', handleDragStart);
             removeEvent(document, 'mousemove', handleDrag);
             removeEvent(document, 'mouseup', handleDragStop);
         };
@@ -135,7 +151,7 @@ const Draggable = (props: Props) => {
         onMouseDown: (e: React.MouseEvent) => {
             e.stopPropagation();
             child.props.onMouseDown?.(e);
-            handleDragStart(e as unknown as MouseEvent);
+            hanldeBeforDragStart(e as unknown as MouseEvent);
         },
         className: `${props.className ? props.className : ''} ${
             child.props.className ? child.props.className : ''
