@@ -269,6 +269,45 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         }
     };
 
+    const handleResponder = (
+        type: OperatorType,
+        layout: LayoutItem[],
+        widget: LayoutItem
+    ) => {
+        const drag_start = {
+            type,
+            widget_id: widget.i,
+            source: {
+                layout_id: props.layout_id,
+                widgets: copyObject(layout)
+            }
+        };
+        change_store.current = {
+            ...drag_start
+        };
+        const responders = getResponders();
+        switch (type) {
+            case OperatorType.dragstart:
+                // 触发onDragStart事件
+                responders.onDragStart?.(drag_start);
+                break;
+            case OperatorType.resizestart:
+                responders.onResizeStart?.(drag_start);
+                break;
+            case OperatorType.resize:
+                responders.onResize?.(drag_start);
+                break;
+            case OperatorType.resizeover:
+                responders.onResize?.(drag_start);
+                break;
+
+            // drag、dragover 事件在context/hooks触发
+            case OperatorType.drag:
+            case OperatorType.dragover:
+                break;
+        }
+    };
+
     const getCurrentLayoutByItem = useCallback(
         (type: OperatorType, item: ItemPos, is_save?: boolean) => {
             setOperatorType(type);
@@ -311,14 +350,20 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                 }
             }
             setLayout(copyObject(layout));
-            return replaceWidget(layout, shadow_widget);
+
+            handleResponder(
+                type,
+                replaceWidget(layout, shadow_widget),
+                current_widget
+            );
+
+            return;
         },
         [layout, grid]
     );
 
     const shadowGridItem = () => {
         return (
-            dragging_layout.current?.layout.descriptor.id === props.layout_id &&
             shadow_widget && (
                 <WidgetItem
                     layout_id={props.layout_id}
@@ -372,35 +417,15 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             : noop
                     }
                     onDragStart={() => {
-                        const drag_start = {
-                            type: OperatorType.dragstart,
-                            widget_id: widget.i,
-                            source: {
-                                layout_id: props.layout_id,
-                                widgets: layout
-                            }
-                        };
-                        change_store.current = {
-                            ...drag_start
-                        };
-                        // 触发onDragStart事件
-                        getResponders().onDragStart?.(drag_start);
+                        handleResponder(OperatorType.dragstart, layout, widget);
                     }}
                     onDrag={(item) => {
                         if (checked_index === widget.i) {
-                            const layout = getCurrentLayoutByItem(
+                            getCurrentLayoutByItem(
                                 OperatorType.drag,
                                 item,
                                 false
                             );
-                            change_store.current = {
-                                type: OperatorType.drag,
-                                widget_id: widget.i,
-                                source: {
-                                    layout_id: props.layout_id,
-                                    widgets: copyObject(layout)
-                                }
-                            };
                         }
                     }}
                     onDragStop={(item) => {
@@ -417,28 +442,28 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     }}
                     onResizeStart={() => {
                         if (checked_index === widget.i) {
-                            (props as EditLayoutProps).onResizeStart?.();
+                            handleResponder(
+                                OperatorType.resizestart,
+                                layout,
+                                widget
+                            );
                         }
                     }}
                     onResize={(item) => {
                         if (checked_index === widget.i) {
-                            const layout = getCurrentLayoutByItem(
+                            getCurrentLayoutByItem(
                                 OperatorType.resize,
                                 item,
                                 false
                             );
-                            (props as EditLayoutProps).onResize?.(layout ?? []);
                         }
                     }}
                     onResizeStop={(item) => {
                         if (checked_index === widget.i) {
-                            const layout = getCurrentLayoutByItem(
+                            getCurrentLayoutByItem(
                                 OperatorType.resizeover,
                                 item,
                                 true
-                            );
-                            (props as EditLayoutProps).onResizeStop?.(
-                                layout ?? []
                             );
                         }
                     }}

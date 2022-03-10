@@ -9,6 +9,7 @@ export enum OperatorType {
     dragstart = 'dragstart',
     drag = 'drag',
     dragover = 'dragover',
+    resizestart = 'resizestart',
     resize = 'resize',
     resizeover = 'resizeover',
     drop = 'drop',
@@ -356,5 +357,8 @@ export interface ReactLayoutContextProps {
     onDrag?: (result: DragResult) => void;
     onDragStop?: (result: DragResult) => void;
     onDrop?: () => void;
+    onResizeStart?: (start: DragStart) => void;
+    onResize?: (start: DragStart) => void;
+    onResizeStop?: (start: DragStart) => void;
     onChange?: () => void;
 }

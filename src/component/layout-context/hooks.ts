@@ -35,12 +35,24 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
     }>();
 
     const getResponders = useCallback(() => {
-        const { onDragStart, onDrag, onDragStop, onDrop, onChange } = props;
+        const {
+            onDragStart,
+            onDrag,
+            onDragStop,
+            onDrop,
+            onChange,
+            onResizeStart,
+            onResize,
+            onResizeStop
+        } = props;
         return {
             onDragStart,
             onDrag,
             onDragStop,
             onDrop,
+            onResizeStart,
+            onResize,
+            onResizeStop,
             onChange
         };
     }, [props]);
