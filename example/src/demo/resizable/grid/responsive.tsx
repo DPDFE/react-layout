@@ -33,6 +33,7 @@ const ResizableGridResponsiveLayout = () => {
     return (
         <ReactLayoutContext>
             <ReactDragLayout
+                style={{background: '#fff'}}
                 need_ruler
                 layout_type={LayoutType.GRID}
                 mode={LayoutType.edit}

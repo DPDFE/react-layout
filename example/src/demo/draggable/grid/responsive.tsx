@@ -104,6 +104,7 @@ const DraggableGridResponsiveLayout = () => {
         <ReactLayoutContext>
             <ReactDragLayout
                 // need_ruler
+                style={{background: '#fff'}}
                 layout_type={LayoutType.GRID}
                 mode={LayoutType.edit}
                 container_padding={[5]}

@@ -53,6 +53,7 @@ const DropDragStaticLayout = () => {
             </div>
             <ReactLayoutContext>
                 <ReactDragLayout
+                    style={{background: '#fff'}}
                     need_ruler
                     height={600}
                     width={1200}

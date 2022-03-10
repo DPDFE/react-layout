@@ -33,6 +33,7 @@ const DraggableDragResponsiveLayout = () => {
     return (
         <ReactLayoutContext>
             <ReactDragLayout
+                style={{background: '#fff'}}
                 // need_ruler
                 layout_type={LayoutType.GRID}
                 mode={LayoutType.edit}
@@ -55,7 +56,8 @@ const DraggableDragResponsiveLayout = () => {
                             data-drag={w}
                             style={{
                                 border: '1px solid',
-                                padding: 10
+                                padding: 10,
+                                background: '#fff',
                             }}
                         >
                             我是第{w.i}个div, height: {w.h}, width:

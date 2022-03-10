@@ -69,6 +69,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         is_float
     );
 
+    console.log('render item', i)
+
     const gridX = (count: number) => {
         return is_float || is_dragging ? count : count * col_width;
     };
