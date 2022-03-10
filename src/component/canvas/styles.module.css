@@ -5,7 +5,6 @@
 
 .layout_item {
     position: absolute;
-    overflow: hidden;
     outline: none;
 }
 
