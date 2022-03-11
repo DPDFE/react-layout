@@ -69,8 +69,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         is_float
     );
 
-    console.log('render item', i)
-
     const gridX = (count: number) => {
         return is_float || is_dragging ? count : count * col_width;
     };
@@ -370,6 +368,9 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
+                if (key === 'children') {
+                    return childrenEqual(prev[key], next[key]);
+                }
                 return isEqual(prev[key], next[key]);
             }
         })

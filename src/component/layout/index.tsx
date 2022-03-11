@@ -6,7 +6,8 @@ import React, {
     useMemo,
     useRef,
     useState,
-    useLayoutEffect
+    useLayoutEffect,
+    memo
 } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
@@ -40,6 +41,7 @@ import { addEvent, removeEvent } from '@pearone/event-utils';
 import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
 import { LayoutContext } from '../layout-context';
 import { useLayoutHooks } from './hooks';
+import isEqual from 'lodash.isequal';
 
 const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const {
@@ -173,9 +175,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     useEffect(() => {
         const new_layout = React.Children.toArray(props.children).map(
             (child: React.ReactElement) => {
-                const item = cloneWidget(
-                    child.props['data-drag']
-                ) as LayoutItem;
+                const item = child.props['data-drag'] as LayoutItem;
                 return getCurrentWidget(item);
             }
         );
@@ -279,7 +279,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             widget_id: widget.i,
             source: {
                 layout_id: props.layout_id,
-                widgets: copyObject(layout)
+                widgets: layout
             }
         };
         change_store.current = {
@@ -300,6 +300,8 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             case OperatorType.resizeover:
                 responders.onResize?.(drag_start);
                 break;
+            case OperatorType.changeover:
+                responders.onChange?.(drag_start);
 
             // drag、dragover 事件在context/hooks触发
             case OperatorType.drag:
@@ -311,9 +313,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const getCurrentLayoutByItem = useCallback(
         (type: OperatorType, item: ItemPos, is_save?: boolean) => {
             setOperatorType(type);
-            const current_widget = getLayoutItem(item);
-
+            const current_widget = copyObject(getLayoutItem(item));
             moveToWidget(current_widget, item);
+            replaceWidget(layout, current_widget);
+            const shadow_widget = { ...current_widget };
 
             // 当前拖拽元素 原Layout 处理元素移除逻辑
             if (
@@ -322,13 +325,13 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     props.layout_id
             ) {
                 const filter_layout = getFilterLayout(item);
-                setLayout(copyObject(layout));
                 compact(filter_layout);
-                return filter_layout;
-            }
-
-            const shadow_widget = cloneWidget(current_widget);
-            if (!current_widget.is_float) {
+                setLayout(replaceWidget(layout, current_widget));
+                handleResponder(type, filter_layout, current_widget);
+            } else if (current_widget.is_float) {
+                setLayout(replaceWidget(layout, current_widget));
+                handleResponder(type, layout, current_widget);
+            } else {
                 const filter_layout = getFilterLayout(item);
                 snapToGrid(shadow_widget, grid);
                 moveElement(
@@ -348,16 +351,13 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     current_widget.is_dragging = true;
                     setShadowWidget(shadow_widget);
                 }
+                setLayout(replaceWidget(layout, current_widget));
+                handleResponder(
+                    type,
+                    replaceWidget(layout, shadow_widget),
+                    current_widget
+                );
             }
-            setLayout(copyObject(layout));
-
-            handleResponder(
-                type,
-                replaceWidget(layout, shadow_widget),
-                current_widget
-            );
-
-            return;
         },
         [layout, grid]
     );
@@ -469,13 +469,10 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     }}
                     onPositionChange={(item) => {
                         if (checked_index === widget.i) {
-                            const layout = getCurrentLayoutByItem(
+                            getCurrentLayoutByItem(
                                 OperatorType.changeover,
                                 item,
                                 true
-                            );
-                            (props as EditLayoutProps).onPositionChange?.(
-                                layout ?? []
                             );
                         }
                     }}
@@ -578,7 +575,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             const new_layout = layout.filter(
                 (l) => l.i !== dragging_item.descriptor.pos.i
             );
-            setLayout(copyObject(new_layout));
+            setLayout(new_layout);
             return new_layout;
         },
         [layout]
@@ -748,4 +745,39 @@ ReactDragLayout.defaultProps = {
     is_nested: false
 };
 
-export default ReactDragLayout;
+export default memo(ReactDragLayout, compareProps);
+
+function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
+    return !Object.keys(prev)
+        .map((key) => {
+            if (
+                [
+                    'onDrop',
+                    'onDragStart',
+                    'onDrag',
+                    'onDragStop',
+                    'onResizeStart',
+                    'onResize',
+                    'onResizeStop',
+                    'removeGuideLine',
+                    'addGuideLine',
+                    'onPositionChange'
+                ].includes(key)
+            ) {
+                return true;
+            } else {
+                // if (!isEqual(prev[key], next[key])) {
+                //     if (key === 'children') {
+                //         console.log(
+                //             prev[key].map((_: any, i: string | number) => {
+                //                 return isEqual(prev[key][i], next[key][i]);
+                //             })
+                //         );
+                //         console.log(key, prev[key], next[key]);
+                //     }
+                // }
+                return isEqual(prev[key], next[key]);
+            }
+        })
+        .some((state) => state === false);
+}

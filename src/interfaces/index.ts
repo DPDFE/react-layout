@@ -360,5 +360,5 @@ export interface ReactLayoutContextProps {
     onResizeStart?: (start: DragStart) => void;
     onResize?: (start: DragStart) => void;
     onResizeStop?: (start: DragStart) => void;
-    onChange?: () => void;
+    onChange?: (start: DragStart) => void;
 }
