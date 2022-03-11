@@ -175,7 +175,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     useEffect(() => {
         const new_layout = React.Children.toArray(props.children).map(
             (child: React.ReactElement) => {
-                const item = child.props['data-drag'] as LayoutItem;
+                const item = cloneWidget(
+                    child.props['data-drag']
+                ) as LayoutItem;
                 return getCurrentWidget(item);
             }
         );
@@ -275,11 +277,12 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         widget: LayoutItem
     ) => {
         const drag_start = {
+            ...(change_store.current ? change_store.current : {}),
             type,
             widget_id: widget.i,
             source: {
                 layout_id: props.layout_id,
-                widgets: layout
+                widgets: copyObject(layout)
             }
         };
         change_store.current = {
@@ -300,8 +303,6 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             case OperatorType.resizeover:
                 responders.onResize?.(drag_start);
                 break;
-            case OperatorType.changeover:
-                responders.onChange?.(drag_start);
 
             // drag、dragover 事件在context/hooks触发
             case OperatorType.drag:
@@ -313,10 +314,9 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     const getCurrentLayoutByItem = useCallback(
         (type: OperatorType, item: ItemPos, is_save?: boolean) => {
             setOperatorType(type);
-            const current_widget = copyObject(getLayoutItem(item));
+            const current_widget = getLayoutItem(item);
+
             moveToWidget(current_widget, item);
-            replaceWidget(layout, current_widget);
-            const shadow_widget = { ...current_widget };
 
             // 当前拖拽元素 原Layout 处理元素移除逻辑
             if (
@@ -325,13 +325,14 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     props.layout_id
             ) {
                 const filter_layout = getFilterLayout(item);
+                setLayout(copyObject(layout));
                 compact(filter_layout);
-                setLayout(replaceWidget(layout, current_widget));
                 handleResponder(type, filter_layout, current_widget);
-            } else if (current_widget.is_float) {
-                setLayout(replaceWidget(layout, current_widget));
-                handleResponder(type, layout, current_widget);
-            } else {
+                return;
+            }
+
+            const shadow_widget = cloneWidget(current_widget);
+            if (!current_widget.is_float) {
                 const filter_layout = getFilterLayout(item);
                 snapToGrid(shadow_widget, grid);
                 moveElement(
@@ -351,13 +352,16 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     current_widget.is_dragging = true;
                     setShadowWidget(shadow_widget);
                 }
-                setLayout(replaceWidget(layout, current_widget));
-                handleResponder(
-                    type,
-                    replaceWidget(layout, shadow_widget),
-                    current_widget
-                );
             }
+            setLayout(copyObject(layout));
+
+            handleResponder(
+                type,
+                replaceWidget(layout, shadow_widget),
+                current_widget
+            );
+
+            return;
         },
         [layout, grid]
     );
@@ -469,11 +473,14 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                     }}
                     onPositionChange={(item) => {
                         if (checked_index === widget.i) {
-                            getCurrentLayoutByItem(
+                            const layout = getCurrentLayoutByItem(
                                 OperatorType.changeover,
                                 item,
                                 true
                             );
+                            // (props as EditLayoutProps).onPositionChange?.(
+                            //     layout ?? []
+                            // );
                         }
                     }}
                 />
@@ -575,7 +582,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
             const new_layout = layout.filter(
                 (l) => l.i !== dragging_item.descriptor.pos.i
             );
-            setLayout(new_layout);
+            setLayout(copyObject(new_layout));
             return new_layout;
         },
         [layout]
@@ -691,6 +698,13 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
                             props.mode === LayoutType.edit ? onDragEnter : noop
                         }
                         onClick={onClick}
+                        // onMouseMove={(e) => {
+                        //     e.stopPropagation();
+                        //     e.nativeEvent.console.log(
+                        //         'move on aaa',
+                        //         layout_name
+                        //     );
+                        // }}
                     >
                         {/* 实际画布区域 */}
                         <div
