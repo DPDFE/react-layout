@@ -369,7 +369,11 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                 return true;
             } else {
                 if (key === 'children') {
-                    return childrenEqual(prev[key], next[key]);
+                    if ((prev as unknown as WidgetItemProps).is_nested) {
+                        return false;
+                    } else {
+                        return childrenEqual(prev[key], next[key]);
+                    }
                 }
                 return isEqual(prev[key], next[key]);
             }
