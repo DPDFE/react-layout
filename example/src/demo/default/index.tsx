@@ -266,11 +266,11 @@ const DefaultLayout = () => {
                     />
                 </div>
                 <ReactLayoutContext
-                    onDragStart={(start: DragStart) =>
-                        console.log(start, 'on drag start')
-                    }
+                    // onDragStart={(start: DragStart) =>
+                    //     console.log(start, 'on drag start')
+                    // }
                     onDragStop={(result: DragResult) => {
-                        console.log(result, 'on drag stop');
+                        // console.log(result, 'on drag stop');
                         const { source, destination } = result;
                         handleWidgetsChange(source.layout_id, source.widgets);
                         destination &&
@@ -395,11 +395,15 @@ const DefaultLayout = () => {
                                     style={{
                                         background: w.is_float
                                             ? '#9eb3f1'
-                                            : '#f19e9e',
+                                            : '#cddc39',
                                         border: '1px solid',
-                                        padding: 10
+                                        padding: 10,
+                                        overflow: 'hidden'
                                     }}
                                 >
+                                    <span style={{ color: 'red' }}>
+                                        {new Date().getTime()}
+                                    </span>
                                     {w.i !== '1' && (
                                         <div className='test'>
                                             我是第{w.i}个div, height: {w.h},
@@ -465,15 +469,22 @@ const DefaultLayout = () => {
                                                             background:
                                                                 w.is_float
                                                                     ? '#9eb3f1'
-                                                                    : '#f19e9e'
+                                                                    : '#cddc39',
+                                                            overflow: 'hidden'
                                                         }}
                                                     >
                                                         <div className='test'>
+                                                            <span
+                                                                style={{
+                                                                    color: 'red'
+                                                                }}
+                                                            >
+                                                                {new Date().getTime()}
+                                                            </span>
                                                             我是第{w.i}
                                                             个div, height: {w.h}
                                                             , width:
                                                             {w.w}
-                                                            {new Date().getTime()}
                                                         </div>
                                                     </div>
                                                 );
@@ -486,7 +497,10 @@ const DefaultLayout = () => {
                                             onChange={(key) => {
                                                 console.log(key);
                                             }}
-                                            style={{ height: '100%' }}
+                                            style={{
+                                                height: '100%',
+                                                overflow: 'hidden'
+                                            }}
                                         >
                                             <TabPane tab='Tab 1' key='1'>
                                                 <ReactDragLayout
@@ -560,17 +574,23 @@ const DefaultLayout = () => {
                                                                     background:
                                                                         w.is_float
                                                                             ? '#9eb3f1'
-                                                                            : '#f19e9e'
+                                                                            : '#cddc39'
                                                                 }}
                                                             >
                                                                 <div className='test'>
+                                                                    <span
+                                                                        style={{
+                                                                            color: 'red'
+                                                                        }}
+                                                                    >
+                                                                        {new Date().getTime()}
+                                                                    </span>
                                                                     我是第{w.i}
                                                                     个div,
                                                                     height:{' '}
                                                                     {w.h},
                                                                     width:
                                                                     {w.w}
-                                                                    {new Date().getTime()}
                                                                 </div>
                                                             </div>
                                                         );
@@ -726,7 +746,6 @@ const DefaultLayout = () => {
                                 >
                                     删除我自己
                                 </Button> */}
-                                    {new Date().getTime()}
                                 </div>
                             );
                         })}
