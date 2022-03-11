@@ -7,7 +7,7 @@ import {
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
-const ResizableDragStaticLayout = () => {
+const DraggableLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
 
     useEffect(() => {
@@ -23,7 +23,7 @@ const ResizableDragStaticLayout = () => {
                 i: i.toString(),
                 x: random,
                 y: random,
-                is_resizable: true,
+                is_resizable: false,
                 is_draggable: true,
                 is_float: true
             };
@@ -33,23 +33,12 @@ const ResizableDragStaticLayout = () => {
     return (
         <ReactLayoutContext>
             <ReactDragLayout
-                style={{background: '#fff'}}
                 need_ruler
                 height={600}
                 width={1200}
                 layout_type={LayoutType.DRAG}
                 mode={LayoutType.edit}
                 need_drag_bound={false}
-                onResizeStart={() => {
-                    console.log('onResizeStart');
-                }}
-                onResize={(layout: LayoutItem[]) => {
-                    // console.log('onResize');
-                }}
-                onResizeStop={(layout: LayoutItem[]) => {
-                    console.log('onResizeStop');
-                    setWidgets(layout);
-                }}
                 onDragStart={() => {
                     console.log('onDragStart');
                 }}
@@ -81,4 +70,4 @@ const ResizableDragStaticLayout = () => {
     );
 };
 
-export default ResizableDragStaticLayout;
+export default DraggableLayout;

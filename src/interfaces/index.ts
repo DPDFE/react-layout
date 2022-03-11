@@ -6,8 +6,10 @@ import React, {
 } from 'react';
 
 export enum OperatorType {
+    dragstart = 'dragstart',
     drag = 'drag',
     dragover = 'dragover',
+    resizestart = 'resizestart',
     resize = 'resize',
     resizeover = 'resizeover',
     drop = 'drop',
@@ -75,6 +77,7 @@ export type ItemPos = {
 };
 
 type LayoutBase = {
+    layout_id: string;
     scale: number;
     cols: number;
     row_height: number;
@@ -200,6 +203,11 @@ export interface LayoutItem extends ItemPos {
     need_mask?: boolean;
 }
 
+export interface LayoutItemDimesion extends LayoutItem {
+    layout_id: string;
+    element: HTMLElement | null;
+}
+
 interface EventBaseProps {
     id?: string;
     className?: string;
@@ -209,6 +217,7 @@ interface EventBaseProps {
 
 /** 子元素 */
 export interface WidgetItemProps extends EventBaseProps, LayoutItem {
+    layout_id: string;
     scale: number;
     bound: BoundType;
     grid: GridType;
@@ -217,6 +226,7 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     mode: LayoutType.edit | LayoutType.view;
     layout_type: LayoutType.DRAG | LayoutType.GRID;
     layout_nested?: boolean;
+    is_placeholder: boolean;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: () => void;
     onDrag?: (item: ItemPos) => void;
@@ -238,6 +248,7 @@ export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
     scale: number;
     bound?: Partial<BoundType>;
     is_draggable?: boolean;
+    is_nested?: boolean;
     onDragStart?: () => void;
     onDrag?: ({ x, y }: { x: number; y: number }) => void;
     onDragStop?: ({ x, y }: { x: number; y: number }) => void;
@@ -258,6 +269,7 @@ export interface ResizableProps extends EventBaseProps, ItemPos {
     bound: BoundType;
     margin?: [number, number];
     is_resizable?: boolean;
+    is_nested?: boolean;
     onResizeStart?: () => void;
     onResize?: ({
         x,
@@ -290,4 +302,63 @@ export interface MenuProps {
 
 export interface MenuItemProps {
     children: ReactChild;
+}
+
+export interface LayoutDescriptor {
+    id: string;
+    is_root: boolean;
+    type: LayoutType;
+    mode: LayoutType;
+}
+
+type LayoutEntryApi = (
+    dragging_item: LayoutItemEntry
+) => LayoutItem[] | undefined;
+export interface LayoutEntry {
+    unique_id: string;
+    descriptor: LayoutDescriptor;
+    handlerShadowByDraggingItem: LayoutEntryApi;
+    handlerDraggingItemOut: LayoutEntryApi;
+    handlerRemoveWidget: LayoutEntryApi;
+    handlerAddWidget: LayoutEntryApi;
+    getRef: () => HTMLDivElement | null;
+}
+
+export interface LayoutItemDescriptor {
+    id: string;
+    is_placeholder: boolean;
+    layout_id: string;
+    pos: LayoutItem;
+}
+
+export interface LayoutItemEntry {
+    unique_id: string;
+    descriptor: LayoutItemDescriptor;
+    getRef: () => HTMLElement | null;
+}
+
+export type WidgetLocation = {
+    layout_id: string;
+    widgets: LayoutItem[];
+};
+
+export type DragStart = {
+    type: OperatorType;
+    widget_id: string;
+    source: WidgetLocation;
+};
+
+export type DragResult = DragStart & {
+    destination?: WidgetLocation;
+};
+
+export interface ReactLayoutContextProps {
+    onDragStart?: (start: DragStart) => void;
+    onDrag?: (result: DragResult) => void;
+    onDragStop?: (result: DragResult) => void;
+    onDrop?: () => void;
+    onResizeStart?: (start: DragStart) => void;
+    onResize?: (start: DragStart) => void;
+    onResizeStop?: (start: DragStart) => void;
+    onChange?: (start: DragStart) => void;
 }

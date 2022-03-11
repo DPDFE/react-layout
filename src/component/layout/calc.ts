@@ -8,7 +8,7 @@ import {
     MarginType,
     BoundType
 } from '@/interfaces';
-import { copyObject, copyObjectArray } from '@/utils/utils';
+import { copyObject } from '@/utils/utils';
 import React, { RefObject } from 'react';
 
 export const RULER_GAP = 100; // 标尺间隔大小
@@ -70,8 +70,10 @@ export function moveToWidget(target: LayoutItem, to: ItemPos) {
     target.h = to.h;
 }
 
-export function replaceWidget(arr: LayoutItem[], item: LayoutItem) {
-    return arr.map((obj) => [item].find((o) => o.i === obj.i) || obj);
+export function replaceWidget(arr: LayoutItem[], item?: LayoutItem) {
+    return item
+        ? arr.map((obj) => [item].find((o) => o.i === obj.i) || obj)
+        : arr;
 }
 export function cloneWidget(w: LayoutItem) {
     return {

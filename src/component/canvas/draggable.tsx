@@ -1,6 +1,15 @@
 import { BoundType, DraggableProps } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
-import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
+import { handlerNestedStyle, copyObject } from '@/utils/utils';
+import { LayoutContext } from '@/component/layout-context';
+import React, {
+    DOMElement,
+    memo,
+    RefObject,
+    useEffect,
+    useState,
+    useContext
+} from 'react';
 
 export const DEFAULT_BOUND = {
     min_y: -Infinity,
@@ -14,6 +23,7 @@ interface Pos {
 }
 
 export enum DragStates {
+    beforestart = 'before_start',
     dragging = 'dragging',
     draged = 'draged'
 }
@@ -22,11 +32,21 @@ interface Props extends DraggableProps {
     children: any;
 }
 
+export const sloppyClickThreshold: number = 5;
+function isSloppyClickThresholdExceeded(original: Pos, current: Pos): boolean {
+    return (
+        Math.abs(current.x - original.x) >= sloppyClickThreshold ||
+        Math.abs(current.y - original.y) >= sloppyClickThreshold
+    );
+}
+
 const Draggable = (props: Props) => {
     const child = React.Children.only(props.children) as DOMElement<
         Props['children'],
         Element
     >;
+
+    // const { registry } = useContext(LayoutContext);
 
     const [drag_state, setDragState] = useState<DragStates>();
     const [mouse_pos, setMousePos] = useState<Pos>({ x: NaN, y: NaN }); // 鼠标点击坐标
@@ -34,7 +54,6 @@ const Draggable = (props: Props) => {
     /** 获取相对父元素偏移量 */
     const offsetXYFromParent = (e: MouseEvent) => {
         const current = (child.ref as RefObject<HTMLElement>).current;
-
         const parent = current?.parentElement as HTMLElement;
 
         const { left, top } = parent?.getBoundingClientRect();
@@ -43,15 +62,29 @@ const Draggable = (props: Props) => {
         return { x, y };
     };
 
-    /** 开始 */
+    /** 开始 偏移量大于5px 判断为开始拖拽 */
     const handleDragStart = (e: MouseEvent) => {
         if (!props.is_draggable) {
             return;
         }
-        props.onDragStart?.();
+        const { x, y } = offsetXYFromParent(e);
+        if (
+            isSloppyClickThresholdExceeded(mouse_pos, {
+                x,
+                y
+            })
+        ) {
+            props.onDragStart?.();
+            setDragState(DragStates.dragging);
+        }
+    };
 
-        setDragState(DragStates.dragging);
-
+    /** 开始前 */
+    const hanldeBeforDragStart = (e: MouseEvent) => {
+        if (!props.is_draggable) {
+            return;
+        }
+        setDragState(DragStates.beforestart);
         const { x, y } = offsetXYFromParent(e);
 
         setMousePos({ x, y });
@@ -73,7 +106,6 @@ const Draggable = (props: Props) => {
             x: clamp(props.x + delta_x, min_x, max_x),
             y: clamp(props.y + delta_y, min_y, max_y)
         };
-
         props.onDrag?.(pos);
     };
 
@@ -82,9 +114,10 @@ const Draggable = (props: Props) => {
         if (!props.is_draggable) {
             return;
         }
-        if (drag_state !== DragStates.draged) {
-            setDragState(DragStates.draged);
-        }
+
+        setDragState(
+            drag_state === DragStates.dragging ? DragStates.draged : undefined
+        );
     };
 
     /**
@@ -93,15 +126,22 @@ const Draggable = (props: Props) => {
      * 为了阻止其他非document元素上的冒泡事件，在此处使用原生处理
      */
     useEffect(() => {
-        if (drag_state === DragStates.dragging) {
-            addEvent(document, 'mousemove', handleDrag);
-            addEvent(document, 'mouseup', handleDragStop);
-        }
-        if (drag_state === DragStates.draged) {
-            props.onDragStop?.({ x: props.x, y: props.y });
-            setDragState(undefined);
+        switch (drag_state) {
+            case DragStates.beforestart:
+                addEvent(document, 'mousemove', handleDragStart);
+                addEvent(document, 'mouseup', handleDragStop);
+                break;
+            case DragStates.dragging:
+                addEvent(document, 'mousemove', handleDrag);
+                addEvent(document, 'mouseup', handleDragStop);
+                break;
+            case DragStates.draged:
+                props.onDragStop?.({ x: props.x, y: props.y });
+                setDragState(undefined);
+                break;
         }
         return () => {
+            removeEvent(document, 'mousemove', handleDragStart);
             removeEvent(document, 'mousemove', handleDrag);
             removeEvent(document, 'mouseup', handleDragStop);
         };
@@ -111,19 +151,20 @@ const Draggable = (props: Props) => {
         onMouseDown: (e: React.MouseEvent) => {
             e.stopPropagation();
             child.props.onMouseDown?.(e);
-            handleDragStart(e as unknown as MouseEvent);
+            hanldeBeforDragStart(e as unknown as MouseEvent);
         },
         className: `${props.className ? props.className : ''} ${
             child.props.className ? child.props.className : ''
         }`,
         style: {
-            transform: `translate(${props.x}px, ${props.y}px)`,
+            ...handlerNestedStyle({ x: props.x, y: props.y }, props.is_nested),
             cursor: props.is_draggable ? 'grab' : 'inherit',
             userSelect: drag_state === DragStates.draged ? 'inherit' : 'none',
-            willChange:
-                drag_state === DragStates.dragging ? 'transform' : 'none',
             ...props.style,
-            ...child.props.style
+            ...child.props.style,
+            position: drag_state === DragStates.dragging ? 'fixed' : 'absolute',
+            willChange:
+                drag_state === DragStates.dragging ? 'transform' : 'auto'
         }
     });
 
