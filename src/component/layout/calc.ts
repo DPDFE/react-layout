@@ -4,7 +4,7 @@ import {
     LayoutType,
     GridType,
     EditLayoutProps,
-    ReactDragLayoutProps,
+    ReactLayoutProps,
     MarginType,
     BoundType
 } from '@/interfaces';
@@ -204,7 +204,7 @@ export function getDropPosition(
 export function getDropItem(
     canvas_ref: RefObject<HTMLElement>,
     e: React.MouseEvent,
-    props: ReactDragLayoutProps,
+    props: ReactLayoutProps,
     grid: GridType
 ): ItemPos {
     const { scale, layout_type } = props;

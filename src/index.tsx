@@ -1,6 +1,7 @@
 export * from './interfaces';
 
-export { default as ReactDragLayout } from './component/layout';
+export { default as ReactLayout } from './component/layout/wrapper';
+
 export {
     default as ReactLayoutContext,
     LayoutContext

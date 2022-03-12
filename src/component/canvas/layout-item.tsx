@@ -132,6 +132,12 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ></div>
     );
 
+    const grandson = useMemo(() => {
+        return child.props.children;
+    }, []);
+
+    console.log(child.props.children);
+
     const new_child = React.cloneElement(child, {
         tabIndex: i,
         onMouseDown: () => {
@@ -178,8 +184,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         },
         children:
             props.mode === LayoutType.edit && need_mask
-                ? [child.props.children, mask_dom]
-                : child.props.children
+                ? [grandson, mask_dom]
+                : grandson
     });
 
     /**
@@ -351,10 +357,11 @@ WidgetItem.defaultProps = {
 export default memo(WidgetItem, compareProps);
 
 function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
-    return !Object.keys(prev)
+    const render_flag = !Object.keys(prev)
         .map((key) => {
             if (
                 [
+                    'is_dragging',
                     'data-drag',
                     'setCurrentChecked',
                     'onDragStart',
@@ -370,15 +377,37 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             } else {
                 if (key === 'children') {
                     if ((prev as unknown as WidgetItemProps).is_nested) {
+                        // console.log('is_nested');
                         return false;
                     } else {
+                        if (!childrenEqual(prev[key], next[key])) {
+                            // console.log(
+                            //     'is_children_diff',
+                            //     (prev as unknown as WidgetItemProps).i,
+                            //     key,
+                            //     prev[key],
+                            //     next[key]
+                            // );
+                        }
                         return childrenEqual(prev[key], next[key]);
                     }
+                }
+                if (!isEqual(prev[key], next[key])) {
+                    // console.log(
+                    //     'is_diff',
+                    //     (prev as unknown as WidgetItemProps).i,
+                    //     key,
+                    //     prev[key],
+                    //     next[key]
+                    // );
                 }
                 return isEqual(prev[key], next[key]);
             }
         })
         .some((state) => state === false);
+    // !render_flag &&
+    //     console.log(!render_flag, (prev as unknown as WidgetItemProps).i);
+    return render_flag;
 }
 
 export function childrenEqual(a: ReactElement, b: ReactElement): boolean {

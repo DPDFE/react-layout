@@ -1,3 +1,4 @@
+import { LayoutContextStore } from '@/component/layout-context/hooks';
 import React, {
     CSSProperties,
     ReactChild,
@@ -77,6 +78,7 @@ export type ItemPos = {
 };
 
 type LayoutBase = {
+    widgets: LayoutItem[];
     layout_id: string;
     scale: number;
     cols: number;
@@ -150,14 +152,16 @@ export type GridLayoutProps = GridLayout | GridEditLayout;
 export type EditLayoutProps = DragEditLayout | GridEditLayout;
 
 /** 画板props */
-export type ReactDragLayoutProps =
+export type ReactLayoutProps =
     | DragLayout
     | GridLayout
     | DragEditLayout
     | GridEditLayout;
 
+export type LayoutCanvasProps = ReactLayoutProps & LayoutContextStore;
+
 /** 水平标尺props */
-export type HorizontalRulerProps = ReactDragLayoutProps & {
+export type HorizontalRulerProps = ReactLayoutProps & {
     width: number;
     wrapper_width: number;
     l_offset: number;
@@ -167,7 +171,7 @@ export type HorizontalRulerProps = ReactDragLayoutProps & {
 };
 
 /** 垂直标尺props */
-export type VerticalRulerProps = ReactDragLayoutProps & {
+export type VerticalRulerProps = ReactLayoutProps & {
     height: number;
     wrapper_height: number;
     t_offset: number;

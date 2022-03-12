@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-    ReactDragLayout,
+    ReactLayout,
     LayoutType,
     LayoutItem,
     ReactLayoutContext
@@ -32,7 +32,7 @@ const DraggableLayout = () => {
 
     return (
         <ReactLayoutContext>
-            <ReactDragLayout
+            <ReactLayout
                 need_ruler
                 height={600}
                 width={1200}
@@ -65,7 +65,7 @@ const DraggableLayout = () => {
                         </div>
                     );
                 })}
-            </ReactDragLayout>
+            </ReactLayout>
         </ReactLayoutContext>
     );
 };

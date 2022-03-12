@@ -1,7 +1,7 @@
 import { Input, Slider } from 'antd';
 import React, { useEffect, useState } from 'react';
 import {
-    ReactDragLayout,
+    ReactLayout,
     LayoutType,
     LayoutItem,
     ReactLayoutContext
@@ -76,12 +76,14 @@ const ChangeDragLayout = () => {
                 />
             </div>
             <ReactLayoutContext>
-                <ReactDragLayout
+                <ReactLayout
                     // need_ruler
+                    widgets={widgets}
                     height={height}
                     width={width}
                     item_margin={[10, 10]}
                     container_padding={[10]}
+                    style={{ background: '#fff' }}
                     layout_type={LayoutType.DRAG}
                     mode={LayoutType.edit}
                     need_drag_bound={false}
@@ -107,12 +109,15 @@ const ChangeDragLayout = () => {
                                     padding: 10
                                 }}
                             >
+                                <span style={{ color: 'red' }}>
+                                    {new Date().getTime()}
+                                </span>
                                 我是第{w.i}个div, height: {w.h}, width:
                                 {w.w}
                             </div>
                         );
                     })}
-                </ReactDragLayout>
+                </ReactLayout>
             </ReactLayoutContext>
         </div>
     );

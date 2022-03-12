@@ -1,4 +1,10 @@
-import React, { useLayoutEffect, useRef, FunctionComponent } from 'react';
+import React, {
+    useLayoutEffect,
+    useRef,
+    FunctionComponent,
+    memo,
+    Fragment
+} from 'react';
 import { useLayoutContext, LayoutContextStore } from './hooks';
 import Draggable, { clamp } from '../canvas/draggable';
 import { ReactLayoutContextProps } from '@/interfaces';

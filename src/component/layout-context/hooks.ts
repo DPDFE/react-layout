@@ -182,7 +182,7 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
         };
     }, [drag_item, operator_type]);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (checked_index && operator_type && change_store.current) {
             change_store.current.type = operator_type;
             switch (operator_type) {

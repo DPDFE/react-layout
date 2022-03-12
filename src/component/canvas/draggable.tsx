@@ -32,7 +32,7 @@ interface Props extends DraggableProps {
     children: any;
 }
 
-export const sloppyClickThreshold: number = 5;
+export const sloppyClickThreshold: number = 0;
 function isSloppyClickThresholdExceeded(original: Pos, current: Pos): boolean {
     return (
         Math.abs(current.x - original.x) >= sloppyClickThreshold ||

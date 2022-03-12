@@ -15,12 +15,12 @@ npm install --save react-drag-layout
 ```tsx
 import React, { Component } from 'react';
 
-import ReactDragLayout from 'react-drag-layout';
+import ReactLayout from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
 class Example extends Component {
     render() {
-        return <ReactDragLayout />;
+        return <ReactLayout />;
     }
 }
 ```

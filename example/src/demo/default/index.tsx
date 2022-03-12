@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Input, Slider } from 'antd';
 import {
-    ReactDragLayout,
+    ReactLayout,
     LayoutType,
     LayoutItem,
     DirectionType,
@@ -266,11 +266,11 @@ const DefaultLayout = () => {
                     />
                 </div>
                 <ReactLayoutContext
-                    // onDragStart={(start: DragStart) =>
-                    //     console.log(start, 'on drag start')
-                    // }
+                    onDragStart={(start: DragStart) =>
+                        console.log(start, 'on drag start')
+                    }
                     onDragStop={(result: DragResult) => {
-                        // console.log(result, 'on drag stop');
+                        console.log(result, 'on drag stop');
                         const { source, destination } = result;
                         handleWidgetsChange(source.layout_id, source.widgets);
                         destination &&
@@ -289,7 +289,7 @@ const DefaultLayout = () => {
                         console.log(result, 'on resize stop');
                     }}
                 >
-                    <ReactDragLayout
+                    <ReactLayout
                         // getDroppingItem={() => {
                         //     return {
                         //         h: 2,
@@ -297,6 +297,7 @@ const DefaultLayout = () => {
                         //         i: 'drop_element'
                         //     };
                         // }}
+                        widgets={widgets}
                         layout_id={'root'}
                         layout_type={LayoutType.GRID}
                         width={width}
@@ -404,16 +405,17 @@ const DefaultLayout = () => {
                                     <span style={{ color: 'red' }}>
                                         {new Date().getTime()}
                                     </span>
-                                    {w.i !== '1' && (
+                                    {
                                         <div className='test'>
                                             我是第{w.i}个div, height: {w.h},
                                             width:
                                             {w.w}
                                         </div>
-                                    )}
+                                    }
                                     {w.i === '3' && (
-                                        <ReactDragLayout
+                                        <ReactLayout
                                             layout_id={'widgets3'}
+                                            widgets={widgets3}
                                             layout_type={LayoutType.GRID}
                                             mode={LayoutType.edit}
                                             container_padding={[10, 10, 10, 10]}
@@ -469,8 +471,7 @@ const DefaultLayout = () => {
                                                             background:
                                                                 w.is_float
                                                                     ? '#9eb3f1'
-                                                                    : '#cddc39',
-                                                            overflow: 'hidden'
+                                                                    : '#cddc39'
                                                         }}
                                                     >
                                                         <div className='test'>
@@ -489,7 +490,7 @@ const DefaultLayout = () => {
                                                     </div>
                                                 );
                                             })}
-                                        </ReactDragLayout>
+                                        </ReactLayout>
                                     )}
                                     {w.i === '1' && (
                                         <Tabs
@@ -503,7 +504,8 @@ const DefaultLayout = () => {
                                             }}
                                         >
                                             <TabPane tab='Tab 1' key='1'>
-                                                <ReactDragLayout
+                                                <ReactLayout
+                                                    widgets={widgets2}
                                                     layout_id={'tab 1'}
                                                     layout_type={
                                                         LayoutType.GRID
@@ -595,10 +597,10 @@ const DefaultLayout = () => {
                                                             </div>
                                                         );
                                                     })}
-                                                </ReactDragLayout>
+                                                </ReactLayout>
                                             </TabPane>
                                             <TabPane tab='Tab 2' key='2'>
-                                                <ReactDragLayout
+                                                <ReactLayout
                                                     layout_id={'tab 2'}
                                                     layout_type={
                                                         LayoutType.GRID
@@ -657,10 +659,10 @@ const DefaultLayout = () => {
                                                             {w.w}
                                                         </div>
                                                     </div>
-                                                </ReactDragLayout>
+                                                </ReactLayout>
                                             </TabPane>
                                             <TabPane tab='Tab 3' key='3'>
-                                                <ReactDragLayout
+                                                <ReactLayout
                                                     layout_id={'tab 3'}
                                                     layout_type={
                                                         LayoutType.GRID
@@ -719,7 +721,7 @@ const DefaultLayout = () => {
                                                             {w.w}
                                                         </div>
                                                     </div>
-                                                </ReactDragLayout>
+                                                </ReactLayout>
                                             </TabPane>
                                         </Tabs>
                                     )}
@@ -749,7 +751,7 @@ const DefaultLayout = () => {
                                 </div>
                             );
                         })}
-                    </ReactDragLayout>
+                    </ReactLayout>
                 </ReactLayoutContext>
                 <div
                     style={{ height: 30, width: '100%', background: '#607d8b' }}

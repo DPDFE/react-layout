@@ -4,7 +4,7 @@ import {
     LayoutItem,
     LayoutType,
     OperatorType,
-    ReactDragLayoutProps
+    ReactLayoutProps
 } from '@/interfaces';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import {
@@ -17,7 +17,7 @@ import {
 
 export const useLayoutHooks = (
     layout: LayoutItem[],
-    props: ReactDragLayoutProps,
+    props: ReactLayoutProps,
     canvas_viewport: React.RefObject<HTMLDivElement>,
     shadow_widget_ref: React.RefObject<HTMLDivElement>,
     shadow_widget?: ItemPos,

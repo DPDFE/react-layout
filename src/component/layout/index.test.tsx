@@ -1,7 +1,7 @@
-import { ReactDragLayout } from '.';
+import { ReactLayout } from '.';
 
-describe('ReactDragLayout', () => {
-  it('is truthy', () => {
-    expect(ReactDragLayout).toBeTruthy();
-  });
+describe('ReactLayout', () => {
+    it('is truthy', () => {
+        expect(ReactLayout).toBeTruthy();
+    });
 });

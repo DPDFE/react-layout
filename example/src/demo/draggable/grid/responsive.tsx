@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
-    ReactDragLayout,
+    ReactLayout,
     LayoutType,
     LayoutItem,
-    ReactLayoutContext
+    ReactLayoutContext,
+    DragStart,
+    DragResult
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 import './styles.css';
@@ -100,11 +102,44 @@ const DraggableGridResponsiveLayout = () => {
         // });
     }
 
+    const handleWidgetsChange = (id: string, widgets: LayoutItem[]) => {
+        switch (id) {
+            case 'root':
+                setWidgets(widgets);
+                break;
+        }
+    };
+
     return (
-        <ReactLayoutContext>
-            <ReactDragLayout
+        <ReactLayoutContext
+            onDragStart={(start: DragStart) =>
+                console.log(start, 'on drag start')
+            }
+            onDragStop={(result: DragResult) => {
+                console.log(result, 'on drag stop');
+                const { source, destination } = result;
+                handleWidgetsChange(source.layout_id, source.widgets);
+                destination &&
+                    handleWidgetsChange(
+                        destination.layout_id,
+                        destination.widgets
+                    );
+            }}
+            onResize={(start: DragStart) => {
+                console.log(start, 'on resize');
+            }}
+            onResizeStart={(result: DragStart) => {
+                console.log(result, 'on resize start');
+            }}
+            onResizeStop={(result: DragStart) => {
+                console.log(result, 'on resize stop');
+            }}
+        >
+            <ReactLayout
+                layout_id={'root'}
+                widgets={widgets}
                 // need_ruler
-                style={{background: '#fff'}}
+                style={{ background: '#fff' }}
                 layout_type={LayoutType.GRID}
                 mode={LayoutType.edit}
                 container_padding={[5]}
@@ -131,6 +166,9 @@ const DraggableGridResponsiveLayout = () => {
                                 padding: 10
                             }}
                         >
+                            <span style={{ color: 'red' }}>
+                                {new Date().getTime()}
+                            </span>
                             <div>
                                 我是第{w.i}个div, height: {w.h}, width:
                                 {w.w}
@@ -138,7 +176,7 @@ const DraggableGridResponsiveLayout = () => {
                         </div>
                     );
                 })}
-            </ReactDragLayout>
+            </ReactLayout>
         </ReactLayoutContext>
     );
 };

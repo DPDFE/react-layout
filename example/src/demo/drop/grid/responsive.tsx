@@ -1,7 +1,7 @@
 import { Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 import {
-    ReactDragLayout,
+    ReactLayout,
     LayoutType,
     LayoutItem,
     ReactLayoutContext,
@@ -52,8 +52,9 @@ const DropGridResponsiveLayout = () => {
                 </Button>
             </div>
             <ReactLayoutContext>
-                <ReactDragLayout
-                    style={{background: '#fff'}}
+                <ReactLayout
+                    widgets={widgets}
+                    style={{ background: '#fff' }}
                     need_ruler
                     layout_type={LayoutType.GRID}
                     mode={LayoutType.edit}
@@ -92,12 +93,15 @@ const DropGridResponsiveLayout = () => {
                                     padding: 10
                                 }}
                             >
+                                <span style={{ color: 'red' }}>
+                                    {new Date().getTime()}
+                                </span>
                                 我是第{w.i}个div, height: {w.h}, width:
                                 {w.w}
                             </div>
                         );
                     })}
-                </ReactDragLayout>
+                </ReactLayout>
             </ReactLayoutContext>
         </div>
     );

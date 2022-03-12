@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
-    ReactDragLayout,
+    ReactLayout,
     LayoutType,
     LayoutItem,
     ReactLayoutContext
@@ -39,7 +39,8 @@ const DragResponsiveLayout = () => {
             style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
             <ReactLayoutContext>
-                <ReactDragLayout
+                <ReactLayout
+                    widgets={widgets}
                     need_ruler
                     layout_type={LayoutType.GRID}
                     container_padding={[10]}
@@ -71,7 +72,7 @@ const DragResponsiveLayout = () => {
                             </div>
                         );
                     })}
-                </ReactDragLayout>
+                </ReactLayout>
             </ReactLayoutContext>
         </div>
     );

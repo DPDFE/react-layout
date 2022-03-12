@@ -1,7 +1,6 @@
 import React, {
     Fragment,
     useCallback,
-    useContext,
     useEffect,
     useMemo,
     useRef,
@@ -29,21 +28,20 @@ import {
     LayoutItem,
     LayoutType,
     OperatorType,
-    ReactDragLayoutProps,
     RulerPointer,
     LayoutEntry,
     LayoutDescriptor,
-    LayoutItemEntry
+    LayoutItemEntry,
+    LayoutCanvasProps
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, copyObjectArray, noop } from '@/utils/utils';
-import { addEvent, removeEvent } from '@pearone/event-utils';
 import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
-import { LayoutContext } from '../layout-context';
 import { useLayoutHooks } from './hooks';
 import isEqual from 'lodash.isequal';
 
-const ReactDragLayout = (props: ReactDragLayoutProps) => {
+const LayoutCanvas = (props: LayoutCanvasProps) => {
+    // const [checked_index, setCurrentChecked] = useState<string>();
     const {
         checked_index,
         setCurrentChecked,
@@ -53,7 +51,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
         dragging_layout,
         getResponders,
         change_store
-    } = useContext(LayoutContext);
+    } = props;
 
     const container_ref = useRef<HTMLDivElement>(null);
     const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
@@ -173,16 +171,13 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
      * 根据children信息生成layout
      */
     useEffect(() => {
-        const new_layout = React.Children.toArray(props.children).map(
-            (child: React.ReactElement) => {
-                const item = cloneWidget(
-                    child.props['data-drag']
-                ) as LayoutItem;
-                return getCurrentWidget(item);
-            }
-        );
+        const new_layout = (props.widgets ?? []).map((item) => {
+            return getCurrentWidget(item);
+        });
         compact(new_layout);
-        setLayout(new_layout);
+        if (layout.length == 0) {
+            setLayout(new_layout);
+        }
     }, [props.children, grid, padding]);
 
     const onDragEnter = (e: React.MouseEvent) => {
@@ -631,7 +626,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     useLayoutEffect(() => {
         registry.droppable.register(entry);
         return () => registry.droppable.unregister(entry);
-    }, [registry.droppable, entry]);
+    }, [registry, entry]);
 
     return (
         <div
@@ -744,7 +739,7 @@ const ReactDragLayout = (props: ReactDragLayoutProps) => {
     );
 };
 
-ReactDragLayout.defaultProps = {
+LayoutCanvas.defaultProps = {
     scale: 1,
     cols: 10,
     width: 200,
@@ -759,13 +754,15 @@ ReactDragLayout.defaultProps = {
     is_nested: false
 };
 
-export default memo(ReactDragLayout, compareProps);
+export default memo(LayoutCanvas, compareProps);
 
 function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
     return !Object.keys(prev)
         .map((key) => {
             if (
                 [
+                    'drag_item',
+                    'getResponders',
                     'onDrop',
                     'onDragStart',
                     'onDrag',
@@ -780,16 +777,21 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                // if (!isEqual(prev[key], next[key])) {
-                //     if (key === 'children') {
-                //         console.log(
-                //             prev[key].map((_: any, i: string | number) => {
-                //                 return isEqual(prev[key][i], next[key][i]);
-                //             })
-                //         );
-                //         console.log(key, prev[key], next[key]);
-                //     }
-                // }
+                if (!isEqual(prev[key], next[key])) {
+                    if (key === 'children') {
+                        // console.log(
+                        //     prev[key].map((_: any, i: string | number) => {
+                        //         return isEqual(prev[key][i], next[key][i]);
+                        //     })
+                        // );
+                        // console.log(key, prev[key], next[key]);
+                        if (prev[key].length === 0) {
+                            return false;
+                        }
+                        return true;
+                    }
+                    // console.log(key, prev[key], next[key]);
+                }
                 return isEqual(prev[key], next[key]);
             }
         })
