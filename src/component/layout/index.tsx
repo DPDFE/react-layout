@@ -751,7 +751,7 @@ LayoutCanvas.defaultProps = {
     is_nested: false
 };
 
-export default memo(LayoutCanvas);
+export default memo(LayoutCanvas, compareProps);
 
 function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
     return !Object.keys(prev)

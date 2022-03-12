@@ -353,7 +353,7 @@ WidgetItem.defaultProps = {
     margin: [0, 0] as [number, number]
 };
 
-export default memo(WidgetItem);
+export default memo(WidgetItem, compareProps);
 
 function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
     const render_flag = !Object.keys(prev)
