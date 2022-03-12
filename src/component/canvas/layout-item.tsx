@@ -13,7 +13,8 @@ import React, {
     useState,
     useCallback,
     useMemo,
-    useLayoutEffect
+    useLayoutEffect,
+    Fragment
 } from 'react';
 import { MIN_DRAG_LENGTH, snapToDragBound } from '../layout/calc';
 import Draggable, { clamp, DEFAULT_BOUND } from './draggable';
@@ -135,8 +136,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const grandson = useMemo(() => {
         return child.props.children;
     }, []);
-
-    console.log(child.props.children);
 
     const new_child = React.cloneElement(child, {
         tabIndex: i,
@@ -354,7 +353,7 @@ WidgetItem.defaultProps = {
     margin: [0, 0] as [number, number]
 };
 
-export default memo(WidgetItem, compareProps);
+export default memo(WidgetItem);
 
 function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
     const render_flag = !Object.keys(prev)
@@ -375,23 +374,23 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                if (key === 'children') {
-                    if ((prev as unknown as WidgetItemProps).is_nested) {
-                        // console.log('is_nested');
-                        return false;
-                    } else {
-                        if (!childrenEqual(prev[key], next[key])) {
-                            // console.log(
-                            //     'is_children_diff',
-                            //     (prev as unknown as WidgetItemProps).i,
-                            //     key,
-                            //     prev[key],
-                            //     next[key]
-                            // );
-                        }
-                        return childrenEqual(prev[key], next[key]);
-                    }
-                }
+                // if (key === 'children') {
+                //     if ((prev as unknown as WidgetItemProps).is_nested) {
+                //         // console.log('is_nested');
+                //         return false;
+                //     } else {
+                //         // if (!childrenEqual(prev[key], next[key])) {
+                //         //     // console.log(
+                //         //     //     'is_children_diff',
+                //         //     //     (prev as unknown as WidgetItemProps).i,
+                //         //     //     key,
+                //         //     //     prev[key],
+                //         //     //     next[key]
+                //         //     // );
+                //         // }
+                //         // return childrenEqual(prev[key], next[key]);
+                //     }
+                // }
                 if (!isEqual(prev[key], next[key])) {
                     // console.log(
                     //     'is_diff',

@@ -323,7 +323,7 @@ const DefaultLayout = () => {
 
                             const new_widgets = layout.concat([drop_element]);
                             setWidgets(new_widgets);
-                            console.log('add widgets');
+                            console.log('add widgets', new_widgets);
                             return drop_element;
                         }}
                         onDragStart={() => {

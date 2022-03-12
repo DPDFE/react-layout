@@ -41,7 +41,6 @@ import { useLayoutHooks } from './hooks';
 import isEqual from 'lodash.isequal';
 
 const LayoutCanvas = (props: LayoutCanvasProps) => {
-    // const [checked_index, setCurrentChecked] = useState<string>();
     const {
         checked_index,
         setCurrentChecked,
@@ -175,9 +174,7 @@ const LayoutCanvas = (props: LayoutCanvasProps) => {
             return getCurrentWidget(item);
         });
         compact(new_layout);
-        if (layout.length == 0) {
-            setLayout(new_layout);
-        }
+        setLayout(new_layout);
     }, [props.children, grid, padding]);
 
     const onDragEnter = (e: React.MouseEvent) => {
@@ -754,7 +751,7 @@ LayoutCanvas.defaultProps = {
     is_nested: false
 };
 
-export default memo(LayoutCanvas, compareProps);
+export default memo(LayoutCanvas);
 
 function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
     return !Object.keys(prev)
@@ -778,18 +775,18 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                 return true;
             } else {
                 if (!isEqual(prev[key], next[key])) {
-                    if (key === 'children') {
-                        // console.log(
-                        //     prev[key].map((_: any, i: string | number) => {
-                        //         return isEqual(prev[key][i], next[key][i]);
-                        //     })
-                        // );
-                        // console.log(key, prev[key], next[key]);
-                        if (prev[key].length === 0) {
-                            return false;
-                        }
-                        return true;
-                    }
+                    // if (key === 'children') {
+                    //     // console.log(
+                    //     //     prev[key].map((_: any, i: string | number) => {
+                    //     //         return isEqual(prev[key][i], next[key][i]);
+                    //     //     })
+                    //     // );
+                    //     // console.log(key, prev[key], next[key]);
+                    //     if (prev[key].length === 0) {
+                    //         return false;
+                    //     }
+                    //     return true;
+                    // }
                     // console.log(key, prev[key], next[key]);
                 }
                 return isEqual(prev[key], next[key]);
