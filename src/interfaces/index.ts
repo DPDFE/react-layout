@@ -1,10 +1,4 @@
-import { LayoutContextStore } from '@/component/layout-context/hooks';
-import React, {
-    CSSProperties,
-    ReactChild,
-    ReactElement,
-    RefObject
-} from 'react';
+import React, { ReactChild, ReactElement, RefObject } from 'react';
 
 export enum OperatorType {
     dragstart = 'dragstart',
@@ -77,7 +71,14 @@ export type ItemPos = {
     is_float: boolean;
 };
 
-type LayoutBase = {
+type NodeProps = {
+    id?: string;
+    className?: string;
+    style?: React.CSSProperties;
+};
+
+type LayoutBase = NodeProps & {
+    children: ReactElement[];
     widgets: LayoutItem[];
     layout_id: string;
     scale: number;
@@ -88,31 +89,7 @@ type LayoutBase = {
     need_ruler: boolean;
     need_grid_bound: boolean;
     need_drag_bound: boolean;
-    is_nested: boolean;
-    className?: string;
-    style: CSSProperties;
-};
-
-type EditLayoutBase = LayoutBase & {
-    getDroppingItem?: () => { h: number; w: number; i: string };
-    onDrop?: (
-        layout: LayoutItem[],
-        { x, y }: { x: number; y: number }
-    ) => LayoutItem;
-    onRemove?: (i: string) => void;
-    onDragStart?: () => void;
-    onDrag?: (layout: LayoutItem[]) => void;
-    onDragStop?: (layout: LayoutItem[]) => void;
-    onResizeStart?: () => void;
-    onResize?: (layout: LayoutItem[]) => void;
-    onResizeStop?: (layout: LayoutItem[]) => void;
-    onPositionChange?: (layout: LayoutItem[]) => void;
-};
-
-type GuideLine = {
-    guide_lines?: RulerPointer[];
-    addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
-    removeGuideLine?: ({ x, y, direction }: RulerPointer) => void;
+    is_nested_layout: boolean; // 嵌套在其他布局里的布局
 };
 
 export type DragLayout = LayoutBase & {
@@ -120,16 +97,14 @@ export type DragLayout = LayoutBase & {
     width: number;
     height: number;
     mode: LayoutType.view;
-    children: ReactElement[];
 };
 
-export type DragEditLayout = EditLayoutBase &
+export type DragEditLayout = LayoutBase &
     GuideLine & {
         layout_type: LayoutType.DRAG;
         width: number;
         height: number;
         mode: LayoutType.edit;
-        children: ReactElement[];
     };
 
 export type DragLayoutProps = DragLayout | DragEditLayout;
@@ -137,14 +112,12 @@ export type DragLayoutProps = DragLayout | DragEditLayout;
 export type GridLayout = LayoutBase & {
     layout_type: LayoutType.GRID;
     mode: LayoutType.view;
-    children: ReactElement[];
 };
 
-export type GridEditLayout = EditLayoutBase &
+export type GridEditLayout = LayoutBase &
     GuideLine & {
         layout_type: LayoutType.GRID;
         mode: LayoutType.edit;
-        children: ReactElement[];
     };
 
 export type GridLayoutProps = GridLayout | GridEditLayout;
@@ -157,6 +130,12 @@ export type ReactLayoutProps =
     | GridLayout
     | DragEditLayout
     | GridEditLayout;
+
+type GuideLine = {
+    guide_lines?: RulerPointer[];
+    addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
+    removeGuideLine?: ({ x, y, direction }: RulerPointer) => void;
+};
 
 /** 水平标尺props */
 export type HorizontalRulerProps = ReactLayoutProps & {
@@ -195,7 +174,7 @@ export interface LayoutItem extends ItemPos {
     min_h?: number;
     is_draggable?: boolean;
     is_resizable?: boolean;
-    is_nested?: boolean;
+    is_nested?: boolean; // 嵌套在其他布局里
     covered?: boolean;
     moved?: boolean;
     is_dragging?: boolean;
@@ -210,10 +189,7 @@ export interface LayoutItemDimesion extends LayoutItem {
     element: HTMLElement | null;
 }
 
-interface EventBaseProps {
-    id?: string;
-    className?: string;
-    style?: React.CSSProperties;
+interface EventBaseProps extends NodeProps {
     children: ReactElement;
 }
 
@@ -227,7 +203,7 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     padding: MarginType;
     mode: LayoutType.edit | LayoutType.view;
     layout_type: LayoutType.DRAG | LayoutType.GRID;
-    layout_nested?: boolean;
+    in_nested_layout?: boolean;
     is_placeholder: boolean;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: () => void;
@@ -239,16 +215,9 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     onPositionChange?: (item: ItemPos) => void;
 }
 
-export interface LayoutRef {
-    getWrapperSize: () => { wrapper_width: number; wrapper_height: number };
-}
-
 /** drag */
-export interface DraggableProps {
+export interface DraggableProps extends EventBaseProps {
     threshold?: number;
-    id?: string;
-    className?: string;
-    style?: React.CSSProperties;
     x: number;
     y: number;
     scale: number;
@@ -260,7 +229,7 @@ export interface DraggableProps {
     onDragStop?: ({ x, y }: { x: number; y: number }) => void;
 }
 
-export interface CursorProps extends DraggableProps {
+export interface CursorProps extends Omit<DraggableProps, 'children'> {
     cursor: CursorType;
     onDrag?: ({ x, y, cursor }: CursorPointer) => void;
     onDragStop?: ({ x, y, cursor }: CursorPointer) => void;
@@ -356,10 +325,11 @@ export type DragResult = DragStart & {
 };
 
 export interface ReactLayoutContextProps {
+    getDroppingItem?: () => { h: number; w: number; i: string };
+    onDrop?: (result: DragResult) => LayoutItem;
     onDragStart?: (start: DragStart) => void;
     onDrag?: (result: DragResult) => void;
     onDragStop?: (result: DragResult) => void;
-    onDrop?: () => void;
     onResizeStart?: (start: DragStart) => void;
     onResize?: (start: DragStart) => void;
     onResizeStop?: (start: DragStart) => void;

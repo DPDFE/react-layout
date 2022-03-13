@@ -19,13 +19,9 @@ export enum DragStates {
     draged = 'draged'
 }
 
-interface Props extends DraggableProps {
-    children: any;
-}
-
-const Draggable = (props: Props) => {
+const Draggable = (props: DraggableProps) => {
     const child = React.Children.only(props.children) as DOMElement<
-        Props['children'],
+        React.HTMLAttributes<Element>,
         Element
     >;
 

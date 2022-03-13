@@ -425,7 +425,7 @@ const DefaultLayout = () => {
                                             item_margin={[10, 10]}
                                             need_drag_bound={false}
                                             need_grid_bound={false}
-                                            is_nested={true}
+                                            is_nested_layout={true}
                                             onDragStop={(
                                                 layout: LayoutItem[]
                                             ) => {
@@ -521,7 +521,7 @@ const DefaultLayout = () => {
                                                     item_margin={[10, 10]}
                                                     need_drag_bound={false}
                                                     need_grid_bound={false}
-                                                    is_nested={true}
+                                                    is_nested_layout={true}
                                                     onDragStop={(
                                                         layout: LayoutItem[]
                                                     ) => {

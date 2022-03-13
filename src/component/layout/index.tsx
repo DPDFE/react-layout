@@ -51,9 +51,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         registry,
         dragging_layout,
         getResponders,
-        change_store,
-        drag_item,
-        setDragItem
+        change_store
     } = useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
@@ -101,23 +99,21 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 OperatorType.resizeover
             ].includes(operator_type)
         ) {
-            setTimeout(() => {
-                setOperatorType(undefined);
-            }, 0);
+            setOperatorType(undefined);
         }
     }, [operator_type]);
 
     /**
      * @description 只有在无状态的情况下，点击空白处才会取消选中状态
      */
-    const onClick = (e: React.MouseEvent) => {
+    const onClick = () => {
         if (operator_type === undefined) {
             setCurrentChecked(undefined);
         }
     };
 
     const layout_name = useMemo(() => {
-        return `layout_name_${(Math.random() * 100).toFixed(0)}`;
+        return `layout_name_${props.layout_id}`;
     }, []);
 
     /** 根据类型配置计算边界状态 */
@@ -147,7 +143,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
      * 获取组件实际宽高
      * 组件信息补全
      */
-    function getCurrentWidget(item: LayoutItem) {
+    function ensureWidgetModelValid(item: LayoutItem) {
         item.w = Math.max(item.min_w ?? (item.is_float ? 5 : 1), item.w);
         item.h = Math.max(item.min_h ?? (item.is_float ? 5 : 1), item.h);
 
@@ -160,8 +156,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         item.is_checked = item.is_checked ?? false;
         item.moved = item.moved ?? false;
         item.need_mask = item.need_mask ?? false;
-
-        return getBoundResult(item);
     }
 
     /**
@@ -172,7 +166,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const new_layout = React.Children.toArray(props.children).map(
                 (child: React.ReactElement) => {
                     const item = child.props['data-drag'] as LayoutItem;
-                    return getCurrentWidget(item);
+                    ensureWidgetModelValid(item);
+                    getBoundResult(item);
+                    return item;
                 }
             );
             compact(new_layout);
@@ -205,8 +201,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
         setOperatorType(OperatorType.dropover);
 
         if (shadow_widget) {
-            const item = (props as EditLayoutProps).onDrop?.(
-                layout ?? [],
+            const item = handleResponder(
+                OperatorType.dropover,
+                layout,
                 shadow_widget
             );
 
@@ -271,7 +268,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         layout: LayoutItem[],
         widget: LayoutItem
     ) => {
-        const drag_start = {
+        const data = {
             ...(change_store.current ? change_store.current : {}),
             type,
             widget_id: widget.i,
@@ -281,24 +278,21 @@ const ReactLayout = (props: ReactLayoutProps) => {
             }
         };
         change_store.current = {
-            ...drag_start
+            ...data
         };
         const responders = getResponders();
         switch (type) {
             case OperatorType.dragstart:
                 // 触发onDragStart事件
-                responders.onDragStart?.(drag_start);
-                break;
+                return responders.onDragStart?.(data);
             case OperatorType.resizestart:
-                responders.onResizeStart?.(drag_start);
-                break;
+                return responders.onResizeStart?.(data);
             case OperatorType.resize:
-                responders.onResize?.(drag_start);
-                break;
+                return responders.onResize?.(data);
             case OperatorType.resizeover:
-                responders.onResize?.(drag_start);
-                break;
-
+                return responders.onResize?.(data);
+            case OperatorType.dropover:
+                return responders.onDrop?.(data);
             // drag、dragover 事件在context/hooks触发
             case OperatorType.drag:
             case OperatorType.dragover:
@@ -379,7 +373,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     is_resizable={false}
                     is_draggable={false}
                     is_checked={false}
-                    layout_nested={props.is_nested}
+                    in_nested_layout={props.is_nested_layout}
                 >
                     <div
                         className={`react-drag-placeholder ${styles.placeholder}`}
@@ -401,7 +395,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     padding={padding}
                     grid={grid}
                     bound={getCurrentBound(widget.is_float)}
-                    layout_nested={props.is_nested}
+                    layout_nested={props.is_nested_layout}
                     mode={props.mode}
                     children={child}
                     scale={props.scale}
@@ -532,7 +526,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     );
 
     const getLayoutStyle = () => {
-        const transform = props.is_nested
+        const transform = props.is_nested_layout
             ? {}
             : {
                   transform: `scale(${props.scale})`,
@@ -595,9 +589,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
             id: props.layout_id,
             type: props.layout_type,
             mode: props.mode,
-            is_root: !props.is_nested
+            is_root: !props.is_nested_layout
         }),
-        [props.layout_id, props.layout_type, props.mode, props.is_nested]
+        [props.layout_id, props.layout_type, props.mode, props.is_nested_layout]
     );
 
     const getRef = useCallback(() => canvas_ref.current, []);
@@ -666,7 +660,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     ref={canvas_viewport_ref}
                     id={'canvas_viewport_ref'}
                     style={{
-                        overflowX: props.is_nested ? 'hidden' : 'auto',
+                        overflowX: props.is_nested_layout ? 'hidden' : 'auto',
                         overflowY: 'auto',
                         position: 'relative',
                         flex: 1,

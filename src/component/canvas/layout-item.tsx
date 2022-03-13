@@ -12,7 +12,8 @@ import React, {
     useRef,
     useCallback,
     useMemo,
-    useEffect
+    useEffect,
+    FC
 } from 'react';
 
 import { MIN_DRAG_LENGTH, snapToDragBound } from '../layout/calc';
@@ -22,7 +23,7 @@ import styles from './styles.module.css';
 import { LayoutContext } from '../layout-context';
 
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
-    const child = React.Children.only(props.children);
+    const child = React.Children.only(props.children) as ReactElement;
     const item_ref = ref ?? useRef<HTMLDivElement>(null);
 
     const { col_width, row_height } = props.grid;
@@ -34,7 +35,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         is_draggable,
         is_resizable,
         need_mask,
-        layout_nested,
+        in_nested_layout,
         is_nested,
         is_placeholder,
         layout_id
@@ -185,7 +186,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const { registry } = useContext(LayoutContext);
 
     const unique_id = useMemo(() => {
-        return `layout_item_${(Math.random() * 100).toFixed(0)}`;
+        return `layout_item_${i}`;
     }, []);
 
     const descriptor: LayoutItemDescriptor = useMemo(
@@ -265,7 +266,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 props.onDragStart?.();
             }}
             bound={
-                layout_nested
+                in_nested_layout
                     ? DEFAULT_BOUND
                     : {
                           max_y: max_y - h,
