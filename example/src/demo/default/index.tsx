@@ -314,6 +314,7 @@ const DefaultLayout = () => {
                             const drop_element = JSON.parse(
                                 JSON.stringify({
                                     ...item,
+                                    i: Math.random(),
                                     is_resizable: true,
                                     is_draggable: true
                                 })
@@ -438,6 +439,7 @@ const DefaultLayout = () => {
                                                 const drop_element = JSON.parse(
                                                     JSON.stringify({
                                                         ...item,
+                                                        i: Math.random(),
                                                         is_resizable: true,
                                                         is_draggable: true
                                                     })
@@ -537,6 +539,7 @@ const DefaultLayout = () => {
                                                             JSON.parse(
                                                                 JSON.stringify({
                                                                     ...item,
+                                                                    i: Math.random(),
                                                                     is_resizable:
                                                                         true,
                                                                     is_draggable:
@@ -601,6 +604,7 @@ const DefaultLayout = () => {
                                             </TabPane>
                                             <TabPane tab='Tab 2' key='2'>
                                                 <ReactLayout
+                                                    widgets={widgets2}
                                                     layout_id={'tab 2'}
                                                     layout_type={
                                                         LayoutType.GRID

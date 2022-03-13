@@ -10,44 +10,20 @@ import React, {
     ReactElement,
     useContext,
     useRef,
-    useState,
     useCallback,
     useMemo,
-    useLayoutEffect,
-    Fragment
+    useEffect
 } from 'react';
+
 import { MIN_DRAG_LENGTH, snapToDragBound } from '../layout/calc';
 import Draggable, { clamp, DEFAULT_BOUND } from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
 import { LayoutContext } from '../layout-context';
 
-/**
- * WidgetItem、resizable、draggable（props、child）流转：
- * WidgetItem:
- * child: 调用方child
- * props: Canvas props
- *
- * draggable:
- * child: WidgetItem
- * props: resizable props
- *
- * resizable:
- * child: draggable
- * props: WidgetItem props
- */
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children);
     const item_ref = ref ?? useRef<HTMLDivElement>(null);
-
-    const getLayoutItemRef = useCallback((): HTMLElement | null => {
-        if (item_ref instanceof Function) {
-            return null;
-        }
-        return item_ref.current as HTMLElement;
-    }, []);
-
-    const { registry } = useContext(LayoutContext);
 
     const { col_width, row_height } = props.grid;
 
@@ -137,6 +113,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         return child.props.children;
     }, []);
 
+    // const grandson = child.props.children;
+
     const new_child = React.cloneElement(child, {
         tabIndex: i,
         onMouseDown: () => {
@@ -204,7 +182,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         }
     };
 
-    const layout_item_unique_id = useMemo(() => {
+    const { registry } = useContext(LayoutContext);
+
+    const unique_id = useMemo(() => {
         return `layout_item_${(Math.random() * 100).toFixed(0)}`;
     }, []);
 
@@ -240,23 +220,30 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ]
     );
 
+    const getLayoutItemRef = useCallback((): HTMLElement | null => {
+        if (item_ref instanceof Function) {
+            return null;
+        }
+        return item_ref.current as HTMLElement;
+    }, []);
+
     const entry: LayoutItemEntry = useMemo(
         () => ({
             descriptor,
-            getRef: getLayoutItemRef,
-            unique_id: layout_item_unique_id
+            unique_id,
+            getRef: getLayoutItemRef
         }),
-        [descriptor, getLayoutItemRef, layout_item_unique_id]
+        [descriptor, getLayoutItemRef, unique_id]
     );
     const publishedRef = useRef<LayoutItemEntry>(entry);
     const isFirstPublishRef = useRef<boolean>(true);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         registry.draggable.register(publishedRef.current);
         return () => registry.draggable.unregister(publishedRef.current);
     }, [registry.draggable]);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (isFirstPublishRef.current) {
             isFirstPublishRef.current = false;
             return;
@@ -269,7 +256,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     return (
         <Draggable
-            {...{ x, y, h, w, i, is_float, is_nested }}
+            {...{ x, y, h, w, i, is_float }}
+            threshold={5}
+            use_css_transform={is_nested}
             scale={props.scale}
             is_draggable={is_draggable}
             onDragStart={() => {
@@ -309,7 +298,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         >
             <Resizable
                 ref={item_ref}
-                {...{ x, y, h, w, i, is_float, is_nested }}
+                {...{ x, y, h, w, i, is_float }}
                 scale={props.scale}
                 is_resizable={is_resizable}
                 onResizeStart={() => {

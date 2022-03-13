@@ -15,13 +15,13 @@ const VerticalRuler = (props: VerticalRulerProps) => {
 
     const {
         wrapper_height,
-        canvas_viewport,
+        canvas_viewport_ref,
         t_offset,
         setRulerHoverPos,
         addGuideLine
     } = props;
 
-    const viewport_pos = canvas_viewport.current?.getBoundingClientRect();
+    const viewport_pos = canvas_viewport_ref.current?.getBoundingClientRect();
     /**
      * 计算垂直方向尺子位置
      */
@@ -30,7 +30,8 @@ const VerticalRuler = (props: VerticalRulerProps) => {
             return;
         }
         // 画布左上角偏移量（需要为5刻度的倍数）https://www.jianshu.com/p/a89732aa84af
-        const canvas_offset_top = t_offset - canvas_viewport.current!.scrollTop;
+        const canvas_offset_top =
+            t_offset - canvas_viewport_ref.current!.scrollTop;
 
         // 尺子0点偏移整数粒度计算
         const ruler_forward_y = Math.ceil(wrapper_height / RULER_GAP);
@@ -54,10 +55,14 @@ const VerticalRuler = (props: VerticalRulerProps) => {
 
     useEffect(() => {
         calcVerticalRulerPos();
-        addEvent(props.canvas_viewport.current, 'scroll', calcVerticalRulerPos);
+        addEvent(
+            props.canvas_viewport_ref.current,
+            'scroll',
+            calcVerticalRulerPos
+        );
         return () => {
             removeEvent(
-                props.canvas_viewport.current,
+                props.canvas_viewport_ref.current,
                 'scroll',
                 calcVerticalRulerPos
             );
@@ -78,7 +83,7 @@ const VerticalRuler = (props: VerticalRulerProps) => {
                         y:
                             e.clientY -
                             t_offset +
-                            canvas_viewport.current!.scrollTop -
+                            canvas_viewport_ref.current!.scrollTop -
                             Math.floor(viewport_pos!.y),
                         direction: DirectionType.vertical
                     });
@@ -92,7 +97,7 @@ const VerticalRuler = (props: VerticalRulerProps) => {
                         y:
                             (e.clientY -
                                 t_offset +
-                                canvas_viewport.current!.scrollTop -
+                                canvas_viewport_ref.current!.scrollTop -
                                 Math.floor(viewport_pos!.y)) /
                             props.scale,
                         direction: DirectionType.vertical

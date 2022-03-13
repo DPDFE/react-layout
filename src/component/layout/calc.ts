@@ -277,13 +277,13 @@ function resolveCompactionCollision(
     move_to: number
 ) {
     item.y += 1;
-    const item_index = layout
+    const idx = layout
         .map((layoutItem) => {
             return layoutItem.i;
         })
         .indexOf(item.i);
 
-    for (let i = item_index + 1; i < layout.length; i++) {
+    for (let i = idx + 1; i < layout.length; i++) {
         const l = layout[i];
         if (l.y > item.y + item.h) {
             break;

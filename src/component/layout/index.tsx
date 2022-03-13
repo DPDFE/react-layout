@@ -6,7 +6,8 @@ import React, {
     useRef,
     useState,
     useLayoutEffect,
-    memo
+    memo,
+    useContext
 } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
@@ -32,15 +33,16 @@ import {
     LayoutEntry,
     LayoutDescriptor,
     LayoutItemEntry,
-    LayoutCanvasProps
+    ReactLayoutProps
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, copyObjectArray, noop } from '@/utils/utils';
 import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
 import { useLayoutHooks } from './hooks';
 import isEqual from 'lodash.isequal';
+import { LayoutContext } from '../layout-context';
 
-const LayoutCanvas = (props: LayoutCanvasProps) => {
+const ReactLayout = (props: ReactLayoutProps) => {
     const {
         checked_index,
         setCurrentChecked,
@@ -49,12 +51,14 @@ const LayoutCanvas = (props: LayoutCanvasProps) => {
         registry,
         dragging_layout,
         getResponders,
-        change_store
-    } = props;
+        change_store,
+        drag_item,
+        setDragItem
+    } = useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
-    const canvas_viewport = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
-    const canvas_wrapper = useRef<HTMLDivElement>(null); // canvas存放的画布，增加边距支持滚动
+    const canvas_viewport_ref = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
+    const canvas_wrapper_ref = useRef<HTMLDivElement>(null); // canvas存放的画布，增加边距支持滚动
     const canvas_ref = useRef<HTMLDivElement>(null);
     const shadow_widget_ref = useRef<HTMLDivElement>(null);
     const flex_container_ref = useRef<HTMLDivElement>(null);
@@ -78,17 +82,11 @@ const LayoutCanvas = (props: LayoutCanvasProps) => {
     } = useLayoutHooks(
         layout,
         props,
-        canvas_viewport,
+        canvas_viewport_ref,
         shadow_widget_ref,
         shadow_widget,
         operator_type
     );
-
-    // useImperativeHandle(ref, () => ({
-    //     getWrapperSize: () => {
-    //         return { wrapper_width, wrapper_height };
-    //     }
-    // }));
 
     /**
      * @description 当操作结束以后更新操作状态为undefined
@@ -170,12 +168,17 @@ const LayoutCanvas = (props: LayoutCanvasProps) => {
      * 根据children信息生成layout
      */
     useEffect(() => {
-        const new_layout = (props.widgets ?? []).map((item) => {
-            return getCurrentWidget(item);
-        });
-        compact(new_layout);
-        setLayout(new_layout);
-    }, [props.children, grid, padding]);
+        if (current_width) {
+            const new_layout = React.Children.toArray(props.children).map(
+                (child: React.ReactElement) => {
+                    const item = child.props['data-drag'] as LayoutItem;
+                    return getCurrentWidget(item);
+                }
+            );
+            compact(new_layout);
+            setLayout(new_layout);
+        }
+    }, [props.children, grid, padding, current_width]);
 
     const onDragEnter = (e: React.MouseEvent) => {
         console.log('onDragEnter');
@@ -631,14 +634,14 @@ const LayoutCanvas = (props: LayoutCanvasProps) => {
             ref={container_ref}
         >
             {/* 水平标尺 */}
-            {canvas_viewport.current && props.need_ruler && (
+            {canvas_viewport_ref.current && props.need_ruler && (
                 <HorizontalRuler
                     {...props}
                     width={current_width}
                     l_offset={l_offset!}
                     wrapper_width={wrapper_width}
                     setRulerHoverPos={setRulerHoverPos}
-                    canvas_viewport={canvas_viewport}
+                    canvas_viewport_ref={canvas_viewport_ref}
                 ></HorizontalRuler>
             )}
 
@@ -647,21 +650,21 @@ const LayoutCanvas = (props: LayoutCanvasProps) => {
                 ref={flex_container_ref}
             >
                 {/* 垂直标尺 */}
-                {canvas_viewport.current && props.need_ruler && (
+                {canvas_viewport_ref.current && props.need_ruler && (
                     <VerticalRuler
                         {...props}
                         height={current_height}
                         t_offset={t_offset!}
                         wrapper_height={wrapper_height}
                         setRulerHoverPos={setRulerHoverPos}
-                        canvas_viewport={canvas_viewport}
+                        canvas_viewport_ref={canvas_viewport_ref}
                     ></VerticalRuler>
                 )}
 
                 {/* 可视区域窗口 */}
                 <div
-                    ref={canvas_viewport}
-                    id={'canvas_viewport'}
+                    ref={canvas_viewport_ref}
+                    id={'canvas_viewport_ref'}
                     style={{
                         overflowX: props.is_nested ? 'hidden' : 'auto',
                         overflowY: 'auto',
@@ -672,8 +675,8 @@ const LayoutCanvas = (props: LayoutCanvasProps) => {
                 >
                     {/* 画板区域 */}
                     <div
-                        id={'canvas_wrapper'}
-                        ref={canvas_wrapper}
+                        id={'canvas_wrapper_ref'}
+                        ref={canvas_wrapper_ref}
                         style={{
                             width: wrapper_width,
                             height: wrapper_height
@@ -721,13 +724,13 @@ const LayoutCanvas = (props: LayoutCanvasProps) => {
                 </div>
             </div>
 
-            {/* {props.mode === LayoutType.edit && canvas_viewport.current && (
+            {/* {props.mode === LayoutType.edit && canvas_viewport_ref.current && (
                 <GuideLine
                     scale={(props as DragLayoutProps).scale}
                     t_offset={t_offset}
                     l_offset={l_offset}
                     guide_lines={props.guide_lines}
-                    canvas_viewport={canvas_viewport}
+                    canvas_viewport_ref={canvas_viewport_ref}
                     ruler_hover_pos={ruler_hover_pos}
                     removeGuideLine={props.removeGuideLine}
                 ></GuideLine>
@@ -736,7 +739,7 @@ const LayoutCanvas = (props: LayoutCanvasProps) => {
     );
 };
 
-LayoutCanvas.defaultProps = {
+ReactLayout.defaultProps = {
     scale: 1,
     cols: 10,
     width: 200,
@@ -751,7 +754,7 @@ LayoutCanvas.defaultProps = {
     is_nested: false
 };
 
-export default memo(LayoutCanvas, compareProps);
+export default memo(ReactLayout, compareProps);
 
 function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
     return !Object.keys(prev)

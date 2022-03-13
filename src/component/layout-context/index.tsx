@@ -6,12 +6,14 @@ import React, {
     Fragment
 } from 'react';
 import { useLayoutContext, LayoutContextStore } from './hooks';
-import Draggable, { clamp } from '../canvas/draggable';
 import { ReactLayoutContextProps } from '@/interfaces';
 
-export const LayoutContext = React.createContext<LayoutContextStore>(
-    {} as LayoutContextStore
-);
+export const LayoutContext = React.createContext<LayoutContextStore>({
+    checked_index: undefined,
+    operator_type: undefined,
+    setCurrentChecked: () => {},
+    setOperatorType: () => {}
+} as unknown as LayoutContextStore);
 
 const ReactLayoutContext: FunctionComponent<ReactLayoutContextProps> = (
     props

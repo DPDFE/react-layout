@@ -18,7 +18,7 @@ import {
 export const useLayoutHooks = (
     layout: LayoutItem[],
     props: ReactLayoutProps,
-    canvas_viewport: React.RefObject<HTMLDivElement>,
+    canvas_viewport_ref: React.RefObject<HTMLDivElement>,
     shadow_widget_ref: React.RefObject<HTMLDivElement>,
     shadow_widget?: ItemPos,
     operator_type?: OperatorType
@@ -52,7 +52,7 @@ export const useLayoutHooks = (
                     }
                 });
             },
-            { root: canvas_viewport.current }
+            { root: canvas_viewport_ref.current }
         );
 
         shadow_widget &&
@@ -76,28 +76,28 @@ export const useLayoutHooks = (
             setWindowResize(Math.random());
         });
 
-        if (canvas_viewport.current) {
-            resizeObserverInstance.observe(canvas_viewport.current);
+        if (canvas_viewport_ref.current) {
+            resizeObserverInstance.observe(canvas_viewport_ref.current);
         }
         return () => {
-            if (canvas_viewport.current) {
-                resizeObserverInstance.unobserve(canvas_viewport.current);
+            if (canvas_viewport_ref.current) {
+                resizeObserverInstance.unobserve(canvas_viewport_ref.current);
                 resizeObserverInstance.disconnect();
             }
         };
-    }, [canvas_viewport]);
+    }, [canvas_viewport_ref]);
 
     /** 视窗宽度 */
     const client_width = useMemo(() => {
-        return canvas_viewport.current
-            ? canvas_viewport.current.clientWidth
+        return canvas_viewport_ref.current
+            ? canvas_viewport_ref.current.clientWidth
             : 0;
     }, [is_window_resize]);
 
     /** 视窗高度 */
     const client_height = useMemo(() => {
-        return canvas_viewport.current
-            ? canvas_viewport.current.clientHeight
+        return canvas_viewport_ref.current
+            ? canvas_viewport_ref.current.clientHeight
             : 0;
     }, [is_window_resize]);
 

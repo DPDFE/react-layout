@@ -17,13 +17,13 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
 
     const {
         wrapper_width,
-        canvas_viewport,
+        canvas_viewport_ref,
         l_offset,
         setRulerHoverPos,
         addGuideLine
     } = props;
 
-    const viewport_pos = canvas_viewport.current?.getBoundingClientRect();
+    const viewport_pos = canvas_viewport_ref.current?.getBoundingClientRect();
 
     /**
      * 计算水平方向尺子位置
@@ -35,7 +35,7 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
 
         // 画布左上角偏移量（需要为5刻度的倍数）https://www.jianshu.com/p/a89732aa84af
         const canvas_offset_left =
-            l_offset - canvas_viewport.current!.scrollLeft;
+            l_offset - canvas_viewport_ref.current!.scrollLeft;
 
         // 尺子0点偏移整数粒度计算
         const ruler_forward_x = Math.ceil(wrapper_width / RULER_GAP);
@@ -61,13 +61,13 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
     useEffect(() => {
         calcHorizontalRulerPos();
         addEvent(
-            props.canvas_viewport.current,
+            props.canvas_viewport_ref.current,
             'scroll',
             calcHorizontalRulerPos
         );
         return () => {
             removeEvent(
-                props.canvas_viewport.current,
+                props.canvas_viewport_ref.current,
                 'scroll',
                 calcHorizontalRulerPos
             );
@@ -87,7 +87,7 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
                         x:
                             e.clientX -
                             l_offset +
-                            canvas_viewport.current!.scrollLeft -
+                            canvas_viewport_ref.current!.scrollLeft -
                             Math.floor(viewport_pos!.x),
                         y: 0,
                         direction: DirectionType.horizontal
@@ -101,7 +101,7 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
                         x:
                             (e.clientX -
                                 l_offset +
-                                canvas_viewport.current!.scrollLeft -
+                                canvas_viewport_ref.current!.scrollLeft -
                                 Math.floor(viewport_pos!.x)) /
                             props.scale,
                         y: 0,

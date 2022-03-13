@@ -1,15 +1,6 @@
 import { BoundType, DraggableProps } from '@/interfaces';
 import { addEvent, removeEvent } from '@pearone/event-utils';
-import { handlerNestedStyle, copyObject } from '@/utils/utils';
-import { LayoutContext } from '@/component/layout-context';
-import React, {
-    DOMElement,
-    memo,
-    RefObject,
-    useEffect,
-    useState,
-    useContext
-} from 'react';
+import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
 
 export const DEFAULT_BOUND = {
     min_y: -Infinity,
@@ -23,7 +14,7 @@ interface Pos {
 }
 
 export enum DragStates {
-    beforestart = 'before_start',
+    ready = 'ready',
     dragging = 'dragging',
     draged = 'draged'
 }
@@ -32,24 +23,14 @@ interface Props extends DraggableProps {
     children: any;
 }
 
-export const sloppyClickThreshold: number = 0;
-function isSloppyClickThresholdExceeded(original: Pos, current: Pos): boolean {
-    return (
-        Math.abs(current.x - original.x) >= sloppyClickThreshold ||
-        Math.abs(current.y - original.y) >= sloppyClickThreshold
-    );
-}
-
 const Draggable = (props: Props) => {
     const child = React.Children.only(props.children) as DOMElement<
         Props['children'],
         Element
     >;
 
-    // const { registry } = useContext(LayoutContext);
-
     const [drag_state, setDragState] = useState<DragStates>();
-    const [mouse_pos, setMousePos] = useState<Pos>({ x: NaN, y: NaN }); // 鼠标点击坐标
+    const [mouse_pos, setMousePos] = useState<Pos>({ x: props.x, y: props.y }); // 鼠标点击坐标
 
     /** 获取相对父元素偏移量 */
     const offsetXYFromParent = (e: MouseEvent) => {
@@ -57,6 +38,7 @@ const Draggable = (props: Props) => {
         const parent = current?.parentElement as HTMLElement;
 
         const { left, top } = parent?.getBoundingClientRect();
+
         const x = (e.clientX + parent.scrollLeft - left) / props.scale;
         const y = (e.clientY + parent.scrollTop - top) / props.scale;
         return { x, y };
@@ -67,8 +49,32 @@ const Draggable = (props: Props) => {
         if (!props.is_draggable) {
             return;
         }
+
         const { x, y } = offsetXYFromParent(e);
+        setDragState(DragStates.ready);
+        setMousePos({ x, y });
+    };
+
+    function isSloppyClickThresholdExceeded(
+        original: Pos,
+        current: Pos
+    ): boolean {
+        const threshold = props.threshold ?? 0;
+        return (
+            Math.abs(current.x - original.x) >= threshold ||
+            Math.abs(current.y - original.y) >= threshold
+        );
+    }
+
+    /**
+     * 拖拽计算逻辑：
+     * 新坐标 = 放置当前坐标 + 鼠标偏移量
+     */
+    const handleDrag = (e: MouseEvent) => {
+        const { x, y } = offsetXYFromParent(e);
+
         if (
+            drag_state === DragStates.ready &&
             isSloppyClickThresholdExceeded(mouse_pos, {
                 x,
                 y
@@ -77,25 +83,6 @@ const Draggable = (props: Props) => {
             props.onDragStart?.();
             setDragState(DragStates.dragging);
         }
-    };
-
-    /** 开始前 */
-    const hanldeBeforDragStart = (e: MouseEvent) => {
-        if (!props.is_draggable) {
-            return;
-        }
-        setDragState(DragStates.beforestart);
-        const { x, y } = offsetXYFromParent(e);
-
-        setMousePos({ x, y });
-    };
-
-    /**
-     * 拖拽计算逻辑：
-     * 新坐标 = 放置当前坐标 + 鼠标偏移量
-     */
-    const handleDrag = (e: MouseEvent) => {
-        const { x, y } = offsetXYFromParent(e);
 
         const delta_x = x - mouse_pos.x;
         const delta_y = y - mouse_pos.y;
@@ -120,17 +107,9 @@ const Draggable = (props: Props) => {
         );
     };
 
-    /**
-     * react的事件机制是由react重写的绑定在document上完成的，和原生事件为两套响应机制
-     * 所以在react内部调用stopPropagation阻止冒泡的时候，只能阻止到document自己或者以上的事件
-     * 为了阻止其他非document元素上的冒泡事件，在此处使用原生处理
-     */
     useEffect(() => {
         switch (drag_state) {
-            case DragStates.beforestart:
-                addEvent(document, 'mousemove', handleDragStart);
-                addEvent(document, 'mouseup', handleDragStop);
-                break;
+            case DragStates.ready:
             case DragStates.dragging:
                 addEvent(document, 'mousemove', handleDrag);
                 addEvent(document, 'mouseup', handleDragStop);
@@ -141,30 +120,47 @@ const Draggable = (props: Props) => {
                 break;
         }
         return () => {
-            removeEvent(document, 'mousemove', handleDragStart);
             removeEvent(document, 'mousemove', handleDrag);
             removeEvent(document, 'mouseup', handleDragStop);
         };
     }, [drag_state]);
 
+    const setTransform = () => {
+        const translate = `translate(${props.x}px,${props.y}px)`;
+        return {
+            transform: translate,
+            WebkitTransform: translate,
+            MozTransform: translate,
+            msTransform: translate,
+            OTransform: translate
+        };
+    };
+
+    const setTopLeft = () => {
+        return {
+            left: `${props.x}px`,
+            top: `${props.y}px`
+        };
+    };
+
     const new_child = React.cloneElement(child, {
         onMouseDown: (e: React.MouseEvent) => {
             e.stopPropagation();
             child.props.onMouseDown?.(e);
-            hanldeBeforDragStart(e as unknown as MouseEvent);
+            handleDragStart(e as unknown as MouseEvent);
         },
         className: `${props.className ? props.className : ''} ${
             child.props.className ? child.props.className : ''
         }`,
         style: {
-            ...handlerNestedStyle({ x: props.x, y: props.y }, props.is_nested),
+            ...(props.use_css_transform ? setTopLeft() : setTransform()),
             cursor: props.is_draggable ? 'grab' : 'inherit',
             userSelect: drag_state === DragStates.draged ? 'inherit' : 'none',
-            ...props.style,
-            ...child.props.style,
             position: drag_state === DragStates.dragging ? 'fixed' : 'absolute',
             willChange:
-                drag_state === DragStates.dragging ? 'transform' : 'auto'
+                drag_state === DragStates.dragging ? 'transform' : 'auto',
+            ...props.style,
+            ...child.props.style // 让props覆盖上面配置的style
         }
     });
 
@@ -172,6 +168,7 @@ const Draggable = (props: Props) => {
 };
 
 Draggable.defaultProps = {
+    threshold: 0,
     is_draggable: false,
     scale: 1,
     style: {},

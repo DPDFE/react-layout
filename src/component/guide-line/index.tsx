@@ -13,7 +13,7 @@ const GuideLine = (props: GuideLineProps) => {
         ruler_hover_pos,
         l_offset,
         t_offset,
-        canvas_viewport,
+        canvas_viewport_ref,
         guide_lines,
         removeGuideLine
     } = props;
@@ -23,8 +23,8 @@ const GuideLine = (props: GuideLineProps) => {
     const [guide_menu_pos, setDeleteGuideMenuPos] =
         useState<{ x: number; y: number; line: RulerPointer }>();
 
-    const viewport_pos = canvas_viewport.current?.getBoundingClientRect()
-        ? canvas_viewport.current?.getBoundingClientRect()
+    const viewport_pos = canvas_viewport_ref.current?.getBoundingClientRect()
+        ? canvas_viewport_ref.current?.getBoundingClientRect()
         : ({
               height: 0,
               width: 0,
@@ -38,10 +38,12 @@ const GuideLine = (props: GuideLineProps) => {
 
     const calcGuidePose = () => {
         const scroll_left =
-            l_offset + viewport_pos!.x - canvas_viewport.current!.scrollLeft;
+            l_offset +
+            viewport_pos!.x -
+            canvas_viewport_ref.current!.scrollLeft;
 
         const scroll_top =
-            t_offset + viewport_pos!.y - canvas_viewport.current!.scrollTop;
+            t_offset + viewport_pos!.y - canvas_viewport_ref.current!.scrollTop;
 
         setScrollLeft(scroll_left);
         setScrollTop(scroll_top);
@@ -60,9 +62,13 @@ const GuideLine = (props: GuideLineProps) => {
 
     useEffect(() => {
         calcGuidePose();
-        addEvent(props.canvas_viewport.current, 'scroll', calcGuidePose);
+        addEvent(props.canvas_viewport_ref.current, 'scroll', calcGuidePose);
         return () => {
-            removeEvent(props.canvas_viewport.current, 'scroll', calcGuidePose);
+            removeEvent(
+                props.canvas_viewport_ref.current,
+                'scroll',
+                calcGuidePose
+            );
         };
     }, [props.l_offset, props.t_offset, props.scale, viewport_pos]);
 
@@ -179,7 +185,7 @@ const GuideLine = (props: GuideLineProps) => {
                                 scroll_left + x < viewport_pos!.x ||
                                 x + l_offset >
                                     viewport_pos!.width +
-                                        canvas_viewport.current!.scrollLeft
+                                        canvas_viewport_ref.current!.scrollLeft
                                     ? 'none'
                                     : 'block'
                         }
@@ -206,7 +212,7 @@ const GuideLine = (props: GuideLineProps) => {
                                 scroll_top + y < viewport_pos!.y ||
                                 y + t_offset >
                                     viewport_pos!.height +
-                                        canvas_viewport.current!.scrollTop
+                                        canvas_viewport_ref.current!.scrollTop
                                     ? 'none'
                                     : 'block'
                         }
@@ -226,10 +232,10 @@ const GuideLine = (props: GuideLineProps) => {
                     // style={{
                     //     left:
                     //         guide_menu_pos.x -
-                    //         canvas_viewport.current!.scrollLeft,
+                    //         canvas_viewport_ref.current!.scrollLeft,
                     //     top:
                     //         guide_menu_pos.y -
-                    //         canvas_viewport.current!.scrollTop
+                    //         canvas_viewport_ref.current!.scrollTop
                     // }}
                     // onClick={(e) => {
                     //     e.nativeEvent.stopImmediatePropagation();

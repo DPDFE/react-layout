@@ -158,8 +158,6 @@ export type ReactLayoutProps =
     | DragEditLayout
     | GridEditLayout;
 
-export type LayoutCanvasProps = ReactLayoutProps & LayoutContextStore;
-
 /** 水平标尺props */
 export type HorizontalRulerProps = ReactLayoutProps & {
     width: number;
@@ -167,7 +165,7 @@ export type HorizontalRulerProps = ReactLayoutProps & {
     l_offset: number;
     setRulerHoverPos: ({ x, y, direction }?: RulerPointer) => void;
     addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
-    canvas_viewport: RefObject<HTMLDivElement>;
+    canvas_viewport_ref: RefObject<HTMLDivElement>;
 };
 
 /** 垂直标尺props */
@@ -177,7 +175,7 @@ export type VerticalRulerProps = ReactLayoutProps & {
     t_offset: number;
     setRulerHoverPos: ({ x, y, direction }?: RulerPointer) => void;
     addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
-    canvas_viewport: RefObject<HTMLDivElement>;
+    canvas_viewport_ref: RefObject<HTMLDivElement>;
 };
 
 /** 辅助线 */
@@ -187,7 +185,7 @@ export interface GuideLineProps {
     t_offset: number;
     guide_lines?: RulerPointer[];
     ruler_hover_pos?: RulerPointer;
-    canvas_viewport: RefObject<HTMLDivElement>;
+    canvas_viewport_ref: RefObject<HTMLDivElement>;
     removeGuideLine?: ({ x, y, direction }: RulerPointer) => void;
 }
 
@@ -246,13 +244,17 @@ export interface LayoutRef {
 }
 
 /** drag */
-export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
+export interface DraggableProps {
+    threshold?: number;
+    id?: string;
+    className?: string;
+    style?: React.CSSProperties;
     x: number;
     y: number;
     scale: number;
     bound?: Partial<BoundType>;
     is_draggable?: boolean;
-    is_nested?: boolean;
+    use_css_transform?: boolean;
     onDragStart?: () => void;
     onDrag?: ({ x, y }: { x: number; y: number }) => void;
     onDragStop?: ({ x, y }: { x: number; y: number }) => void;
@@ -260,7 +262,6 @@ export interface DraggableProps extends Omit<EventBaseProps, 'children'> {
 
 export interface CursorProps extends DraggableProps {
     cursor: CursorType;
-    margin?: [number, number];
     onDrag?: ({ x, y, cursor }: CursorPointer) => void;
     onDragStop?: ({ x, y, cursor }: CursorPointer) => void;
 }
@@ -271,9 +272,7 @@ export interface ResizableProps extends EventBaseProps, ItemPos {
     scale: number;
     grid: GridType;
     bound: BoundType;
-    margin?: [number, number];
     is_resizable?: boolean;
-    is_nested?: boolean;
     onResizeStart?: () => void;
     onResize?: ({
         x,
