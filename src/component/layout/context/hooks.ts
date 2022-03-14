@@ -164,6 +164,7 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
                               }
                             : undefined;
                         getResponders().onDrag?.(change_store.current);
+                        getResponders().onChange?.(change_store.current);
                     }
                 }
             }
@@ -202,6 +203,7 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
                         }
                     }
                     getResponders().onDragStop?.(change_store.current!);
+                    getResponders().onChange?.(change_store.current!);
                     setDragItem(undefined);
                     dragging_layout.current = undefined;
                     change_store.current = undefined;

@@ -312,26 +312,33 @@ const ReactLayout = (props: ReactLayoutProps) => {
         change_store.current = {
             ...data
         };
+        setOperatorType(type);
         const responders = getResponders();
         switch (type) {
             case OperatorType.dragstart:
                 // 触发onDragStart事件
-                return responders.onDragStart?.(data);
+                responders.onDragStart?.(data);
+                break;
             case OperatorType.resizestart:
-                return responders.onResizeStart?.(data);
+                responders.onResizeStart?.(data);
+                break;
             case OperatorType.resize:
-                return responders.onResize?.(data);
+                responders.onResize?.(data);
+                break;
             case OperatorType.resizeover:
-                return responders.onResize?.(data);
+                responders.onResizeStop?.(data);
+                break;
             case OperatorType.dropover:
                 return responders.onDrop?.({ ...data, widget });
             // drag、dragover 事件在context/hooks触发
             case OperatorType.drag:
             case OperatorType.dragover:
-                break;
+                return;
         }
 
-        setOperatorType(type);
+        responders.onChange?.(data);
+
+        return widget;
     };
 
     const getCurrentLayoutByItem = useCallback(
@@ -800,7 +807,8 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                     'onResizeStop',
                     'removeGuideLine',
                     'addGuideLine',
-                    'onPositionChange'
+                    'onPositionChange',
+                    'onChange'
                 ].includes(key)
             ) {
                 return true;

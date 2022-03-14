@@ -2,12 +2,9 @@ import React, { FC } from 'react';
 import { useLayoutContext, LayoutContextStore } from './hooks';
 import { ReactLayoutContextProps } from '@/interfaces';
 
-export const LayoutContext = React.createContext<LayoutContextStore>({
-    checked_index: undefined,
-    operator_type: undefined,
-    setCurrentChecked: () => {},
-    setOperatorType: () => {}
-} as unknown as LayoutContextStore);
+export const LayoutContext = React.createContext<LayoutContextStore>(
+    {} as LayoutContextStore
+);
 
 const ReactLayoutContext: FC<ReactLayoutContextProps> = (props) => {
     const store = useLayoutContext(props);
