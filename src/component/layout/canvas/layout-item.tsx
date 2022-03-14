@@ -114,6 +114,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         onMouseDown: () => {
             props.setCurrentChecked?.(i);
         },
+        onMouseOver: (e: React.MouseEvent) => {
+            e.preventDefault();
+        },
         onClick: (e: React.MouseEvent) => {
             e.stopPropagation();
         },
@@ -151,6 +154,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             transition: props.is_checked ? 'none' : 'all 0.1s linear',
             width: w,
             height: h,
+            pointerEvents: is_dragging ? 'none' : 'auto',
             ...child.props.style
         },
         children:
