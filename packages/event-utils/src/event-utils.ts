@@ -47,7 +47,7 @@ export function isFunction(func: any): boolean {
     );
 }
 
-let matches_selector_func = '';
+let matches_selector_func: string | undefined = undefined;
 export function matchesSelector(el: Node, selector: string): boolean {
     const matches_methods = [
         'matches',
@@ -56,11 +56,14 @@ export function matchesSelector(el: Node, selector: string): boolean {
         'msMatchesSelector',
         'oMatchesSelector'
     ];
+
     if (!matches_selector_func) {
-        matches_methods.map((method) => {
-            // @ts-ignore
-            matches_selector_func = isFunction(el[method]) ? el[method] : '';
-        });
+        matches_selector_func = matches_methods
+            .map((method) => {
+                // @ts-ignore
+                return isFunction(el[method]) ? method : '';
+            })
+            .find((state) => state != '');
     }
 
     // @ts-ignore
