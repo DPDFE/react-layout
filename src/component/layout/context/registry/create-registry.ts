@@ -5,7 +5,6 @@ type EntryMap = {
 };
 
 export default function createRegistry() {
-    let root_droppable_id = '';
     const entries: EntryMap = {
         draggables: {},
         droppables: {}
@@ -16,53 +15,37 @@ export default function createRegistry() {
     }
 
     function getDraggableById(id: string): LayoutItemEntry {
-        return findDraggableById(id);
+        const entry = findDraggableById(id);
+        return entry;
     }
 
-    function getDraggablesByDroppableId(droppableId: string) {
-        return Object.values(entries.draggables).filter(
-            (entry) => entry.descriptor.layout_id === droppableId
-        );
+    function registerDraggable(entry: LayoutItemEntry) {
+        entries.draggables[entry.descriptor.id] = entry;
+    }
+
+    function unregisterDraggable(entry: LayoutItemEntry) {
+        const current = findDraggableById(entry.descriptor.id);
+
+        if (!current) {
+            return;
+        }
+
+        if (entry.unique_id !== current.unique_id) {
+            return;
+        }
+
+        delete entries.draggables[entry.descriptor.id];
     }
 
     const DraggableAPI = {
-        register: (entry: LayoutItemEntry) => {
-            if (entry.descriptor.is_placeholder) return;
-            entries.draggables[entry.descriptor.id] = entry;
-        },
+        register: registerDraggable,
         update: (entry: LayoutItemEntry, last: LayoutItemEntry) => {
-            if (entry.descriptor.is_placeholder) return;
-            const current = entries.draggables[last.descriptor.id];
-
-            if (!current) {
-                return;
-            }
-
-            if (current.unique_id !== entry.unique_id) {
-                return;
-            }
-
-            delete entries.draggables[last.descriptor.id];
-            entries.draggables[entry.descriptor.id] = entry;
+            unregisterDraggable(last);
+            registerDraggable(entry);
         },
-        unregister: (entry: LayoutItemEntry) => {
-            if (entry.descriptor.is_placeholder) return;
-            const string: string = entry.descriptor.id;
-            const current = findDraggableById(string);
-
-            if (!current) {
-                return;
-            }
-
-            if (entry.unique_id !== current.unique_id) {
-                return;
-            }
-
-            delete entries.draggables[string];
-        },
+        unregister: unregisterDraggable,
         getById: getDraggableById,
         findById: findDraggableById,
-        getDraggablesByDroppableId,
         exists: (id: string): boolean => Boolean(findDraggableById(id))
     };
 
@@ -78,8 +61,6 @@ export default function createRegistry() {
     const DroppableAPI = {
         register: (entry: LayoutEntry) => {
             entries.droppables[entry.descriptor.id] = entry;
-            entry.descriptor.is_root &&
-                (root_droppable_id = entry.descriptor.id);
         },
         unregister: (entry: LayoutEntry) => {
             const current = findDroppableById(entry.descriptor.id);
@@ -92,12 +73,10 @@ export default function createRegistry() {
                 return;
             }
 
-            entry.descriptor.is_root && (root_droppable_id = '');
             delete entries.droppables[entry.descriptor.id];
         },
         getById: getDroppableById,
         findById: findDroppableById,
-        getRoot: () => entries.droppables[root_droppable_id],
         getAll: () => Object.values(entries.droppables),
         exists: (id: string): boolean => Boolean(findDroppableById(id))
     };

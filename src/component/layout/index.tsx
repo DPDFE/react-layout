@@ -12,7 +12,7 @@ import React, {
 } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
-import WidgetItem from '../canvas/layout-item';
+import WidgetItem from './canvas/layout-item';
 import {
     compact,
     moveElement,
@@ -39,10 +39,10 @@ import {
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, copyObjectArray, noop } from '@/utils/utils';
-import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
+import { clamp, DEFAULT_BOUND } from './canvas/draggable';
 import { useLayoutHooks } from './hooks';
 import isEqual from 'lodash.isequal';
-import { LayoutContext } from '../layout-context';
+import { LayoutContext } from './context';
 
 const ReactLayout = (props: ReactLayoutProps) => {
     const {

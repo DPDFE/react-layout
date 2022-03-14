@@ -286,6 +286,7 @@ export interface LayoutDescriptor {
 type LayoutEntryApi = (
     dragging_item: LayoutItemEntry
 ) => LayoutItem[] | undefined;
+
 export interface LayoutEntry {
     unique_id: string;
     descriptor: LayoutDescriptor;

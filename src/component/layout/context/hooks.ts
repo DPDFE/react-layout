@@ -61,14 +61,6 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
 
     const registry = useRegistry();
 
-    // useLayoutEffect(() => {
-    //     console.log(checked_index);
-    // }, [checked_index]);
-
-    // useLayoutEffect(() => {
-    //     console.log(drag_item?.i);
-    // }, [drag_item]);
-
     useEffect(() => {
         const onMouseMouve = (event: MouseEvent) => {
             event.stopPropagation();
