@@ -110,12 +110,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ></div>
     );
 
-    // const grandson = useMemo(() => {
-    //     return child.props.children;
-    // }, []);
-
-    const grandson = child.props.children;
-
     const new_child = React.cloneElement(child, {
         tabIndex: i,
         onMouseDown: () => {
@@ -162,8 +156,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         },
         children:
             props.mode === LayoutType.edit && need_mask
-                ? [grandson, mask_dom]
-                : grandson
+                ? [child.props.children, mask_dom]
+                : child.props.children
     });
 
     /**
