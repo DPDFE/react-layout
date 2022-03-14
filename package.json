@@ -67,7 +67,7 @@
         "dist"
     ],
     "dependencies": {
-        "@pearone/event-utils": "^0.0.7",
+        "@pearone/event-utils": "^0.0.8",
         "lodash.isequal": "^4.5.0"
     }
 }
