@@ -3,6 +3,7 @@ import {
     ReactLayout,
     LayoutType,
     LayoutItem,
+    LayoutMode,
     ReactLayoutContext
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
@@ -37,7 +38,7 @@ const DraggableLayout = () => {
                 height={600}
                 width={1200}
                 layout_type={LayoutType.DRAG}
-                mode={LayoutType.edit}
+                mode={LayoutMode.edit}
                 need_drag_bound={false}
                 onDragStart={() => {
                     console.log('onDragStart');

@@ -1,15 +1,18 @@
-import { Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 import {
     ReactLayout,
     LayoutType,
     LayoutItem,
-    ReactLayoutContext,
-    ItemPos
+    LayoutMode,
+    ReactLayoutContext
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
-const DropGridResponsiveLayout = () => {
+/**
+ * TODO：
+ * 1. 在drag状态下，页面会随着拖拽滚动
+ */
+const DragResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
 
     useEffect(() => {
@@ -36,47 +39,19 @@ const DropGridResponsiveLayout = () => {
         <div
             style={{ display: 'flex', flexDirection: 'column', height: '100%' }}
         >
-            <div
-                style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    padding: '4px 10px'
-                }}
-            >
-                <Button
-                    type='primary'
-                    style={{ marginRight: 10 }}
-                    draggable={true}
-                >
-                    拖拽添加
-                </Button>
-            </div>
             <ReactLayoutContext>
                 <ReactLayout
                     widgets={widgets}
-                    style={{ background: '#fff' }}
                     need_ruler
                     layout_type={LayoutType.GRID}
-                    mode={LayoutType.edit}
                     container_padding={[10]}
                     item_margin={[10, 10]}
-                    getDroppingItem={() => {
-                        return {
-                            h: 5,
-                            w: 2,
-                            i: 'drop_element'
-                        };
+                    mode={LayoutMode.edit}
+                    onDragStart={() => {
+                        console.log('onDragStart');
                     }}
-                    onDrop={(layout: LayoutItem[], item: ItemPos) => {
-                        const drop_element = {
-                            ...item,
-                            i: widgets.length.toString(),
-                            is_resizable: true,
-                            is_draggable: true
-                        };
-                        const new_widgets = layout.concat([drop_element]);
-                        setWidgets(new_widgets);
-                        return drop_element;
+                    onDrag={(layout: LayoutItem[]) => {
+                        // console.log('onDrag');
                     }}
                     onDragStop={(layout: LayoutItem[]) => {
                         console.log('onDragStop');
@@ -93,9 +68,6 @@ const DropGridResponsiveLayout = () => {
                                     padding: 10
                                 }}
                             >
-                                <span style={{ color: 'red' }}>
-                                    {new Date().getTime()}
-                                </span>
                                 我是第{w.i}个div, height: {w.h}, width:
                                 {w.w}
                             </div>
@@ -107,4 +79,4 @@ const DropGridResponsiveLayout = () => {
     );
 };
 
-export default DropGridResponsiveLayout;
+export default DragResponsiveLayout;

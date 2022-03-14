@@ -3,6 +3,7 @@ import {
     ReactLayout,
     LayoutType,
     LayoutItem,
+    LayoutMode,
     ReactLayoutContext
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
@@ -41,7 +42,7 @@ const ResizableGridStaticLayout = () => {
                 container_padding={[10]}
                 item_margin={[10, 10]}
                 layout_type={LayoutType.DRAG}
-                mode={LayoutType.edit}
+                mode={LayoutMode.edit}
                 onResizeStart={() => {
                     console.log('onResizeStart');
                 }}

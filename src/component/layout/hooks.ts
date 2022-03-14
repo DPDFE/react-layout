@@ -3,6 +3,7 @@ import {
     ItemPos,
     LayoutItem,
     LayoutType,
+    LayoutMode,
     OperatorType,
     ReactLayoutProps
 } from '@/interfaces';
@@ -208,7 +209,7 @@ export const useLayoutHooks = (
                 const calc_height = current_height * scale;
 
                 // 计算水平、垂直偏移量
-                if (mode === LayoutType.edit) {
+                if (mode === LayoutMode.edit) {
                     const ele_width = (max_r - max_left) * scale;
                     const ele_height = (max_b - max_top) * scale;
 

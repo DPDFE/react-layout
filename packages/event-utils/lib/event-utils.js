@@ -30,3 +30,42 @@ export function removeEvent(el, event, handler, inputOptions) {
         el['on' + event] = null;
     }
 }
+export function isFunction(func) {
+    return (typeof func === 'function' ||
+        Object.prototype.toString.call(func) === '[object Function]');
+}
+let matches_selector_func = undefined;
+export function matchesSelector(el, selector) {
+    const matches_methods = [
+        'matches',
+        'webkitMatchesSelector',
+        'mozMatchesSelector',
+        'msMatchesSelector',
+        'oMatchesSelector'
+    ];
+    if (!matches_selector_func) {
+        matches_selector_func = matches_methods
+            .map((method) => {
+            // @ts-ignore
+            return isFunction(el[method]) ? method : '';
+        })
+            .find((state) => state != '');
+    }
+    // @ts-ignore
+    if (!isFunction(el[matches_selector_func]))
+        return false;
+    // @ts-ignore
+    return el[matches_selector_func](selector);
+}
+/** 找到从当前元素一直找到baseNode是否有selector */
+export function matchesSelectorAndParentsTo(el, selector, baseNode) {
+    let node = el;
+    do {
+        if (matchesSelector(node, selector))
+            return true;
+        if (node === baseNode)
+            return false;
+        node = node.parentNode;
+    } while (node);
+    return false;
+}

@@ -3,6 +3,7 @@ import {
     ReactLayout,
     LayoutType,
     LayoutItem,
+    LayoutMode,
     ReactLayoutContext
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
@@ -42,7 +43,7 @@ const DraggableGridStaticLayout = () => {
                 item_margin={[10, 10]}
                 need_grid_bound={true}
                 layout_type={LayoutType.DRAG}
-                mode={LayoutType.edit}
+                mode={LayoutMode.edit}
                 onDragStart={() => {
                     console.log('onDragStart');
                 }}

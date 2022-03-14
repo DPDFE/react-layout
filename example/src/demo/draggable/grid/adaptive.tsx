@@ -5,7 +5,8 @@ import {
     LayoutItem,
     ReactLayoutContext,
     DragStart,
-    DragResult
+    DragResult,
+    LayoutMode
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 import './styles.css';
@@ -29,7 +30,8 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_nested: false
+                is_nested: false,
+                draggable_cancel: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -40,7 +42,8 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_nested: false
+                is_nested: false,
+                draggable_cancel: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -51,7 +54,8 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_nested: false
+                is_nested: false,
+                draggable_cancel: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -62,7 +66,8 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_nested: false
+                is_nested: false,
+                draggable_cancel: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -73,7 +78,8 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_nested: false
+                is_nested: false,
+                draggable_cancel: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -84,7 +90,8 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_nested: false
+                is_nested: false,
+                draggable_cancel: '.draggable-cancel'
             }
         ];
         // return Array.from({ length: 6 }).map((_, i) => {
@@ -141,7 +148,7 @@ const DraggableGridResponsiveLayout = () => {
                 // need_ruler
                 style={{ background: '#fff' }}
                 layout_type={LayoutType.GRID}
-                mode={LayoutType.edit}
+                mode={LayoutMode.edit}
                 container_padding={[5]}
                 item_margin={[10, 10]}
                 onDragStart={() => {
@@ -166,7 +173,10 @@ const DraggableGridResponsiveLayout = () => {
                                 padding: 10
                             }}
                         >
-                            <span style={{ color: 'red' }}>
+                            <span
+                                style={{ color: 'red' }}
+                                className={'draggable-cancel'}
+                            >
                                 {new Date().getTime()}
                             </span>
                             <div>

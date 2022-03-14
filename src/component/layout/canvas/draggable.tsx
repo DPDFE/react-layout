@@ -1,5 +1,9 @@
 import { BoundType, DraggableProps } from '@/interfaces';
-import { addEvent, removeEvent } from '@pearone/event-utils';
+import {
+    addEvent,
+    removeEvent,
+    matchesSelectorAndParentsTo
+} from '@pearone/event-utils';
 import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
 
 export const DEFAULT_BOUND = {
@@ -44,6 +48,23 @@ const Draggable = (props: DraggableProps) => {
     const handleDragStart = (e: MouseEvent) => {
         if (!props.is_draggable) {
             return;
+        }
+
+        // 有禁止拖拽元素时阻止拖拽效果
+        if (e.target && props.draggable_cancel) {
+            const current = (child.ref as RefObject<HTMLElement>).current;
+
+            const is_cancel_match = matchesSelectorAndParentsTo(
+                e.target as Node,
+                props.draggable_cancel,
+                current as Node
+            );
+
+            console.log(is_cancel_match);
+
+            if (is_cancel_match) {
+                return;
+            }
         }
 
         const { x, y } = offsetXYFromParent(e);

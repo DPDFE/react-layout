@@ -3,11 +3,12 @@ import {
     ReactLayout,
     LayoutType,
     LayoutItem,
+    LayoutMode,
     ReactLayoutContext
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
-const DraggableDragResponsiveLayout = () => {
+const ResizableGridResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
 
     useEffect(() => {
@@ -15,17 +16,17 @@ const DraggableDragResponsiveLayout = () => {
     }, []);
 
     function generateLayout() {
-        return Array.from({ length: 5 }).map((_, i) => {
+        return Array.from({ length: 6 }).map((_, i) => {
             const random = parseInt((Math.random() * 500).toFixed());
             return {
-                w: 100,
-                h: 100,
+                w: 2,
+                h: 10,
                 i: i.toString(),
                 x: random,
                 y: random,
-                is_resizable: false,
+                is_resizable: true,
                 is_draggable: true,
-                is_float: true
+                is_float: false
             };
         });
     }
@@ -35,10 +36,21 @@ const DraggableDragResponsiveLayout = () => {
             <ReactLayout
                 widgets={widgets}
                 style={{ background: '#fff' }}
-                // need_ruler
+                need_ruler
                 layout_type={LayoutType.GRID}
-                mode={LayoutType.edit}
+                mode={LayoutMode.edit}
                 container_padding={[10]}
+                item_margin={[10, 10]}
+                onResizeStart={() => {
+                    console.log('onResizeStart');
+                }}
+                onResize={(layout: LayoutItem[]) => {
+                    // console.log('onResize');
+                }}
+                onResizeStop={(layout: LayoutItem[]) => {
+                    console.log('onResizeStop');
+                    setWidgets(layout);
+                }}
                 onDragStart={() => {
                     console.log('onDragStart');
                 }}
@@ -57,8 +69,7 @@ const DraggableDragResponsiveLayout = () => {
                             data-drag={w}
                             style={{
                                 border: '1px solid',
-                                padding: 10,
-                                background: '#fff'
+                                padding: 10
                             }}
                         >
                             我是第{w.i}个div, height: {w.h}, width:
@@ -71,4 +82,4 @@ const DraggableDragResponsiveLayout = () => {
     );
 };
 
-export default DraggableDragResponsiveLayout;
+export default ResizableGridResponsiveLayout;

@@ -3,11 +3,12 @@ import {
     ReactLayout,
     LayoutType,
     LayoutItem,
+    LayoutMode,
     ReactLayoutContext
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
-const ResizableGridResponsiveLayout = () => {
+const ResizableDragResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
 
     useEffect(() => {
@@ -15,17 +16,18 @@ const ResizableGridResponsiveLayout = () => {
     }, []);
 
     function generateLayout() {
-        return Array.from({ length: 6 }).map((_, i) => {
+        return Array.from({ length: 2 }).map((_, i) => {
             const random = parseInt((Math.random() * 500).toFixed());
             return {
-                w: 2,
-                h: 10,
+                w: 100,
+                h: 100,
                 i: i.toString(),
                 x: random,
                 y: random,
                 is_resizable: true,
                 is_draggable: true,
-                is_float: false
+                is_float: true,
+                need_mask: true
             };
         });
     }
@@ -37,7 +39,7 @@ const ResizableGridResponsiveLayout = () => {
                 style={{ background: '#fff' }}
                 need_ruler
                 layout_type={LayoutType.GRID}
-                mode={LayoutType.edit}
+                mode={LayoutMode.edit}
                 container_padding={[10]}
                 item_margin={[10, 10]}
                 onResizeStart={() => {
@@ -64,6 +66,7 @@ const ResizableGridResponsiveLayout = () => {
                 {widgets.map((w) => {
                     return (
                         <div
+                            className={'widget_item'}
                             key={w.i}
                             data-drag={w}
                             style={{
@@ -71,8 +74,17 @@ const ResizableGridResponsiveLayout = () => {
                                 padding: 10
                             }}
                         >
-                            我是第{w.i}个div, height: {w.h}, width:
-                            {w.w}
+                            <iframe
+                                title='111'
+                                src='http://www.baidu.com'
+                                frameBorder='0'
+                                width='100%'
+                                height='100%'
+                            ></iframe>
+                            <div>
+                                我是第{w.i}个div, height: {w.h}, width:
+                                {w.w}
+                            </div>
                         </div>
                     );
                 })}
@@ -81,4 +93,4 @@ const ResizableGridResponsiveLayout = () => {
     );
 };
 
-export default ResizableGridResponsiveLayout;
+export default ResizableDragResponsiveLayout;

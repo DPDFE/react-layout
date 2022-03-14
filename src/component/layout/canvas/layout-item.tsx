@@ -1,6 +1,6 @@
 import {
     WidgetItemProps,
-    LayoutType,
+    LayoutMode,
     LayoutItemEntry,
     LayoutItemDescriptor
 } from '@/interfaces';
@@ -114,6 +114,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         onMouseDown: () => {
             props.setCurrentChecked?.(i);
         },
+        onMouseOver: (e: React.MouseEvent) => {
+            e.preventDefault();
+        },
         onClick: (e: React.MouseEvent) => {
             e.stopPropagation();
         },
@@ -151,10 +154,11 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             transition: props.is_checked ? 'none' : 'all 0.1s linear',
             width: w,
             height: h,
+            pointerEvents: is_dragging ? 'none' : 'auto',
             ...child.props.style
         },
         children:
-            props.mode === LayoutType.edit && need_mask
+            props.mode === LayoutMode.edit && need_mask
                 ? [child.props.children, mask_dom]
                 : child.props.children
     });
@@ -259,6 +263,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             onDragStart={() => {
                 props.onDragStart?.();
             }}
+            draggable_cancel={props.draggable_cancel}
             bound={
                 in_nested_layout
                     ? DEFAULT_BOUND

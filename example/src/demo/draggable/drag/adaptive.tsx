@@ -3,11 +3,12 @@ import {
     ReactLayout,
     LayoutType,
     LayoutItem,
+    LayoutMode,
     ReactLayoutContext
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 
-const ResizableDragResponsiveLayout = () => {
+const DraggableDragResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
 
     useEffect(() => {
@@ -15,7 +16,7 @@ const ResizableDragResponsiveLayout = () => {
     }, []);
 
     function generateLayout() {
-        return Array.from({ length: 2 }).map((_, i) => {
+        return Array.from({ length: 5 }).map((_, i) => {
             const random = parseInt((Math.random() * 500).toFixed());
             return {
                 w: 100,
@@ -23,10 +24,9 @@ const ResizableDragResponsiveLayout = () => {
                 i: i.toString(),
                 x: random,
                 y: random,
-                is_resizable: true,
+                is_resizable: false,
                 is_draggable: true,
-                is_float: true,
-                need_mask: true
+                is_float: true
             };
         });
     }
@@ -36,21 +36,10 @@ const ResizableDragResponsiveLayout = () => {
             <ReactLayout
                 widgets={widgets}
                 style={{ background: '#fff' }}
-                need_ruler
+                // need_ruler
                 layout_type={LayoutType.GRID}
-                mode={LayoutType.edit}
+                mode={LayoutMode.edit}
                 container_padding={[10]}
-                item_margin={[10, 10]}
-                onResizeStart={() => {
-                    console.log('onResizeStart');
-                }}
-                onResize={(layout: LayoutItem[]) => {
-                    // console.log('onResize');
-                }}
-                onResizeStop={(layout: LayoutItem[]) => {
-                    console.log('onResizeStop');
-                    setWidgets(layout);
-                }}
                 onDragStart={() => {
                     console.log('onDragStart');
                 }}
@@ -65,25 +54,16 @@ const ResizableDragResponsiveLayout = () => {
                 {widgets.map((w) => {
                     return (
                         <div
-                            className={'widget_item'}
                             key={w.i}
                             data-drag={w}
                             style={{
                                 border: '1px solid',
-                                padding: 10
+                                padding: 10,
+                                background: '#fff'
                             }}
                         >
-                            <iframe
-                                title='111'
-                                src='http://www.baidu.com'
-                                frameBorder='0'
-                                width='100%'
-                                height='100%'
-                            ></iframe>
-                            <div>
-                                我是第{w.i}个div, height: {w.h}, width:
-                                {w.w}
-                            </div>
+                            我是第{w.i}个div, height: {w.h}, width:
+                            {w.w}
                         </div>
                     );
                 })}
@@ -92,4 +72,4 @@ const ResizableDragResponsiveLayout = () => {
     );
 };
 
-export default ResizableDragResponsiveLayout;
+export default DraggableDragResponsiveLayout;
