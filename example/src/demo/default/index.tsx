@@ -207,6 +207,76 @@ const DefaultLayout = () => {
         }
     };
 
+    const widgets3_component = () => {
+        return (
+            <ReactLayout
+                layout_id={'widgets3'}
+                widgets={widgets3}
+                layout_type={LayoutType.GRID}
+                mode={LayoutType.edit}
+                container_padding={[10, 10, 10, 10]}
+                row_height={50}
+                cols={8}
+                item_margin={[10, 10]}
+                need_drag_bound={false}
+                need_grid_bound={false}
+                is_nested_layout={true}
+                onDragStop={(layout: LayoutItem[]) => {
+                    // console.log('widgets3', layout);
+                    // setWidgets3(layout);
+                }}
+                onDrop={(layout: LayoutItem[], item: ItemPos) => {
+                    const drop_element = JSON.parse(
+                        JSON.stringify({
+                            ...item,
+                            i: Math.random(),
+                            is_resizable: true,
+                            is_draggable: true
+                        })
+                    );
+
+                    drop_element.i ||
+                        (drop_element.i =
+                            '1-' +
+                            widgets.length.toString() +
+                            '-' +
+                            Math.random());
+
+                    const new_widgets = layout.concat([drop_element]);
+
+                    setWidgets3(new_widgets);
+                    console.log('add widgets3');
+
+                    return drop_element;
+                }}
+            >
+                {widgets3.map((w) => {
+                    return (
+                        <div
+                            key={w.i}
+                            data-drag={w}
+                            style={{
+                                border: '1px solid',
+                                background: w.is_float ? '#9eb3f1' : '#cddc39'
+                            }}
+                        >
+                            <div className='test'>
+                                <span
+                                    style={{
+                                        color: 'red'
+                                    }}
+                                ></span>
+                                我是第{w.i}
+                                个div, height: {w.h}, width:
+                                {w.w}
+                            </div>
+                        </div>
+                    );
+                })}
+            </ReactLayout>
+        );
+    };
+
     return (
         <div
             style={{
@@ -431,94 +501,14 @@ const DefaultLayout = () => {
                                     <span style={{ color: 'red' }}>
                                         {new Date().getTime()}
                                     </span>
-                                    {
+                                    {/* {
                                         <div className='test'>
                                             我是第{w.i}个div, height: {w.h},
                                             width:
                                             {w.w}
                                         </div>
-                                    }
-                                    {w.i === '3' && (
-                                        <ReactLayout
-                                            layout_id={'widgets3'}
-                                            widgets={widgets3}
-                                            layout_type={LayoutType.GRID}
-                                            mode={LayoutMode.edit}
-                                            container_padding={[10, 10, 10, 10]}
-                                            row_height={50}
-                                            cols={8}
-                                            item_margin={[10, 10]}
-                                            need_drag_bound={false}
-                                            need_grid_bound={false}
-                                            is_nested_layout={true}
-                                            onDragStop={(
-                                                layout: LayoutItem[]
-                                            ) => {
-                                                // console.log('widgets3', layout);
-                                                // setWidgets3(layout);
-                                            }}
-                                            onDrop={(
-                                                layout: LayoutItem[],
-                                                item: ItemPos
-                                            ) => {
-                                                const drop_element = JSON.parse(
-                                                    JSON.stringify({
-                                                        ...item,
-                                                        i: Math.random(),
-                                                        is_resizable: true,
-                                                        is_draggable: true
-                                                    })
-                                                );
-
-                                                drop_element.i ||
-                                                    (drop_element.i =
-                                                        '1-' +
-                                                        widgets.length.toString() +
-                                                        '-' +
-                                                        Math.random());
-
-                                                const new_widgets =
-                                                    layout.concat([
-                                                        drop_element
-                                                    ]);
-
-                                                setWidgets3(new_widgets);
-                                                console.log('add widgets3');
-
-                                                return drop_element;
-                                            }}
-                                        >
-                                            {widgets3.map((w) => {
-                                                return (
-                                                    <div
-                                                        key={w.i}
-                                                        data-drag={w}
-                                                        style={{
-                                                            border: '1px solid',
-                                                            background:
-                                                                w.is_float
-                                                                    ? '#9eb3f1'
-                                                                    : '#cddc39'
-                                                        }}
-                                                    >
-                                                        <div className='test'>
-                                                            <span
-                                                                style={{
-                                                                    color: 'red'
-                                                                }}
-                                                            >
-                                                                {new Date().getTime()}
-                                                            </span>
-                                                            我是第{w.i}
-                                                            个div, height: {w.h}
-                                                            , width:
-                                                            {w.w}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </ReactLayout>
-                                    )}
+                                    } */}
+                                    {w.i === '3' && widgets3_component()}
                                     {w.i === '1' && (
                                         <Tabs
                                             defaultActiveKey='1'
@@ -607,21 +597,26 @@ const DefaultLayout = () => {
                                                                             : '#cddc39'
                                                                 }}
                                                             >
-                                                                <div className='test'>
-                                                                    <span
-                                                                        style={{
-                                                                            color: 'red'
-                                                                        }}
-                                                                    >
-                                                                        {new Date().getTime()}
-                                                                    </span>
-                                                                    我是第{w.i}
-                                                                    个div,
-                                                                    height:{' '}
-                                                                    {w.h},
-                                                                    width:
-                                                                    {w.w}
-                                                                </div>
+                                                                {w.i === '3' ? (
+                                                                    widgets3_component()
+                                                                ) : (
+                                                                    <div className='test'>
+                                                                        <span
+                                                                            style={{
+                                                                                color: 'red'
+                                                                            }}
+                                                                        >
+                                                                            {new Date().getTime()}
+                                                                        </span>
+                                                                        我是第
+                                                                        {w.i}
+                                                                        个div,
+                                                                        height:{' '}
+                                                                        {w.h},
+                                                                        width:
+                                                                        {w.w}
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         );
                                                     })}
