@@ -182,6 +182,7 @@ export interface LayoutItem extends ItemPos {
     // 可以通过mask在操作布局的时候屏蔽元素细节
     // 处理有iframe情况下，出现事件黑洞的情况
     need_mask?: boolean;
+    draggable_cancel?: string;
 }
 
 export interface LayoutItemDimesion extends LayoutItem {
@@ -224,6 +225,7 @@ export interface DraggableProps extends EventBaseProps {
     bound?: Partial<BoundType>;
     is_draggable?: boolean;
     use_css_transform?: boolean;
+    draggable_cancel?: string;
     onDragStart?: () => void;
     onDrag?: ({ x, y }: { x: number; y: number }) => void;
     onDragStop?: ({ x, y }: { x: number; y: number }) => void;

@@ -422,7 +422,9 @@ const DefaultLayout = () => {
                                             : '#cddc39',
                                         border: '1px solid',
                                         padding: 10,
-                                        overflow: 'hidden'
+                                        overflow: 'hidden',
+                                        display: 'flex',
+                                        flexDirection: 'column'
                                     }}
                                 >
                                     <span style={{ color: 'red' }}>

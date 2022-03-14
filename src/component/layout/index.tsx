@@ -109,7 +109,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
      * @description 只有在无状态的情况下，点击空白处才会取消选中状态
      */
     const onClick = () => {
-        if (operator_type === undefined) {
+        if (operator_type === undefined && !props.is_nested_layout) {
             setCurrentChecked(undefined);
         }
     };
@@ -695,7 +695,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 <div
                     ref={canvas_viewport_ref}
                     style={{
-                        overflowX: props.is_nested_layout ? 'hidden' : 'auto',
                         overflowY: 'auto',
                         position: 'relative',
                         flex: 1,
@@ -721,13 +720,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             props.mode === LayoutType.edit ? onDragEnter : noop
                         }
                         onClick={onClick}
-                        // onMouseMove={(e) => {
-                        //     e.stopPropagation();
-                        //     e.nativeEvent.console.log(
-                        //         'move on aaa',
-                        //         layout_name
-                        //     );
-                        // }}
                     >
                         {/* 实际画布区域 */}
                         <div
@@ -735,6 +727,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             ref={canvas_ref}
                             className={styles.canvas}
                             style={getLayoutStyle()}
+                            onMouseEnter={(e) => {
+                                console.log('inter', layout_name);
+                            }}
+                            // onMouseOver={(e) => {
+                            //     e.stopPropagation();
+                            //     console.log('move on', layout_name);
+                            // }}
                         >
                             {shadowGridItem()}
                             {React.Children.map(

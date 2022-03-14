@@ -259,6 +259,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             onDragStart={() => {
                 props.onDragStart?.();
             }}
+            draggable_cancel={props.draggable_cancel}
             bound={
                 in_nested_layout
                     ? DEFAULT_BOUND

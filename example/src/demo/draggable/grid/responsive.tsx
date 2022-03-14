@@ -29,7 +29,8 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_nested: false
+                is_nested: false,
+                draggable_cancel: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -40,7 +41,8 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_nested: false
+                is_nested: false,
+                draggable_cancel: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -51,7 +53,8 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_nested: false
+                is_nested: false,
+                draggable_cancel: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -62,7 +65,8 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_nested: false
+                is_nested: false,
+                draggable_cancel: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -73,7 +77,8 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_nested: false
+                is_nested: false,
+                draggable_cancel: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -84,7 +89,8 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: false,
                 is_draggable: true,
                 is_float: false,
-                is_nested: false
+                is_nested: false,
+                draggable_cancel: '.draggable-cancel'
             }
         ];
         // return Array.from({ length: 6 }).map((_, i) => {
@@ -166,7 +172,10 @@ const DraggableGridResponsiveLayout = () => {
                                 padding: 10
                             }}
                         >
-                            <span style={{ color: 'red' }}>
+                            <span
+                                style={{ color: 'red' }}
+                                className={'draggable-cancel'}
+                            >
                                 {new Date().getTime()}
                             </span>
                             <div>

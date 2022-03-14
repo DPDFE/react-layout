@@ -39,3 +39,49 @@ export function removeEvent(
         el['on' + event] = null;
     }
 }
+
+export function isFunction(func: any): boolean {
+    return (
+        typeof func === 'function' ||
+        Object.prototype.toString.call(func) === '[object Function]'
+    );
+}
+
+let matches_selector_func = '';
+export function matchesSelector(el: Node, selector: string): boolean {
+    const matches_methods = [
+        'matches',
+        'webkitMatchesSelector',
+        'mozMatchesSelector',
+        'msMatchesSelector',
+        'oMatchesSelector'
+    ];
+    if (!matches_selector_func) {
+        matches_methods.map((method) => {
+            // @ts-ignore
+            matches_selector_func = isFunction(el[method]) ? el[method] : '';
+        });
+    }
+
+    // @ts-ignore
+    if (!isFunction(el[matches_selector_func])) return false;
+
+    // @ts-ignore
+    return el[matches_selector_func](selector);
+}
+
+/** 找到从当前元素一直找到baseNode是否有selector */
+export function matchesSelectorAndParentsTo(
+    el: Node,
+    selector: string,
+    baseNode: Node
+): boolean {
+    let node: Node | null = el;
+    do {
+        if (matchesSelector(node, selector)) return true;
+        if (node === baseNode) return false;
+        node = node.parentNode;
+    } while (node);
+
+    return false;
+}
