@@ -89,7 +89,9 @@ const Draggable = (props: DraggableProps) => {
             x: clamp(props.x + delta_x, min_x, max_x),
             y: clamp(props.y + delta_y, min_y, max_y)
         };
-        if (drag_state === DragStates.dragging) props.onDrag?.(pos);
+        if (drag_state === DragStates.dragging) {
+            props.onDrag?.(pos);
+        }
     };
 
     /** 结束 */

@@ -16,11 +16,11 @@ import React, {
     FC
 } from 'react';
 
-import { MIN_DRAG_LENGTH, snapToDragBound } from '../layout/calc';
+import { MIN_DRAG_LENGTH, snapToDragBound } from '../calc';
 import Draggable, { clamp, DEFAULT_BOUND } from './draggable';
 import Resizable from './resizable';
 import styles from './styles.module.css';
-import { LayoutContext } from '../layout-context';
+import { LayoutContext } from '../context';
 
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children) as ReactElement;
@@ -240,6 +240,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const isFirstPublishRef = useRef<boolean>(true);
 
     useEffect(() => {
+        if (props.is_placeholder) return;
         registry.draggable.register(publishedRef.current);
         return () => registry.draggable.unregister(publishedRef.current);
     }, [registry.draggable]);
