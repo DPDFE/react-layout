@@ -727,10 +727,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             ref={canvas_ref}
                             className={styles.canvas}
                             style={getLayoutStyle()}
-                            onMouseOver={(e) => {
-                                e.stopPropagation();
-                                console.log('move on', layout_name);
-                            }}
+                            // onMouseOver={(e) => {
+                            //     e.stopPropagation();
+                            //     console.log('move on', layout_name);
+                            // }}
                         >
                             {shadowGridItem()}
                             {React.Children.map(

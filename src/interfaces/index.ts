@@ -310,7 +310,6 @@ export interface LayoutEntry {
 
 export interface LayoutItemDescriptor {
     id: string;
-    is_placeholder: boolean;
     layout_id: string;
     pos: LayoutItem;
 }
