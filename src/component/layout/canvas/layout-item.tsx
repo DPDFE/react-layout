@@ -1,6 +1,6 @@
 import {
     WidgetItemProps,
-    LayoutType,
+    LayoutMode,
     LayoutItemEntry,
     LayoutItemDescriptor
 } from '@/interfaces';
@@ -154,7 +154,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             ...child.props.style
         },
         children:
-            props.mode === LayoutType.edit && need_mask
+            props.mode === LayoutMode.edit && need_mask
                 ? [child.props.children, mask_dom]
                 : child.props.children
     });

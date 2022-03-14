@@ -9,7 +9,8 @@ import {
     ReactLayoutContext,
     DragStart,
     DragResult,
-    DropResult
+    DropResult,
+    LayoutMode
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 import 'antd/dist/antd.css';
@@ -330,7 +331,7 @@ const DefaultLayout = () => {
                         container_padding={[10]}
                         scale={scale}
                         guide_lines={guide_line}
-                        mode={LayoutType.edit}
+                        mode={LayoutMode.edit}
                         // need_ruler={true}
                         // onDrop={(layout: LayoutItem[], item: ItemPos) => {
                         //     const drop_element = JSON.parse(
@@ -442,7 +443,7 @@ const DefaultLayout = () => {
                                             layout_id={'widgets3'}
                                             widgets={widgets3}
                                             layout_type={LayoutType.GRID}
-                                            mode={LayoutType.edit}
+                                            mode={LayoutMode.edit}
                                             container_padding={[10, 10, 10, 10]}
                                             row_height={50}
                                             cols={8}
@@ -536,7 +537,7 @@ const DefaultLayout = () => {
                                                     layout_type={
                                                         LayoutType.GRID
                                                     }
-                                                    mode={LayoutType.edit}
+                                                    mode={LayoutMode.edit}
                                                     container_padding={[
                                                         10, 10, 10, 10
                                                     ]}
@@ -633,7 +634,7 @@ const DefaultLayout = () => {
                                                     layout_type={
                                                         LayoutType.GRID
                                                     }
-                                                    mode={LayoutType.edit}
+                                                    mode={LayoutMode.edit}
                                                     container_padding={[
                                                         10, 10, 10, 10
                                                     ]}
@@ -695,7 +696,7 @@ const DefaultLayout = () => {
                                                     layout_type={
                                                         LayoutType.GRID
                                                     }
-                                                    mode={LayoutType.edit}
+                                                    mode={LayoutMode.edit}
                                                     container_padding={[
                                                         10, 10, 10, 10
                                                     ]}

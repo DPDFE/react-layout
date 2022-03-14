@@ -25,7 +25,7 @@ import {
 } from './calc';
 import styles from './styles.module.css';
 import {
-    EditLayoutProps,
+    LayoutMode,
     ItemPos,
     LayoutItem,
     LayoutType,
@@ -400,7 +400,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     padding={padding}
                     scale={props.scale}
                     margin={props.item_margin}
-                    mode={LayoutType.view}
+                    mode={LayoutMode.view}
                     grid={grid}
                     layout_type={props.layout_type}
                     is_resizable={false}
@@ -438,7 +438,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         widget.is_resizable && checked_index === widget.i
                     }
                     setCurrentChecked={
-                        props.mode === LayoutType.edit
+                        props.mode === LayoutMode.edit
                             ? setCurrentChecked
                             : noop
                     }
@@ -572,7 +572,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             height: current_height,
             top: t_offset,
             left: l_offset,
-            overflow: props.mode === LayoutType.edit ? 'unset' : 'hidden',
+            overflow: props.mode === LayoutMode.edit ? 'unset' : 'hidden',
             ...transform
         };
     };
@@ -709,15 +709,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             height: wrapper_height
                         }}
                         /** 阻止了onDragOver以后，onDrop事件才生效 */
-                        onDrop={props.mode === LayoutType.edit ? onDrop : noop}
+                        onDrop={props.mode === LayoutMode.edit ? onDrop : noop}
                         onDragOver={
-                            props.mode === LayoutType.edit ? onDragOver : noop
+                            props.mode === LayoutMode.edit ? onDragOver : noop
                         }
                         onDragLeave={
-                            props.mode === LayoutType.edit ? onDragLeave : noop
+                            props.mode === LayoutMode.edit ? onDragLeave : noop
                         }
                         onDragEnter={
-                            props.mode === LayoutType.edit ? onDragEnter : noop
+                            props.mode === LayoutMode.edit ? onDragEnter : noop
                         }
                         onClick={onClick}
                     >
@@ -751,7 +751,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 </div>
             </div>
 
-            {/* {props.mode === LayoutType.edit && canvas_viewport_ref.current && (
+            {/* {props.mode === LayoutMode.edit && canvas_viewport_ref.current && (
                 <GuideLine
                     scale={(props as DragLayoutProps).scale}
                     t_offset={t_offset}
@@ -774,7 +774,7 @@ ReactLayout.defaultProps = {
     row_height: 20,
     container_padding: [0] as [number],
     item_margin: [0, 0],
-    mode: LayoutType.view,
+    mode: LayoutMode.view,
     need_ruler: false,
     need_grid_bound: true,
     need_drag_bound: true,

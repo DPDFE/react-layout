@@ -5,7 +5,8 @@ import {
     LayoutItem,
     ReactLayoutContext,
     DragStart,
-    DragResult
+    DragResult,
+    LayoutMode
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 import './styles.css';
@@ -147,7 +148,7 @@ const DraggableGridResponsiveLayout = () => {
                 // need_ruler
                 style={{ background: '#fff' }}
                 layout_type={LayoutType.GRID}
-                mode={LayoutType.edit}
+                mode={LayoutMode.edit}
                 container_padding={[5]}
                 item_margin={[10, 10]}
                 onDragStart={() => {

@@ -3,6 +3,7 @@ import {
     ReactLayout,
     LayoutType,
     LayoutItem,
+    LayoutMode,
     ReactLayoutContext
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
@@ -37,7 +38,7 @@ const DraggableDragResponsiveLayout = () => {
                 style={{ background: '#fff' }}
                 // need_ruler
                 layout_type={LayoutType.GRID}
-                mode={LayoutType.edit}
+                mode={LayoutMode.edit}
                 container_padding={[10]}
                 onDragStart={() => {
                     console.log('onDragStart');

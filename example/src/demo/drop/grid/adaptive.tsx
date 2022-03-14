@@ -4,6 +4,7 @@ import {
     ReactLayout,
     LayoutType,
     LayoutItem,
+    LayoutMode,
     ReactLayoutContext,
     ItemPos
 } from 'react-drag-layout';
@@ -57,7 +58,7 @@ const DropGridResponsiveLayout = () => {
                     style={{ background: '#fff' }}
                     need_ruler
                     layout_type={LayoutType.GRID}
-                    mode={LayoutType.edit}
+                    mode={LayoutMode.edit}
                     container_padding={[10]}
                     item_margin={[10, 10]}
                     getDroppingItem={() => {

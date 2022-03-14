@@ -4,6 +4,7 @@ import {
     ReactLayout,
     LayoutType,
     LayoutItem,
+    LayoutMode,
     ReactLayoutContext,
     ItemPos
 } from 'react-drag-layout';
@@ -59,7 +60,7 @@ const DropDragStaticLayout = () => {
                     height={600}
                     width={1200}
                     layout_type={LayoutType.DRAG}
-                    mode={LayoutType.edit}
+                    mode={LayoutMode.edit}
                     need_drag_bound={false}
                     getDroppingItem={() => {
                         return {

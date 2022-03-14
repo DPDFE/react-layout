@@ -12,9 +12,17 @@ export enum OperatorType {
     changeover = 'changeover'
 }
 
-export enum LayoutType {
+export enum WidgetType {
+    drag = 'drag',
+    grid = 'grid'
+}
+
+export enum LayoutMode {
     edit = 'edit',
-    view = 'view',
+    view = 'view'
+}
+
+export enum LayoutType {
     DRAG = 'drag',
     GRID = 'grid'
 }
@@ -96,7 +104,7 @@ export type DragLayout = LayoutBase & {
     layout_type: LayoutType.DRAG;
     width: number;
     height: number;
-    mode: LayoutType.view;
+    mode: LayoutMode.view;
 };
 
 export type DragEditLayout = LayoutBase &
@@ -104,20 +112,20 @@ export type DragEditLayout = LayoutBase &
         layout_type: LayoutType.DRAG;
         width: number;
         height: number;
-        mode: LayoutType.edit;
+        mode: LayoutMode.edit;
     };
 
 export type DragLayoutProps = DragLayout | DragEditLayout;
 
 export type GridLayout = LayoutBase & {
     layout_type: LayoutType.GRID;
-    mode: LayoutType.view;
+    mode: LayoutMode.view;
 };
 
 export type GridEditLayout = LayoutBase &
     GuideLine & {
         layout_type: LayoutType.GRID;
-        mode: LayoutType.edit;
+        mode: LayoutMode.edit;
     };
 
 export type GridLayoutProps = GridLayout | GridEditLayout;
@@ -202,7 +210,7 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     grid: GridType;
     margin: [number, number];
     padding: MarginType;
-    mode: LayoutType.edit | LayoutType.view;
+    mode: LayoutMode.edit | LayoutMode.view;
     layout_type: LayoutType.DRAG | LayoutType.GRID;
     in_nested_layout?: boolean;
     is_placeholder: boolean;
@@ -282,7 +290,7 @@ export interface LayoutDescriptor {
     id: string;
     is_root: boolean;
     type: LayoutType;
-    mode: LayoutType;
+    mode: LayoutMode;
 }
 
 type LayoutEntryApi = (

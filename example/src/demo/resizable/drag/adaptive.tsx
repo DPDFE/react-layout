@@ -3,6 +3,7 @@ import {
     ReactLayout,
     LayoutType,
     LayoutItem,
+    LayoutMode,
     ReactLayoutContext
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
@@ -38,7 +39,7 @@ const ResizableDragResponsiveLayout = () => {
                 style={{ background: '#fff' }}
                 need_ruler
                 layout_type={LayoutType.GRID}
-                mode={LayoutType.edit}
+                mode={LayoutMode.edit}
                 container_padding={[10]}
                 item_margin={[10, 10]}
                 onResizeStart={() => {
