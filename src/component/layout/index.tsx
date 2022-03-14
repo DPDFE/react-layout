@@ -324,7 +324,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             case OperatorType.resizeover:
                 return responders.onResize?.(data);
             case OperatorType.dropover:
-                return responders.onDrop?.(data);
+                return responders.onDrop?.({ ...data, widget });
             // drag、dragover 事件在context/hooks触发
             case OperatorType.drag:
             case OperatorType.dragover:
@@ -628,6 +628,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     );
 
     const getRef = useCallback(() => canvas_ref.current, []);
+    const getViewPortRef = useCallback(() => canvas_viewport_ref.current, []);
 
     const entry: LayoutEntry = useMemo(
         () => ({
@@ -637,6 +638,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             handlerAddWidget,
             descriptor,
             getRef,
+            getViewPortRef,
             unique_id: layout_name
         }),
         [
@@ -645,6 +647,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             handlerRemoveWidget,
             handlerAddWidget,
             getRef,
+            getViewPortRef,
             descriptor,
             layout_name
         ]
@@ -691,7 +694,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 {/* 可视区域窗口 */}
                 <div
                     ref={canvas_viewport_ref}
-                    id={'canvas_viewport_ref'}
                     style={{
                         overflowX: props.is_nested_layout ? 'hidden' : 'auto',
                         overflowY: 'auto',
@@ -702,7 +704,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 >
                     {/* 画板区域 */}
                     <div
-                        id={'canvas_wrapper_ref'}
                         ref={canvas_wrapper_ref}
                         style={{
                             width: wrapper_width,

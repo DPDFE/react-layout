@@ -295,6 +295,7 @@ export interface LayoutEntry {
     handlerRemoveWidget: LayoutEntryApi;
     handlerAddWidget: LayoutEntryApi;
     getRef: () => HTMLDivElement | null;
+    getViewPortRef: () => HTMLDivElement | null;
 }
 
 export interface LayoutItemDescriptor {
@@ -325,9 +326,13 @@ export type DragResult = DragStart & {
     destination?: WidgetLocation;
 };
 
+export type DropResult = DragStart & {
+    widget: LayoutItem;
+};
+
 export interface ReactLayoutContextProps {
     getDroppingItem?: () => { h: number; w: number; i: string };
-    onDrop?: (result: DragResult) => LayoutItem;
+    onDrop?: (result: DropResult) => LayoutItem;
     onDragStart?: (start: DragStart) => void;
     onDrag?: (result: DragResult) => void;
     onDragStop?: (result: DragResult) => void;

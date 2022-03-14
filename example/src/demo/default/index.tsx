@@ -8,7 +8,8 @@ import {
     ItemPos,
     ReactLayoutContext,
     DragStart,
-    DragResult
+    DragResult,
+    DropResult
 } from 'react-drag-layout';
 import 'react-drag-layout/dist/index.css';
 import 'antd/dist/antd.css';
@@ -288,6 +289,27 @@ const DefaultLayout = () => {
                     onResizeStop={(result: DragStart) => {
                         console.log(result, 'on resize stop');
                     }}
+                    onDrop={(result: DropResult) => {
+                        console.log(result, 'on drop');
+                        const { source, widget } = result;
+                        const drop_element = JSON.parse(
+                            JSON.stringify({
+                                ...widget,
+                                i:
+                                    source.widgets.length.toString() +
+                                    Math.random(),
+                                is_resizable: true,
+                                is_draggable: true
+                            })
+                        );
+
+                        const new_widgets = source.widgets.concat([
+                            drop_element
+                        ]);
+                        console.log('add widgets', new_widgets);
+                        handleWidgetsChange(source.layout_id, new_widgets);
+                        return drop_element;
+                    }}
                 >
                     <ReactLayout
                         // getDroppingItem={() => {
@@ -310,23 +332,23 @@ const DefaultLayout = () => {
                         guide_lines={guide_line}
                         mode={LayoutType.edit}
                         // need_ruler={true}
-                        onDrop={(layout: LayoutItem[], item: ItemPos) => {
-                            const drop_element = JSON.parse(
-                                JSON.stringify({
-                                    ...item,
-                                    i: Math.random(),
-                                    is_resizable: true,
-                                    is_draggable: true
-                                })
-                            );
-                            drop_element.i ||
-                                (drop_element.i = layout.length.toString());
+                        // onDrop={(layout: LayoutItem[], item: ItemPos) => {
+                        //     const drop_element = JSON.parse(
+                        //         JSON.stringify({
+                        //             ...item,
+                        //             i: Math.random(),
+                        //             is_resizable: true,
+                        //             is_draggable: true
+                        //         })
+                        //     );
+                        //     drop_element.i ||
+                        //         (drop_element.i = layout.length.toString());
 
-                            const new_widgets = layout.concat([drop_element]);
-                            setWidgets(new_widgets);
-                            console.log('add widgets', new_widgets);
-                            return drop_element;
-                        }}
+                        //     const new_widgets = layout.concat([drop_element]);
+                        //     setWidgets(new_widgets);
+                        //     console.log('add widgets', new_widgets);
+                        //     return drop_element;
+                        // }}
                         onDragStart={() => {
                             // console.log('onDragStart');
                         }}

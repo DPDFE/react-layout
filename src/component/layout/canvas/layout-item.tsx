@@ -12,8 +12,7 @@ import React, {
     useRef,
     useCallback,
     useMemo,
-    useEffect,
-    FC
+    useEffect
 } from 'react';
 
 import { MIN_DRAG_LENGTH, snapToDragBound } from '../calc';

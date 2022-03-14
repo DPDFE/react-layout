@@ -69,7 +69,7 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             const layouts = registry.droppable.getAll();
             const { pageX, pageY } = event;
             const cursor_in_layouts = layouts.filter((entry) => {
-                const target_element = entry.getRef();
+                const target_element = entry.getViewPortRef();
                 if (target_element) {
                     const { left, top, width, height } =
                         target_element.getBoundingClientRect();
@@ -102,8 +102,8 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
 
             if (cursor_in_layouts.length > 0) {
                 const layout = cursor_in_layouts.reduce((prev, curr) => {
-                    const pre_dom = prev.getRef()!;
-                    const curr_dom = curr.getRef()!;
+                    const pre_dom = prev.getViewPortRef()!;
+                    const curr_dom = curr.getViewPortRef()!;
                     const postion = pre_dom.compareDocumentPosition(curr_dom);
 
                     // 判断元素相对位置
@@ -123,7 +123,7 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
                 });
 
                 if (layout && drag_item) {
-                    const layout_dom = layout.getRef()!;
+                    const layout_dom = layout.getViewPortRef()!;
                     const drag_item_dom = drag_item.getRef()!;
                     let destination_layout: LayoutItem[] | undefined;
 
