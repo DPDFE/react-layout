@@ -110,11 +110,11 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ></div>
     );
 
-    const grandson = useMemo(() => {
-        return child.props.children;
-    }, []);
+    // const grandson = useMemo(() => {
+    //     return child.props.children;
+    // }, []);
 
-    // const grandson = child.props.children;
+    const grandson = child.props.children;
 
     const new_child = React.cloneElement(child, {
         tabIndex: i,

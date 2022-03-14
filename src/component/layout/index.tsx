@@ -331,11 +331,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
             case OperatorType.dragover:
                 break;
         }
+
+        setOperatorType(type);
     };
 
     const getCurrentLayoutByItem = useCallback(
         (type: OperatorType, item: ItemPos, is_save?: boolean) => {
-            setOperatorType(type);
             const current_widget = getLayoutItem(item);
 
             moveToWidget(current_widget, item);
