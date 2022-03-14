@@ -11,19 +11,19 @@ import {
 
 import DefaultLayout from './demo/default';
 import DraggableGridStaticLayout from './demo/draggable/grid/static';
-import DraggableGridResponsiveLayout from './demo/draggable/grid/responsive';
+import DraggableGridResponsiveLayout from './demo/draggable/grid/adaptive';
 import DraggableDragStaticLayout from './demo/draggable/drag/static';
-import DraggableDragResponsiveLayout from './demo/draggable/drag/responsive';
+import DraggableDragResponsiveLayout from './demo/draggable/drag/adaptive';
 
 import ResizableGridStaticLayout from './demo/resizable/grid/static';
-import ResizableGridResponsiveLayout from './demo/resizable/grid/responsive';
+import ResizableGridResponsiveLayout from './demo/resizable/grid/adaptive';
 import ResizableDragStaticLayout from './demo/resizable/drag/static';
-import ResizableDragResponsiveLayout from './demo/resizable/drag/responsive';
+import ResizableDragResponsiveLayout from './demo/resizable/drag/adaptive';
 
 import DropDragStaticLayout from './demo/drop/drag/static';
-import DropGridResponsiveLayout from './demo/drop/grid/responsive';
+import DropGridResponsiveLayout from './demo/drop/grid/adaptive';
 
-import NestedGridResponsiveLayout from './demo/nested/grid/responsive';
+import NestedGridResponsiveLayout from './demo/nested/grid/adaptive';
 import ChangeDragLayout from './demo/change';
 import RulerLayout from './demo/ruler';
 import { Menu } from 'antd';
