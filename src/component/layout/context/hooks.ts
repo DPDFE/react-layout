@@ -64,6 +64,8 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
     useEffect(() => {
         const onMouseMouve = (event: MouseEvent) => {
             event.stopPropagation();
+            if (change_store.current?.type !== OperatorType.drag) return;
+
             const layouts = registry.droppable.getAll();
             const { pageX, pageY } = event;
             const cursor_in_layouts = layouts.filter((entry) => {
@@ -174,7 +176,7 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
         return () => {
             removeEvent(window, 'mousemove', onMouseMouve);
         };
-    }, [drag_item, operator_type]);
+    }, [drag_item?.unique_id, operator_type, getResponders, change_store]);
 
     useEffect(() => {
         if (checked_index && operator_type && change_store.current) {
