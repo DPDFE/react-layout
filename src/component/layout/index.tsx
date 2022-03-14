@@ -38,7 +38,7 @@ import {
     GridType
 } from '@/interfaces';
 import GuideLine from '../guide-line';
-import { copyObject, copyObjectArray, noop } from '@/utils/utils';
+import { copyObject, noop } from '@/utils/utils';
 import { clamp, DEFAULT_BOUND } from './canvas/draggable';
 import { useLayoutHooks } from './hooks';
 import isEqual from 'lodash.isequal';
@@ -66,7 +66,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
 
     const [shadow_widget, setShadowWidget] = useState<ItemPos>();
-    const [old_shadow_widget, setOldShadowWidget] = useState<ItemPos>();
+    const [last_shadow_widget, setLastShadowWidget] = useState<ItemPos>();
 
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
@@ -179,7 +179,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
     }, [props.children, grid, padding, current_width]);
 
     const onDragEnter = (e: React.MouseEvent) => {
-        console.log('onDragEnter');
         e.preventDefault();
     };
 
@@ -187,10 +186,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const onDragLeave = (e: React.MouseEvent) => {
         e.preventDefault();
 
+        // 如果是canvas内的子节点会被触发leave
         if (!canvas_ref.current!.contains(e.relatedTarget as Node)) {
-            // 如果是canvas内的子节点会被触发leave
             setShadowWidget(undefined);
-            setOldShadowWidget(undefined);
+            setLastShadowWidget(undefined);
             compact(layout);
             setLayout(layout);
         }
@@ -210,7 +209,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             );
 
             setShadowWidget(undefined);
-            setOldShadowWidget(undefined);
+            setLastShadowWidget(undefined);
 
             if (item && item.i) {
                 setCurrentChecked(item.i);
@@ -274,7 +273,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
         if (collides && collides.is_nested) {
             setShadowWidget(undefined);
-            setOldShadowWidget(undefined);
+            setLastShadowWidget(undefined);
             compact(layout);
             setLayout(layout);
         } else {
@@ -282,14 +281,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 getDropItem(canvas_ref, e, props, grid)
             );
             if (
-                old_shadow_widget &&
-                shadow_widget.x === old_shadow_widget.x &&
-                shadow_widget.y === old_shadow_widget.y
+                last_shadow_widget &&
+                shadow_widget.x === last_shadow_widget.x &&
+                shadow_widget.y === last_shadow_widget.y
             ) {
                 return;
             }
             setShadowWidget(shadow_widget);
-            setOldShadowWidget(cloneWidget(shadow_widget));
+            setLastShadowWidget(cloneWidget(shadow_widget));
             const new_layout = [shadow_widget, ...layout];
             compact(new_layout);
             setLayout(layout);
