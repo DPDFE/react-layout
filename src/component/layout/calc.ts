@@ -201,36 +201,6 @@ export function getDropPosition(
     return { x, y };
 }
 
-export function getDropItem(
-    canvas_ref: RefObject<HTMLElement>,
-    e: React.MouseEvent,
-    props: ReactLayoutProps,
-    grid: GridType
-): ItemPos {
-    const { scale, layout_type } = props;
-    const { x, y } = getDropPosition(canvas_ref, e, scale);
-
-    const drop_item = (props as EditLayoutProps).getDroppingItem?.();
-
-    const i = drop_item ? drop_item.i : '__dropping_item__';
-
-    if (layout_type === LayoutType.GRID) {
-        const w = grid.col_width * (drop_item?.w ?? 2);
-        const h = grid.row_height * (drop_item?.h ?? 2);
-
-        const pos = { w, h, i, x, y, is_float: false };
-
-        snapToGrid(pos, grid);
-
-        return pos;
-    } else {
-        const w = drop_item ? drop_item.w : 100;
-        const h = drop_item ? drop_item.h : 100;
-
-        return { w, h, i, x, y, is_float: true };
-    }
-}
-
 export function collides(item_1: LayoutItem, item_2: LayoutItem): boolean {
     if (item_1.i === item_2.i) return false; // 相同节点
     if (item_1.x + item_1.w <= item_2.x) return false; // 👈

@@ -43,7 +43,8 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             onChange,
             onResizeStart,
             onResize,
-            onResizeStop
+            onResizeStop,
+            getDroppingItem
         } = props;
         return {
             onDragStart,
@@ -53,7 +54,8 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             onResizeStart,
             onResize,
             onResizeStop,
-            onChange
+            onChange,
+            getDroppingItem
         };
     }, [props]);
 

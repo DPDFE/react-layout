@@ -42,7 +42,7 @@ export const useLayoutHooks = (
             (entries) => {
                 entries.map((entry) => {
                     if (!entry.intersectionRatio) {
-                        if (props.is_nested) {
+                        if (props.is_nested_layout) {
                             return;
                         }
                         shadow_widget_ref.current?.scrollIntoView({

@@ -7,20 +7,21 @@ import React, {
     useState,
     useLayoutEffect,
     memo,
-    useContext
+    useContext,
+    RefObject
 } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
 import WidgetItem from '../canvas/layout-item';
 import {
     compact,
-    getDropItem,
     moveElement,
     snapToGrid,
     getCurrentMouseOverWidget,
     cloneWidget,
     moveToWidget,
-    replaceWidget
+    replaceWidget,
+    getDropPosition
 } from './calc';
 import styles from './styles.module.css';
 import {
@@ -33,7 +34,8 @@ import {
     LayoutEntry,
     LayoutDescriptor,
     LayoutItemEntry,
-    ReactLayoutProps
+    ReactLayoutProps,
+    GridType
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, copyObjectArray, noop } from '@/utils/utils';
@@ -226,6 +228,37 @@ const ReactLayout = (props: ReactLayoutProps) => {
         item.y = clamp(item.y, min_y, max_y - item.h);
 
         return item;
+    };
+
+    const getDropItem = (
+        canvas_ref: RefObject<HTMLElement>,
+        e: React.MouseEvent,
+        props: ReactLayoutProps,
+        grid: GridType
+    ): ItemPos => {
+        const { scale, layout_type } = props;
+        const { x, y } = getDropPosition(canvas_ref, e, scale);
+
+        const responders = getResponders();
+        const drop_item = responders.getDroppingItem?.();
+
+        const i = drop_item ? drop_item.i : '__dropping_item__';
+
+        if (layout_type === LayoutType.GRID) {
+            const w = grid.col_width * (drop_item?.w ?? 2);
+            const h = grid.row_height * (drop_item?.h ?? 2);
+
+            const pos = { w, h, i, x, y, is_float: false };
+
+            snapToGrid(pos, grid);
+
+            return pos;
+        } else {
+            const w = drop_item ? drop_item.w : 100;
+            const h = drop_item ? drop_item.h : 100;
+
+            return { w, h, i, x, y, is_float: true };
+        }
     };
 
     const onDragOver = (e: React.MouseEvent) => {
