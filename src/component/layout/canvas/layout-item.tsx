@@ -36,7 +36,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         need_mask,
         in_nested_layout,
         is_nested,
-        is_placeholder,
         layout_id
     } = props;
 

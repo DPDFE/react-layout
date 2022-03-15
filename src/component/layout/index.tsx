@@ -179,30 +179,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         }
     }, [props.children, grid, padding, current_width]);
 
-    const onDragEnter = (e: React.MouseEvent) => {
-        e.preventDefault();
-    };
-
-    /** 处理拖拽出画布外没有隐藏shadow的情况 */
-    const onDragLeave = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        e.persist();
-        console.log(
-            'onDragLeave',
-            (e.nativeEvent.target as HTMLElement)?.id,
-            layout_name
-        );
-        // 如果是canvas内的子节点会被触发leave
-        if ((e.nativeEvent.target as HTMLElement)?.id !== layout_name) {
-            setShadowWidget(undefined);
-            setLastShadowWidget(undefined);
-            compact(layout);
-            setLayout(layout);
-        }
-    };
-
     /** 拖拽添加 */
     const onDrop = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -270,37 +246,27 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const onDragOver = (e: React.MouseEvent) => {
         e.preventDefault();
+        e.stopPropagation();
 
-        const collides = getCurrentMouseOverWidget(
-            layout!,
-            canvas_ref,
-            e,
-            props.scale,
-            grid
-        );
-
-        if (collides && collides.is_nested) {
-            setShadowWidget(undefined);
-            setLastShadowWidget(undefined);
-            compact(layout);
-            setLayout(layout);
-        } else {
-            const shadow_widget = getBoundResult(
-                getDropItem(canvas_ref, e, props, grid)
+        if (
+            dragging_layout_id.current &&
+            dragging_layout_id.current !== props.layout_id
+        ) {
+            const pre_layout = registry.droppable.getById(
+                dragging_layout_id.current
             );
-            if (
-                last_shadow_widget &&
-                shadow_widget.x === last_shadow_widget.x &&
-                shadow_widget.y === last_shadow_widget.y
-            ) {
-                return;
-            }
-            setShadowWidget(shadow_widget);
-            setLastShadowWidget(cloneWidget(shadow_widget));
-            const new_layout = [shadow_widget, ...layout];
-            compact(new_layout);
-            setLayout(layout);
+            pre_layout.handlerDraggingItemOut();
         }
+
+        dragging_layout_id.current = props.layout_id;
+
+        const shadow_widget = getBoundResult(
+            getDropItem(canvas_ref, e, props, grid)
+        );
+        setShadowWidget(shadow_widget);
+        const new_layout = [shadow_widget, ...layout];
+        compact(new_layout);
+        setLayout(layout);
     };
 
     const handleResponder = (
@@ -663,10 +629,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
     };
 
     const handlerDraggingItemOut = useCallback(
-        (dragging_item: LayoutItemEntry) => {
-            console.log('handlerDraggingItemOut');
+        (dragging_item?: LayoutItemEntry) => {
             setShadowWidget(undefined);
-            const filter_layout = getFilterLayout(dragging_item.descriptor.pos);
+            const filter_layout = dragging_item
+                ? getFilterLayout(dragging_item.descriptor.pos)
+                : layout;
             compact(filter_layout);
             setLayout(copyObject(layout));
             return copyObject(filter_layout);
@@ -770,12 +737,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         onDrop={props.mode === LayoutMode.edit ? onDrop : noop}
                         onDragOver={
                             props.mode === LayoutMode.edit ? onDragOver : noop
-                        }
-                        onDragLeave={
-                            props.mode === LayoutMode.edit ? onDragLeave : noop
-                        }
-                        onDragEnter={
-                            props.mode === LayoutMode.edit ? onDragEnter : noop
                         }
                         onClick={onClick}
                     >

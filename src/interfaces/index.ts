@@ -294,7 +294,7 @@ export interface LayoutDescriptor {
 }
 
 type LayoutEntryApi = (
-    dragging_item: LayoutItemEntry
+    dragging_item?: LayoutItemEntry
 ) => LayoutItem[] | undefined;
 
 export interface LayoutEntry {
