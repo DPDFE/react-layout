@@ -5,8 +5,8 @@
     "author": "pearone",
     "homepage": "https://github.com/pearone/react-drag-layout#readme",
     "license": "ISC",
-    "main": "lib/event-utils.js",
-    "types": "lib/event-utils.d.ts",
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
     "directories": {
         "lib": "lib",
         "test": "__tests__"

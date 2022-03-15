@@ -186,9 +186,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
     /** 处理拖拽出画布外没有隐藏shadow的情况 */
     const onDragLeave = (e: React.MouseEvent) => {
         e.preventDefault();
+        e.stopPropagation();
 
+        e.persist();
+        console.log(
+            'onDragLeave',
+            (e.nativeEvent.target as HTMLElement)?.id,
+            layout_name
+        );
         // 如果是canvas内的子节点会被触发leave
-        if (!canvas_ref.current!.contains(e.relatedTarget as Node)) {
+        if ((e.nativeEvent.target as HTMLElement)?.id !== layout_name) {
             setShadowWidget(undefined);
             setLastShadowWidget(undefined);
             compact(layout);
@@ -383,6 +390,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
             moveToWidget(current_widget, item);
 
+            current_widget.is_dragging = is_save ? false : true;
+
             // 当前拖拽元素 原Layout 处理元素移除逻辑
             if (
                 dragging_layout_id.current &&
@@ -410,11 +419,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
                 compact(filter_layout.concat([shadow_widget]));
                 if (is_save) {
-                    current_widget.is_dragging = false;
                     moveToWidget(current_widget, shadow_widget);
                     setShadowWidget(undefined);
                 } else {
-                    current_widget.is_dragging = true;
                     setShadowWidget(shadow_widget);
                 }
             }
@@ -657,6 +664,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const handlerDraggingItemOut = useCallback(
         (dragging_item: LayoutItemEntry) => {
+            console.log('handlerDraggingItemOut');
             setShadowWidget(undefined);
             const filter_layout = getFilterLayout(dragging_item.descriptor.pos);
             compact(filter_layout);
@@ -705,8 +713,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     return (
         <div
-            className={`react-drag-layout ${styles.container} ${props.className}`}
+            className={`react-layout ${styles.container} ${props.className}`}
             ref={container_ref}
+            style={{
+                userSelect: OperatorType.drag ? 'none' : 'auto',
+                WebkitUserSelect: OperatorType.drag ? 'none' : 'auto',
+                MozUserSelect: OperatorType.drag ? 'none' : 'auto'
+            }}
         >
             {/* 水平标尺 */}
             {canvas_viewport_ref.current && props.need_ruler && (
