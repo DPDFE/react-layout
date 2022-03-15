@@ -161,8 +161,8 @@ const Draggable = (props: DraggableProps) => {
     };
 
     const setUserSelect = () => {
-        const user_select: 'none' | 'auto' =
-            drag_state === DragStates.dragging ? 'none' : 'auto';
+        const user_select: 'none' | 'inherit' =
+            drag_state === DragStates.dragging ? 'none' : 'inherit';
         return {
             UserSelect: user_select,
             WebkitUserSelect: user_select,

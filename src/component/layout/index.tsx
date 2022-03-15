@@ -680,6 +680,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
         <div
             className={`react-layout ${styles.container} ${props.className}`}
             ref={container_ref}
+            style={{
+                userSelect: props.mode === LayoutMode.edit ? 'none' : 'auto',
+                WebkitUserSelect:
+                    props.mode === LayoutMode.edit ? 'none' : 'auto',
+                MozUserSelect: props.mode === LayoutMode.edit ? 'none' : 'auto'
+            }}
         >
             {/* 水平标尺 */}
             {canvas_viewport_ref.current && props.need_ruler && (
