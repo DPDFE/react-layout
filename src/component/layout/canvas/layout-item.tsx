@@ -227,24 +227,24 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         }),
         [descriptor, getLayoutItemRef, unique_id]
     );
-    const publishedRef = useRef<LayoutItemEntry>(entry);
-    const isFirstPublishRef = useRef<boolean>(true);
+    const published_ref = useRef<LayoutItemEntry>(entry);
+    const is_first_publish_ref = useRef<boolean>(true);
 
     useEffect(() => {
         if (props.is_placeholder) return;
-        registry.draggable.register(publishedRef.current);
-        return () => registry.draggable.unregister(publishedRef.current);
+        registry.draggable.register(published_ref.current);
+        return () => registry.draggable.unregister(published_ref.current);
     }, [registry.draggable]);
 
     useEffect(() => {
         if (props.is_placeholder) return;
-        if (isFirstPublishRef.current) {
-            isFirstPublishRef.current = false;
+        if (is_first_publish_ref.current) {
+            is_first_publish_ref.current = false;
             return;
         }
 
-        const last = publishedRef.current;
-        publishedRef.current = entry;
+        const last = published_ref.current;
+        published_ref.current = entry;
         registry.draggable.update(entry, last);
     }, [entry, registry.draggable]);
 

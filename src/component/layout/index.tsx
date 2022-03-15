@@ -557,9 +557,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                 source_layout,
                                 current_widget
                             );
-                            // (props as EditLayoutProps).onPositionChange?.(
-                            //     layout ?? []
-                            // );
                         }
                     }}
                 />
@@ -615,25 +612,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         [layout]
     );
 
-    const getLayoutStyle = () => {
-        const transform = props.is_nested_layout
-            ? {}
-            : {
-                  transform: `scale(${props.scale})`,
-                  transformOrigin: '0 0'
-              };
-
-        return {
-            ...props.style,
-            width: current_width,
-            height: current_height,
-            top: t_offset,
-            left: l_offset,
-            overflow: props.mode === LayoutMode.edit ? 'unset' : 'hidden',
-            ...transform
-        };
-    };
-
     const handlerDraggingItemOut = useCallback(
         (dragging_item?: LayoutItemEntry) => {
             setShadowWidget(undefined);
@@ -641,8 +619,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 ? getFilterLayout(dragging_item.descriptor.pos)
                 : layout;
             compact(filter_layout);
-            setLayout(copyObject(layout));
-            return copyObject(filter_layout);
+            setLayout(layout);
+            return filter_layout;
         },
         [layout, getFilterLayout]
     );
@@ -755,7 +733,23 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             id={layout_name}
                             ref={canvas_ref}
                             className={styles.canvas}
-                            style={getLayoutStyle()}
+                            style={{
+                                ...props.style,
+                                width: current_width,
+                                height: current_height,
+                                top: t_offset,
+                                left: l_offset,
+                                overflow:
+                                    props.mode === LayoutMode.edit
+                                        ? 'unset'
+                                        : 'hidden',
+                                ...(props.is_nested_layout
+                                    ? {}
+                                    : {
+                                          transform: `scale(${props.scale})`,
+                                          transformOrigin: '0 0'
+                                      })
+                            }}
                             onMouseOver={(e) => {
                                 e.stopPropagation();
                                 if (
