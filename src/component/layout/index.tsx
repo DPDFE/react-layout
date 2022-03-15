@@ -44,7 +44,7 @@ import { clamp, DEFAULT_BOUND } from './canvas/draggable';
 import { useLayoutHooks } from './hooks';
 import isEqual from 'lodash.isequal';
 import { LayoutContext } from './context';
-import { addEvent } from '@pearone/event-utils';
+import { addEvent, removeEvent } from '@pearone/event-utils';
 
 const ReactLayout = (props: ReactLayoutProps) => {
     const {
@@ -661,21 +661,30 @@ const ReactLayout = (props: ReactLayoutProps) => {
         ]
     );
 
+    const handlerDraggingLayout = (e: MouseEvent) => {
+        e.stopPropagation();
+        if (
+            dragging_layout.current &&
+            dragging_layout_id.current &&
+            dragging_layout_id.current !== props.layout_id
+        ) {
+            const { layout, drag_item } = dragging_layout.current;
+            layout.handlerDraggingItemOut(drag_item);
+        }
+        dragging_layout_id.current = props.layout_id;
+    };
+
     useLayoutEffect(() => {
         canvas_ref.current &&
-            addEvent(canvas_ref.current, 'mouseover', (e) => {
-                console.log('event, mouseover', layout_name);
-                e.stopPropagation();
-                if (
-                    dragging_layout.current &&
-                    dragging_layout_id.current &&
-                    dragging_layout_id.current !== props.layout_id
-                ) {
-                    const { layout, drag_item } = dragging_layout.current;
-                    layout.handlerDraggingItemOut(drag_item);
-                }
-                dragging_layout_id.current = props.layout_id;
-            });
+            addEvent(canvas_ref.current, 'mouseover', handlerDraggingLayout);
+        return () => {
+            canvas_ref.current &&
+                removeEvent(
+                    canvas_ref.current,
+                    'mouseover',
+                    handlerDraggingLayout
+                );
+        };
     }, [canvas_ref.current]);
 
     useLayoutEffect(() => {
