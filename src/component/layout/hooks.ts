@@ -12,7 +12,6 @@ import {
     calcOffset,
     completedPadding,
     snapToDrag,
-    TOP_RULER_LEFT_MARGIN,
     WRAPPER_PADDING
 } from './calc';
 

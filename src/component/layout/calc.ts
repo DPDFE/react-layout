@@ -1,14 +1,10 @@
 import {
     LayoutItem,
     ItemPos,
-    LayoutType,
     GridType,
-    EditLayoutProps,
-    ReactLayoutProps,
     MarginType,
     BoundType
 } from '@/interfaces';
-import { copyObject } from '@/utils/utils';
 import React, { RefObject } from 'react';
 
 export const RULER_GAP = 100; // 标尺间隔大小
@@ -79,90 +75,6 @@ export function cloneWidget(w: LayoutItem) {
     return {
         ...w
     };
-}
-
-export function dynamicProgramming(
-    item: ItemPos,
-    widgets: LayoutItem[],
-    grid: GridType,
-    margin: [number, number]
-) {
-    let shadow_pos = snapToGrid(copyObject(item), grid);
-    const sort_widgets = widgets
-        .filter((w) => !w.is_float && w.i !== item.i)
-        .concat([shadow_pos])
-        .sort((a, b) => b.y - a.y);
-
-    const footer_widgets: { [key: number]: LayoutItem[] } = {};
-
-    function removeFooterWidget(widget: LayoutItem) {
-        let offset_x = widget.x;
-        while (offset_x < widget.x + widget.w) {
-            footer_widgets[offset_x]?.pop();
-            offset_x += grid.col_width;
-        }
-    }
-
-    function checkUpWidets(cur_widget: LayoutItem) {
-        let offset_y = 0;
-        let offset_x = cur_widget.x;
-        const check_range = cur_widget.x + cur_widget.w;
-        while (offset_x < check_range) {
-            if (!footer_widgets[offset_x]) footer_widgets[offset_x] = [];
-
-            const up_widgets = footer_widgets[offset_x];
-            if (up_widgets && up_widgets.length) {
-                const up_widget = up_widgets[up_widgets.length - 1];
-                if (up_widget === cur_widget) {
-                    offset_x += grid.col_width;
-                    continue;
-                }
-
-                // 检测与拖拽元素碰撞的移动位置
-                // 其余情况依次往下排列
-                if ([up_widget.i, cur_widget.i].includes(item.i)) {
-                    let need_move = false;
-
-                    // 当前元素偏移量小于等于上方元素
-                    need_move =
-                        cur_widget.y <= up_widget.y && up_widget.i !== item.i;
-
-                    // 处理特殊情况，移动的元素比下方元素大很多
-                    need_move =
-                        up_widget.i === item.i &&
-                        item.y - up_widget.y > cur_widget.h;
-
-                    if (need_move) {
-                        // 当前元素向上移动
-                        // 把上一个元素移除，放到sort_widgets栈中，重新排列
-                        // 重置检测点 重新检测
-                        sort_widgets.push(up_widget);
-                        removeFooterWidget(up_widget);
-                        up_widget.y += cur_widget.h;
-                        offset_y = 0;
-                        offset_x = cur_widget.x;
-                        continue;
-                    }
-                }
-
-                up_widgets.push(cur_widget);
-                offset_y = Math.max(offset_y, up_widget.y + up_widget.h);
-            } else {
-                up_widgets.push(cur_widget);
-            }
-            offset_x += grid.row_height;
-        }
-
-        cur_widget.y = offset_y;
-    }
-
-    while (sort_widgets.length) {
-        const cur_widget = sort_widgets.pop();
-        if (cur_widget) checkUpWidets(cur_widget);
-    }
-
-    const layout = widgets;
-    return { layout, shadow_pos };
 }
 
 export const getCurrentMouseOverWidget = (

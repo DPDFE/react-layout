@@ -747,6 +747,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             className={styles.canvas}
                             style={getLayoutStyle()}
                             onMouseOver={(e) => {
+                                console.log('onMouseOver');
                                 e.stopPropagation();
                                 if (
                                     dragging_layout.current &&
@@ -831,21 +832,6 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                if (!isEqual(prev[key], next[key])) {
-                    // if (key === 'children') {
-                    //     // console.log(
-                    //     //     prev[key].map((_: any, i: string | number) => {
-                    //     //         return isEqual(prev[key][i], next[key][i]);
-                    //     //     })
-                    //     // );
-                    //     // console.log(key, prev[key], next[key]);
-                    //     if (prev[key].length === 0) {
-                    //         return false;
-                    //     }
-                    //     return true;
-                    // }
-                    // console.log(key, prev[key], next[key]);
-                }
                 return isEqual(prev[key], next[key]);
             }
         })

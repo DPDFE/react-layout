@@ -360,38 +360,10 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                // if (key === 'children') {
-                //     if ((prev as unknown as WidgetItemProps).is_nested) {
-                //         // console.log('is_nested');
-                //         return false;
-                //     } else {
-                //         // if (!childrenEqual(prev[key], next[key])) {
-                //         //     // console.log(
-                //         //     //     'is_children_diff',
-                //         //     //     (prev as unknown as WidgetItemProps).i,
-                //         //     //     key,
-                //         //     //     prev[key],
-                //         //     //     next[key]
-                //         //     // );
-                //         // }
-                //         // return childrenEqual(prev[key], next[key]);
-                //     }
-                // }
-                if (!isEqual(prev[key], next[key])) {
-                    // console.log(
-                    //     'is_diff',
-                    //     (prev as unknown as WidgetItemProps).i,
-                    //     key,
-                    //     prev[key],
-                    //     next[key]
-                    // );
-                }
                 return isEqual(prev[key], next[key]);
             }
         })
         .some((state) => state === false);
-    // !render_flag &&
-    //     console.log(!render_flag, (prev as unknown as WidgetItemProps).i);
     return render_flag;
 }
 
