@@ -35,7 +35,8 @@ import {
     LayoutDescriptor,
     LayoutItemEntry,
     ReactLayoutProps,
-    GridType
+    GridType,
+    WidgetLocation
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
@@ -52,8 +53,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
         setOperatorType,
         registry,
         dragging_layout,
-        getResponders,
-        change_store
+        dragging_layout_id,
+        getResponders
     } = useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
@@ -298,19 +299,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const handleResponder = (
         type: OperatorType,
         layout: LayoutItem[],
-        widget: LayoutItem
+        widget: LayoutItem,
+        destination?: WidgetLocation
     ) => {
         const data = {
-            ...(change_store.current ? change_store.current : {}),
             type,
             widget_id: widget.i,
             source: {
                 layout_id: props.layout_id,
                 widgets: copyObject(layout)
             }
-        };
-        change_store.current = {
-            ...data
         };
         setOperatorType(type);
         const responders = getResponders();
@@ -332,32 +330,70 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 return responders.onDrop?.({ ...data, widget });
             // drag、dragover 事件在context/hooks触发
             case OperatorType.drag:
+                responders.onDrag?.({ ...data, destination });
+                break;
             case OperatorType.dragover:
-                return;
+                responders.onDragStop?.({ ...data, destination });
+                break;
+            case OperatorType.changeover:
+                responders.onPositionChange?.(data);
+                break;
         }
 
-        responders.onChange?.(data);
+        responders.onChange?.({ ...data, destination });
 
         return widget;
     };
 
+    const getDestinationLayoutByItemId = useCallback(
+        (type: OperatorType, widget_id: string, is_save: boolean) => {
+            if (
+                dragging_layout_id.current &&
+                dragging_layout_id.current !== props.layout_id
+            ) {
+                const droppable = registry.droppable.getById(
+                    dragging_layout_id.current
+                );
+                const dragging_item = registry.draggable.getById(widget_id);
+                const widgets = droppable.compactLayoutByDraggingItem(
+                    dragging_item,
+                    is_save
+                );
+
+                if (type === OperatorType.drag) {
+                    dragging_layout.current = {
+                        layout: droppable,
+                        drag_item: dragging_item
+                    };
+                } else {
+                    dragging_layout.current = undefined;
+                }
+
+                return { widgets, layout_id: dragging_layout_id.current };
+            }
+
+            return;
+        },
+        [registry, props.layout_id, dragging_layout_id]
+    );
+
     const getCurrentLayoutByItem = useCallback(
-        (type: OperatorType, item: ItemPos, is_save?: boolean) => {
+        (item: ItemPos, is_save?: boolean) => {
             const current_widget = getLayoutItem(item);
 
             moveToWidget(current_widget, item);
 
             // 当前拖拽元素 原Layout 处理元素移除逻辑
             if (
-                dragging_layout.current?.layout.descriptor.id &&
-                dragging_layout.current?.layout.descriptor.id !==
-                    props.layout_id
+                dragging_layout_id.current &&
+                dragging_layout_id.current !== props.layout_id
             ) {
                 const filter_layout = getFilterLayout(item);
                 setLayout(copyObject(layout));
                 compact(filter_layout);
-                handleResponder(type, filter_layout, current_widget);
-                return;
+                setShadowWidget(undefined);
+                // handleResponder(type, filter_layout, current_widget);
+                return { layout: filter_layout, widget: current_widget };
             }
 
             const shadow_widget = cloneWidget(current_widget);
@@ -384,13 +420,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
             }
             setLayout(copyObject(layout));
 
-            handleResponder(
-                type,
-                replaceWidget(layout, shadow_widget),
-                current_widget
-            );
+            // handleResponder(
+            //     type,
+            //     replaceWidget(layout, shadow_widget),
+            //     current_widget
+            // );
 
-            return;
+            return {
+                layout: replaceWidget(layout, shadow_widget),
+                widget: current_widget
+            };
         },
         [layout, grid]
     );
@@ -454,10 +493,20 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     }}
                     onDrag={(item) => {
                         if (checked_index === widget.i) {
-                            getCurrentLayoutByItem(
+                            const {
+                                layout: source_layout,
+                                widget: current_widget
+                            } = getCurrentLayoutByItem(item, false);
+                            const destination = getDestinationLayoutByItemId(
                                 OperatorType.drag,
-                                item,
+                                current_widget.i,
                                 false
+                            );
+                            handleResponder(
+                                OperatorType.drag,
+                                source_layout,
+                                current_widget,
+                                destination
                             );
                         }
                     }}
@@ -466,10 +515,20 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             checked_index === widget.i &&
                             operator_type === OperatorType.drag
                         ) {
-                            getCurrentLayoutByItem(
+                            const {
+                                layout: source_layout,
+                                widget: current_widget
+                            } = getCurrentLayoutByItem(item, true);
+                            const destination = getDestinationLayoutByItemId(
                                 OperatorType.dragover,
-                                item,
+                                current_widget.i,
                                 true
+                            );
+                            handleResponder(
+                                OperatorType.dragover,
+                                source_layout,
+                                current_widget,
+                                destination
                             );
                         }
                     }}
@@ -484,28 +543,40 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     }}
                     onResize={(item) => {
                         if (checked_index === widget.i) {
-                            getCurrentLayoutByItem(
+                            const {
+                                layout: source_layout,
+                                widget: current_widget
+                            } = getCurrentLayoutByItem(item, true);
+                            handleResponder(
                                 OperatorType.resize,
-                                item,
-                                false
+                                source_layout,
+                                current_widget
                             );
                         }
                     }}
                     onResizeStop={(item) => {
                         if (checked_index === widget.i) {
-                            getCurrentLayoutByItem(
+                            const {
+                                layout: source_layout,
+                                widget: current_widget
+                            } = getCurrentLayoutByItem(item, true);
+                            handleResponder(
                                 OperatorType.resizeover,
-                                item,
-                                true
+                                source_layout,
+                                current_widget
                             );
                         }
                     }}
                     onPositionChange={(item) => {
                         if (checked_index === widget.i) {
-                            const layout = getCurrentLayoutByItem(
+                            const {
+                                layout: source_layout,
+                                widget: current_widget
+                            } = getCurrentLayoutByItem(item, true);
+                            handleResponder(
                                 OperatorType.changeover,
-                                item,
-                                true
+                                source_layout,
+                                current_widget
                             );
                             // (props as EditLayoutProps).onPositionChange?.(
                             //     layout ?? []
@@ -584,17 +655,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         };
     };
 
-    const handlerShadowByDraggingItem = useCallback(
-        (dragging_item: LayoutItemEntry) => {
-            if (dragging_item.descriptor.layout_id === props.layout_id) {
-                return;
-            } else {
-                return compactLayoutByDraggingItem(dragging_item);
-            }
-        },
-        [layout, props.layout_id, compactLayoutByDraggingItem]
-    );
-
     const handlerDraggingItemOut = useCallback(
         (dragging_item: LayoutItemEntry) => {
             setShadowWidget(undefined);
@@ -604,24 +664,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
             return copyObject(filter_layout);
         },
         [layout, getFilterLayout]
-    );
-
-    const handlerRemoveWidget = useCallback(
-        (dragging_item: LayoutItemEntry) => {
-            const new_layout = layout.filter(
-                (l) => l.i !== dragging_item.descriptor.pos.i
-            );
-            setLayout(copyObject(new_layout));
-            return new_layout;
-        },
-        [layout]
-    );
-
-    const handlerAddWidget = useCallback(
-        (dragging_item: LayoutItemEntry) => {
-            return compactLayoutByDraggingItem(dragging_item, true);
-        },
-        [compactLayoutByDraggingItem]
     );
 
     const descriptor: LayoutDescriptor = useMemo(
@@ -639,20 +681,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const entry: LayoutEntry = useMemo(
         () => ({
-            handlerShadowByDraggingItem,
+            compactLayoutByDraggingItem,
             handlerDraggingItemOut,
-            handlerRemoveWidget,
-            handlerAddWidget,
             descriptor,
             getRef,
             getViewPortRef,
             unique_id: layout_name
         }),
         [
-            handlerShadowByDraggingItem,
+            compactLayoutByDraggingItem,
             handlerDraggingItemOut,
-            handlerRemoveWidget,
-            handlerAddWidget,
             getRef,
             getViewPortRef,
             descriptor,
@@ -736,7 +774,17 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             style={getLayoutStyle()}
                             onMouseOver={(e) => {
                                 e.stopPropagation();
-                                console.log('move on', layout_name);
+                                if (
+                                    dragging_layout.current &&
+                                    dragging_layout_id.current &&
+                                    dragging_layout_id.current !==
+                                        props.layout_id
+                                ) {
+                                    const { layout, drag_item } =
+                                        dragging_layout.current;
+                                    layout.handlerDraggingItemOut(drag_item);
+                                }
+                                dragging_layout_id.current = props.layout_id;
                             }}
                         >
                             {shadowGridItem()}

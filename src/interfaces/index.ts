@@ -300,10 +300,11 @@ type LayoutEntryApi = (
 export interface LayoutEntry {
     unique_id: string;
     descriptor: LayoutDescriptor;
-    handlerShadowByDraggingItem: LayoutEntryApi;
+    compactLayoutByDraggingItem: (
+        dragging_item: LayoutItemEntry,
+        is_save: boolean
+    ) => LayoutItem[];
     handlerDraggingItemOut: LayoutEntryApi;
-    handlerRemoveWidget: LayoutEntryApi;
-    handlerAddWidget: LayoutEntryApi;
     getRef: () => HTMLDivElement | null;
     getViewPortRef: () => HTMLDivElement | null;
 }
@@ -350,4 +351,5 @@ export interface ReactLayoutContextProps {
     onResize?: (start: DragStart) => void;
     onResizeStop?: (start: DragStart) => void;
     onChange?: (result: DragResult) => void;
+    onPositionChange?: (start: DragStart) => void;
 }

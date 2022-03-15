@@ -213,7 +213,7 @@ const DefaultLayout = () => {
                 layout_id={'widgets3'}
                 widgets={widgets3}
                 layout_type={LayoutType.GRID}
-                mode={LayoutType.edit}
+                mode={LayoutMode.edit}
                 container_padding={[10, 10, 10, 10]}
                 row_height={50}
                 cols={8}
@@ -338,6 +338,9 @@ const DefaultLayout = () => {
                     />
                 </div>
                 <ReactLayoutContext
+                    onChange={(result: DragResult) => {
+                        console.log(result, 'onChange');
+                    }}
                     onDragStart={(start: DragStart) =>
                         console.log(start, 'on drag start')
                     }
