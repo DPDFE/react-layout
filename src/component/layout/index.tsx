@@ -525,7 +525,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             const {
                                 layout: source_layout,
                                 widget: current_widget
-                            } = getCurrentLayoutByItem(item, true);
+                            } = getCurrentLayoutByItem(item, false);
                             handleResponder(
                                 OperatorType.resize,
                                 source_layout,
