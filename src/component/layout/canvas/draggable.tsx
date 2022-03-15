@@ -60,8 +60,6 @@ const Draggable = (props: DraggableProps) => {
                 current as Node
             );
 
-            console.log(is_cancel_match);
-
             if (is_cancel_match) {
                 return;
             }

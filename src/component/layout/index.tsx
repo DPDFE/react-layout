@@ -17,7 +17,6 @@ import {
     compact,
     moveElement,
     snapToGrid,
-    getCurrentMouseOverWidget,
     cloneWidget,
     moveToWidget,
     replaceWidget,
@@ -205,9 +204,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const getBoundResult = (item: LayoutItem) => {
         const { max_x, min_x, max_y, min_y } = getCurrentBound(item.is_float);
 
-        item.w = clamp(item.w, min_x, max_x);
         item.x = clamp(item.x, min_x, max_x - item.w);
-        item.h = clamp(item.h, min_y, max_y);
         item.y = clamp(item.y, min_y, max_y - item.h);
 
         return item;
@@ -747,6 +744,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             className={styles.canvas}
                             style={getLayoutStyle()}
                             onMouseOver={(e) => {
+                                console.log('onMouseOver');
                                 e.stopPropagation();
                                 if (
                                     dragging_layout.current &&
@@ -831,21 +829,6 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                if (!isEqual(prev[key], next[key])) {
-                    // if (key === 'children') {
-                    //     // console.log(
-                    //     //     prev[key].map((_: any, i: string | number) => {
-                    //     //         return isEqual(prev[key][i], next[key][i]);
-                    //     //     })
-                    //     // );
-                    //     // console.log(key, prev[key], next[key]);
-                    //     if (prev[key].length === 0) {
-                    //         return false;
-                    //     }
-                    //     return true;
-                    // }
-                    // console.log(key, prev[key], next[key]);
-                }
                 return isEqual(prev[key], next[key]);
             }
         })

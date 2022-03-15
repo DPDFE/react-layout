@@ -1,3 +1,5 @@
+/** 格式化十进制四舍五入保留小数位 */
+export declare function fomatFloatNumber(num: number, precision: number): number;
 /** 添加event */
 export declare function addEvent(el: any, event: string, handler: EventListenerOrEventListenerObject, inputOptions?: Object): void;
 /** 删除event */
