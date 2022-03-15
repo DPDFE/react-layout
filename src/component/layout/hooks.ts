@@ -269,7 +269,6 @@ export const useLayoutHooks = (
         (props as DragLayoutProps).height,
         (props as DragLayoutProps).width,
         props.scale,
-        layout,
         operator_type,
         client_height,
         client_width

@@ -189,7 +189,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const descriptor: LayoutItemDescriptor = useMemo(
         () => ({
             id: i,
-            is_placeholder,
             layout_id,
             pos: {
                 i,
@@ -205,7 +204,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         }),
         [
             i,
-            is_placeholder,
             layout_id,
             x,
             y,
