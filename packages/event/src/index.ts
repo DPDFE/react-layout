@@ -1,4 +1,5 @@
 export {
+    fomatFloatNumber,
     addEvent,
     removeEvent,
     isFunction,
