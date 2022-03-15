@@ -82,6 +82,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     } = useLayoutHooks(
         layout,
         props,
+        container_ref,
         canvas_viewport_ref,
         shadow_widget_ref,
         shadow_widget,
@@ -688,9 +689,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
             className={`react-layout ${styles.container} ${props.className}`}
             ref={container_ref}
             style={{
-                userSelect: OperatorType.drag ? 'none' : 'auto',
-                WebkitUserSelect: OperatorType.drag ? 'none' : 'auto',
-                MozUserSelect: OperatorType.drag ? 'none' : 'auto'
+                userSelect: props.mode === LayoutMode.edit ? 'none' : 'auto',
+                WebkitUserSelect:
+                    props.mode === LayoutMode.edit ? 'none' : 'auto',
+                MozUserSelect: props.mode === LayoutMode.edit ? 'none' : 'auto'
             }}
         >
             {/* 水平标尺 */}

@@ -160,6 +160,16 @@ const Draggable = (props: DraggableProps) => {
         };
     };
 
+    const setUserSelect = () => {
+        const user_select: 'none' | 'inherit' =
+            drag_state === DragStates.dragging ? 'none' : 'inherit';
+        return {
+            UserSelect: user_select,
+            WebkitUserSelect: user_select,
+            MozUserSelect: user_select
+        };
+    };
+
     const new_child = React.cloneElement(child, {
         onMouseDown: (e: React.MouseEvent) => {
             e.stopPropagation();
@@ -170,9 +180,9 @@ const Draggable = (props: DraggableProps) => {
             child.props.className ? child.props.className : ''
         }`,
         style: {
+            ...setUserSelect(),
             ...(props.use_css_transform ? setTopLeft() : setTransform()),
             cursor: props.is_draggable ? 'grab' : 'inherit',
-            userSelect: drag_state === DragStates.draged ? 'inherit' : 'none',
             position: drag_state === DragStates.dragging ? 'fixed' : 'absolute',
             willChange:
                 drag_state === DragStates.dragging ? 'transform' : 'auto',

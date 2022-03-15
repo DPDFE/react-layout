@@ -113,9 +113,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         onMouseDown: () => {
             props.setCurrentChecked?.(i);
         },
-        onMouseOver: (e: React.MouseEvent) => {
-            e.preventDefault();
-        },
         onClick: (e: React.MouseEvent) => {
             e.stopPropagation();
         },
