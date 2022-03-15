@@ -240,6 +240,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     }, [registry.draggable]);
 
     useEffect(() => {
+        if (props.is_placeholder) return;
         if (isFirstPublishRef.current) {
             isFirstPublishRef.current = false;
             return;

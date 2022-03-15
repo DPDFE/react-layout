@@ -221,10 +221,6 @@ const DefaultLayout = () => {
                 need_drag_bound={false}
                 need_grid_bound={false}
                 is_nested_layout={true}
-                onDragStop={(layout: LayoutItem[]) => {
-                    // console.log('widgets3', layout);
-                    // setWidgets3(layout);
-                }}
                 onDrop={(layout: LayoutItem[], item: ItemPos) => {
                     const drop_element = JSON.parse(
                         JSON.stringify({
@@ -339,7 +335,7 @@ const DefaultLayout = () => {
                 </div>
                 <ReactLayoutContext
                     onChange={(result: DragResult) => {
-                        // console.log(result, 'onChange');
+                        console.log(result, 'onChange');
                     }}
                     onDragStart={(start: DragStart) =>
                         console.log(start, 'on drag start')
@@ -540,52 +536,6 @@ const DefaultLayout = () => {
                                                     need_drag_bound={false}
                                                     need_grid_bound={false}
                                                     is_nested_layout={true}
-                                                    onDragStop={(
-                                                        layout: LayoutItem[]
-                                                    ) => {
-                                                        console.log(
-                                                            'tab 1',
-                                                            layout
-                                                        );
-                                                        setWidgets2(layout);
-                                                    }}
-                                                    onDrop={(
-                                                        layout: LayoutItem[],
-                                                        item: ItemPos
-                                                    ) => {
-                                                        const drop_element =
-                                                            JSON.parse(
-                                                                JSON.stringify({
-                                                                    ...item,
-                                                                    i: Math.random(),
-                                                                    is_resizable:
-                                                                        true,
-                                                                    is_draggable:
-                                                                        true
-                                                                })
-                                                            );
-
-                                                        drop_element.i ||
-                                                            (drop_element.i =
-                                                                '1-' +
-                                                                widgets.length.toString() +
-                                                                '-' +
-                                                                Math.random());
-
-                                                        const new_widgets =
-                                                            layout.concat([
-                                                                drop_element
-                                                            ]);
-
-                                                        setWidgets2(
-                                                            new_widgets
-                                                        );
-                                                        console.log(
-                                                            'add widgets2'
-                                                        );
-
-                                                        return drop_element;
-                                                    }}
                                                 >
                                                     {widgets2.map((w) => {
                                                         return (
