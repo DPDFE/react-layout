@@ -5,8 +5,8 @@ import {
     LayoutItem,
     LayoutMode,
     ReactLayoutContext
-} from 'react-drag-layout';
-import 'react-drag-layout/dist/index.css';
+} from 'react-layout';
+import 'react-layout/dist/index.css';
 
 const DraggableDragResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);

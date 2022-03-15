@@ -1,10 +1,10 @@
 {
-    "name": "react-drag-layout",
+    "name": "react-layout",
     "version": "1.0.0",
     "description": "react drag layout",
-    "author": "https://github.com/pearone/react-drag-layout.git",
+    "author": "https://github.com/pearone/react-layout.git",
     "license": "MIT",
-    "repository": "https://github.com/pearone/react-drag-layout.git/react-drag-layout",
+    "repository": "https://github.com/pearone/react-layout.git/react-layout",
     "main": "dist/index.js",
     "module": "dist/index.modern.js",
     "style": "dist/index.css",

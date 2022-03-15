@@ -7,8 +7,8 @@ import {
     LayoutMode,
     ReactLayoutContext,
     ItemPos
-} from 'react-drag-layout';
-import 'react-drag-layout/dist/index.css';
+} from 'react-layout';
+import 'react-layout/dist/index.css';
 
 const DropGridResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);

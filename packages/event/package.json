@@ -3,7 +3,7 @@
     "version": "0.0.9",
     "description": "通用方法",
     "author": "pearone",
-    "homepage": "https://github.com/pearone/react-drag-layout#readme",
+    "homepage": "https://github.com/pearone/react-layout#readme",
     "license": "ISC",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
@@ -19,14 +19,14 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/pearone/react-drag-layout.git"
+        "url": "git+https://github.com/pearone/react-layout.git"
     },
     "scripts": {
         "build": "tsc --build",
         "perpare": "npm run build"
     },
     "bugs": {
-        "url": "https://github.com/pearone/react-drag-layout/issues"
+        "url": "https://github.com/pearone/react-layout/issues"
     },
     "gitHead": "3cc6fdd264aed92c69290b2fd3cc21f5e03e3bb2",
     "dependencies": {

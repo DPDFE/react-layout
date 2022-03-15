@@ -7,8 +7,8 @@ import {
     DragStart,
     DragResult,
     LayoutMode
-} from 'react-drag-layout';
-import 'react-drag-layout/dist/index.css';
+} from 'react-layout';
+import 'react-layout/dist/index.css';
 import './styles.css';
 
 const DraggableGridResponsiveLayout = () => {
