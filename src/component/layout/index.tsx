@@ -82,6 +82,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     } = useLayoutHooks(
         layout,
         props,
+        container_ref,
         canvas_viewport_ref,
         shadow_widget_ref,
         shadow_widget,
@@ -679,11 +680,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         <div
             className={`react-layout ${styles.container} ${props.className}`}
             ref={container_ref}
-            style={{
-                userSelect: OperatorType.drag ? 'none' : 'auto',
-                WebkitUserSelect: OperatorType.drag ? 'none' : 'auto',
-                MozUserSelect: OperatorType.drag ? 'none' : 'auto'
-            }}
         >
             {/* 水平标尺 */}
             {canvas_viewport_ref.current && props.need_ruler && (
@@ -744,7 +740,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             className={styles.canvas}
                             style={getLayoutStyle()}
                             onMouseOver={(e) => {
-                                console.log('onMouseOver');
                                 e.stopPropagation();
                                 if (
                                     dragging_layout.current &&

@@ -18,6 +18,7 @@ import {
 export const useLayoutHooks = (
     layout: LayoutItem[],
     props: ReactLayoutProps,
+    container_ref: React.RefObject<HTMLDivElement>,
     canvas_viewport_ref: React.RefObject<HTMLDivElement>,
     shadow_widget_ref: React.RefObject<HTMLDivElement>,
     shadow_widget?: ItemPos,
@@ -76,16 +77,16 @@ export const useLayoutHooks = (
             setWindowResize(Math.random());
         });
 
-        if (canvas_viewport_ref.current) {
-            resizeObserverInstance.observe(canvas_viewport_ref.current);
+        if (container_ref.current) {
+            resizeObserverInstance.observe(container_ref.current);
         }
         return () => {
-            if (canvas_viewport_ref.current) {
-                resizeObserverInstance.unobserve(canvas_viewport_ref.current);
+            if (container_ref.current) {
+                resizeObserverInstance.unobserve(container_ref.current);
                 resizeObserverInstance.disconnect();
             }
         };
-    }, [canvas_viewport_ref]);
+    }, [container_ref]);
 
     /** 视窗宽度 */
     const client_width = useMemo(() => {
