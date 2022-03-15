@@ -44,6 +44,7 @@ import { clamp, DEFAULT_BOUND } from './canvas/draggable';
 import { useLayoutHooks } from './hooks';
 import isEqual from 'lodash.isequal';
 import { LayoutContext } from './context';
+import { addEvent } from '@pearone/event-utils';
 
 const ReactLayout = (props: ReactLayoutProps) => {
     const {
@@ -661,6 +662,23 @@ const ReactLayout = (props: ReactLayoutProps) => {
     );
 
     useLayoutEffect(() => {
+        canvas_ref.current &&
+            addEvent(canvas_ref.current, 'mouseover', (e) => {
+                console.log('event, mouseover', layout_name);
+                e.stopPropagation();
+                if (
+                    dragging_layout.current &&
+                    dragging_layout_id.current &&
+                    dragging_layout_id.current !== props.layout_id
+                ) {
+                    const { layout, drag_item } = dragging_layout.current;
+                    layout.handlerDraggingItemOut(drag_item);
+                }
+                dragging_layout_id.current = props.layout_id;
+            });
+    }, [canvas_ref.current]);
+
+    useLayoutEffect(() => {
         registry.droppable.register(entry);
         return () => registry.droppable.unregister(entry);
     }, [registry, entry]);
@@ -752,20 +770,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                           transform: `scale(${props.scale})`,
                                           transformOrigin: '0 0'
                                       })
-                            }}
-                            onMouseOver={(e) => {
-                                e.stopPropagation();
-                                if (
-                                    dragging_layout.current &&
-                                    dragging_layout_id.current &&
-                                    dragging_layout_id.current !==
-                                        props.layout_id
-                                ) {
-                                    const { layout, drag_item } =
-                                        dragging_layout.current;
-                                    layout.handlerDraggingItemOut(drag_item);
-                                }
-                                dragging_layout_id.current = props.layout_id;
                             }}
                         >
                             {shadowGridItem()}
