@@ -17,7 +17,6 @@ import {
     compact,
     moveElement,
     snapToGrid,
-    getCurrentMouseOverWidget,
     cloneWidget,
     moveToWidget,
     replaceWidget,
@@ -205,9 +204,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const getBoundResult = (item: LayoutItem) => {
         const { max_x, min_x, max_y, min_y } = getCurrentBound(item.is_float);
 
-        item.w = clamp(item.w, min_x, max_x);
         item.x = clamp(item.x, min_x, max_x - item.w);
-        item.h = clamp(item.h, min_y, max_y);
         item.y = clamp(item.y, min_y, max_y - item.h);
 
         return item;

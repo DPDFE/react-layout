@@ -77,29 +77,6 @@ export function cloneWidget(w: LayoutItem) {
     };
 }
 
-export const getCurrentMouseOverWidget = (
-    layout: LayoutItem[],
-    canvas_ref: RefObject<HTMLElement>,
-    e: React.MouseEvent,
-    scale: number,
-    grid: GridType
-) => {
-    const { x, y } = getDropPosition(canvas_ref, e, scale);
-    const fake_item = {
-        i: 'drop_fake_item',
-        x,
-        y,
-        w: 10,
-        h: 10,
-        is_float: true
-    };
-    const current_layout = layout.map((l) => {
-        return snapToDrag(l, grid);
-    });
-    const collides = getFirstCollision(current_layout, fake_item);
-    return collides;
-};
-
 export function getDropPosition(
     canvas_ref: RefObject<HTMLElement>,
     e: React.MouseEvent,

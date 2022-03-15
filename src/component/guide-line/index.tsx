@@ -1,6 +1,5 @@
 import { DirectionType, GuideLineProps, RulerPointer } from '@/interfaces';
-import { fomatFloatNumber } from '@/utils/utils';
-import { addEvent, removeEvent } from '@pearone/event-utils';
+import { addEvent, fomatFloatNumber, removeEvent } from '@pearone/event-utils';
 import React, { memo, useEffect, useState } from 'react';
 import Menus, { MenuItem } from '../menus';
 import styles from './styles.module.css';

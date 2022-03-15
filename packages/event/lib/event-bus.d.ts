@@ -1,1 +1,2 @@
-export declare function eventBus(): void;
+declare const EventBus: void;
+export default EventBus;
