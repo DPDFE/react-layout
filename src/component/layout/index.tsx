@@ -586,7 +586,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     };
 
     const compactLayoutByDraggingItem = useCallback(
-        (dragging_item: LayoutItemEntry, is_save = false) => {
+        (dragging_item: LayoutItemEntry, is_save: boolean) => {
             const { x, y } = offsetXYFromLayout(dragging_item.getRef()!);
             const postion = dragging_item.descriptor.pos;
             const placeholder = {
