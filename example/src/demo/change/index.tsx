@@ -5,7 +5,8 @@ import {
     LayoutType,
     LayoutItem,
     LayoutMode,
-    ReactLayoutContext
+    ReactLayoutContext,
+    WidgetType
 } from 'react-layout';
 import 'react-layout/dist/index.css';
 
@@ -34,7 +35,7 @@ const ChangeDragLayout = () => {
                 y: random,
                 is_resizable: true,
                 is_draggable: true,
-                is_float: boolean
+                type: boolean ? WidgetType.drag : WidgetType.grid
             };
         });
     }

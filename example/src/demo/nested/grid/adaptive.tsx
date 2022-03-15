@@ -4,7 +4,8 @@ import {
     LayoutType,
     LayoutItem,
     LayoutMode,
-    ReactLayoutContext
+    ReactLayoutContext,
+    WidgetType
 } from 'react-layout';
 import 'react-layout/dist/index.css';
 
@@ -30,7 +31,7 @@ const DragResponsiveLayout = () => {
                 y: random,
                 is_resizable: false,
                 is_draggable: true,
-                is_float: false
+                type: WidgetType.grid
             };
         });
     }

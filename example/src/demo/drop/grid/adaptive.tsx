@@ -6,7 +6,8 @@ import {
     LayoutItem,
     LayoutMode,
     ReactLayoutContext,
-    ItemPos
+    ItemPos,
+    WidgetType
 } from 'react-layout';
 import 'react-layout/dist/index.css';
 
@@ -28,7 +29,7 @@ const DropGridResponsiveLayout = () => {
                 y: random,
                 is_resizable: false,
                 is_draggable: true,
-                is_float: false
+                type: WidgetType.grid
             };
         });
     }

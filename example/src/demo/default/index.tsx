@@ -10,7 +10,8 @@ import {
     DragStart,
     DragResult,
     DropResult,
-    LayoutMode
+    LayoutMode,
+    WidgetType
 } from 'react-layout';
 import 'react-layout/dist/index.css';
 import 'antd/dist/antd.css';
@@ -47,7 +48,7 @@ const DefaultLayout = () => {
                 h: 100,
                 x: 100,
                 y: 100,
-                is_float: true,
+                type: WidgetType.drag,
                 is_resizable: true,
                 is_draggable: true,
                 is_nested: false
@@ -58,7 +59,7 @@ const DefaultLayout = () => {
                 h: 2,
                 x: 0,
                 y: 0,
-                is_float: false,
+                type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
                 is_nested: false
@@ -74,7 +75,7 @@ const DefaultLayout = () => {
                 h: 100,
                 x: 100,
                 y: 100,
-                is_float: true,
+                type: WidgetType.drag,
                 is_resizable: true,
                 is_draggable: true,
                 is_nested: false
@@ -85,7 +86,7 @@ const DefaultLayout = () => {
                 h: 2,
                 x: 0,
                 y: 0,
-                is_float: false,
+                type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
                 is_nested: false
@@ -103,7 +104,7 @@ const DefaultLayout = () => {
                 i: '0',
                 is_resizable: true,
                 is_draggable: true,
-                is_float: true,
+                type: WidgetType.drag,
                 is_nested: false
             },
             {
@@ -114,7 +115,7 @@ const DefaultLayout = () => {
                 i: '1',
                 is_resizable: true,
                 is_draggable: true,
-                is_float: false,
+                type: WidgetType.grid,
                 is_nested: true
             },
             {
@@ -125,7 +126,7 @@ const DefaultLayout = () => {
                 i: '2',
                 is_resizable: true,
                 is_draggable: true,
-                is_float: false,
+                type: WidgetType.grid,
                 is_nested: false
             },
             {
@@ -136,7 +137,7 @@ const DefaultLayout = () => {
                 i: '3',
                 is_resizable: true,
                 is_draggable: true,
-                is_float: false,
+                type: WidgetType.grid,
                 is_nested: true
             }
             // {
@@ -147,7 +148,7 @@ const DefaultLayout = () => {
             //     i: '6',
             //     is_resizable: true,
             //     is_draggable: true,
-            //     is_float: false
+            //     type: WidgetType.grid,
             // }
             // {
             //     x: 2,
@@ -157,7 +158,7 @@ const DefaultLayout = () => {
             //     i: '2',
             //     is_resizable: true,
             //     is_draggable: true,
-            //     is_float: false
+            //    type: WidgetType.grid,
             // },
             // {
             //     x: 4,
@@ -167,7 +168,7 @@ const DefaultLayout = () => {
             //     i: '3',
             //     is_resizable: true,
             //     is_draggable: true,
-            //     is_float: false
+            //     type: WidgetType.grid,
             // },
             // {
             //     x: 6,
@@ -177,7 +178,7 @@ const DefaultLayout = () => {
             //     i: '4',
             //     is_resizable: true,
             //     is_draggable: true,
-            //     is_float: false
+            //     type: WidgetType.grid,
             // }
         ];
         // return Array.from({ length: 3 }).map((_, i) => {
@@ -189,7 +190,7 @@ const DefaultLayout = () => {
         //         i: i.toString(),
         //         is_resizable: true,
         //         is_draggable: true,
-        //         is_float: false
+        //         type: WidgetType.grid,
         //     };
         // });
     }
@@ -253,7 +254,10 @@ const DefaultLayout = () => {
                             data-drag={w}
                             style={{
                                 border: '1px solid',
-                                background: w.is_float ? '#9eb3f1' : '#cddc39'
+                                background:
+                                    w.type === WidgetType.drag
+                                        ? '#9eb3f1'
+                                        : '#cddc39'
                             }}
                         >
                             <div className='test'>
@@ -487,9 +491,10 @@ const DefaultLayout = () => {
                                     // className={'app_class'}
                                     id={`app_id_${w.i}`}
                                     style={{
-                                        background: w.is_float
-                                            ? '#9eb3f1'
-                                            : '#cddc39',
+                                        background:
+                                            w.type === WidgetType.drag
+                                                ? '#9eb3f1'
+                                                : '#cddc39',
                                         border: '1px solid',
                                         padding: 10,
                                         overflow: 'hidden',
@@ -545,7 +550,8 @@ const DefaultLayout = () => {
                                                                 style={{
                                                                     border: '1px solid',
                                                                     background:
-                                                                        w.is_float
+                                                                        w.type ===
+                                                                        WidgetType.drag
                                                                             ? '#9eb3f1'
                                                                             : '#cddc39'
                                                                 }}
@@ -599,7 +605,7 @@ const DefaultLayout = () => {
                                                             h: 200,
                                                             x: 100,
                                                             y: 100,
-                                                            is_float: true,
+                                                            type: WidgetType.drag,
                                                             is_resizable: true,
                                                             is_draggable: true
                                                         }}
@@ -624,7 +630,7 @@ const DefaultLayout = () => {
                                                             h: 2,
                                                             x: 0,
                                                             y: 0,
-                                                            is_float: false,
+                                                            type: WidgetType.grid,
                                                             is_resizable: true,
                                                             is_draggable: true
                                                         }}
@@ -661,7 +667,7 @@ const DefaultLayout = () => {
                                                             h: 100,
                                                             x: 100,
                                                             y: 100,
-                                                            is_float: true,
+                                                            type: WidgetType.drag,
                                                             is_resizable: true,
                                                             is_draggable: true
                                                         }}
@@ -686,7 +692,7 @@ const DefaultLayout = () => {
                                                             h: 4,
                                                             x: 0,
                                                             y: 0,
-                                                            is_float: false,
+                                                            type: WidgetType.grid,
                                                             is_resizable: true,
                                                             is_draggable: true
                                                         }}
@@ -717,7 +723,7 @@ const DefaultLayout = () => {
                                                     i: Math.random().toString(),
                                                     is_resizable: true,
                                                     is_draggable: true,
-                                                    is_float: false
+                                                    type: WidgetType.grid,
                                                 }
                                             ])
                                         );

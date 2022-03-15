@@ -4,7 +4,8 @@ import {
     LayoutType,
     LayoutItem,
     LayoutMode,
-    ReactLayoutContext
+    ReactLayoutContext,
+    WidgetType
 } from 'react-layout';
 import 'react-layout/dist/index.css';
 
@@ -26,7 +27,7 @@ const ResizableGridStaticLayout = () => {
                 y: random,
                 is_resizable: true,
                 is_draggable: true,
-                is_float: false
+                type: WidgetType.grid
             };
         });
     }

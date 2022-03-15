@@ -35,7 +35,8 @@ import {
     LayoutItemEntry,
     ReactLayoutProps,
     GridType,
-    WidgetLocation
+    WidgetLocation,
+    WidgetType
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
@@ -120,8 +121,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
     }, []);
 
     /** 根据类型配置计算边界状态 */
-    const getCurrentBound = (is_float: boolean) => {
-        if (is_float) {
+    const getCurrentBound = (type: WidgetType) => {
+        if (type === WidgetType.drag) {
             return props.need_drag_bound
                 ? {
                       min_x: padding.left,
@@ -147,10 +148,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
      * 组件信息补全
      */
     function ensureWidgetModelValid(item: LayoutItem) {
-        item.w = Math.max(item.min_w ?? (item.is_float ? 5 : 1), item.w);
-        item.h = Math.max(item.min_h ?? (item.is_float ? 5 : 1), item.h);
+        const is_float = item.type === WidgetType.drag;
+        item.w = Math.max(item.min_w ?? (is_float ? 5 : 1), item.w);
+        item.h = Math.max(item.min_h ?? (is_float ? 5 : 1), item.h);
 
-        item.is_float = item.is_float ?? false;
+        item.type = item.type ?? WidgetType.drag;
         item.is_draggable = item.is_draggable ?? false;
         item.is_resizable = item.is_resizable ?? false;
         item.is_nested = item.is_nested ?? false;
@@ -203,7 +205,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     /** 对drop节点做边界计算以后再排序 */
     const getBoundResult = (item: LayoutItem) => {
-        const { max_x, min_x, max_y, min_y } = getCurrentBound(item.is_float);
+        const { max_x, min_x, max_y, min_y } = getCurrentBound(item.type);
 
         item.x = clamp(item.x, min_x, max_x - item.w);
         item.y = clamp(item.y, min_y, max_y - item.h);
@@ -229,7 +231,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const w = grid.col_width * (drop_item?.w ?? 2);
             const h = grid.row_height * (drop_item?.h ?? 2);
 
-            const pos = { w, h, i, x, y, is_float: false };
+            const pos = { w, h, i, x, y, type: WidgetType.grid };
 
             snapToGrid(pos, grid);
 
@@ -238,7 +240,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const w = drop_item ? drop_item.w : 100;
             const h = drop_item ? drop_item.h : 100;
 
-            return { w, h, i, x, y, is_float: true };
+            return { w, h, i, x, y, type: WidgetType.drag };
         }
     };
 
@@ -378,7 +380,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             }
 
             const shadow_widget = cloneWidget(current_widget);
-            if (!current_widget.is_float) {
+            if (!(current_widget.type === WidgetType.drag)) {
                 const filter_layout = getFilterLayout(item);
                 snapToGrid(shadow_widget, grid);
                 moveElement(
@@ -421,7 +423,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     ref={shadow_widget_ref}
                     {...shadow_widget}
                     is_placeholder={true}
-                    bound={getCurrentBound(shadow_widget.is_float)}
+                    bound={getCurrentBound(shadow_widget.type)}
                     padding={padding}
                     scale={props.scale}
                     margin={props.item_margin}
@@ -452,7 +454,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     {...child.props}
                     padding={padding}
                     grid={grid}
-                    bound={getCurrentBound(widget.is_float)}
+                    bound={getCurrentBound(widget.type)}
                     layout_nested={props.is_nested_layout}
                     mode={props.mode}
                     children={child}
@@ -602,7 +604,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
             const new_layout = layout.concat(placeholder);
 
-            !placeholder.is_float && snapToGrid(placeholder, grid);
+            !(placeholder.type === WidgetType.drag) &&
+                snapToGrid(placeholder, grid);
             compact(new_layout);
 
             if (!is_save) setShadowWidget(placeholder);

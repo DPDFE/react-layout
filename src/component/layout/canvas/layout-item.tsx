@@ -2,7 +2,8 @@ import {
     WidgetItemProps,
     LayoutMode,
     LayoutItemEntry,
-    LayoutItemDescriptor
+    LayoutItemDescriptor,
+    WidgetType
 } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, {
@@ -29,7 +30,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const {
         i,
-        is_float,
+        type,
         is_dragging,
         is_draggable,
         is_resizable,
@@ -39,10 +40,12 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         layout_id
     } = props;
 
+    const is_float = type === WidgetType.drag;
+
     const { min_x, max_x, min_y, max_y } = snapToDragBound(
         props.bound,
         props.grid,
-        is_float
+        type
     );
 
     const gridX = (count: number) => {
@@ -127,7 +130,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 const keydown_pos = handleKeyDown(e);
                 if (keydown_pos) {
                     props.onPositionChange?.({
-                        ...{ x, y, h, w, i, is_float },
+                        ...{ x, y, h, w, i, type },
                         ...keydown_pos
                     });
                 }
@@ -192,24 +195,13 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 y,
                 w,
                 h,
-                is_float,
+                type,
                 is_nested,
                 is_resizable,
                 is_draggable
             }
         }),
-        [
-            i,
-            layout_id,
-            x,
-            y,
-            w,
-            h,
-            is_float,
-            is_nested,
-            is_resizable,
-            is_draggable
-        ]
+        [i, layout_id, x, y, w, h, type, is_nested, is_resizable, is_draggable]
     );
 
     const getLayoutItemRef = useCallback((): HTMLElement | null => {
@@ -250,7 +242,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     return (
         <Draggable
-            {...{ x, y, h, w, i, is_float }}
+            {...{ x, y, h, w, i }}
             threshold={5}
             use_css_transform={is_nested}
             scale={props.scale}
@@ -275,7 +267,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     y: y - offset_y,
                     w: w + margin_width,
                     h: h + margin_height,
-                    is_float,
+                    type,
                     i
                 };
                 props.onDrag?.(item);
@@ -286,14 +278,14 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     y: y - offset_y,
                     w: w + margin_width,
                     h: h + margin_height,
-                    is_float,
+                    type,
                     i
                 });
             }}
         >
             <Resizable
                 ref={item_ref}
-                {...{ x, y, h, w, i, is_float }}
+                {...{ x, y, h, w, i, type }}
                 scale={props.scale}
                 is_resizable={is_resizable}
                 onResizeStart={() => {
@@ -305,7 +297,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         y: y - offset_y,
                         w: w + margin_width,
                         h: h + margin_height,
-                        is_float,
+                        type,
                         i
                     });
                 }}
@@ -317,7 +309,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         y: y - offset_y,
                         w: w + margin_width,
                         h: h + margin_height,
-                        is_float,
+                        type,
                         i
                     });
                 }}
@@ -330,7 +322,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
 WidgetItem.defaultProps = {
     scale: 1,
-    is_float: false,
+    type: WidgetType.grid,
     is_checked: false,
     is_placeholder: false,
     style: {},

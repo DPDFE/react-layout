@@ -6,7 +6,8 @@ import {
     ReactLayoutContext,
     DragStart,
     DragResult,
-    LayoutMode
+    LayoutMode,
+    WidgetType
 } from 'react-layout';
 import 'react-layout/dist/index.css';
 import './styles.css';
@@ -29,7 +30,7 @@ const DraggableGridResponsiveLayout = () => {
                 y: 5,
                 is_resizable: false,
                 is_draggable: true,
-                is_float: false,
+                type: WidgetType.grid,
                 is_nested: false,
                 draggable_cancel: '.draggable-cancel'
             },
@@ -41,7 +42,7 @@ const DraggableGridResponsiveLayout = () => {
                 y: 0,
                 is_resizable: false,
                 is_draggable: true,
-                is_float: false,
+                type: WidgetType.grid,
                 is_nested: false,
                 draggable_cancel: '.draggable-cancel'
             },
@@ -53,7 +54,7 @@ const DraggableGridResponsiveLayout = () => {
                 y: 5,
                 is_resizable: false,
                 is_draggable: true,
-                is_float: false,
+                type: WidgetType.grid,
                 is_nested: false,
                 draggable_cancel: '.draggable-cancel'
             },
@@ -65,7 +66,7 @@ const DraggableGridResponsiveLayout = () => {
                 y: 4,
                 is_resizable: false,
                 is_draggable: true,
-                is_float: false,
+                type: WidgetType.grid,
                 is_nested: false,
                 draggable_cancel: '.draggable-cancel'
             },
@@ -77,7 +78,7 @@ const DraggableGridResponsiveLayout = () => {
                 y: 8,
                 is_resizable: false,
                 is_draggable: true,
-                is_float: false,
+                type: WidgetType.grid,
                 is_nested: false,
                 draggable_cancel: '.draggable-cancel'
             },
@@ -89,7 +90,7 @@ const DraggableGridResponsiveLayout = () => {
                 y: 3,
                 is_resizable: false,
                 is_draggable: true,
-                is_float: false,
+                type: WidgetType.grid,
                 is_nested: false,
                 draggable_cancel: '.draggable-cancel'
             }
@@ -104,7 +105,7 @@ const DraggableGridResponsiveLayout = () => {
         //         y: random,
         //         is_resizable: false,
         //         is_draggable: true,
-        //         is_float: false
+        //         type: WidgetType.grid
         //     };
         // });
     }

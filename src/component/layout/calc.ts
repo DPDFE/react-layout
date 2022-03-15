@@ -3,7 +3,8 @@ import {
     ItemPos,
     GridType,
     MarginType,
-    BoundType
+    BoundType,
+    WidgetType
 } from '@/interfaces';
 import React, { RefObject } from 'react';
 
@@ -25,9 +26,9 @@ export function snapToGrid(pos: LayoutItem, grid: GridType) {
 }
 
 export function snapToDrag(l: LayoutItem, grid: GridType) {
-    const { x, y, w, h, is_float, is_dragging } = l;
+    const { x, y, w, h, type, is_dragging } = l;
     const { row_height, col_width } = grid;
-    if (is_float || is_dragging) {
+    if (type === WidgetType.drag || is_dragging) {
         return l;
     }
 
@@ -43,11 +44,11 @@ export function snapToDrag(l: LayoutItem, grid: GridType) {
 export function snapToDragBound(
     pos: BoundType,
     grid: GridType,
-    is_float: boolean
+    type: WidgetType
 ) {
     const { row_height, col_width } = grid;
 
-    if (is_float) {
+    if (type === WidgetType.drag) {
         return pos;
     }
 
@@ -108,7 +109,7 @@ export function getFirstCollision(layout: LayoutItem[], item: LayoutItem) {
 function sortGridLayoutItems(layout: LayoutItem[]) {
     return layout
         .filter((l) => {
-            return !l.is_float;
+            return l.type === WidgetType.grid;
         })
         .sort((a, b) => {
             if (a.y > b.y || (a.y === b.y && a.x > b.x)) {
@@ -206,7 +207,7 @@ function moveElementAwayFromCollision(
         w: collision.w,
         h: collision.h,
         i: 'fake_item',
-        is_float: false
+        type: WidgetType.grid
     };
 
     if (is_user_action) {

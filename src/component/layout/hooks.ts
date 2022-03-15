@@ -5,7 +5,8 @@ import {
     LayoutType,
     LayoutMode,
     OperatorType,
-    ReactLayoutProps
+    ReactLayoutProps,
+    WidgetType
 } from '@/interfaces';
 import { useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import {
@@ -148,7 +149,8 @@ export const useLayoutHooks = (
 
         if (children) {
             children.map((child) => {
-                const { x, y, h, w, is_float } = snapToDrag(child, grid);
+                const { x, y, h, w, type } = snapToDrag(child, grid);
+                const is_float = type === WidgetType.drag;
 
                 max_left = Math.min(max_left, x); // 最左边最小值
                 max_right = Math.max(

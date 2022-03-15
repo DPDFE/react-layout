@@ -76,7 +76,7 @@ export type ItemPos = {
     y: number;
     h: number;
     w: number;
-    is_float: boolean;
+    type: WidgetType;
 };
 
 type NodeProps = {
