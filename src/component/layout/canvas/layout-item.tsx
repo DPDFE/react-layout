@@ -154,7 +154,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             width: w,
             height: h,
             ...child.props.style,
-            pointerEvents: is_dragging ? 'none' : 'auto'
+            pointerEvents: is_dragging || props.is_placeholder ? 'none' : 'auto'
         },
         children:
             props.mode === LayoutMode.edit && need_mask

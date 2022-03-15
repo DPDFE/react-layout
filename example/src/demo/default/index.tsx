@@ -335,7 +335,7 @@ const DefaultLayout = () => {
                 </div>
                 <ReactLayoutContext
                     onChange={(result: DragResult) => {
-                        console.log(result, 'onChange');
+                        // console.log(result, 'onChange');
                     }}
                     onDragStart={(start: DragStart) =>
                         console.log(start, 'on drag start')

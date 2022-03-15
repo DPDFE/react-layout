@@ -241,6 +241,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
         }
     };
 
+    // 处理拖拽添加，元素移除边界的情况
+    const onDragLeave = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const pre_layout = registry.droppable.getById(props.layout_id);
+        pre_layout.handlerDraggingItemOut();
+    };
+
     const onDragOver = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -735,6 +743,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         onDragOver={
                             props.mode === LayoutMode.edit ? onDragOver : noop
                         }
+                        onDragLeave={
+                            props.mode === LayoutMode.edit ? onDragLeave : noop
+                        }
                         onClick={onClick}
                     >
                         {/* 实际画布区域 */}
@@ -744,7 +755,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             className={styles.canvas}
                             style={getLayoutStyle()}
                             onMouseOver={(e) => {
-                                console.log('onMouseOver');
                                 e.stopPropagation();
                                 if (
                                     dragging_layout.current &&
