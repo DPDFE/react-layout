@@ -1,6 +1,6 @@
 # react-layout
 
-[![NPM](https://img.shields.io/npm/v/react-layout.svg)](https://www.npmjs.com/package/react-layout) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![NPM](https://www.npmjs.com/package/@dpdfe/react-layout)](https://www.npmjs.com/package/@dpdfe/react-layout) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ## Install
 
@@ -29,4 +29,4 @@ class Example extends Component {
 
 ## License
 
-MIT © [https://github.com/pearone/react-layout.git](https://github.com/https://github.com/pearone/react-layout.git)
+MIT © [https://github.com/DPDFE/react-layout/blob/main/LICENSE](https://github.com/DPDFE/react-layout/blob/main/LICENSE)
