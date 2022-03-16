@@ -174,7 +174,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     const item = child.props['data-drag'] as LayoutItem;
                     ensureWidgetModelValid(item);
                     getBoundResult(item);
-                    return item;
+                    return { ...item };
                 }
             );
             compact(new_layout);
