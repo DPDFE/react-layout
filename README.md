@@ -13,8 +13,8 @@ npm install --save @dpdfe/react-layout
 ```tsx
 import React, { Component } from 'react';
 
-import { ReactLayout, ReactLayoutContext } from 'react-layout';
-import 'react-layout/dist/index.css';
+import { ReactLayout, ReactLayoutContext } from '@dpdfe/react-layout';
+import '@dpdfe/react-layout/dist/index.css';
 
 class Example extends Component {
     render() {

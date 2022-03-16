@@ -790,9 +790,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                 }
                             )}
                         </div>
-                        <div style={{ position: 'absolute', zIndex: 100 }}>
+                        {/* <div style={{ position: 'absolute', zIndex: 100 }}>
                             {layout_name}
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             </div>
