@@ -150,7 +150,7 @@ export type HorizontalRulerProps = ReactLayoutProps & {
     width: number;
     wrapper_width: number;
     l_offset: number;
-    setRulerHoverPos: ({ x, y, direction }?: RulerPointer) => void;
+    setRulerHoverPos: (data?: RulerPointer) => void;
     addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
     canvas_viewport_ref: RefObject<HTMLDivElement>;
 };
@@ -160,7 +160,7 @@ export type VerticalRulerProps = ReactLayoutProps & {
     height: number;
     wrapper_height: number;
     t_offset: number;
-    setRulerHoverPos: ({ x, y, direction }?: RulerPointer) => void;
+    setRulerHoverPos: (data?: RulerPointer) => void;
     addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
     canvas_viewport_ref: RefObject<HTMLDivElement>;
 };

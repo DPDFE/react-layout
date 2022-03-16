@@ -7,7 +7,7 @@ import {
     ReactLayoutContext,
     WidgetType
 } from 'react-layout';
-import 'react-layout/dist/index.css';
+import 'react-layout/dist/style.css';
 
 const ResizableGridResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);

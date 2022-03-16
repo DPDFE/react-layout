@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "allowJs": true,
     "outDir": "dist",
     "module": "esnext",
     "lib": ["dom", "esnext"],
@@ -16,10 +17,14 @@
     // "noUnusedLocals": true,
     // "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "./dist/types",
     "baseUrl": ".",
     "types": [
+        "jest",
         "node",
-        "resize-observer-browser"
+        "resize-observer-polyfill",
+        // "resize-observer-browser"
     ],
     "paths": {
       "@/*": [
