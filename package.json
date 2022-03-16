@@ -1,16 +1,26 @@
 {
-    "name": "react-layout",
-    "version": "1.0.0",
+    "name": "@dpdfe/react-layout",
+    "version": "0.0.1",
     "description": "react drag layout",
-    "author": "https://github.com/pearone/react-layout.git",
+    "author": "pearone stefan-hui",
+    "homepage": "https://github.com/pearone/react-layout#readme",
     "license": "MIT",
-    "repository": "https://github.com/pearone/react-layout.git/react-layout",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/pearone/react-layout.git"
+    },
     "main": "dist/index.js",
     "module": "dist/index.modern.js",
     "style": "dist/index.css",
     "source": "src/index.tsx",
     "engines": {
         "node": ">=10"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "bugs": {
+        "url": "https://github.com/pearone/react-layout/issues"
     },
     "scripts": {
         "build": "microbundle-crl --no-compress --format modern,cjs",
