@@ -4,9 +4,7 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "dev": "node ../node_modules/react-scripts start",
-        "storybook": "start-storybook -p 6006 -s public",
-        "build-storybook": "build-storybook -s public"
+        "dev": "node ../node_modules/react-scripts/bin/react-scripts.js start"
     },
     "dependencies": {
         "@testing-library/react": "file:../node_modules/@testing-library/react",
@@ -23,7 +21,8 @@
         "typescript": "^4.5.4"
     },
     "devDependencies": {
-        "@babel/plugin-syntax-object-rest-spread": "^7.8.3"
+        "@babel/plugin-syntax-object-rest-spread": "^7.8.3",
+        "postcss-flexbugs-fixes": "^5.0.2"
     },
     "browserslist": {
         "production": [
