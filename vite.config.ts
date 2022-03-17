@@ -9,13 +9,18 @@ module.exports = defineConfig({
             '@': path.resolve(__dirname, 'src')
         }
     },
+    globals: { react: 'react' },
     build: {
         outDir: path.resolve(__dirname, 'dist'),
         chunkSizeWarningLimit: 500,
         lib: {
             entry: path.resolve(__dirname, 'src/index.tsx'),
             name: 'index',
+            umdModuleIds: { react: 'react' },
             fileName: (format) => `index.${format}.js`
+        },
+        rollupOptions: {
+            external: ['react', 'react-dom']
         }
     }
 });

@@ -7,6 +7,7 @@ import {
     ReactLayoutContext,
     WidgetType
 } from 'react-layout';
+import 'react-layout/dist/style.css';
 
 const DraggableGridStaticLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);

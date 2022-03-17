@@ -14,6 +14,7 @@ import {
     WidgetType
 } from 'react-layout';
 import 'antd/dist/antd.css';
+import 'react-layout/dist/style.css';
 import { Tabs } from 'antd';
 
 const { TabPane } = Tabs;

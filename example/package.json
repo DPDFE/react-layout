@@ -6,6 +6,9 @@
     "scripts": {
         "dev": "node ../node_modules/react-scripts/bin/react-scripts.js start"
     },
+    "resolutions": {
+        "babel-jest": "24.9.0"
+    },
     "dependencies": {
         "@testing-library/react": "file:../node_modules/@testing-library/react",
         "@testing-library/user-event": "file:../node_modules/@testing-library/user-event",
