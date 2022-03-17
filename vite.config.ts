@@ -11,7 +11,6 @@ module.exports = defineConfig({
     },
     build: {
         outDir: path.resolve(__dirname, 'dist'),
-        minify: true,
         chunkSizeWarningLimit: 500,
         lib: {
             entry: path.resolve(__dirname, 'src/index.tsx'),

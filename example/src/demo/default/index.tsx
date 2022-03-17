@@ -13,7 +13,6 @@ import {
     LayoutMode,
     WidgetType
 } from 'react-layout';
-import 'react-layout/dist/style.css';
 import 'antd/dist/antd.css';
 import { Tabs } from 'antd';
 

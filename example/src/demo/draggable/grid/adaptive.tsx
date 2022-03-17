@@ -9,7 +9,6 @@ import {
     LayoutMode,
     WidgetType
 } from 'react-layout';
-import 'react-layout/dist/style.css';
 import './styles.css';
 
 const DraggableGridResponsiveLayout = () => {

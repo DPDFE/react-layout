@@ -4,16 +4,11 @@
     "version": "0.0.0",
     "private": true,
     "scripts": {
-        "dev": "react-scripts start",
-        "build": "react-scripts build",
-        "test": "react-scripts test",
-        "eject": "react-scripts eject",
+        "dev": "node ../node_modules/react-scripts start",
         "storybook": "start-storybook -p 6006 -s public",
         "build-storybook": "build-storybook -s public"
     },
     "dependencies": {
-        "@storybook/react": "^6.4.19",
-        "@storybook/testing-library": "^0.0.9",
         "@testing-library/react": "file:../node_modules/@testing-library/react",
         "@testing-library/user-event": "file:../node_modules/@testing-library/user-event",
         "@types/node": "file:../node_modules/@types/node",
@@ -24,30 +19,11 @@
         "react-dom": "file:../node_modules/react-dom",
         "react-layout": "file:..",
         "react-router-dom": "^6.2.1",
-        "react-scripts": "^5.0.0",
+        "react-scripts": "file:../node_modules/react-scripts",
         "typescript": "^4.5.4"
     },
     "devDependencies": {
-        "@babel/plugin-syntax-object-rest-spread": "^7.8.3",
-        "@storybook/addon-actions": "^6.4.19",
-        "@storybook/addon-essentials": "^6.4.19",
-        "@storybook/addon-interactions": "^6.4.19",
-        "@storybook/addon-links": "^6.4.19",
-        "@storybook/node-logger": "^6.4.19",
-        "@storybook/preset-create-react-app": "^3.2.0"
-    },
-    "eslintConfig": {
-        "extends": "react-app",
-        "overrides": [
-            {
-                "files": [
-                    "**/*.stories.*"
-                ],
-                "rules": {
-                    "import/no-anonymous-default-export": "off"
-                }
-            }
-        ]
+        "@babel/plugin-syntax-object-rest-spread": "^7.8.3"
     },
     "browserslist": {
         "production": [

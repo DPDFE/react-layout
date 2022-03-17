@@ -8,7 +8,7 @@ import {
     ReactLayoutContext,
     WidgetType
 } from 'react-layout';
-import 'react-layout/dist/style.css';
+import 'react-layout/index.css';
 
 const ChangeDragLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
