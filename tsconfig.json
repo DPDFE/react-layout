@@ -1,31 +1,41 @@
 {
   "compilerOptions": {
+    "target": "esnext",
+    "jsx": "react",
+    "types": [
+        "jest",
+        "node",
+        "resize-observer-polyfill",
+        // "resize-observer-browser"
+    ],
+    "paths": {
+        "@/*": [
+            "./src/*"
+        ]
+    },
     "outDir": "dist",
     "module": "esnext",
-    "lib": ["dom", "esnext"],
-    "moduleResolution": "node",
-    "jsx": "react",
-    "sourceMap": true,
+    "allowJs": true,
     "declaration": true,
+    "baseUrl": ".",
+    "lib": ["DOM", "DOM.Iterable", "esnext"],
+    "moduleResolution": "node",
+    "declarationDir": "dist",
+    "sourceMap": true,
     "esModuleInterop": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noImplicitAny": true,
     "strictNullChecks": true,
     "suppressImplicitAnyIndexErrors": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
-    "types": [
-        "node",
-        "resize-observer-browser"
-    ],
-    "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    },
+    "emitDeclarationOnly": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    // "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    // "isolatedModules": true,
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "example", "packages"]

@@ -15,6 +15,7 @@ import {
     snapToDrag,
     WRAPPER_PADDING
 } from './calc';
+import ResizeObserver from 'resize-observer-polyfill';
 
 export const useLayoutHooks = (
     layout: LayoutItem[],

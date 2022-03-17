@@ -9,7 +9,7 @@ import {
     ItemPos,
     WidgetType
 } from 'react-layout';
-import 'react-layout/dist/index.css';
+import 'react-layout/dist/style.css';
 
 const DropGridResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);

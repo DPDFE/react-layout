@@ -1,6 +1,6 @@
 import React from 'react';
 import { ReactLayout, LayoutType, ReactLayoutContext } from 'react-layout';
-import 'react-layout/dist/index.css';
+import 'react-layout/dist/style.css';
 
 const RulerLayout = () => {
     return (

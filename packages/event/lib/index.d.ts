@@ -1,1 +1,1 @@
-export { fomatFloatNumber, addEvent, removeEvent, isFunction, matchesSelector, matchesSelectorAndParentsTo } from './event-utils';
+export { fomatFloatNumber, addEvent, removeEvent, isFunction, matchesSelector, matchesSelectorAndParentsTo } from './utils';

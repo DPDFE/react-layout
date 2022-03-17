@@ -13,8 +13,8 @@ import {
     LayoutMode,
     WidgetType
 } from 'react-layout';
-import 'react-layout/dist/index.css';
 import 'antd/dist/antd.css';
+import 'react-layout/dist/style.css';
 import { Tabs } from 'antd';
 
 const { TabPane } = Tabs;

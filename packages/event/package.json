@@ -23,7 +23,7 @@
     },
     "scripts": {
         "build": "tsc --build",
-        "perpare": "npm run build"
+        "prepublishOnly": "npm run build"
     },
     "bugs": {
         "url": "https://github.com/pearone/react-layout/issues"

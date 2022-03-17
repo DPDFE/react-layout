@@ -15,7 +15,7 @@ npm install --save @dpdfe/react-layout
 import React, { Component } from 'react';
 
 import { ReactLayout, ReactLayoutContext } from '@dpdfe/react-layout';
-import '@dpdfe/react-layout/dist/index.css';
+import '@dpdfe/react-layout/dist/style.css';
 
 class Example extends Component {
     render() {
