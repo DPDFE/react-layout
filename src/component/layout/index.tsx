@@ -322,7 +322,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 break;
         }
 
-        responders.onChange?.({ ...data, destination });
+        if (
+            [
+                OperatorType.changeover,
+                OperatorType.dragover,
+                OperatorType.resizeover
+            ].includes(type)
+        ) {
+            responders.onChange?.({ ...data, destination });
+        }
 
         return widget;
     };

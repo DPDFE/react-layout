@@ -339,13 +339,7 @@ const DefaultLayout = () => {
                 </div>
                 <ReactLayoutContext
                     onChange={(result: DragResult) => {
-                        // console.log(result, 'onChange');
-                    }}
-                    onDragStart={(start: DragStart) =>
-                        console.log(start, 'on drag start')
-                    }
-                    onDragStop={(result: DragResult) => {
-                        // console.log(result, 'on drag stop');
+                        console.log(result, 'onChange');
                         const { source, destination } = result;
                         handleWidgetsChange(source.layout_id, source.widgets);
                         destination &&
@@ -353,6 +347,19 @@ const DefaultLayout = () => {
                                 destination.layout_id,
                                 destination.widgets
                             );
+                    }}
+                    onDragStart={(start: DragStart) =>
+                        console.log(start, 'on drag start')
+                    }
+                    onDragStop={(result: DragResult) => {
+                        console.log(result, 'on drag stop');
+                        // const { source, destination } = result;
+                        // handleWidgetsChange(source.layout_id, source.widgets);
+                        // destination &&
+                        //     handleWidgetsChange(
+                        //         destination.layout_id,
+                        //         destination.widgets
+                        //     );
                     }}
                     onResize={(start: DragStart) => {
                         console.log(start, 'on resize');
