@@ -1,6 +1,7 @@
 # react-layout
 
-[![NPM](https://www.npmjs.com/package/@dpdfe/react-layout)](https://www.npmjs.com/package/@dpdfe/react-layout) [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+[![npm-image](https://img.shields.io/npm/v/@dpdfe/react-layout.svg?style=flat-square)](https://www.npmjs.com/package/@dpdfe/react-layout)
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
 ## Install
 
