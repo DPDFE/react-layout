@@ -30,4 +30,4 @@ class Example extends Component {
 
 ## License
 
-MIT © [https://github.com/DPDFE/react-layout/blob/main/LICENSE](https://github.com/DPDFE/react-layout)
+MIT © [https://github.com/DPDFE/react-layout](https://github.com/DPDFE/react-layout/blob/main/LICENSE)
