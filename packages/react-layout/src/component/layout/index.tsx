@@ -8,11 +8,11 @@ import React, {
     useLayoutEffect,
     memo,
     useContext,
-    RefObject,
-} from "react";
-import VerticalRuler from "../vertical-ruler";
-import HorizontalRuler from "../horizontal-ruler";
-import WidgetItem from "./canvas/layout-item";
+    RefObject
+} from 'react';
+import VerticalRuler from '../vertical-ruler';
+import HorizontalRuler from '../horizontal-ruler';
+import WidgetItem from './canvas/layout-item';
 import {
     compact,
     moveElement,
@@ -20,9 +20,9 @@ import {
     cloneWidget,
     moveToWidget,
     replaceWidget,
-    getDropPosition,
-} from "./calc";
-import styles from "./styles.module.css";
+    getDropPosition
+} from './calc';
+import styles from './styles.module.css';
 import {
     LayoutMode,
     ItemPos,
@@ -36,15 +36,15 @@ import {
     ReactLayoutProps,
     GridType,
     WidgetLocation,
-    WidgetType,
-} from "@/interfaces";
-import GuideLine from "../guide-line";
-import { copyObject, noop } from "@/utils/utils";
-import { clamp, DEFAULT_BOUND } from "./canvas/draggable";
-import { useLayoutHooks } from "./hooks";
-import isEqual from "lodash.isequal";
-import { LayoutContext } from "./context";
-import { addEvent, removeEvent } from "@dpdfe/event-utils";
+    WidgetType
+} from '@/interfaces';
+import GuideLine from '../guide-line';
+import { copyObject, noop } from '@/utils/utils';
+import { clamp, DEFAULT_BOUND } from './canvas/draggable';
+import { useLayoutHooks } from './hooks';
+import isEqual from 'lodash.isequal';
+import { LayoutContext } from './context';
+import { addEvent, removeEvent } from '@dpdfe/event-utils';
 
 const ReactLayout = (props: ReactLayoutProps) => {
     const {
@@ -55,7 +55,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         registry,
         dragging_layout,
         dragging_layout_id,
-        getResponders,
+        getResponders
     } = useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
@@ -80,7 +80,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         wrapper_width,
         wrapper_height,
         t_offset,
-        l_offset,
+        l_offset
     } = useLayoutHooks(
         layout,
         props,
@@ -101,7 +101,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 OperatorType.changeover,
                 OperatorType.dragover,
                 OperatorType.dropover,
-                OperatorType.resizeover,
+                OperatorType.resizeover
             ].includes(operator_type)
         ) {
             setOperatorType(undefined);
@@ -111,15 +111,18 @@ const ReactLayout = (props: ReactLayoutProps) => {
     /**
      * @description 只有在无状态的情况下，点击空白处才会取消选中状态
      */
-    const onClick = (e: React.MouseEvent) => {
-        if (
-            e.nativeEvent.target === canvas_ref.current &&
-            operator_type === undefined &&
-            !props.is_nested_layout
-        ) {
-            setCurrentChecked(undefined);
-        }
-    };
+    const onClick = useCallback(
+        (e: MouseEvent) => {
+            if (
+                e.target === canvas_ref.current &&
+                operator_type === undefined &&
+                !props.is_nested_layout
+            ) {
+                setCurrentChecked(undefined);
+            }
+        },
+        [operator_type]
+    );
 
     const layout_name = useMemo(() => {
         return `layout_name_${props.layout_id}`;
@@ -133,7 +136,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                       min_x: padding.left,
                       max_x: current_width - padding.right,
                       min_y: padding.top,
-                      max_y: Infinity,
+                      max_y: Infinity
                   }
                 : DEFAULT_BOUND;
         } else {
@@ -142,7 +145,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                       min_x: 0,
                       max_x: props.cols,
                       min_y: 0,
-                      max_y: Infinity,
+                      max_y: Infinity
                   }
                 : DEFAULT_BOUND;
         }
@@ -175,7 +178,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         if (current_width) {
             const new_layout = React.Children.toArray(props.children).map(
                 (child: React.ReactElement) => {
-                    const item = child.props["data-drag"] as LayoutItem;
+                    const item = child.props['data-drag'] as LayoutItem;
                     ensureWidgetModelValid(item);
                     getBoundResult(item);
                     return { ...item };
@@ -230,7 +233,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         const responders = getResponders();
         const drop_item = responders.getDroppingItem?.();
 
-        const i = drop_item ? drop_item.i : "__dropping_item__";
+        const i = drop_item ? drop_item.i : '__dropping_item__';
 
         if (layout_type === LayoutType.GRID) {
             const w = grid.col_width * (drop_item?.w ?? 2);
@@ -293,8 +296,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
             widget_id: widget.i,
             source: {
                 layout_id: props.layout_id,
-                widgets: copyObject(layout),
-            },
+                widgets: copyObject(layout)
+            }
         };
         setOperatorType(type);
         const responders = getResponders();
@@ -357,7 +360,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 if (type === OperatorType.drag) {
                     dragging_layout.current = {
                         layout: droppable,
-                        drag_item: dragging_item,
+                        drag_item: dragging_item
                     };
                 } else {
                     dragging_layout.current = undefined;
@@ -422,7 +425,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
             return {
                 layout: replaceWidget(layout, shadow_widget),
-                widget: current_widget,
+                widget: current_widget
             };
         },
         [layout, grid]
@@ -489,7 +492,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         if (checked_index === widget.i) {
                             const {
                                 layout: source_layout,
-                                widget: current_widget,
+                                widget: current_widget
                             } = getCurrentLayoutByItem(item, false);
                             const destination = getDestinationLayoutByItemId(
                                 OperatorType.drag,
@@ -511,7 +514,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         ) {
                             const {
                                 layout: source_layout,
-                                widget: current_widget,
+                                widget: current_widget
                             } = getCurrentLayoutByItem(item, true);
                             const destination = getDestinationLayoutByItemId(
                                 OperatorType.dragover,
@@ -539,7 +542,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         if (checked_index === widget.i) {
                             const {
                                 layout: source_layout,
-                                widget: current_widget,
+                                widget: current_widget
                             } = getCurrentLayoutByItem(item, false);
                             handleResponder(
                                 OperatorType.resize,
@@ -552,7 +555,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         if (checked_index === widget.i) {
                             const {
                                 layout: source_layout,
-                                widget: current_widget,
+                                widget: current_widget
                             } = getCurrentLayoutByItem(item, true);
                             handleResponder(
                                 OperatorType.resizeover,
@@ -565,7 +568,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         if (checked_index === widget.i) {
                             const {
                                 layout: source_layout,
-                                widget: current_widget,
+                                widget: current_widget
                             } = getCurrentLayoutByItem(item, true);
                             handleResponder(
                                 OperatorType.changeover,
@@ -612,7 +615,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const placeholder = {
                 ...postion,
                 x,
-                y,
+                y
             };
 
             const new_layout = layout.concat(placeholder);
@@ -646,7 +649,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             id: props.layout_id,
             type: props.layout_type,
             mode: props.mode,
-            is_root: !props.is_nested_layout,
+            is_root: !props.is_nested_layout
         }),
         [props.layout_id, props.layout_type, props.mode, props.is_nested_layout]
     );
@@ -661,7 +664,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             descriptor,
             getRef,
             getViewPortRef,
-            unique_id: layout_name,
+            unique_id: layout_name
         }),
         [
             compactLayoutByDraggingItem,
@@ -669,7 +672,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             getRef,
             getViewPortRef,
             descriptor,
-            layout_name,
+            layout_name
         ]
     );
 
@@ -688,12 +691,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     useLayoutEffect(() => {
         canvas_ref.current &&
-            addEvent(canvas_ref.current, "mouseover", handlerDraggingLayout);
+            addEvent(canvas_ref.current, 'mouseover', handlerDraggingLayout);
         return () => {
             canvas_ref.current &&
                 removeEvent(
                     canvas_ref.current,
-                    "mouseover",
+                    'mouseover',
                     handlerDraggingLayout
                 );
         };
@@ -704,15 +707,22 @@ const ReactLayout = (props: ReactLayoutProps) => {
         return () => registry.droppable.unregister(entry);
     }, [registry, entry]);
 
+    useEffect(() => {
+        canvas_ref.current?.addEventListener('click', onClick);
+        return () => {
+            canvas_ref.current?.removeEventListener('click', onClick);
+        };
+    }, [onClick]);
+
     return (
         <div
             className={`react-layout ${styles.container} ${props.className}`}
             ref={container_ref}
             style={{
-                userSelect: props.mode === LayoutMode.edit ? "none" : "auto",
+                userSelect: props.mode === LayoutMode.edit ? 'none' : 'auto',
                 WebkitUserSelect:
-                    props.mode === LayoutMode.edit ? "none" : "auto",
-                MozUserSelect: props.mode === LayoutMode.edit ? "none" : "auto",
+                    props.mode === LayoutMode.edit ? 'none' : 'auto',
+                MozUserSelect: props.mode === LayoutMode.edit ? 'none' : 'auto'
             }}
         >
             {/* 水平标尺 */}
@@ -728,7 +738,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             )}
 
             <div
-                style={{ display: "flex", flex: 1, overflow: "hidden" }}
+                style={{ display: 'flex', flex: 1, overflow: 'hidden' }}
                 ref={flex_container_ref}
             >
                 {/* 垂直标尺 */}
@@ -747,10 +757,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 <div
                     ref={canvas_viewport_ref}
                     style={{
-                        overflowY: "auto",
-                        position: "relative",
+                        overflowY: 'auto',
+                        position: 'relative',
                         flex: 1,
-                        scrollBehavior: "smooth",
+                        scrollBehavior: 'smooth'
                     }}
                 >
                     {/* 画板区域 */}
@@ -758,7 +768,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         ref={canvas_wrapper_ref}
                         style={{
                             width: wrapper_width,
-                            height: wrapper_height,
+                            height: wrapper_height
                         }}
                         /** 阻止了onDragOver以后，onDrop事件才生效 */
                         onDrop={props.mode === LayoutMode.edit ? onDrop : noop}
@@ -768,7 +778,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         onDragLeave={
                             props.mode === LayoutMode.edit ? onDragLeave : noop
                         }
-                        onClick={onClick}
+                        // onClick={onClick}
                     >
                         {/* 实际画布区域 */}
                         <div
@@ -783,14 +793,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                 left: l_offset,
                                 overflow:
                                     props.mode === LayoutMode.edit
-                                        ? "unset"
-                                        : "hidden",
+                                        ? 'unset'
+                                        : 'hidden',
                                 ...(props.is_nested_layout
                                     ? {}
                                     : {
                                           transform: `scale(${props.scale})`,
-                                          transformOrigin: "0 0",
-                                      }),
+                                          transformOrigin: '0 0'
+                                      })
                             }}
                         >
                             {shadowGridItem()}
@@ -836,7 +846,7 @@ ReactLayout.defaultProps = {
     need_ruler: false,
     need_grid_bound: true,
     need_drag_bound: true,
-    is_nested: false,
+    is_nested: false
 };
 
 export default memo(ReactLayout, compareProps);
@@ -846,19 +856,19 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
         .map((key) => {
             if (
                 [
-                    "drag_item",
-                    "getResponders",
-                    "onDrop",
-                    "onDragStart",
-                    "onDrag",
-                    "onDragStop",
-                    "onResizeStart",
-                    "onResize",
-                    "onResizeStop",
-                    "removeGuideLine",
-                    "addGuideLine",
-                    "onPositionChange",
-                    "onChange",
+                    'drag_item',
+                    'getResponders',
+                    'onDrop',
+                    'onDragStart',
+                    'onDrag',
+                    'onDragStop',
+                    'onResizeStart',
+                    'onResize',
+                    'onResizeStop',
+                    'removeGuideLine',
+                    'addGuideLine',
+                    'onPositionChange',
+                    'onChange'
                 ].includes(key)
             ) {
                 return true;
