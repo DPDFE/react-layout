@@ -1,83 +1,35 @@
 {
-    "name": "@dpdfe/react-layout",
-    "version": "0.0.1",
-    "description": "react drag layout",
-    "author": "pearone stefan-hui",
-    "homepage": "https://github.com/pearone/react-layout#readme",
-    "license": "MIT",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/pearone/react-layout.git"
-    },
-    "main": "dist/index.js",
-    "module": "dist/index.modern.js",
-    "style": "dist/index.css",
-    "source": "src/index.tsx",
-    "engines": {
-        "node": ">=10"
-    },
-    "publishConfig": {
-        "access": "public"
-    },
-    "bugs": {
-        "url": "https://github.com/pearone/react-layout/issues"
-    },
+    "name": "react-layout-demo",
+    "private": true,
+    "version": "0.0.0",
+    "workspaces": [
+        "packages/*"
+    ],
     "scripts": {
-        "build": "microbundle-crl --no-compress --format modern,cjs",
-        "dev": "microbundle-crl watch --no-compress --format modern,cjs",
-        "prepare": "run-s build",
-        "test": "run-s test:unit test:lint test:build",
-        "test:build": "run-s build",
-        "test:lint": "eslint .",
-        "test:unit": "cross-env CI=1 react-scripts test --env=jsdom",
-        "test:watch": "react-scripts test --env=jsdom",
-        "predeploy": "cd example && npm install && npm run build",
-        "deploy": "gh-pages -d example/build"
+        "dev": "run-p dev:example dev:layout",
+        "dev:example": "vite",
+        "dev:layout": "lerna exec --scope @dpdfe/react-layout yarn dev",
+        "dev:event": "lerna exec --scope @dpdfe/event-utils yarn dev",
+        "test": "lerna exec --scope @dpdfe/react-layout yarn jest"
     },
-    "peerDependencies": {
-        "react": "^16.0.0"
+    "dependencies": {
+        "antd": "^4.19.2",
+        "jest": "^27.5.1",
+        "react": "^17.0.2",
+        "react-dom": "^17.0.2",
+        "ts-jest": "^27.1.3",
+        "ts-node": "^10.7.0"
     },
     "devDependencies": {
-        "@babel/plugin-proposal-nullish-coalescing-operator": "^7.16.7",
-        "@babel/plugin-proposal-optional-chaining": "^7.16.7",
-        "@testing-library/jest-dom": "^4.2.4",
-        "@testing-library/react": "^9.5.0",
-        "@testing-library/user-event": "^7.2.1",
-        "@types/jest": "^25.1.4",
-        "@types/lodash.isequal": "^4.5.5",
-        "@types/node": "^12.12.38",
-        "@types/react": "^16.9.27",
-        "@types/react-dom": "^16.9.7",
-        "@types/resize-observer-browser": "^0.1.7",
-        "@typescript-eslint/eslint-plugin": "^2.26.0",
-        "@typescript-eslint/parser": "^2.26.0",
-        "babel-eslint": "^10.0.3",
-        "cross-env": "^7.0.2",
-        "eslint": "^6.8.0",
-        "eslint-config-prettier": "^6.7.0",
-        "eslint-config-standard": "^14.1.0",
-        "eslint-config-standard-react": "^9.2.0",
-        "eslint-plugin-import": "^2.18.2",
-        "eslint-plugin-node": "^11.0.0",
-        "eslint-plugin-prettier": "^3.1.1",
-        "eslint-plugin-promise": "^4.2.1",
-        "eslint-plugin-react": "^7.17.0",
-        "eslint-plugin-standard": "^4.0.1",
-        "gh-pages": "^2.2.0",
+        "@dpdfe/react-layout": "file:../pacakges/react-layout",
+        "@types/jest": "^27.4.1",
+        "@types/react": "^17.0.33",
+        "@types/react-dom": "^17.0.10",
+        "@vitejs/plugin-react": "^1.0.7",
         "lerna": "^4.0.0",
-        "microbundle-crl": "^0.13.11",
         "npm-run-all": "^4.1.5",
-        "prettier": "^2.0.4",
-        "react": "^16.13.1",
-        "react-dom": "^16.13.1",
-        "react-scripts": "^3.4.1",
-        "typescript": "^3.9.10"
-    },
-    "files": [
-        "dist"
-    ],
-    "dependencies": {
-        "@pearone/event-utils": "^0.0.9",
-        "lodash.isequal": "^4.5.0"
+        "react-router-dom": "^6.2.2",
+        "typescript": "^4.5.4",
+        "vite": "^2.8.0"
     }
 }

@@ -5,4 +5,4 @@ export {
     isFunction,
     matchesSelector,
     matchesSelectorAndParentsTo
-} from './event-utils';
+} from './utils';
