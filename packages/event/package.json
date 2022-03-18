@@ -22,7 +22,7 @@
     },
     "scripts": {
         "dev": "tsc -w",
-        "build": "tsc --build",
+        "build": "rm -rf dist && tsc --build",
         "prepublishOnly": "npm run build"
     },
     "bugs": {

@@ -5,18 +5,19 @@ import * as path from "path";
 export default defineConfig({
     resolve: {
         alias: {
-            "@": path.resolve(__dirname, "src"),
-        },
+            '@': path.resolve(__dirname, 'src')
+        }
     },
     build: {
-        outDir: path.resolve(__dirname, "dist"),
+        emptyOutDir: false,
+        outDir: path.resolve(__dirname, 'dist'),
         lib: {
-            entry: path.resolve(__dirname, "src/index.tsx"),
-            name: "index",
-            fileName: (format) => `index.${format}.js`,
+            entry: path.resolve(__dirname, 'src/index.tsx'),
+            name: 'index',
+            fileName: (format) => `index.${format}.js`
         },
         rollupOptions: {
-            external: ["react", "react-dom"],
-        },
+            external: ['react', 'react-dom']
+        }
     }
 });
