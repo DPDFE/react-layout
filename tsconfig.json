@@ -1,42 +1,21 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "jsx": "react",
-    "types": [
-        "jest",
-        "node",
-        "resize-observer-polyfill",
-        // "resize-observer-browser"
-    ],
-    "paths": {
-        "@/*": [
-            "./src/*"
-        ]
-    },
-    "outDir": "dist",
-    "module": "esnext",
-    "allowJs": true,
-    "declaration": true,
-    "baseUrl": ".",
-    "lib": ["DOM", "DOM.Iterable", "esnext"],
-    "moduleResolution": "node",
-    "declarationDir": "dist",
-    "sourceMap": true,
-    "esModuleInterop": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "suppressImplicitAnyIndexErrors": true,
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "allowJs": false,
+    "skipLibCheck": false,
+    "esModuleInterop": false,
     "allowSyntheticDefaultImports": true,
-    "emitDeclarationOnly": true,
-    "skipDefaultLibCheck": true,
-    "skipLibCheck": true,
-    // "strict": true,
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "resolveJsonModule": true,
-    // "isolatedModules": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
   },
-  "include": ["src"],
-  "exclude": ["node_modules", "dist", "example", "packages"]
+  "include": ["src", "packages/react-layout/setupTests.ts", "packages/react-layout/setupTests.ts"],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }

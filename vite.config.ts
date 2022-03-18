@@ -1,26 +1,7 @@
-const path = require('path');
-const { defineConfig } = require('vite');
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
-module.exports = defineConfig({
-    root: path.resolve(__dirname, 'src'),
-    base: './',
-    resolve: {
-        alias: {
-            '@': path.resolve(__dirname, 'src')
-        }
-    },
-    globals: { react: 'react' },
-    build: {
-        watch: [],
-        outDir: path.resolve(__dirname, 'dist'),
-        chunkSizeWarningLimit: 500,
-        lib: {
-            entry: path.resolve(__dirname, 'src/index.tsx'),
-            name: 'index',
-            umdModuleIds: { react: 'react' }
-        },
-        rollupOptions: {
-            external: ['react', 'react-dom']
-        }
-    }
+// https://vitejs.dev/config/
+export default defineConfig({
+    plugins: [react()],
 });

@@ -1,4 +1,11 @@
 {
-    "useWorkspaces": true,
-    "version": "0.0.9"
+  "packages": [
+    "packages/*"
+  ],
+  "version": "0.0.0",
+  "useWorkspaces": true
+
 }
+
+
+

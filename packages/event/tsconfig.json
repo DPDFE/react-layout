@@ -2,9 +2,9 @@
     "compilerOptions": {
         "target": "es6",
         "declaration": true,
-        "declarationDir": "./lib",
+        "declarationDir": "./dist",
         "emitDeclarationOnly": false,
-        "outDir": "./lib/",
+        "outDir": "./dist/",
         "lib": [
             "DOM",
             "DOM.Iterable",

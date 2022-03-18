@@ -1,0 +1,49 @@
+{
+    "name": "@dpdfe/react-layout",
+    "description": "react layout",
+    "author": "pearone stefan-hui",
+    "version": "0.0.1",
+    "private": true,
+    "license": "MIT",
+    "homepage": "https://github.com/pearone/react-layout#readme",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/pearone/react-layout.git"
+    },
+    "main": "dist/index.umd.js",
+    "module": "dist/index.es.js",
+    "style": "./dist/style.css",
+    "source": "src/index.tsx",
+    "engines": {
+        "node": ">=12.2.0"
+    },
+    "types": "dist/index.d.ts",
+    "publishConfig": {
+        "access": "public"
+    },
+    "bugs": {
+        "url": "https://github.com/pearone/react-layout/issues"
+    },
+    "files": [
+        "dist"
+    ],
+    "scripts": {
+        "build": "run-p build:*",
+        "build:ts": "tsc -p tsconfig.json",
+        "build:js": "vite build",
+        "dev": "run-p watch:*",
+        "watch:ts": "tsc -w",
+        "watch:js": "vite build --watch"
+    },
+    "dependencies": {
+        "@dpdfe/event-utils": "file:./packages/event",
+        "@types/lodash.isequal": "^4.5.5",
+        "@types/resize-observer-browser": "^0.1.7",
+        "lodash.isequal": "^4.5.0",
+        "resize-observer-polyfill": "^1.5.1"
+    },
+    "peerDependencies": {
+        "react": ">=16.0.0",
+        "react-dom": ">=16.0.0"
+    }
+}
