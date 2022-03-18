@@ -111,8 +111,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
     /**
      * @description 只有在无状态的情况下，点击空白处才会取消选中状态
      */
-    const onClick = () => {
-        if (operator_type === undefined && !props.is_nested_layout) {
+    const onClick = (e: React.MouseEvent) => {
+        if (
+            e.nativeEvent.target === canvas_ref.current &&
+            operator_type === undefined &&
+            !props.is_nested_layout
+        ) {
             setCurrentChecked(undefined);
         }
     };
