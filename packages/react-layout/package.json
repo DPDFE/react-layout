@@ -27,10 +27,10 @@
         "dist"
     ],
     "scripts": {
-        "build": "run-p build:*",
+        "build": "rm -rf dist && run-p build:*",
         "build:ts": "tsc -p tsconfig.json",
         "build:js": "vite build",
-        "dev": "run-p watch:*",
+        "dev": "run-p watch:ts watch:js",
         "watch:ts": "tsc -w",
         "watch:js": "vite build --watch"
     },

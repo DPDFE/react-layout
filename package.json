@@ -6,10 +6,13 @@
         "packages/*"
     ],
     "scripts": {
+        "postinstall": "run-s build:event build:layout",
         "dev": "run-p dev:example dev:layout",
         "dev:example": "vite",
         "dev:layout": "lerna exec --scope @dpdfe/react-layout yarn dev",
         "dev:event": "lerna exec --scope @dpdfe/event-utils yarn dev",
+        "build:layout": "lerna exec --scope @dpdfe/react-layout yarn build",
+        "build:event": "lerna exec --scope @dpdfe/event-utils yarn build",
         "test": "lerna exec --scope @dpdfe/react-layout yarn jest"
     },
     "dependencies": {
