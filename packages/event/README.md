@@ -9,7 +9,7 @@
 | addEvent、removeEvent | 兼容浏览器的 event 事件绑定 |
 | matchesSelector | 判断当前元素是否是目标 class |
 | matchesSelectorAndParentsTo | 找到从开始元素一直找到结束元素是否有目标 class |
-| LocalStorage | 封装localstorage方法 ｜
+| LocalStorage | 封装localstorage方法 |
 
 ## Usage
 
@@ -23,4 +23,24 @@ import {
     matchesSelector,
     matchesSelectorAndParentsTo
 } from "@dpdfe/event-utils";
+```
+
+#### fomatFloatNumber
+```
+fomatFloatNumber(3.3234234234, 2)  //3.32
+fomatFloatNumber(3, 2) // 3
+```
+
+#### LocalStorage
+```
+import {LocalStorage} from '@dpdfe/event-utils'
+const storage = LocalStorage({username: 'zhangsan01'});
+// 设置 localstorage
+storage.account = {username: 'lisi02'}
+
+// 获取 localstorage
+const account = storage.account
+
+// 删除 localstorage
+delete storage.account
 ```
