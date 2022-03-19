@@ -1,4 +1,4 @@
-export {
+import {
     fomatFloatNumber,
     addEvent,
     removeEvent,
@@ -6,3 +6,15 @@ export {
     matchesSelector,
     matchesSelectorAndParentsTo
 } from './utils';
+
+import LocalStorage from './localstorage';
+
+export {
+    LocalStorage,
+    fomatFloatNumber,
+    addEvent,
+    removeEvent,
+    isFunction,
+    matchesSelector,
+    matchesSelectorAndParentsTo,
+};

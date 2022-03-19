@@ -20,6 +20,7 @@ const ChangeDragLayout = () => {
         setWidgets(generateLayout());
     }, []);
 
+
     function generateLayout() {
         return Array.from({ length: 6 }).map((_, i) => {
             const boolean = Boolean(Math.round(Math.random()));
