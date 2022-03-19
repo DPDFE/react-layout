@@ -1,38 +1,54 @@
 {
-    "name": "react-layout-demo",
-    "private": true,
-    "version": "0.0.0",
-    "workspaces": [
-        "packages/*"
-    ],
-    "scripts": {
-        "postinstall": "run-s build:event build:layout",
-        "dev": "run-p dev:example dev:layout",
-        "dev:example": "vite",
-        "dev:layout": "lerna exec --scope @dpdfe/react-layout yarn dev",
-        "dev:event": "lerna exec --scope @dpdfe/event-utils yarn dev",
-        "build:layout": "lerna exec --scope @dpdfe/react-layout yarn build",
-        "build:event": "lerna exec --scope @dpdfe/event-utils yarn build",
-        "test": "lerna exec --scope @dpdfe/react-layout yarn jest"
-    },
-    "dependencies": {
-        "antd": "^4.19.2",
-        "jest": "^27.5.1",
-        "react": "^17.0.2",
-        "react-dom": "^17.0.2",
-        "ts-jest": "^27.1.3",
-        "ts-node": "^10.7.0"
-    },
-    "devDependencies": {
-        "@dpdfe/react-layout": "file:../pacakges/react-layout",
-        "@types/jest": "^27.4.1",
-        "@types/react": "^17.0.33",
-        "@types/react-dom": "^17.0.10",
-        "@vitejs/plugin-react": "^1.0.7",
-        "lerna": "^4.0.0",
-        "npm-run-all": "^4.1.5",
-        "react-router-dom": "^6.2.2",
-        "typescript": "^4.5.4",
-        "vite": "^2.8.0"
-    }
+  "name": "react-layout-demo",
+  "private": true,
+  "version": "0.0.0",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "postinstall": "run-s build:event build:layout",
+    "dev": "run-p dev:example dev:layout",
+    "dev:example": "vite",
+    "dev:layout": "lerna exec --scope @dpdfe/react-layout yarn dev",
+    "dev:event": "lerna exec --scope @dpdfe/event-utils yarn dev",
+    "build:layout": "lerna exec --scope @dpdfe/react-layout yarn build",
+    "build:event": "lerna exec --scope @dpdfe/event-utils yarn build",
+    "test": "lerna exec --scope @dpdfe/react-layout yarn jest",
+    "storybook": "start-storybook -p 6006",
+    "build-storybook": "build-storybook"
+  },
+  "dependencies": {
+    "antd": "^4.19.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+
+  },
+  "devDependencies": {
+    "eslint": "^8.11.0",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.3",
+    "ts-node": "^10.7.0",
+    "@typescript-eslint/eslint-plugin": "^5.15.0",
+    "@typescript-eslint/parser": "^5.15.0",
+    "@babel/core": "^7.17.8",
+    "@dpdfe/react-layout": "file:../pacakges/react-layout",
+    "@storybook/addon-actions": "^6.5.0-alpha.49",
+    "@storybook/addon-essentials": "^6.5.0-alpha.49",
+    "@storybook/addon-interactions": "^6.5.0-alpha.49",
+    "@storybook/addon-links": "^6.5.0-alpha.49",
+    "@storybook/react": "^6.5.0-alpha.49",
+    "@storybook/testing-library": "^0.0.9",
+    "@types/jest": "^27.4.1",
+    "@types/react": "^17.0.33",
+    "@types/react-dom": "^17.0.10",
+    "@vitejs/plugin-react": "^1.0.7",
+    "babel-loader": "^8.2.3",
+    "lerna": "^4.0.0",
+    "less": "^4.1.2",
+    "npm-run-all": "^4.1.5",
+    "react-router-dom": "^6.2.2",
+    "storybook-builder-vite": "^0.1.21",
+    "typescript": "^4.5.4",
+    "vite": "^2.8.0"
+  }
 }
