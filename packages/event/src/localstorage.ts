@@ -1,19 +1,18 @@
-/*
-    import {LocalStorage} from '@dpdfe/event-utils'
 
-    const storage = LocalStorage({username: 'zhangsan01'});
-
-    // 设置 localstorage
-    >>> storage.account = {username: 'lisi02'}
-
-    // 获取 localstorage
-    >>> const account = storage.account
-
-    // 删除 localstorage
-    >>> delete storage.account
-*/
 /**
+ * @description 代理localstorage get、set方法
+ * @using ` import {LocalStorage} from '@dpdfe/event-utils'
  *
+ *    const storage = LocalStorage({username: 'zhangsan01'});
+ *
+ *    // 设置 localstorage
+ *    >>> storage.account = {username: 'lisi02'}
+ *
+ *    // 获取 localstorage
+ *    >>> const account = storage.account
+ *
+ *    // 删除 localstorage
+ *    >>> delete storage.account`
  * @param storage 监听值
  * @param key_prefix 前缀
  * @returns
