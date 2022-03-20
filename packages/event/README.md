@@ -10,6 +10,7 @@
 | matchesSelector | 判断当前元素是否是目标 class |
 | matchesSelectorAndParentsTo | 找到从开始元素一直找到结束元素是否有目标 class |
 | LocalStorage | 封装localstorage方法 |
+| EventBus | 订阅发布 |
 
 ## Usage
 
