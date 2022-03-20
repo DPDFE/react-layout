@@ -35,7 +35,7 @@
         "watch:js": "vite build --watch"
     },
     "dependencies": {
-        "@dpdfe/event-utils": "file:./packages/event",
+        "@dpdfe/event-utils": "0.0.2",
         "@types/lodash.isequal": "^4.5.5",
         "@types/resize-observer-browser": "^0.1.7",
         "lodash.isequal": "^4.5.0",
@@ -45,5 +45,5 @@
         "react": ">=16.0.0",
         "react-dom": ">=16.0.0"
     },
-    "gitHead": "f8e70fcfcc54d09a52f5d5d1ead5a5a0f449136b"
+    "gitHead": "2e206c89a75daaa5cf68ff4cff3a6c92ef67100c"
 }
