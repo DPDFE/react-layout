@@ -44,3 +44,37 @@ const account = storage.account
 // 删除 localstorage
 delete storage.account
 ```
+
+#### EventBus
+```
+import { Events } from "@dpdfe/event-utils";
+export const EventBus = new Events()
+
+const logEvent = (event: string) => {
+    console.log(`this is `, event);
+}
+
+// 注册事件和回调方法
+EventBus.on('aaa', logEvent)
+
+// 只触发一次的事件和回调
+EventBus.once('ccc', logEvent)
+
+// 事件触发
+EventBus.emit('aaa', 'aaa')
+EventBus.emit('bbb', 'bbb')
+EventBus.emit('ccc', 'ccc')
+EventBus.emit('ccc', 'ccc')
+
+// 事件取消
+EventBus.off('aaa', 'xxx')
+
+// 取消所有监听
+EventBus.clear()
+
+// 获取当前事件的所有回调方法
+EventBus.listeners('aaa')
+
+// 设置事件最大注册数量
+EventBus.setMaxListeners(4)
+```

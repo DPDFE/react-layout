@@ -60,7 +60,7 @@ class Events {
 
     checkEventRegister = (event: string) => {
         if (!this.events[event]) {
-            console.error(`${event} is not registered`)
+            console.error(`${event} is not registered`);
         }
     };
 
@@ -81,8 +81,21 @@ class Events {
         return true;
     };
 
+    // 移除所有事件的所有监听器， 如果指定事件，则移除指定事件的所有监听器。
+    removeAllListeners = (events?: string[]) => {
+        if (events) {
+            events.map((event) => {
+                this.checkEventRegister(event);
+                delete this.events[event];
+            });
+        } else {
+            this.events = {};
+        }
+    };
+
     on = this.addListener;
     off = this.removeListener;
+    clear = this.removeAllListeners;
 
     // 为指定事件注册一个单次监听器
     once = (event: string, listener: Function) => {
@@ -96,18 +109,6 @@ class Events {
         event && this.events[event]?.emit(...rest);
     };
 
-    // 移除所有事件的所有监听器， 如果指定事件，则移除指定事件的所有监听器。
-    removeAllListeners = (events?: string[]) => {
-        if (events) {
-            events.map((event) => {
-                this.checkEventRegister(event);
-                delete this.events[event];
-            });
-        } else {
-            this.events = {};
-        }
-    };
-
     // 默认情况下， EventEmitters 如果你添加的监听器超过 10 个就会输出警告信息。 setMaxListeners 函数用于改变监听器的默认限制的数量。
     setMaxListeners = (event: string, n: number) => {
         this.checkEventRegister(event);
@@ -118,6 +119,10 @@ class Events {
     listeners = (event: string) => {
         this.checkEventRegister(event);
         return this.events[event];
+    };
+
+    getAllEvents = () => {
+        return Object.keys(this.events);
     };
 }
 
