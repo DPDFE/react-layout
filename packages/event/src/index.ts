@@ -9,7 +9,10 @@ import {
 
 import LocalStorage from './localstorage';
 
+import Events from './eventbus';
+
 export {
+    Events,
     LocalStorage,
     fomatFloatNumber,
     addEvent,

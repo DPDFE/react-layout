@@ -1,51 +1,124 @@
 'use strict';
 
-function Events() {}
+import { isFunction } from "./utils";
 
-if (Object.create) {
-    Events.prototype = Object.create(null);
-}
+class EE {
+    fn: Function;
+    once: boolean;
 
-/**
- * 保存监听属性
- * @param fn
- * @param context
- * @param once 是否触发一次
- */
-function EE(this: any, fn: Function, context: any, once: boolean) {
-    this.fn = fn;
-    this.context = context;
-    this.once = once || false;
-}
-
-function removeListener() {}
-
-function addListener(
-    emitter: any,
-    event: any,
-    fn: any,
-    context: any,
-    once: boolean
-) {
-    if (typeof fn !== 'function') {
+    constructor(fn: Function, once = false) {
+        this.fn = fn;
+        this.once = once;
     }
 }
 
-function clearEvent() {}
+/**
+ * 触发器
+ */
+class EventEmitter {
+    listeners: EE[] = [];
+    max_listener_size = Infinity;
 
-function EventEmitter() {
-    const _events = Events();
-    const _eventsCount = 0;
+    setMaxListeners = (size: number) => {
+        this.max_listener_size = size;
+    };
+
+    emit = (...rest: unknown[]) => {
+        this.listeners.map((l) => {
+            l.fn(...rest)
+            l.once && this.removeListener(l.fn)
+        })
+    }
+
+    addListener = (listener: Function, once = false) => {
+        if (isFunction(listener)) {
+            if (this.listeners.length >= this.max_listener_size) {
+                console.error(
+                    `Number of listener cannot exceeds ${this.max_listener_size}`,
+                );
+                return false;
+            } else {
+                this.listeners.push(new EE(listener, once));
+                return true;
+            }
+        } else {
+            throw new Error('callback must be a function');
+        }
+
+    };
+
+    removeListener = (listener: Function) => {
+        this.listeners = this.listeners.filter((l) => l.fn != listener);
+    };
 }
 
-EventEmitter.prototype.on = function on(event: any, fn: any, context: any) {
-    return addListener(this, event, fn, context, false);
-};
+/**
+ * 事件列表
+ */
+class Events {
+    events: Record<string, EventEmitter> = {};
 
-EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
-EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+    checkEventRegister = (event: string) => {
+        if (!this.events[event]) {
+            console.error(`${event} is not registered`)
+        }
+    };
 
-EventEmitter.EventEmitter = EventEmitter;
+    // 为指定事件添加一个监听器到监听器数组的尾部
+    addListener = (event: string, listener: Function) => {
+        this.events[event] = this.events[event] || new EventEmitter();
+        return this.events[event].addListener(listener);
+    };
 
-const EventBus = EventEmitter();
-export default EventBus;
+    // 移除指定事件的某个监听器，监听器必须是该事件已经注册过的监听器。
+    removeListener = (event: string, listener?: Function) => {
+        this.checkEventRegister(event);
+        if (listener) {
+            this.events[event]?.removeListener(listener);
+        } else {
+            delete this.events[event];
+        }
+        return true;
+    };
+
+    on = this.addListener;
+    off = this.removeListener;
+
+    // 为指定事件注册一个单次监听器
+    once = (event: string, listener: Function) => {
+        this.events[event] = this.events[event] || new EventEmitter();
+        return this.events[event].addListener(listener, true);
+    };
+
+    // 触发一个事件
+    emit = (event: string, ...rest: unknown[]) => {
+        this.checkEventRegister(event);
+        event && this.events[event]?.emit(...rest);
+    };
+
+    // 移除所有事件的所有监听器， 如果指定事件，则移除指定事件的所有监听器。
+    removeAllListeners = (events?: string[]) => {
+        if (events) {
+            events.map((event) => {
+                this.checkEventRegister(event);
+                delete this.events[event];
+            });
+        } else {
+            this.events = {};
+        }
+    };
+
+    // 默认情况下， EventEmitters 如果你添加的监听器超过 10 个就会输出警告信息。 setMaxListeners 函数用于改变监听器的默认限制的数量。
+    setMaxListeners = (event: string, n: number) => {
+        this.checkEventRegister(event);
+        this.events[event]?.setMaxListeners(n);
+    };
+
+    // 返回指定事件的监听器数组。
+    listeners = (event: string) => {
+        this.checkEventRegister(event);
+        return this.events[event];
+    };
+}
+
+export default Events;

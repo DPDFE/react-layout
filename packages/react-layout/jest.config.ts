@@ -23,7 +23,6 @@ const config: Config.InitialOptions = {
     coveragePathIgnorePatterns: ['/node_modules/', '/dist/'],
     modulePathIgnorePatterns: ['/dist/'],
     testPathIgnorePatterns: ['__tests__/(setup|testUtils).js'],
-    transformIgnorePatterns: ['<rootDir>/node_modules/(?!@pearone)'],
     globals: {
         'ts-jest': {
             tsconfig: 'tsconfig.test.json'

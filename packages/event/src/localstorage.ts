@@ -41,16 +41,24 @@ const LocalStorage = (
         return res && res !== 'undefined' ? JSON.parse(res) : undefined
     };
 
+    /** 设置值 */
+    const setStorageItem = (key: string, value: any) => {
+        localStorage.setItem(getFormattedKey(key), JSON.stringify(value));
+    }
+
+    /** 删除值 */
+    const removeStorageItem = (key: string) => {
+        localStorage.removeItem(getFormattedKey(key));
+    }
+
+    /** 初始化默认值 */
     const initStorage = () => {
         Object.keys(storage).map((key) => {
             const last_item = getStorageItem(key)
             if (last_item) {
                 storage[key] = last_item;
             } else {
-                localStorage.setItem(
-                    getFormattedKey(key),
-                    JSON.stringify(storage[key]),
-                );
+                setStorageItem(key, storage[key]);
             }
         });
     };
@@ -61,18 +69,19 @@ const LocalStorage = (
     return new Proxy<typeof storage>(storage, {
         get(target: typeof storage, key: string): any {
             ensureKeyRegistered(key);
-            return getStorageItem(key);
+            return storage[key];
         },
 
         set: (target: typeof storage, key: string, value: any) => {
             ensureKeyRegistered(key);
-            localStorage.setItem(getFormattedKey(key), JSON.stringify(value));
+            storage[key] = value;
+            setStorageItem(key, value)
             return true;
         },
 
         deleteProperty(target: typeof storage, key: string): boolean {
             ensureKeyRegistered(key);
-            localStorage.removeItem(getFormattedKey(key));
+            removeStorageItem(key);
             return getStorageItem(key) ? false : true;
         },
     });
