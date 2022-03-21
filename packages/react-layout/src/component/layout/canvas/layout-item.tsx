@@ -57,30 +57,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const is_float = type === WidgetType.drag;
 
-    // const { min_x, max_x, min_y, max_y } = snapToDragBound(
-    //     props.bound,
-    //     props.grid,
-    //     type
-    // );
-
-    // const gridX = (count: number) => {
-    //     return is_float || is_dragging ? count : count * col_width;
-    // };
-    // const gridY = (count: number) => {
-    //     return is_float || is_dragging ? count : count * row_height;
-    // };
-
-    // const margin_height = is_float ? 0 : props.margin[0];
-    // const margin_width = is_float ? 0 : props.margin[1];
-
-    // const offset_x = is_float ? 0 : Math.max(margin_width, props.padding.left);
-    // const offset_y = is_float ? 0 : Math.max(margin_height, props.padding.top);
-
-    // const w = Math.max(gridX(props.w) - margin_width, 0);
-    // const h = Math.max(gridY(props.h) - margin_height, 0);
-
-    // const x = clamp(gridX(props.x) + offset_x, min_x, max_x - w);
-    // const y = clamp(gridY(props.y) + offset_y, min_y, max_y - h);
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
