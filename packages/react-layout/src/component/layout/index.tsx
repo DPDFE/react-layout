@@ -40,7 +40,7 @@ import {
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
-import { clamp, DEFAULT_BOUND } from './canvas/draggable';
+import { clamp } from './canvas/draggable';
 import { useLayoutHooks } from './hooks';
 import isEqual from 'lodash.isequal';
 import { LayoutContext } from './context';
@@ -68,27 +68,31 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
 
     const [shadow_widget, setShadowWidget] = useState<ItemPos>();
-    const [last_shadow_widget, setLastShadowWidget] = useState<ItemPos>();
 
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
+    const layout_name = useMemo(() => {
+        return `layout_name_${props.layout_id}`;
+    }, []);
+
     const {
         current_width,
-        padding,
         grid,
         current_height,
         wrapper_width,
         wrapper_height,
         t_offset,
-        l_offset
+        l_offset,
+        padding,
+        getCurrentBound,
+        snapToDrag
     } = useLayoutHooks(
         layout,
         props,
         container_ref,
         canvas_viewport_ref,
         shadow_widget_ref,
-        shadow_widget,
-        operator_type
+        shadow_widget
     );
 
     /**
@@ -124,42 +128,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
         [operator_type]
     );
 
-    const layout_name = useMemo(() => {
-        return `layout_name_${props.layout_id}`;
-    }, []);
-
-    /** 根据类型配置计算边界状态 */
-    const getCurrentBound = (type: WidgetType) => {
-        if (type === WidgetType.drag) {
-            return props.need_drag_bound
-                ? {
-                      min_x: padding.left,
-                      max_x: current_width - padding.right,
-                      min_y: padding.top,
-                      max_y: Infinity
-                  }
-                : DEFAULT_BOUND;
-        } else {
-            return props.need_grid_bound
-                ? {
-                      min_x: 0,
-                      max_x: props.cols,
-                      min_y: 0,
-                      max_y: Infinity
-                  }
-                : DEFAULT_BOUND;
-        }
-    };
-
     /**
      * 获取组件实际宽高
      * 组件信息补全
      */
     function ensureWidgetModelValid(item: LayoutItem) {
-        const is_float = item.type === WidgetType.drag;
-        item.w = Math.max(item.min_w ?? (is_float ? 5 : 1), item.w);
-        item.h = Math.max(item.min_h ?? (is_float ? 5 : 1), item.h);
-
         item.type = item.type ?? WidgetType.drag;
         item.is_draggable = item.is_draggable ?? false;
         item.is_resizable = item.is_resizable ?? false;
@@ -169,13 +142,17 @@ const ReactLayout = (props: ReactLayoutProps) => {
         item.is_checked = item.is_checked ?? false;
         item.moved = item.moved ?? false;
         item.need_mask = item.need_mask ?? false;
+
+        const is_float = item.type === WidgetType.drag;
+        item.w = Math.max(item.min_w ?? (is_float ? 5 : 1), item.w);
+        item.h = Math.max(item.min_h ?? (is_float ? 5 : 1), item.h);
     }
 
     /**
      * 根据children信息生成layout
      */
     useEffect(() => {
-        if (current_width) {
+        if (props.children) {
             const new_layout = React.Children.toArray(props.children).map(
                 (child: React.ReactElement) => {
                     const item = child.props['data-drag'] as LayoutItem;
@@ -187,7 +164,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             compact(new_layout);
             setLayout(new_layout);
         }
-    }, [props.children, grid, padding, current_width]);
+    }, [props.children]);
 
     /** 拖拽添加 */
     const onDrop = (e: React.MouseEvent) => {
@@ -203,7 +180,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
             );
 
             setShadowWidget(undefined);
-            setLastShadowWidget(undefined);
 
             if (item && item.i) {
                 setCurrentChecked(item.i);
@@ -435,17 +411,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
         return (
             shadow_widget && (
                 <WidgetItem
+                    {...snapToDrag(shadow_widget)}
                     layout_id={props.layout_id}
                     ref={shadow_widget_ref}
-                    {...shadow_widget}
+                    padding={padding}
+                    margin={props.item_margin}
                     is_placeholder={true}
                     bound={getCurrentBound(shadow_widget.type)}
-                    padding={padding}
                     scale={props.scale}
-                    margin={props.item_margin}
                     mode={LayoutMode.view}
                     grid={grid}
-                    layout_type={props.layout_type}
                     is_resizable={false}
                     is_draggable={false}
                     is_checked={false}
@@ -463,19 +438,18 @@ const ReactLayout = (props: ReactLayoutProps) => {
         if (widget) {
             return (
                 <WidgetItem
-                    layout_type={props.layout_type}
                     layout_id={props.layout_id}
                     key={widget.i}
-                    {...widget}
-                    {...child.props}
+                    {...snapToDrag(widget)}
                     padding={padding}
+                    margin={props.item_margin}
+                    {...child.props}
                     grid={grid}
                     bound={getCurrentBound(widget.type)}
                     layout_nested={props.is_nested_layout}
                     mode={props.mode}
                     children={child}
                     scale={props.scale}
-                    margin={props.item_margin}
                     is_checked={checked_index === widget.i}
                     is_resizable={
                         widget.is_resizable && checked_index === widget.i
@@ -756,6 +730,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 {/* 可视区域窗口 */}
                 <div
                     ref={canvas_viewport_ref}
+                    className={'canvas_viewport'}
                     style={{
                         overflowY: 'auto',
                         position: 'relative',
@@ -767,7 +742,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     <div
                         ref={canvas_wrapper_ref}
                         style={{
-                            width: wrapper_width,
+                            width:
+                                props.layout_type === LayoutType.GRID
+                                    ? '100%'
+                                    : wrapper_width,
                             height: wrapper_height
                         }}
                         /** 阻止了onDragOver以后，onDrop事件才生效 */
@@ -778,7 +756,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         onDragLeave={
                             props.mode === LayoutMode.edit ? onDragLeave : noop
                         }
-                        // onClick={onClick}
                     >
                         {/* 实际画布区域 */}
                         <div
@@ -787,7 +764,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             className={styles.canvas}
                             style={{
                                 ...props.style,
-                                width: current_width,
+                                width:
+                                    props.layout_type === LayoutType.GRID
+                                        ? '100%'
+                                        : props.width,
                                 height: current_height,
                                 top: t_offset,
                                 left: l_offset,
@@ -795,12 +775,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                     props.mode === LayoutMode.edit
                                         ? 'unset'
                                         : 'hidden',
-                                ...(props.is_nested_layout
-                                    ? {}
-                                    : {
-                                          transform: `scale(${props.scale})`,
-                                          transformOrigin: '0 0'
-                                      })
+                                ...(props.is_nested_layout ? {} : {
+                                    transform: `scale(${props.scale})`,
+                                    transformOrigin: '0 0'
+                                })
                             }}
                         >
                             {shadowGridItem()}
@@ -812,9 +790,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                 }
                             )}
                         </div>
-                        {/* <div style={{ position: 'absolute', zIndex: 100 }}>
-                            {layout_name}
-                        </div> */}
                     </div>
                 </div>
             </div>

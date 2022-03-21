@@ -26,27 +26,7 @@ export function snapToGrid(pos: LayoutItem, grid: GridType) {
     return pos;
 }
 
-export function snapToDrag(l: LayoutItem, grid: GridType) {
-    const { x, y, w, h, type, is_dragging } = l;
-    const { row_height, col_width } = grid;
-    if (type === WidgetType.drag || is_dragging) {
-        return l;
-    }
-
-    return {
-        ...l,
-        x: x * col_width,
-        y: y * row_height,
-        w: w * col_width,
-        h: h * row_height,
-    };
-}
-
-export function snapToDragBound(
-    pos: BoundType,
-    grid: GridType,
-    type: WidgetType
-) {
+export function snapToDragBound(pos: BoundType, grid: GridType, type: WidgetType) {
     const { row_height, col_width } = grid;
 
     if (type === WidgetType.drag) {
@@ -57,7 +37,7 @@ export function snapToDragBound(
         min_x: pos.min_x * col_width,
         min_y: pos.min_y * row_height,
         max_x: pos.max_x * col_width,
-        max_y: pos.max_y * row_height,
+        max_y: pos.max_y * row_height
     };
 }
 

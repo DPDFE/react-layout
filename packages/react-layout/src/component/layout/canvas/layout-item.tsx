@@ -16,7 +16,7 @@ import React, {
     useEffect,
 } from "react";
 
-import { MIN_DRAG_LENGTH, snapToDragBound } from "../calc";
+import { MIN_DRAG_LENGTH, snapToDragBound } from '../calc';
 import Draggable, { clamp, DEFAULT_BOUND } from "./draggable";
 import Resizable from "./resizable";
 import styles from "./styles.module.css";
@@ -30,6 +30,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const {
         i,
+        w,
+        h,
+        x,
+        y,
         type,
         is_dragging,
         is_draggable,
@@ -38,34 +42,45 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         in_nested_layout,
         is_nested,
         layout_id,
+        offset_x,
+        offset_y,
+        margin_height,
+        margin_width,
+        min_x,
+        max_x,
+        min_y,
+        max_y
     } = props;
+
+
+    const { registry } = useContext(LayoutContext);
 
     const is_float = type === WidgetType.drag;
 
-    const { min_x, max_x, min_y, max_y } = snapToDragBound(
-        props.bound,
-        props.grid,
-        type
-    );
+    // const { min_x, max_x, min_y, max_y } = snapToDragBound(
+    //     props.bound,
+    //     props.grid,
+    //     type
+    // );
 
-    const gridX = (count: number) => {
-        return is_float || is_dragging ? count : count * col_width;
-    };
-    const gridY = (count: number) => {
-        return is_float || is_dragging ? count : count * row_height;
-    };
+    // const gridX = (count: number) => {
+    //     return is_float || is_dragging ? count : count * col_width;
+    // };
+    // const gridY = (count: number) => {
+    //     return is_float || is_dragging ? count : count * row_height;
+    // };
 
-    const margin_height = is_float ? 0 : props.margin[0];
-    const margin_width = is_float ? 0 : props.margin[1];
+    // const margin_height = is_float ? 0 : props.margin[0];
+    // const margin_width = is_float ? 0 : props.margin[1];
 
-    const offset_x = is_float ? 0 : Math.max(margin_width, props.padding.left);
-    const offset_y = is_float ? 0 : Math.max(margin_height, props.padding.top);
+    // const offset_x = is_float ? 0 : Math.max(margin_width, props.padding.left);
+    // const offset_y = is_float ? 0 : Math.max(margin_height, props.padding.top);
 
-    const w = Math.max(gridX(props.w) - margin_width, 0);
-    const h = Math.max(gridY(props.h) - margin_height, 0);
+    // const w = Math.max(gridX(props.w) - margin_width, 0);
+    // const h = Math.max(gridY(props.h) - margin_height, 0);
 
-    const x = clamp(gridX(props.x) + offset_x, min_x, max_x - w);
-    const y = clamp(gridY(props.y) + offset_y, min_y, max_y - h);
+    // const x = clamp(gridX(props.x) + offset_x, min_x, max_x - w);
+    // const y = clamp(gridY(props.y) + offset_y, min_y, max_y - h);
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -180,7 +195,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         }
     };
 
-    const { registry } = useContext(LayoutContext);
 
     const unique_id = useMemo(() => {
         return `layout_item_${i}`;
@@ -202,7 +216,18 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 is_draggable,
             },
         }),
-        [i, layout_id, x, y, w, h, type, is_nested, is_resizable, is_draggable]
+        [
+            i,
+            layout_id,
+            x,
+            y,
+            w,
+            h,
+            type,
+            is_nested,
+            is_resizable,
+            is_draggable
+        ],
     );
 
     const getLayoutItemRef = useCallback((): HTMLElement | null => {
@@ -333,29 +358,27 @@ WidgetItem.defaultProps = {
 export default memo(WidgetItem, compareProps);
 
 function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
-    const render_flag = !Object.keys(prev)
-        .map((key) => {
-            if (
-                [
-                    "is_dragging",
-                    "data-drag",
-                    "setCurrentChecked",
-                    "onDragStart",
-                    "onDrag",
-                    "onDragStop",
-                    "onResizeStart",
-                    "onResize",
-                    "onResizeStop",
-                    "onPositionChange",
-                ].includes(key)
-            ) {
-                return true;
-            } else {
-                return isEqual(prev[key], next[key]);
-            }
-        })
-        .some((state) => state === false);
-    return render_flag;
+     return !Object.keys(prev)
+         .map((key) => {
+             if (
+                 [
+                     'data-drag',
+                     'setCurrentChecked',
+                     'onDragStart',
+                     'onDrag',
+                     'onDragStop',
+                     'onResizeStart',
+                     'onResize',
+                     'onResizeStop',
+                     'onPositionChange'
+                 ].includes(key)
+             ) {
+                 return true;
+             } else {
+                 return isEqual(prev[key], next[key]);
+             }
+         })
+         .some((state) => state === false);
 }
 
 export function childrenEqual(a: ReactElement, b: ReactElement): boolean {

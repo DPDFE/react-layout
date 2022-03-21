@@ -11,10 +11,10 @@ import {
     DragResult,
     DropResult,
     LayoutMode,
-    WidgetType,
-} from "@dpdfe/react-layout";
+    WidgetType
+} from '@dpdfe/react-layout';
 import 'antd/dist/antd.css';
-import "@dpdfe/react-layout/dist/style.css";
+import '@dpdfe/react-layout/dist/style.css';
 import { Tabs } from 'antd';
 
 const { TabPane } = Tabs;
@@ -400,6 +400,7 @@ const DefaultLayout = () => {
                         //         i: 'drop_element'
                         //     };
                         // }}
+                        // need_ruler
                         widgets={widgets}
                         layout_id={'root'}
                         layout_type={LayoutType.GRID}
@@ -539,9 +540,7 @@ const DefaultLayout = () => {
                                                         LayoutType.GRID
                                                     }
                                                     mode={LayoutMode.edit}
-                                                    container_padding={[
-                                                        10, 10, 10, 10
-                                                    ]}
+                                                    container_padding={[0]}
                                                     row_height={50}
                                                     cols={8}
                                                     item_margin={[10, 10]}

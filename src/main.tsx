@@ -249,10 +249,8 @@ function Router() {
 }
 
 ReactDOM.render(
-    <React.StrictMode>
         <BrowserRouter>
             <Router />
-        </BrowserRouter>
-    </React.StrictMode>,
+        </BrowserRouter>,
     document.getElementById("root")
 );

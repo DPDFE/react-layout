@@ -6,6 +6,7 @@
 .layout_item {
     position: absolute;
     outline: none;
+    overflow: hidden;
 }
 
 .layout_item:hover {

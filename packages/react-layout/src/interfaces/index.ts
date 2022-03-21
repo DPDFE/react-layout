@@ -205,13 +205,20 @@ interface EventBaseProps extends NodeProps {
 /** 子元素 */
 export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     layout_id: string;
+    offset_x: number;
+    offset_y: number;
+    margin_height: number;
+    margin_width: number;
+    min_x: number;
+    max_x: number;
+    min_y: number;
+    max_y: number;
     scale: number;
     bound: BoundType;
     grid: GridType;
     margin: [number, number];
     padding: MarginType;
     mode: LayoutMode.edit | LayoutMode.view;
-    layout_type: LayoutType.DRAG | LayoutType.GRID;
     in_nested_layout?: boolean;
     is_placeholder: boolean;
     setCurrentChecked?: (idx: string) => void;
