@@ -319,7 +319,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         mixBlendMode: 'difference',
                         filter: 'invert(0)',
                         borderRadius: 5,
-                        border: '1px dashed #ddd' // #ed7116
+                        border: '1px dashed #fff' // #ed7116
                     }}
                 ></div>
             )}

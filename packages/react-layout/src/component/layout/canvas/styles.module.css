@@ -15,7 +15,7 @@
 }
 
 .invert-border {
-    background-color: #ddd;
+    background-color: #fff;
     mix-blend-mode: difference;
     filter: invert(0);
 }
