@@ -19,7 +19,9 @@ import React, {
 import { MIN_DRAG_LENGTH } from '../calc';
 import Draggable, { DEFAULT_BOUND } from './draggable';
 import Resizable from './resizable';
+// vite在watch模式下检测style变化需要先将内容引进来才能监听到
 import styles from './styles.module.css';
+import './styles.module.css';
 import { LayoutContext } from '../context';
 
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
