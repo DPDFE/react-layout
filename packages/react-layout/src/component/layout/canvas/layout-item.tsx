@@ -136,7 +136,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         className: `${[
             child.props.className,
             styles.layout_item,
-            props.is_checked && styles['no-border']
+            styles['no-border']
         ].join(' ')}`,
         style: {
             transition: props.is_checked ? 'none' : 'all 0.1s linear',
