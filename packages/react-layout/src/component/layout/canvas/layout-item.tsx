@@ -3,9 +3,9 @@ import {
     LayoutMode,
     LayoutItemEntry,
     LayoutItemDescriptor,
-    WidgetType,
-} from "@/interfaces";
-import isEqual from "lodash.isequal";
+    WidgetType
+} from '@/interfaces';
+import isEqual from 'lodash.isequal';
 import React, {
     memo,
     ReactElement,
@@ -13,14 +13,14 @@ import React, {
     useRef,
     useCallback,
     useMemo,
-    useEffect,
-} from "react";
+    useEffect
+} from 'react';
 
-import { MIN_DRAG_LENGTH, snapToDragBound } from '../calc';
-import Draggable, { clamp, DEFAULT_BOUND } from "./draggable";
-import Resizable from "./resizable";
-import styles from "./styles.module.css";
-import { LayoutContext } from "../context";
+import { MIN_DRAG_LENGTH } from '../calc';
+import Draggable, { DEFAULT_BOUND } from './draggable';
+import Resizable from './resizable';
+import styles from './styles.module.css';
+import { LayoutContext } from '../context';
 
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children) as ReactElement;
@@ -52,11 +52,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         max_y
     } = props;
 
-
     const { registry } = useContext(LayoutContext);
 
     const is_float = type === WidgetType.drag;
-
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -65,22 +63,22 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         switch (e.keyCode) {
             case 37: // ArrowLeft
                 return {
-                    x: x - keycode_step,
+                    x: x - keycode_step
                 };
 
             case 38: // ArrowUp
                 return {
-                    y: y - keycode_step,
+                    y: y - keycode_step
                 };
 
             case 39: // ArrowRight
                 return {
-                    x: x + keycode_step,
+                    x: x + keycode_step
                 };
 
             case 40: // ArrowDown
                 return {
-                    y: y + keycode_step,
+                    y: y + keycode_step
                 };
         }
         return undefined;
@@ -89,15 +87,15 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     // 如果child是一个iframe，就是一个黑洞，用遮罩把黑洞填上
     const mask_dom = (
         <div
-            key={"mask"}
+            key={'mask'}
             className={`react-drag-item-mask`}
             style={{
-                border: "none",
-                width: "100%",
-                height: "100%",
-                position: "absolute",
+                border: 'none',
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
                 top: 0,
-                left: 0,
+                left: 0
             }}
         ></div>
     );
@@ -122,7 +120,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 if (keydown_pos) {
                     props.onPositionChange?.({
                         ...{ x, y, h, w, i, type },
-                        ...keydown_pos,
+                        ...keydown_pos
                     });
                 }
             }
@@ -130,28 +128,25 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ref: item_ref,
         id: `${
             child.props.id
-                ? child.props.id + " layout_item_" + i
-                : "layout_item_" + i
+                ? child.props.id + ' layout_item_' + i
+                : 'layout_item_' + i
         }`,
         className: `${[
             child.props.className,
             styles.layout_item,
-            props.is_checked
-                ? styles["light-theme-border"]
-                : styles["no-border"],
-        ].join(" ")}`,
+            props.is_checked && styles['no-border']
+        ].join(' ')}`,
         style: {
-            transition: props.is_checked ? "none" : "all 0.1s linear",
+            transition: props.is_checked ? 'none' : 'all 0.1s linear',
             width: w,
             height: h,
             ...child.props.style,
-            pointerEvents:
-                is_dragging || props.is_placeholder ? "none" : "auto",
+            pointerEvents: is_dragging || props.is_placeholder ? 'none' : 'auto'
         },
         children:
             props.mode === LayoutMode.edit && need_mask
                 ? [child.props.children, mask_dom]
-                : child.props.children,
+                : child.props.children
     });
 
     /**
@@ -161,16 +156,15 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         if (is_float) {
             return {
                 col_width: props.min_w ?? MIN_DRAG_LENGTH,
-                row_height: props.min_h ?? MIN_DRAG_LENGTH,
+                row_height: props.min_h ?? MIN_DRAG_LENGTH
             };
         } else {
             return {
                 col_width: (props.min_w ?? 1) * col_width,
-                row_height: (props.min_h ?? 1) * row_height,
+                row_height: (props.min_h ?? 1) * row_height
             };
         }
     };
-
 
     const unique_id = useMemo(() => {
         return `layout_item_${i}`;
@@ -189,21 +183,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 type,
                 is_nested,
                 is_resizable,
-                is_draggable,
-            },
+                is_draggable
+            }
         }),
-        [
-            i,
-            layout_id,
-            x,
-            y,
-            w,
-            h,
-            type,
-            is_nested,
-            is_resizable,
-            is_draggable
-        ],
+        [i, layout_id, x, y, w, h, type, is_nested, is_resizable, is_draggable]
     );
 
     const getLayoutItemRef = useCallback((): HTMLElement | null => {
@@ -217,7 +200,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         () => ({
             descriptor,
             unique_id,
-            getRef: getLayoutItemRef,
+            getRef: getLayoutItemRef
         }),
         [descriptor, getLayoutItemRef, unique_id]
     );
@@ -243,82 +226,101 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     }, [entry, registry.draggable]);
 
     return (
-        <Draggable
-            {...{ x, y, h, w, i }}
-            threshold={5}
-            use_css_transform={is_nested}
-            scale={props.scale}
-            is_draggable={is_draggable}
-            onDragStart={() => {
-                props.onDragStart?.();
-            }}
-            draggable_cancel={props.draggable_cancel}
-            bound={
-                in_nested_layout
-                    ? DEFAULT_BOUND
-                    : {
-                          max_y: max_y - h,
-                          min_y,
-                          max_x: max_x - w,
-                          min_x,
-                      }
-            }
-            onDrag={({ x, y }) => {
-                const item = {
-                    x: x - offset_x,
-                    y: y - offset_y,
-                    w: w + margin_width,
-                    h: h + margin_height,
-                    type,
-                    i,
-                };
-                props.onDrag?.(item);
-            }}
-            onDragStop={({ x, y }) => {
-                props.onDragStop?.({
-                    x: x - offset_x,
-                    y: y - offset_y,
-                    w: w + margin_width,
-                    h: h + margin_height,
-                    type,
-                    i,
-                });
-            }}
-        >
-            <Resizable
-                ref={item_ref}
-                {...{ x, y, h, w, i, type }}
+        <React.Fragment>
+            <Draggable
+                {...{ x, y, h, w, i }}
+                threshold={5}
+                use_css_transform={is_nested}
                 scale={props.scale}
-                is_resizable={is_resizable}
-                onResizeStart={() => {
-                    props.onResizeStart?.();
+                is_draggable={is_draggable}
+                onDragStart={() => {
+                    props.onDragStart?.();
                 }}
-                onResize={({ x, y, h, w }) => {
-                    props.onResize?.({
+                draggable_cancel={props.draggable_cancel}
+                bound={
+                    in_nested_layout
+                        ? DEFAULT_BOUND
+                        : {
+                              max_y: max_y - h,
+                              min_y,
+                              max_x: max_x - w,
+                              min_x
+                          }
+                }
+                onDrag={({ x, y }) => {
+                    const item = {
                         x: x - offset_x,
                         y: y - offset_y,
                         w: w + margin_width,
                         h: h + margin_height,
                         type,
-                        i,
-                    });
+                        i
+                    };
+                    props.onDrag?.(item);
                 }}
-                grid={getCurrentGrid()}
-                bound={{ max_x, max_y, min_x, min_y }}
-                onResizeStop={({ x, y, h, w }) => {
-                    props.onResizeStop?.({
+                onDragStop={({ x, y }) => {
+                    props.onDragStop?.({
                         x: x - offset_x,
                         y: y - offset_y,
                         w: w + margin_width,
                         h: h + margin_height,
                         type,
-                        i,
+                        i
                     });
                 }}
             >
-                {new_child}
-            </Resizable>
-        </Draggable>
+                <Resizable
+                    ref={item_ref}
+                    {...{ x, y, h, w, i, type }}
+                    scale={props.scale}
+                    is_resizable={is_resizable}
+                    onResizeStart={() => {
+                        props.onResizeStart?.();
+                    }}
+                    onResize={({ x, y, h, w }) => {
+                        props.onResize?.({
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            w: w + margin_width,
+                            h: h + margin_height,
+                            type,
+                            i
+                        });
+                    }}
+                    grid={getCurrentGrid()}
+                    bound={{ max_x, max_y, min_x, min_y }}
+                    onResizeStop={({ x, y, h, w }) => {
+                        props.onResizeStop?.({
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            w: w + margin_width,
+                            h: h + margin_height,
+                            type,
+                            i
+                        });
+                    }}
+                >
+                    {new_child}
+                </Resizable>
+            </Draggable>
+            {props.is_checked && !props.is_placeholder && (
+                <div
+                    className='checked_border'
+                    style={{
+                        position: 'absolute',
+                        top: y,
+                        left: x,
+                        width: w,
+                        height: h,
+                        pointerEvents: 'none',
+                        backgroundColor: 'transparent',
+                        mixBlendMode: 'difference',
+                        filter: 'invert(0.2)',
+                        border: '1px dashed #ddd'
+                    }}
+                ></div>
+            )}
+        </React.Fragment>
     );
 });
 
@@ -328,33 +330,33 @@ WidgetItem.defaultProps = {
     is_checked: false,
     is_placeholder: false,
     style: {},
-    margin: [0, 0] as [number, number],
+    margin: [0, 0] as [number, number]
 };
 
 export default memo(WidgetItem, compareProps);
 
 function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
-     return !Object.keys(prev)
-         .map((key) => {
-             if (
-                 [
-                     'data-drag',
-                     'setCurrentChecked',
-                     'onDragStart',
-                     'onDrag',
-                     'onDragStop',
-                     'onResizeStart',
-                     'onResize',
-                     'onResizeStop',
-                     'onPositionChange'
-                 ].includes(key)
-             ) {
-                 return true;
-             } else {
-                 return isEqual(prev[key], next[key]);
-             }
-         })
-         .some((state) => state === false);
+    return !Object.keys(prev)
+        .map((key) => {
+            if (
+                [
+                    'data-drag',
+                    'setCurrentChecked',
+                    'onDragStart',
+                    'onDrag',
+                    'onDragStop',
+                    'onResizeStart',
+                    'onResize',
+                    'onResizeStop',
+                    'onPositionChange'
+                ].includes(key)
+            ) {
+                return true;
+            } else {
+                return isEqual(prev[key], next[key]);
+            }
+        })
+        .some((state) => state === false);
 }
 
 export function childrenEqual(a: ReactElement, b: ReactElement): boolean {
