@@ -317,8 +317,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         pointerEvents: 'none',
                         backgroundColor: 'transparent',
                         mixBlendMode: 'difference',
-                        filter: 'invert(0.2)',
-                        border: '1px dashed #ddd'
+                        filter: 'invert(0)',
+                        borderRadius: 5,
+                        border: '1px dashed #ddd' // #ed7116
                     }}
                 ></div>
             )}
