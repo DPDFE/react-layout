@@ -45,6 +45,7 @@ import { useLayoutHooks } from './hooks';
 import isEqual from 'lodash.isequal';
 import { LayoutContext } from './context';
 import { addEvent, removeEvent } from '@dpdfe/event-utils';
+import drawGridLines from './grid-lines';
 
 const ReactLayout = (props: ReactLayoutProps) => {
     const {
@@ -61,6 +62,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const container_ref = useRef<HTMLDivElement>(null);
     const canvas_viewport_ref = useRef<HTMLDivElement>(null); // 画布视窗，可视区域
     const canvas_wrapper_ref = useRef<HTMLDivElement>(null); // canvas存放的画布，增加边距支持滚动
+    const grid_lines_ref = useRef<HTMLCanvasElement>(null); //
     const canvas_ref = useRef<HTMLDivElement>(null);
     const shadow_widget_ref = useRef<HTMLDivElement>(null);
     const flex_container_ref = useRef<HTMLDivElement>(null);
@@ -688,6 +690,18 @@ const ReactLayout = (props: ReactLayoutProps) => {
         };
     }, [onClick]);
 
+    const canvas_width =
+        props.layout_type === LayoutType.GRID ? '100%' : props.width;
+
+    useEffect(() => {
+        grid_lines_ref.current &&
+            drawGridLines(
+                grid_lines_ref.current,
+                current_width,
+                current_height
+            );
+    }, [current_width, current_height, grid_lines_ref.current]);
+
     return (
         <div
             className={`react-layout ${styles.container} ${props.className}`}
@@ -757,6 +771,19 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             props.mode === LayoutMode.edit ? onDragLeave : noop
                         }
                     >
+                        {/* 网格线 */}
+                        <canvas
+                            width={current_width}
+                            height={current_height}
+                            ref={grid_lines_ref}
+                            style={{
+                                width: canvas_width,
+                                height: current_height,
+                                top: t_offset,
+                                left: l_offset,
+                                position: 'absolute'
+                            }}
+                        ></canvas>
                         {/* 实际画布区域 */}
                         <div
                             id={layout_name}
@@ -764,10 +791,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             className={styles.canvas}
                             style={{
                                 ...props.style,
-                                width:
-                                    props.layout_type === LayoutType.GRID
-                                        ? '100%'
-                                        : props.width,
+                                width: canvas_width,
                                 height: current_height,
                                 top: t_offset,
                                 left: l_offset,
@@ -775,10 +799,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                     props.mode === LayoutMode.edit
                                         ? 'unset'
                                         : 'hidden',
-                                ...(props.is_nested_layout ? {} : {
-                                    transform: `scale(${props.scale})`,
-                                    transformOrigin: '0 0'
-                                })
+                                ...(props.is_nested_layout
+                                    ? {}
+                                    : {
+                                          transform: `scale(${props.scale})`,
+                                          transformOrigin: '0 0'
+                                      })
                             }}
                         >
                             {shadowGridItem()}

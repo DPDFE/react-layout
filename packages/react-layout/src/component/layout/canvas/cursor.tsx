@@ -1,7 +1,7 @@
-import { CursorProps } from "@/interfaces";
-import React, { memo, useRef } from "react";
-import Draggable, { DEFAULT_BOUND } from "./draggable";
-import styles from "./styles.module.css";
+import { CursorProps } from '@/interfaces';
+import React, { memo, useRef } from 'react';
+import Draggable, { DEFAULT_BOUND } from './draggable';
+import styles from './styles.module.css';
 
 const Cursor = (props: CursorProps) => {
     const cursor_ref = useRef<HTMLDivElement>(null);
@@ -31,7 +31,7 @@ const Cursor = (props: CursorProps) => {
                     marginLeft: -3,
                     mixBlendMode: 'difference',
                     filter: 'invert(0)',
-                    backgroundColor: '#ed7116' // #ed7116
+                    backgroundColor: '#ed7116'
                 }}
             ></div>
         </Draggable>
@@ -39,7 +39,7 @@ const Cursor = (props: CursorProps) => {
 };
 
 Cursor.defaultProps = {
-    bound: DEFAULT_BOUND,
+    bound: DEFAULT_BOUND
 };
 
 export default memo(Cursor);
