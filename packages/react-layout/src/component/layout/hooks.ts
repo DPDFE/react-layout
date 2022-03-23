@@ -116,27 +116,31 @@ export const useLayoutHooks = (
 
     /** 根据类型配置计算边界状态 */
     const getCurrentBound = (type: WidgetType) => {
-        switch (type) {
-            case WidgetType.drag:
+        const bound_strategy = {
+            [WidgetType.drag]: () => {
                 return props.need_drag_bound
                     ? {
-                        min_x: padding.left,
-                        max_x:
-                            (props as DragLayoutProps).width - padding.right,
-                        min_y: padding.top,
-                        max_y: Infinity
-                    }
+                          min_x: padding.left,
+                          max_x:
+                              (props as DragLayoutProps).width - padding.right,
+                          min_y: padding.top,
+                          max_y: Infinity
+                      }
                     : DEFAULT_BOUND;
-            case WidgetType.grid:
+            },
+            [WidgetType.grid]: () => {
                 return props.need_grid_bound
                     ? {
-                        min_x: 0,
-                        max_x: props.cols,
-                        min_y: 0,
-                        max_y: Infinity
-                    }
+                          min_x: 0,
+                          max_x: props.cols,
+                          min_y: 0,
+                          max_y: Infinity
+                      }
                     : DEFAULT_BOUND;
-        }
+            }
+        };
+
+        return bound_strategy[type]();
     };
 
     /**
@@ -172,13 +176,13 @@ export const useLayoutHooks = (
     const snapToDrag = (l: LayoutItem) => {
         const { type, is_dragging } = l;
 
-        const is_float = type === WidgetType.drag;
-
         const { min_x, max_x, min_y, max_y } = snapToDragBound(
             getCurrentBound(l.type),
             grid,
             type
         );
+
+        const is_float = type === WidgetType.drag;
 
         const gridX = (count: number) => {
             return is_float || is_dragging ? count : count * grid.col_width;
@@ -187,11 +191,27 @@ export const useLayoutHooks = (
             return is_float || is_dragging ? count : count * grid.row_height;
         };
 
-        const margin_height = is_float ? 0 : props.item_margin[0];
-        const margin_width = is_float ? 0 : props.item_margin[1];
+        const layout_item_stragegy = {
+            [WidgetType.drag]: () => {
+                return {
+                    margin_height: 0,
+                    margin_width: 0,
+                    offset_x: 0,
+                    offset_y: 0
+                };
+            },
+            [WidgetType.grid]: () => {
+                return {
+                    margin_height: props.item_margin[0],
+                    margin_width: props.item_margin[1],
+                    offset_x: Math.max(props.item_margin[1], padding.left),
+                    offset_y: Math.max(props.item_margin[0], padding.top)
+                };
+            }
+        };
 
-        const offset_x = is_float ? 0 : Math.max(margin_width, padding.left);
-        const offset_y = is_float ? 0 : Math.max(margin_height, padding.top);
+        const { offset_x, offset_y, margin_height, margin_width } =
+            layout_item_stragegy[type]();
 
         const w = Math.max(gridX(l.w) - margin_width, 0);
         const h = Math.max(gridY(l.h) - margin_height, 0);
@@ -236,7 +256,6 @@ export const useLayoutHooks = (
         }
 
         return { max_left, max_right, max_top, max_bottom };
-
     }, [layout]);
 
     const GetCurrentContainerHeight = () => {
@@ -247,7 +266,7 @@ export const useLayoutHooks = (
             const { layout_type, mode, scale } = props;
 
             const current_height =
-                props.layout_type === LayoutType.DRAG
+                layout_type === LayoutType.DRAG
                     ? (props as DragLayoutProps).height
                     : client_height;
 
@@ -257,63 +276,72 @@ export const useLayoutHooks = (
 
             const max_r = max_right > current_width ? max_right : current_width;
 
-            // 如果没有宽高就是自适应模式
-            if (layout_type === LayoutType.GRID) {
-                setCanvasWrapperWidth(current_width);
-                setCanvasWrapperHeight(max_b);
-                setCurrentHeight(max_b);
-                setTopOffset(0);
-                setLeftOffset(0);
-            } else {
-                const calc_width = current_width * scale;
-                const calc_height = current_height * scale;
+            const height_stragegy = {
+                [LayoutType.GRID]: () => {
+                    setCanvasWrapperWidth(current_width);
+                    setCanvasWrapperHeight(max_b);
+                    setCurrentHeight(max_b);
+                    setTopOffset(0);
+                    setLeftOffset(0);
+                },
+                [LayoutType.DRAG]: () => {
+                    const calc_width = current_width * scale;
+                    const calc_height = current_height * scale;
 
-                // 计算水平、垂直偏移量
-                if (mode === LayoutMode.edit) {
-                    const ele_width = (max_r - max_left) * scale;
-                    const ele_height = (max_b - max_top) * scale;
+                    // 计算水平、垂直偏移量
+                    if (mode === LayoutMode.edit) {
+                        const ele_width = (max_r - max_left) * scale;
+                        const ele_height = (max_b - max_top) * scale;
 
-                    const l_offset =
-                        calcOffset(client_width, calc_width + WRAPPER_PADDING) +
-                        WRAPPER_PADDING / 2;
-                    const t_offset =
-                        calcOffset(
-                            client_height,
-                            calc_height + WRAPPER_PADDING
-                        ) +
-                        WRAPPER_PADDING / 2;
+                        const l_offset =
+                            calcOffset(
+                                client_width,
+                                calc_width + WRAPPER_PADDING
+                            ) +
+                            WRAPPER_PADDING / 2;
+                        const t_offset =
+                            calcOffset(
+                                client_height,
+                                calc_height + WRAPPER_PADDING
+                            ) +
+                            WRAPPER_PADDING / 2;
 
-                    const wrapper_calc_width = Math.max(
-                        calc_width > ele_width
-                            ? calc_width + WRAPPER_PADDING
-                            : ele_width + 2 * l_offset,
-                        client_width
-                    );
-                    const wrapper_calc_height = Math.max(
-                        calc_height > ele_height
-                            ? calc_height + WRAPPER_PADDING
-                            : ele_height + 2 * t_offset,
-                        client_height
-                    );
+                        const wrapper_calc_width = Math.max(
+                            calc_width > ele_width
+                                ? calc_width + WRAPPER_PADDING
+                                : ele_width + 2 * l_offset,
+                            client_width
+                        );
+                        const wrapper_calc_height = Math.max(
+                            calc_height > ele_height
+                                ? calc_height + WRAPPER_PADDING
+                                : ele_height + 2 * t_offset,
+                            client_height
+                        );
 
-                    setCurrentHeight(current_height);
-                    setCanvasWrapperWidth(wrapper_calc_width);
-                    setCanvasWrapperHeight(wrapper_calc_height);
-                    setTopOffset(t_offset + Math.abs(max_top) * scale);
-                    setLeftOffset(l_offset + Math.abs(max_left) * scale);
-                } else {
-                    const l_offset = calcOffset(client_width, calc_width);
-                    const t_offset = calcOffset(client_height, calc_height);
+                        setCurrentHeight(current_height);
+                        setCanvasWrapperWidth(wrapper_calc_width);
+                        setCanvasWrapperHeight(wrapper_calc_height);
+                        setTopOffset(t_offset + Math.abs(max_top) * scale);
+                        setLeftOffset(l_offset + Math.abs(max_left) * scale);
+                    } else {
+                        const l_offset = calcOffset(client_width, calc_width);
+                        const t_offset = calcOffset(client_height, calc_height);
 
-                    setCanvasWrapperWidth(Math.max(calc_width, client_width));
-                    setCanvasWrapperHeight(
-                        Math.max(calc_height, client_height)
-                    );
-                    setCurrentHeight(current_height);
-                    setTopOffset(t_offset);
-                    setLeftOffset(l_offset);
+                        setCanvasWrapperWidth(
+                            Math.max(calc_width, client_width)
+                        );
+                        setCanvasWrapperHeight(
+                            Math.max(calc_height, client_height)
+                        );
+                        setCurrentHeight(current_height);
+                        setTopOffset(t_offset);
+                        setLeftOffset(l_offset);
+                    }
                 }
-            }
+            };
+
+            height_stragegy[layout_type ?? LayoutType.GRID]();
         }
     };
 

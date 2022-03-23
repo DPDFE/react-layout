@@ -14,14 +14,8 @@
     transition: transition_time;
 }
 
-.invert-border {
-    background-color: #fff;
-    mix-blend-mode: difference;
-    filter: invert(0);
-}
-
 .no-border {
-    border: 1px solid transparent;
+    border: 1px solid transparent !important;
 }
 
 .resize-handler {

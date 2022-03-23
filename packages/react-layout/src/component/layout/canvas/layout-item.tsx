@@ -136,9 +136,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         className: `${[
             child.props.className,
             styles.layout_item,
-            styles['no-border']
+            props.is_checked && styles['no-border']
         ].join(' ')}`,
         style: {
+            border: '1px solid transparent',
             transition: props.is_checked ? 'none' : 'all 0.1s linear',
             width: w,
             height: h,
@@ -319,7 +320,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         mixBlendMode: 'difference',
                         filter: 'invert(0)',
                         borderRadius: 5,
-                        border: '1px dashed #fff' // #ed7116
+                        border: '1px dashed #ed7116' // #ed7116
                     }}
                 ></div>
             )}

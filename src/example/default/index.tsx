@@ -400,7 +400,7 @@ const DefaultLayout = () => {
                         //         i: 'drop_element'
                         //     };
                         // }}
-                        // need_ruler
+                        need_ruler
                         widgets={widgets}
                         layout_id={'root'}
                         layout_type={LayoutType.GRID}
