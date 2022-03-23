@@ -284,13 +284,14 @@ export interface ResizableProps extends EventBaseProps, ItemPos {
     }) => void;
 }
 
-export interface MenuProps {
+export interface MenuProps extends NodeProps {
     children: ReactElement;
     // target: ReactElement; // 点击目标时目录显示，非目标不显示
 }
 
-export interface MenuItemProps {
+export interface MenuItemProps extends NodeProps {
     children: ReactChild;
+    onClick?: (e: React.MouseEvent) => void;
 }
 
 export interface LayoutDescriptor {

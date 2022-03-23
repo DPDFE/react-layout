@@ -6,11 +6,19 @@ import {
     LayoutMode,
     ReactLayoutContext,
     WidgetType,
-} from "@dpdfe/react-layout";
-import "@dpdfe/react-layout/dist/style.css";
+    DirectionType
+} from '@dpdfe/react-layout';
+import '@dpdfe/react-layout/dist/style.css';
 
 const ResizableDragStaticLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
+    const [guide_line, setGuideLine] = useState<
+        {
+            x: number;
+            y: number;
+            direction: DirectionType;
+        }[]
+    >([]);
 
     useEffect(() => {
         setWidgets(generateLayout());
@@ -62,6 +70,38 @@ const ResizableDragStaticLayout = () => {
                 onDragStop={(layout: LayoutItem[]) => {
                     console.log('onDragStop');
                     setWidgets(layout);
+                }}
+                guide_lines={guide_line}
+                addGuideLine={({
+                    x,
+                    y,
+                    direction
+                }: {
+                    x: number;
+                    y: number;
+                    direction: DirectionType;
+                }) => {
+                    setGuideLine(guide_line.concat([{ x, y, direction }]));
+                }}
+                removeGuideLine={({
+                    x,
+                    y,
+                    direction
+                }: {
+                    x: number;
+                    y: number;
+                    direction: DirectionType;
+                }) => {
+                    setGuideLine(
+                        guide_line.filter(
+                            (line) =>
+                                !(
+                                    line.x === x &&
+                                    line.y === y &&
+                                    line.direction === direction
+                                )
+                        )
+                    );
                 }}
             >
                 {widgets.map((w) => {

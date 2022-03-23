@@ -8,7 +8,7 @@ const Menus = (props: MenuProps) => {
     const menu_ref = useRef<HTMLDivElement>(null);
 
     return (
-        <div className={styles.menus} ref={menu_ref}>
+        <div ref={menu_ref} style={{...props.style}}>
             {props.children}
         </div>
     );

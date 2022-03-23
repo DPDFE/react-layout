@@ -794,9 +794,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 </div>
             </div>
 
-            {/* {props.mode === LayoutMode.edit && canvas_viewport_ref.current && (
+            {props.mode === LayoutMode.edit && canvas_viewport_ref.current && (
                 <GuideLine
-                    scale={(props as DragLayoutProps).scale}
+                    scale={props.scale}
                     t_offset={t_offset}
                     l_offset={l_offset}
                     guide_lines={props.guide_lines}
@@ -804,7 +804,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     ruler_hover_pos={ruler_hover_pos}
                     removeGuideLine={props.removeGuideLine}
                 ></GuideLine>
-            )} */}
+            )}
         </div>
     );
 };

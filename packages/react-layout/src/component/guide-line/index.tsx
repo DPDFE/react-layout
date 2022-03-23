@@ -226,21 +226,19 @@ const GuideLine = (props: GuideLineProps) => {
             {renderGuideLines()}
 
             {guide_menu_pos && (
-                <Menus>
+                <Menus
+                    style={{
+                        position: 'absolute',
+                        left: guide_menu_pos.x,
+                        top: guide_menu_pos.y
+                    }}
+                >
                     <MenuItem
-                    // style={{
-                    //     left:
-                    //         guide_menu_pos.x -
-                    //         canvas_viewport_ref.current!.scrollLeft,
-                    //     top:
-                    //         guide_menu_pos.y -
-                    //         canvas_viewport_ref.current!.scrollTop
-                    // }}
-                    // onClick={(e) => {
-                    //     e.nativeEvent.stopImmediatePropagation();
-                    //     removeGuideLine?.(guide_menu_pos.line);
-                    //     setDeleteGuideMenuPos(undefined);
-                    // }}
+                    onClick={(e) => {
+                        e.nativeEvent.stopImmediatePropagation();
+                        removeGuideLine?.(guide_menu_pos.line);
+                        setDeleteGuideMenuPos(undefined);
+                    }}
                     >
                         删除
                     </MenuItem>
