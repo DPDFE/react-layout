@@ -95,6 +95,7 @@ type LayoutBase = NodeProps & {
     container_padding: [number, number?, number?, number?];
     item_margin: [number, number];
     need_ruler: boolean;
+    need_grid_lines: boolean;
     need_grid_bound: boolean;
     need_drag_bound: boolean;
     is_nested_layout: boolean; // 嵌套在其他布局里的布局
