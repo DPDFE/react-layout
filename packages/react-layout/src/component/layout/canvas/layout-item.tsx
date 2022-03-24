@@ -3,7 +3,8 @@ import {
     LayoutMode,
     LayoutItemEntry,
     LayoutItemDescriptor,
-    WidgetType
+    WidgetType,
+    OperatorType
 } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, {
@@ -54,7 +55,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         max_y
     } = props;
 
-    const { registry } = useContext(LayoutContext);
+    const { operator_type, registry } = useContext(LayoutContext);
 
     const is_float = type === WidgetType.drag;
 
@@ -85,6 +86,21 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         }
         return undefined;
     };
+
+    // 如果child是一个iframe，就是一个黑洞，用遮罩把黑洞填上
+    const mask_handler = (
+        <div
+            key={'mask'}
+            className={`layout-item-mask`}
+            style={{
+                width: '100%',
+                height: '100%',
+                position: 'absolute',
+                top: 0,
+                left: 0
+            }}
+        ></div>
+    );
 
     // 如果child是一个iframe，就是一个黑洞，用遮罩把黑洞填上
     const draggable_handler = (
@@ -148,6 +164,27 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         </React.Fragment>
     );
 
+    const getCurrentChildren = useCallback(() => {
+        const children = [child.props.children];
+        if (props.mode === LayoutMode.edit) {
+            if (need_draggable_handler) {
+                children.push(draggable_handler);
+            }
+            // 拖拽过程中让所有元素都可以触发move事件
+            if (
+                operator_type &&
+                [
+                    OperatorType.drag,
+                    OperatorType.drop,
+                    OperatorType.resize
+                ].includes(operator_type)
+            ) {
+                children.push(mask_handler);
+            }
+        }
+        return children;
+    }, [operator_type]);
+
     const new_child = React.cloneElement(child, {
         tabIndex: i,
         onMouseDown: () => {
@@ -197,10 +234,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     ? 'grab'
                     : 'inherit'
         },
-        children:
-            props.mode === LayoutMode.edit && need_draggable_handler
-                ? [child.props.children, draggable_handler]
-                : child.props.children
+        children: getCurrentChildren()
     });
 
     /**
