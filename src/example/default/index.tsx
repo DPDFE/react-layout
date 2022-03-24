@@ -400,6 +400,7 @@ const DefaultLayout = () => {
                         //         i: 'drop_element'
                         //     };
                         // }}
+                        style={{ background: '#fff' }}
                         need_ruler
                         widgets={widgets}
                         layout_id={'root'}
@@ -411,6 +412,7 @@ const DefaultLayout = () => {
                         item_margin={[10, 10]}
                         container_padding={[10]}
                         scale={scale}
+                        need_grid_lines={true}
                         guide_lines={guide_line}
                         mode={LayoutMode.edit}
                         // need_ruler={true}
