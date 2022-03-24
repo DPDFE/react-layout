@@ -75,6 +75,7 @@ const DefaultLayout = () => {
                 h: 100,
                 x: 100,
                 y: 100,
+                need_draggable_handler: true,
                 type: WidgetType.drag,
                 is_resizable: true,
                 is_draggable: true,

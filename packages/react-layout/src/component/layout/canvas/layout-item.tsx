@@ -40,7 +40,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         is_dragging,
         is_draggable,
         is_resizable,
-        need_mask,
+        need_draggable_handler,
         in_nested_layout,
         is_nested,
         layout_id,
@@ -87,19 +87,65 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     };
 
     // 如果child是一个iframe，就是一个黑洞，用遮罩把黑洞填上
-    const mask_dom = (
-        <div
-            key={'mask'}
-            className={`react-drag-item-mask`}
-            style={{
-                border: 'none',
-                width: '100%',
-                height: '100%',
-                position: 'absolute',
-                top: 0,
-                left: 0
-            }}
-        ></div>
+    const draggable_handler = (
+        <React.Fragment>
+            <div
+                key={'top_draggable_handler'}
+                className={`draggable_handler`}
+                style={{
+                    border: 'none',
+                    width: '100%',
+                    height: '5%',
+                    minHeight: 10,
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    cursor: 'grab'
+                }}
+            ></div>
+            <div
+                key={'left_draggable_handler'}
+                className={`draggable_handler`}
+                style={{
+                    border: 'none',
+                    width: '5%',
+                    height: '100%',
+                    minWidth: 10,
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    cursor: 'grab'
+                }}
+            ></div>
+            <div
+                key={'bottom_draggable_handler'}
+                className={`draggable_handler`}
+                style={{
+                    border: 'none',
+                    width: '100%',
+                    height: '5%',
+                    minHeight: 10,
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    cursor: 'grab'
+                }}
+            ></div>
+            <div
+                key={'right_draggable_handler'}
+                className={`draggable_handler`}
+                style={{
+                    border: 'none',
+                    width: '5%',
+                    height: '100%',
+                    minWidth: 10,
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    cursor: 'grab'
+                }}
+            ></div>
+        </React.Fragment>
     );
 
     const new_child = React.cloneElement(child, {
@@ -144,11 +190,16 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             width: w,
             height: h,
             ...child.props.style,
-            pointerEvents: is_dragging || props.is_placeholder ? 'none' : 'auto'
+            pointerEvents:
+                is_dragging || props.is_placeholder ? 'none' : 'auto',
+            cursor:
+                props.is_draggable && !props.need_draggable_handler
+                    ? 'grab'
+                    : 'inherit'
         },
         children:
-            props.mode === LayoutMode.edit && need_mask
-                ? [child.props.children, mask_dom]
+            props.mode === LayoutMode.edit && need_draggable_handler
+                ? [child.props.children, draggable_handler]
                 : child.props.children
     });
 
@@ -239,6 +290,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 onDragStart={() => {
                     props.onDragStart?.();
                 }}
+                draggable_handler={
+                    need_draggable_handler ? '.draggable_handler' : undefined
+                }
                 draggable_cancel={props.draggable_cancel}
                 bound={
                     in_nested_layout

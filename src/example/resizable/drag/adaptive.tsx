@@ -5,9 +5,9 @@ import {
     LayoutItem,
     LayoutMode,
     ReactLayoutContext,
-    WidgetType,
-} from "@dpdfe/react-layout";
-import "@dpdfe/react-layout/dist/style.css";
+    WidgetType
+} from '@dpdfe/react-layout';
+import '@dpdfe/react-layout/dist/style.css';
 
 const ResizableDragResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
@@ -17,7 +17,7 @@ const ResizableDragResponsiveLayout = () => {
     }, []);
 
     function generateLayout() {
-        return Array.from({ length: 2 }).map((_, i) => {
+        return Array.from({ length: 1 }).map((_, i) => {
             const random = parseInt((Math.random() * 500).toFixed());
             return {
                 w: 100,
@@ -28,7 +28,7 @@ const ResizableDragResponsiveLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.drag,
-                need_mask: true
+                need_draggable_handler: true
             };
         });
     }
@@ -72,7 +72,9 @@ const ResizableDragResponsiveLayout = () => {
                             data-drag={w}
                             style={{
                                 border: '1px solid',
-                                padding: 10
+                                padding: 10,
+                                display: 'flex',
+                                flexDirection: 'column'
                             }}
                         >
                             <iframe

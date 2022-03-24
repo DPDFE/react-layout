@@ -121,8 +121,7 @@ export const useLayoutHooks = (
                 return props.need_drag_bound
                     ? {
                           min_x: padding.left,
-                          max_x:
-                              (props as DragLayoutProps).width - padding.right,
+                          max_x: current_width - padding.right,
                           min_y: padding.top,
                           max_y: Infinity
                       }

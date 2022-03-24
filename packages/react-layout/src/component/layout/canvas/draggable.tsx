@@ -50,10 +50,10 @@ const Draggable = (props: DraggableProps) => {
             return;
         }
 
+        const current = (child.ref as RefObject<HTMLElement>).current;
+
         // 有禁止拖拽元素时阻止拖拽效果
         if (e.target && props.draggable_cancel) {
-            const current = (child.ref as RefObject<HTMLElement>).current;
-
             const is_cancel_match = matchesSelectorAndParentsTo(
                 e.target as Node,
                 props.draggable_cancel,
@@ -61,6 +61,18 @@ const Draggable = (props: DraggableProps) => {
             );
 
             if (is_cancel_match) {
+                return;
+            }
+        }
+
+        if (e.target && props.draggable_handler) {
+            const is_draggable_match = matchesSelectorAndParentsTo(
+                e.target as Node,
+                props.draggable_handler,
+                current as Node
+            );
+
+            if (!is_draggable_match) {
                 return;
             }
         }
@@ -184,7 +196,6 @@ const Draggable = (props: DraggableProps) => {
             ...(props.use_css_transform && drag_state !== DragStates.dragging
                 ? setTopLeft()
                 : setTransform()),
-            cursor: props.is_draggable ? 'grab' : 'inherit',
             position: drag_state === DragStates.dragging ? 'fixed' : 'absolute',
             willChange:
                 drag_state === DragStates.dragging ? 'transform' : 'auto',

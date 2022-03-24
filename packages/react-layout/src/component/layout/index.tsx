@@ -143,7 +143,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         item.is_draggable = item.is_draggable ?? false;
         item.is_resizable = item.is_resizable ?? false;
         item.is_nested = item.is_nested ?? false;
-        item.need_mask = item.need_mask ?? false;
+        item.need_draggable_handler = item.need_draggable_handler ?? false;
 
         const is_float = item.type === WidgetType.drag;
         item.w = Math.max(item.min_w ?? (is_float ? 5 : 1), item.w);
@@ -829,7 +829,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                             height: '100%',
                                             top: 0,
                                             left: 0,
-                                            position: 'absolute'
+                                            position: 'absolute',
+                                            pointerEvents: 'none'
                                         }}
                                     ></canvas>
                                 )}
