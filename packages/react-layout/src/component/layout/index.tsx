@@ -771,19 +771,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             props.mode === LayoutMode.edit ? onDragLeave : noop
                         }
                     >
-                        {/* 网格线 */}
-                        <canvas
-                            width={current_width}
-                            height={current_height}
-                            ref={grid_lines_ref}
-                            style={{
-                                width: canvas_width,
-                                height: current_height,
-                                top: t_offset,
-                                left: l_offset,
-                                position: 'absolute'
-                            }}
-                        ></canvas>
                         {/* 实际画布区域 */}
                         <div
                             id={layout_name}
@@ -807,6 +794,22 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                       })
                             }}
                         >
+                            {/* 网格线 */}
+                            {props.mode === LayoutMode.edit &&
+                                props.need_grid_lines && (
+                                    <canvas
+                                        width={current_width}
+                                        height={current_height}
+                                        ref={grid_lines_ref}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            top: 0,
+                                            left: 0,
+                                            position: 'absolute'
+                                        }}
+                                    ></canvas>
+                                )}
                             {shadowGridItem()}
                             {React.Children.map(
                                 props.children,
@@ -845,6 +848,7 @@ ReactLayout.defaultProps = {
     item_margin: [0, 0],
     mode: LayoutMode.view,
     need_ruler: false,
+    need_grid_lines: false,
     need_grid_bound: true,
     need_drag_bound: true,
     is_nested: false
