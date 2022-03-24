@@ -236,7 +236,7 @@ export interface DraggableProps extends EventBaseProps {
     threshold?: number;
     x: number;
     y: number;
-    scale: number;
+    scale?: number;
     bound?: Partial<BoundType>;
     is_draggable?: boolean;
     use_css_transform?: boolean;
@@ -254,7 +254,11 @@ export interface CursorProps extends Omit<DraggableProps, 'children'> {
 }
 
 /** resize */
-export interface ResizableProps extends EventBaseProps, ItemPos {
+export interface ResizableProps extends EventBaseProps {
+    x: number;
+    y: number;
+    h: number;
+    w: number;
     onMouseDown?: (e: React.MouseEvent) => void;
     scale: number;
     grid: GridType;

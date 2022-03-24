@@ -2,11 +2,11 @@ import {
     BoundType,
     CursorPointer,
     CursorType,
-    ResizableProps,
-} from "@/interfaces";
-import React, { memo, useRef } from "react";
-import Cursor from "./cursor";
-import { clamp, DEFAULT_BOUND } from "./draggable";
+    ResizableProps
+} from '@/interfaces';
+import React, { memo, useRef } from 'react';
+import Cursor from './cursor';
+import { clamp, DEFAULT_BOUND } from './draggable';
 
 const Resizable = React.forwardRef((props: ResizableProps, ref) => {
     const child = React.Children.only(props.children);
@@ -28,7 +28,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x,
                         y,
                         w: Math.min(props.x - x + props.w, props.x + props.w),
-                        h: Math.min(props.y - y + props.h, props.y + props.h),
+                        h: Math.min(props.y - y + props.h, props.y + props.h)
                     },
                     props.bound
                 );
@@ -39,7 +39,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x: props.x,
                         y: y,
                         w: x - props.x,
-                        h: Math.min(props.y - y + props.h, props.y + props.h),
+                        h: Math.min(props.y - y + props.h, props.y + props.h)
                     },
                     props.bound
                 );
@@ -50,7 +50,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x: x,
                         y: props.y,
                         w: Math.min(props.x - x + props.w, props.x + props.w),
-                        h: y - props.y,
+                        h: y - props.y
                     },
                     props.bound
                 );
@@ -61,7 +61,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x: props.x,
                         y: props.y,
                         w: x - props.x,
-                        h: y - props.y,
+                        h: y - props.y
                     },
                     props.bound
                 );
@@ -83,17 +83,19 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
             child.props.onMouseDown?.(e);
         },
         props: child.props,
-        className: `react-resizable ${props.className ? props.className : ""} ${
-            child.props.className ? child.props.className : ""
+        className: `react-resizable ${props.className ? props.className : ''} ${
+            child.props.className ? child.props.className : ''
         }`,
         ref: resize_ref,
         style: {
             width: props.w,
             height: props.h,
             ...props.style,
-            ...child.props.style,
-        },
+            ...child.props.style
+        }
     });
+
+    const { row_height, col_width } = props.grid;
 
     return (
         <React.Fragment>
@@ -110,8 +112,8 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            max_y: props.y + props.h - props.grid.row_height,
-                            max_x: props.x + props.w - props.grid.col_width,
+                            max_y: props.y + props.h - row_height,
+                            max_x: props.x + props.w - col_width
                         }}
                     ></Cursor>
                     {/* 右上 */}
@@ -124,8 +126,8 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            min_x: props.x + props.grid.col_width,
-                            max_y: props.y + props.h - props.grid.row_height,
+                            min_x: props.x + col_width,
+                            max_y: props.y + row_height
                         }}
                     ></Cursor>
                     {/* 左下 */}
@@ -138,8 +140,8 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            max_x: props.x + props.w - props.grid.col_width,
-                            min_y: props.y + props.grid.row_height,
+                            max_x: props.x + props.w - col_width,
+                            min_y: props.y + row_height
                         }}
                     ></Cursor>
                     {/* 右下 */}
@@ -152,8 +154,8 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
                         bound={{
-                            min_x: props.x + props.grid.col_width,
-                            min_y: props.y + props.grid.row_height,
+                            min_x: props.x + col_width,
+                            min_y: props.y + row_height
                         }}
                     ></Cursor>
                 </React.Fragment>
@@ -166,7 +168,7 @@ Resizable.defaultProps = {
     is_resizable: false,
     scale: 1,
     style: {},
-    bound: DEFAULT_BOUND,
+    bound: DEFAULT_BOUND
 };
 
 export default memo(Resizable);

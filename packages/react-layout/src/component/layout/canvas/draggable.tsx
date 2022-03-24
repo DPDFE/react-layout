@@ -39,8 +39,8 @@ const Draggable = (props: DraggableProps) => {
 
         const { left, top } = parent?.getBoundingClientRect();
 
-        const x = (e.clientX + parent.scrollLeft - left) / props.scale;
-        const y = (e.clientY + parent.scrollTop - top) / props.scale;
+        const x = (e.clientX + parent.scrollLeft - left) / (props.scale ?? 1);
+        const y = (e.clientY + parent.scrollTop - top) / (props.scale ?? 1);
         return { x, y };
     };
 
