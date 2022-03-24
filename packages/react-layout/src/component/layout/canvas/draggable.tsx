@@ -1,16 +1,16 @@
-import { BoundType, DraggableProps } from "@/interfaces";
+import { BoundType, DraggableProps } from '@/interfaces';
 import {
     addEvent,
     removeEvent,
-    matchesSelectorAndParentsTo,
-} from "@dpdfe/event-utils";
-import React, { DOMElement, memo, RefObject, useEffect, useState } from "react";
+    matchesSelectorAndParentsTo
+} from '@dpdfe/event-utils';
+import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
 
 export const DEFAULT_BOUND = {
     min_y: -Infinity,
     max_y: Infinity,
     min_x: -Infinity,
-    max_x: Infinity,
+    max_x: Infinity
 };
 interface Pos {
     x: number;
@@ -18,9 +18,9 @@ interface Pos {
 }
 
 export enum DragStates {
-    ready = "ready",
-    dragging = "dragging",
-    draged = "draged",
+    ready = 'ready',
+    dragging = 'dragging',
+    draged = 'draged'
 }
 
 const Draggable = (props: DraggableProps) => {
@@ -92,7 +92,7 @@ const Draggable = (props: DraggableProps) => {
             drag_state === DragStates.ready &&
             isSloppyClickThresholdExceeded(mouse_pos, {
                 x,
-                y,
+                y
             })
         ) {
             props.onDragStart?.();
@@ -106,7 +106,7 @@ const Draggable = (props: DraggableProps) => {
 
         const pos = {
             x: clamp(props.x + delta_x, min_x, max_x),
-            y: clamp(props.y + delta_y, min_y, max_y),
+            y: clamp(props.y + delta_y, min_y, max_y)
         };
         if (drag_state === DragStates.dragging) {
             props.onDrag?.(pos);
@@ -128,8 +128,8 @@ const Draggable = (props: DraggableProps) => {
         switch (drag_state) {
             case DragStates.ready:
             case DragStates.dragging:
-                addEvent(document, "mousemove", handleDrag);
-                addEvent(document, "mouseup", handleDragStop);
+                addEvent(document, 'mousemove', handleDrag);
+                addEvent(document, 'mouseup', handleDragStop);
                 break;
             case DragStates.draged:
                 props.onDragStop?.({ x: props.x, y: props.y });
@@ -137,8 +137,8 @@ const Draggable = (props: DraggableProps) => {
                 break;
         }
         return () => {
-            removeEvent(document, "mousemove", handleDrag);
-            removeEvent(document, "mouseup", handleDragStop);
+            removeEvent(document, 'mousemove', handleDrag);
+            removeEvent(document, 'mouseup', handleDragStop);
         };
     }, [drag_state]);
 
@@ -149,24 +149,24 @@ const Draggable = (props: DraggableProps) => {
             WebkitTransform: translate,
             MozTransform: translate,
             msTransform: translate,
-            OTransform: translate,
+            OTransform: translate
         };
     };
 
     const setTopLeft = () => {
         return {
             left: `${props.x}px`,
-            top: `${props.y}px`,
+            top: `${props.y}px`
         };
     };
 
     const setUserSelect = () => {
-        const user_select: "none" | "inherit" =
-            drag_state === DragStates.dragging ? "none" : "inherit";
+        const user_select: 'none' | 'inherit' =
+            drag_state === DragStates.dragging ? 'none' : 'inherit';
         return {
             UserSelect: user_select,
             WebkitUserSelect: user_select,
-            MozUserSelect: user_select,
+            MozUserSelect: user_select
         };
     };
 
@@ -176,19 +176,21 @@ const Draggable = (props: DraggableProps) => {
             child.props.onMouseDown?.(e);
             handleDragStart(e as unknown as MouseEvent);
         },
-        className: `${props.className ? props.className : ""} ${
-            child.props.className ? child.props.className : ""
+        className: `${props.className ? props.className : ''} ${
+            child.props.className ? child.props.className : ''
         }`,
         style: {
             ...setUserSelect(),
-            ...(props.use_css_transform ? setTopLeft() : setTransform()),
-            cursor: props.is_draggable ? "grab" : "inherit",
-            position: drag_state === DragStates.dragging ? "fixed" : "absolute",
+            ...(props.use_css_transform && drag_state !== DragStates.dragging
+                ? setTopLeft()
+                : setTransform()),
+            cursor: props.is_draggable ? 'grab' : 'inherit',
+            position: drag_state === DragStates.dragging ? 'fixed' : 'absolute',
             willChange:
-                drag_state === DragStates.dragging ? "transform" : "auto",
+                drag_state === DragStates.dragging ? 'transform' : 'auto',
             ...props.style,
-            ...child.props.style, // 让props覆盖上面配置的style
-        },
+            ...child.props.style // 让props覆盖上面配置的style
+        }
     });
 
     return new_child;
@@ -199,7 +201,7 @@ Draggable.defaultProps = {
     is_draggable: false,
     scale: 1,
     style: {},
-    bound: DEFAULT_BOUND,
+    bound: DEFAULT_BOUND
 };
 
 export default memo(Draggable);
@@ -214,7 +216,7 @@ export function formatBound(bound?: Partial<BoundType>): BoundType {
             max_x: bound.max_x == undefined ? Infinity : bound.max_x,
             min_x: bound.min_x == undefined ? -Infinity : bound.min_x,
             max_y: bound.max_y == undefined ? Infinity : bound.max_y,
-            min_y: bound.min_y == undefined ? -Infinity : bound.min_y,
+            min_y: bound.min_y == undefined ? -Infinity : bound.min_y
         };
     }
     return DEFAULT_BOUND;

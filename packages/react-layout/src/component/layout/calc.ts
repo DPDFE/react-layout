@@ -4,10 +4,9 @@ import {
     GridType,
     MarginType,
     BoundType,
-    WidgetType,
-} from "@/interfaces";
-import React, { RefObject } from "react";
-
+    WidgetType
+} from '@/interfaces';
+import React, { RefObject } from 'react';
 
 export const RULER_GAP = 100; // 标尺间隔大小
 export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
@@ -26,7 +25,11 @@ export function snapToGrid(pos: LayoutItem, grid: GridType) {
     return pos;
 }
 
-export function snapToDragBound(pos: BoundType, grid: GridType, type: WidgetType) {
+export function snapToDragBound(
+    pos: BoundType,
+    grid: GridType,
+    type: WidgetType
+) {
     const { row_height, col_width } = grid;
 
     if (type === WidgetType.drag) {
@@ -55,7 +58,7 @@ export function replaceWidget(arr: LayoutItem[], item?: LayoutItem) {
 }
 export function cloneWidget(w: LayoutItem) {
     return {
-        ...w,
+        ...w
     };
 }
 
@@ -187,8 +190,8 @@ function moveElementAwayFromCollision(
         y: Math.max(l.y - collision.h, 0),
         w: collision.w,
         h: collision.h,
-        i: "fake_item",
-        type: WidgetType.grid,
+        i: 'fake_item',
+        type: WidgetType.grid
     };
 
     if (is_user_action) {
@@ -268,7 +271,7 @@ export function completedPadding(
                     top: bound[0],
                     right: bound[0],
                     bottom: bound[0],
-                    left: bound[0],
+                    left: bound[0]
                 };
                 break;
             case 2:
@@ -276,7 +279,7 @@ export function completedPadding(
                     top: bound[0],
                     right: bound[1] as number,
                     bottom: bound[0],
-                    left: bound[1] as number,
+                    left: bound[1] as number
                 };
                 break;
             case 3:
@@ -284,7 +287,7 @@ export function completedPadding(
                     top: bound[0],
                     right: bound[1] as number,
                     bottom: bound[2] as number,
-                    left: bound[1] as number,
+                    left: bound[1] as number
                 };
                 break;
             case 4:
@@ -292,7 +295,7 @@ export function completedPadding(
                     top: bound[0],
                     right: bound[1] as number,
                     bottom: bound[2] as number,
-                    left: bound[3] as number,
+                    left: bound[3] as number
                 };
                 break;
         }
@@ -302,4 +305,17 @@ export function completedPadding(
 
 export function calcOffset(client: number, calc: number) {
     return client - calc > 0 ? (client - calc) / 2 : 0;
+}
+
+export function removePersonalValue(arr: LayoutItem[]) {
+    return arr.map((item) => {
+        const w = { ...item };
+        delete w.is_dragging;
+        delete w.moved;
+        return w;
+    });
+}
+
+export function addPersonalValue(item: LayoutItem) {
+    return { ...item, is_dragging: false, moved: false };
 }

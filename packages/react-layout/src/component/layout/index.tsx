@@ -20,7 +20,9 @@ import {
     cloneWidget,
     moveToWidget,
     replaceWidget,
-    getDropPosition
+    getDropPosition,
+    removePersonalValue,
+    addPersonalValue
 } from './calc';
 import styles from './styles.module.css';
 import {
@@ -69,6 +71,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const [shadow_widget, setShadowWidget] = useState<ItemPos>();
 
+    const [source_layout, setSourceLayout] = useState<LayoutItem[]>([]);
+    const pre_source_layout = useRef<LayoutItem[]>();
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
     const layout_name = useMemo(() => {
@@ -137,16 +141,27 @@ const ReactLayout = (props: ReactLayoutProps) => {
         item.is_draggable = item.is_draggable ?? false;
         item.is_resizable = item.is_resizable ?? false;
         item.is_nested = item.is_nested ?? false;
-        item.covered = item.covered ?? false;
-        item.is_dragging = item.is_dragging ?? false;
-        item.is_checked = item.is_checked ?? false;
-        item.moved = item.moved ?? false;
         item.need_mask = item.need_mask ?? false;
 
         const is_float = item.type === WidgetType.drag;
         item.w = Math.max(item.min_w ?? (is_float ? 5 : 1), item.w);
         item.h = Math.max(item.min_h ?? (is_float ? 5 : 1), item.h);
     }
+
+    /**
+     * layout 不变不做事情
+     */
+    useEffect(() => {
+        if (!isEqual(pre_source_layout.current, source_layout)) {
+            const new_layout = source_layout.map((item) => {
+                return addPersonalValue(item);
+            });
+            compact(new_layout);
+            setLayout(new_layout);
+        }
+
+        pre_source_layout.current = source_layout;
+    }, [source_layout]);
 
     /**
      * 根据children信息生成layout
@@ -161,8 +176,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     return { ...item };
                 }
             );
-            compact(new_layout);
-            setLayout(new_layout);
+            setSourceLayout(new_layout);
         }
     }, [props.children]);
 
@@ -291,9 +305,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
             case OperatorType.resizeover:
                 responders.onResizeStop?.(data);
                 break;
+            // drop 事件需要return回调值
             case OperatorType.dropover:
                 return responders.onDrop?.({ ...data, widget });
-            // drag、dragover 事件在context/hooks触发
             case OperatorType.drag:
                 responders.onDrag?.({ ...data, destination });
                 break;
@@ -315,7 +329,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             responders.onChange?.({ ...data, destination });
         }
 
-        return widget;
+        return;
     };
 
     const getDestinationLayoutByItemId = useCallback(
@@ -342,12 +356,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     dragging_layout.current = undefined;
                 }
 
-                return { widgets, layout_id: dragging_layout_id.current };
+                return {
+                    widgets: removePersonalValue(widgets),
+                    layout_id: dragging_layout_id.current
+                };
             }
 
             return;
         },
-        [registry, props.layout_id, dragging_layout_id]
+        [registry, props.layout_id, dragging_layout_id, source_layout]
     );
 
     const getCurrentLayoutByItem = useCallback(
@@ -400,11 +417,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
             // );
 
             return {
-                layout: replaceWidget(layout, shadow_widget),
+                layout: removePersonalValue(
+                    replaceWidget(layout, shadow_widget)
+                ),
                 widget: current_widget
             };
         },
-        [layout, grid]
+        [layout, grid, source_layout]
     );
 
     const shadowGridItem = () => {
@@ -460,7 +479,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             : noop
                     }
                     onDragStart={() => {
-                        handleResponder(OperatorType.dragstart, layout, widget);
+                        handleResponder(
+                            OperatorType.dragstart,
+                            removePersonalValue(layout),
+                            widget
+                        );
                     }}
                     onDrag={(item) => {
                         if (checked_index === widget.i) {
@@ -775,10 +798,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                     props.mode === LayoutMode.edit
                                         ? 'unset'
                                         : 'hidden',
-                                ...(props.is_nested_layout ? {} : {
-                                    transform: `scale(${props.scale})`,
-                                    transformOrigin: '0 0'
-                                })
+                                ...(props.is_nested_layout
+                                    ? {}
+                                    : {
+                                          transform: `scale(${props.scale})`,
+                                          transformOrigin: '0 0'
+                                      })
                             }}
                         >
                             {shadowGridItem()}

@@ -1,42 +1,42 @@
-import React, { ReactChild, ReactElement, RefObject } from "react";
+import React, { ReactChild, ReactElement, RefObject } from 'react';
 
 export enum OperatorType {
-    dragstart = "dragstart",
-    drag = "drag",
-    dragover = "dragover",
-    resizestart = "resizestart",
-    resize = "resize",
-    resizeover = "resizeover",
-    drop = "drop",
-    dropover = "dropover",
-    changeover = "changeover",
+    dragstart = 'dragstart',
+    drag = 'drag',
+    dragover = 'dragover',
+    resizestart = 'resizestart',
+    resize = 'resize',
+    resizeover = 'resizeover',
+    drop = 'drop',
+    dropover = 'dropover',
+    changeover = 'changeover'
 }
 
 export enum WidgetType {
-    drag = "drag",
-    grid = "grid",
+    drag = 'drag',
+    grid = 'grid'
 }
 
 export enum LayoutMode {
-    edit = "edit",
-    view = "view",
+    edit = 'edit',
+    view = 'view'
 }
 
 export enum LayoutType {
-    DRAG = "drag",
-    GRID = "grid",
+    DRAG = 'drag',
+    GRID = 'grid'
 }
 
 export enum CursorType {
-    nw = "nw-resize",
-    ne = "ne-resize",
-    sw = "sw-resize",
-    se = "se-resize",
+    nw = 'nw-resize',
+    ne = 'ne-resize',
+    sw = 'sw-resize',
+    se = 'se-resize'
 }
 
 export enum DirectionType {
-    horizontal = "horizontal",
-    vertical = "vertical",
+    horizontal = 'horizontal',
+    vertical = 'vertical'
 }
 
 export type RulerPointer = {
@@ -183,7 +183,6 @@ export interface LayoutItem extends ItemPos {
     is_draggable?: boolean;
     is_resizable?: boolean;
     is_nested?: boolean; // 嵌套在其他布局里
-    covered?: boolean;
     moved?: boolean;
     is_dragging?: boolean;
     is_checked?: boolean;
@@ -246,7 +245,7 @@ export interface DraggableProps extends EventBaseProps {
     onDragStop?: ({ x, y }: { x: number; y: number }) => void;
 }
 
-export interface CursorProps extends Omit<DraggableProps, "children"> {
+export interface CursorProps extends Omit<DraggableProps, 'children'> {
     cursor: CursorType;
     onDrag?: ({ x, y, cursor }: CursorPointer) => void;
     onDragStop?: ({ x, y, cursor }: CursorPointer) => void;
@@ -264,7 +263,7 @@ export interface ResizableProps extends EventBaseProps, ItemPos {
         x,
         y,
         h,
-        w,
+        w
     }: {
         x: number;
         y: number;
@@ -275,7 +274,7 @@ export interface ResizableProps extends EventBaseProps, ItemPos {
         x,
         y,
         h,
-        w,
+        w
     }: {
         x: number;
         y: number;
