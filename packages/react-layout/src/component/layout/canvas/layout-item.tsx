@@ -219,7 +219,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         className: `${[
             child.props.className,
             styles.layout_item,
-            props.is_checked && styles['no-border']
+            props.is_checked ? styles['no-border'] : ''
         ].join(' ')}`,
         style: {
             border: '1px solid transparent',
