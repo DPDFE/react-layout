@@ -28,7 +28,7 @@ const ResizableDragResponsiveLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.drag,
-                need_draggable_handler: true
+                need_border_draggable_handler: true
             };
         });
     }

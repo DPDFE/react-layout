@@ -53,10 +53,10 @@ const Draggable = (props: DraggableProps) => {
         const current = (child.ref as RefObject<HTMLElement>).current;
 
         // 有禁止拖拽元素时阻止拖拽效果
-        if (e.target && props.draggable_cancel) {
+        if (e.target && props.draggable_cancel_handler) {
             const is_cancel_match = matchesSelectorAndParentsTo(
                 e.target as Node,
-                props.draggable_cancel,
+                props.draggable_cancel_handler,
                 current as Node
             );
 

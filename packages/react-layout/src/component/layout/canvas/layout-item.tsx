@@ -41,9 +41,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         is_dragging,
         is_draggable,
         is_resizable,
-        need_draggable_handler,
-        in_nested_layout,
-        is_nested,
+        need_border_draggable_handler,
+        has_outer_layout,
+        has_inner_layout,
         layout_id,
         offset_x,
         offset_y,
@@ -116,7 +116,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     position: 'absolute',
                     top: 0,
                     left: 0,
-                    cursor: 'grab'
+                    cursor: 'grab',
+                    pointerEvents: 'all'
                 }}
             ></div>
             <div
@@ -130,7 +131,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     position: 'absolute',
                     top: 0,
                     right: 0,
-                    cursor: 'grab'
+                    cursor: 'grab',
+                    pointerEvents: 'all'
                 }}
             ></div>
             <div
@@ -144,7 +146,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     position: 'absolute',
                     bottom: 0,
                     left: 0,
-                    cursor: 'grab'
+                    cursor: 'grab',
+                    pointerEvents: 'all'
                 }}
             ></div>
             <div
@@ -158,7 +161,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     position: 'absolute',
                     top: 0,
                     left: 0,
-                    cursor: 'grab'
+                    cursor: 'grab',
+                    pointerEvents: 'all'
                 }}
             ></div>
         </React.Fragment>
@@ -167,7 +171,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const getCurrentChildren = useCallback(() => {
         const children = [child.props.children];
         if (props.mode === LayoutMode.edit) {
-            if (need_draggable_handler) {
+            if (need_border_draggable_handler) {
                 children.push(draggable_handler);
             }
             // 拖拽过程中让所有元素都可以触发move事件
@@ -177,13 +181,14 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     OperatorType.drag,
                     OperatorType.drop,
                     OperatorType.resize
-                ].includes(operator_type)
+                ].includes(operator_type) &&
+                !has_inner_layout
             ) {
                 children.push(mask_handler);
             }
         }
         return children;
-    }, [operator_type, child, need_draggable_handler]);
+    }, [operator_type, child, need_border_draggable_handler, has_inner_layout]);
 
     const new_child = React.cloneElement(child, {
         tabIndex: i,
@@ -230,7 +235,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             pointerEvents:
                 is_dragging || props.is_placeholder ? 'none' : 'auto',
             cursor:
-                props.is_draggable && !props.need_draggable_handler
+                props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'
                     : 'inherit'
         },
@@ -269,12 +274,23 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 w,
                 h,
                 type,
-                is_nested,
+                has_inner_layout,
                 is_resizable,
                 is_draggable
             }
         }),
-        [i, layout_id, x, y, w, h, type, is_nested, is_resizable, is_draggable]
+        [
+            i,
+            layout_id,
+            x,
+            y,
+            w,
+            h,
+            type,
+            has_inner_layout,
+            is_resizable,
+            is_draggable
+        ]
     );
 
     const getLayoutItemRef = useCallback((): HTMLElement | null => {
@@ -318,18 +334,20 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             <Draggable
                 {...{ x, y, h, w, i }}
                 threshold={5}
-                use_css_transform={is_nested}
+                use_css_transform={has_inner_layout}
                 scale={props.scale}
                 is_draggable={is_draggable}
                 onDragStart={() => {
                     props.onDragStart?.();
                 }}
                 draggable_handler={
-                    need_draggable_handler ? '.draggable_handler' : undefined
+                    need_border_draggable_handler
+                        ? '.draggable_handler'
+                        : undefined
                 }
-                draggable_cancel={props.draggable_cancel}
+                draggable_cancel_handler={props.draggable_cancel_handler}
                 bound={
-                    in_nested_layout
+                    has_outer_layout
                         ? DEFAULT_BOUND
                         : {
                               max_y: max_y - h,

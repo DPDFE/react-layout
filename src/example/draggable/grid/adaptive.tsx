@@ -7,10 +7,10 @@ import {
     DragStart,
     DragResult,
     LayoutMode,
-    WidgetType,
-} from "@dpdfe/react-layout";
+    WidgetType
+} from '@dpdfe/react-layout';
 import './styles.css';
-import "@dpdfe/react-layout/dist/style.css";
+import '@dpdfe/react-layout/dist/style.css';
 
 const DraggableGridResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
@@ -32,7 +32,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_draggable: true,
                 type: WidgetType.grid,
                 is_nested: false,
-                draggable_cancel: '.draggable-cancel'
+                draggable_cancel_handler: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -44,7 +44,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_draggable: true,
                 type: WidgetType.grid,
                 is_nested: false,
-                draggable_cancel: '.draggable-cancel'
+                draggable_cancel_handler: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -56,7 +56,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_draggable: true,
                 type: WidgetType.grid,
                 is_nested: false,
-                draggable_cancel: '.draggable-cancel'
+                draggable_cancel_handler: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -68,7 +68,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_draggable: true,
                 type: WidgetType.grid,
                 is_nested: false,
-                draggable_cancel: '.draggable-cancel'
+                draggable_cancel_handler: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -80,7 +80,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_draggable: true,
                 type: WidgetType.grid,
                 is_nested: false,
-                draggable_cancel: '.draggable-cancel'
+                draggable_cancel_handler: '.draggable-cancel'
             },
             {
                 w: 2,
@@ -92,7 +92,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_draggable: true,
                 type: WidgetType.grid,
                 is_nested: false,
-                draggable_cancel: '.draggable-cancel'
+                draggable_cancel_handler: '.draggable-cancel'
             }
         ];
         // return Array.from({ length: 6 }).map((_, i) => {

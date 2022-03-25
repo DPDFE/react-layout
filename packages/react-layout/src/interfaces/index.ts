@@ -98,7 +98,7 @@ type LayoutBase = NodeProps & {
     need_grid_lines: boolean;
     need_grid_bound: boolean;
     need_drag_bound: boolean;
-    is_nested_layout: boolean; // 嵌套在其他布局里的布局
+    is_nested_layout: boolean; // 是子布局
 };
 
 export type DragLayout = LayoutBase & {
@@ -183,14 +183,13 @@ export interface LayoutItem extends ItemPos {
     min_h?: number;
     is_draggable?: boolean;
     is_resizable?: boolean;
-    is_nested?: boolean; // 嵌套在其他布局里
+    has_outer_layout?: boolean; // 子布局的元素
+    has_inner_layout?: boolean; // 元素内有布局
     moved?: boolean;
     is_dragging?: boolean;
     is_checked?: boolean;
-    // 可以通过mask在操作布局的时候屏蔽元素细节
-    // 处理有iframe情况下，出现事件黑洞的情况
-    need_draggable_handler?: boolean;
-    draggable_cancel?: string;
+    need_border_draggable_handler?: boolean;
+    draggable_cancel_handler?: string;
 }
 
 export interface LayoutItemDimesion extends LayoutItem {
@@ -219,7 +218,6 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     margin: [number, number];
     padding: MarginType;
     mode: LayoutMode.edit | LayoutMode.view;
-    in_nested_layout?: boolean;
     is_placeholder: boolean;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: () => void;
@@ -240,7 +238,7 @@ export interface DraggableProps extends EventBaseProps {
     bound?: Partial<BoundType>;
     is_draggable?: boolean;
     use_css_transform?: boolean;
-    draggable_cancel?: string;
+    draggable_cancel_handler?: string;
     draggable_handler?: string;
     onDragStart?: () => void;
     onDrag?: ({ x, y }: { x: number; y: number }) => void;

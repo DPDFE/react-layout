@@ -75,7 +75,7 @@ const DefaultLayout = () => {
                 h: 100,
                 x: 100,
                 y: 100,
-                need_draggable_handler: true,
+                need_border_draggable_handler: true,
                 type: WidgetType.drag,
                 is_resizable: true,
                 is_draggable: true,
@@ -106,7 +106,7 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.drag,
-                is_nested: false
+                has_inner_layout: false
             },
             {
                 x: 0,
@@ -117,7 +117,7 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                is_nested: true
+                has_inner_layout: true
             },
             {
                 x: 0,
@@ -128,7 +128,7 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                is_nested: false
+                has_inner_layout: false
             },
             {
                 x: 5,
@@ -139,7 +139,7 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                is_nested: true
+                has_inner_layout: true
             }
             // {
             //     x: 0,

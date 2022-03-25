@@ -142,8 +142,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
         item.type = item.type ?? WidgetType.drag;
         item.is_draggable = item.is_draggable ?? false;
         item.is_resizable = item.is_resizable ?? false;
-        item.is_nested = item.is_nested ?? false;
-        item.need_draggable_handler = item.need_draggable_handler ?? false;
+        item.has_inner_layout = item.has_inner_layout ?? false;
+        item.need_border_draggable_handler =
+            item.need_border_draggable_handler ?? false;
 
         const is_float = item.type === WidgetType.drag;
         item.w = Math.max(item.min_w ?? (is_float ? 5 : 1), item.w);
@@ -445,7 +446,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     is_resizable={false}
                     is_draggable={false}
                     is_checked={false}
-                    in_nested_layout={props.is_nested_layout}
+                    has_outer_layout={props.is_nested_layout}
                 >
                     <div
                         className={`react-drag-placeholder ${styles.placeholder}`}
@@ -467,7 +468,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     {...child.props}
                     grid={grid}
                     bound={getCurrentBound(widget.type)}
-                    layout_nested={props.is_nested_layout}
+                    has_outer_layout={props.is_nested_layout}
                     mode={props.mode}
                     children={child}
                     scale={props.scale}
@@ -874,8 +875,7 @@ ReactLayout.defaultProps = {
     need_ruler: false,
     need_grid_lines: false,
     need_grid_bound: true,
-    need_drag_bound: true,
-    is_nested: false
+    need_drag_bound: true
 };
 
 export default memo(ReactLayout, compareProps);
