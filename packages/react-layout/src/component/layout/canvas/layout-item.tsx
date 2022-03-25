@@ -183,7 +183,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             }
         }
         return children;
-    }, [operator_type]);
+    }, [operator_type, child, need_draggable_handler]);
 
     const new_child = React.cloneElement(child, {
         tabIndex: i,
