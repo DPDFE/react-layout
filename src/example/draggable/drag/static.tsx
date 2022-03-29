@@ -5,9 +5,9 @@ import {
     LayoutItem,
     LayoutMode,
     ReactLayoutContext,
-    WidgetType,
-} from "@dpdfe/react-layout";
-import "@dpdfe/react-layout/dist/style.css";
+    WidgetType
+} from '@dpdfe/react-layout';
+import '@dpdfe/react-layout/dist/style.css';
 
 const DraggableDragStaticLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
@@ -42,7 +42,7 @@ const DraggableDragStaticLayout = () => {
                 width={1200}
                 layout_type={LayoutType.DRAG}
                 mode={LayoutMode.edit}
-                need_drag_bound={false}
+                need_drag_bound={true}
                 onDragStart={() => {
                     console.log('onDragStart');
                 }}

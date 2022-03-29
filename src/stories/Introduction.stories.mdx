@@ -8,7 +8,7 @@ import Plugin from './assets/plugin.svg';
 import Repo from './assets/repo.svg';
 import StackAlt from './assets/stackalt.svg';
 
-<Meta title='example/introduction' id='introduction' />
+<Meta title='introduction' id='introduction' />
 
 <style>{`
   .css-l8z9zc {
@@ -121,12 +121,12 @@ import StackAlt from './assets/stackalt.svg';
 
 react-layout 是一个布局库。
 
-支持 [**自适应布局**](https://componentdriven.org) 和 [**固定布局**](https://componentdriven.org) 效果。
+同时支持 [**自适应布局**](https://componentdriven.org) 和 [**固定布局**](https://componentdriven.org) 效果。
 
 <div className='subheading'>安装</div>
 
 ```
-npm install react-layout
+    npm install @dpdfe/react-layout
 ```
 
 <div className='subheading'>效果</div>
@@ -134,7 +134,7 @@ npm install react-layout
 <div className='link-list'>
     <a
         className='link-item'
-        href='https://storybook.js.org/docs/react/addons/addon-types'
+        href='http://localhost:6006/?path=/docs/static--static'
         target='_blank'
     >
         <img src={Plugin} alt='plugin' />
@@ -145,7 +145,18 @@ npm install react-layout
     </a>
     <a
         className='link-item'
-        href='https://storybook.js.org/docs/react/configure/webpack'
+        href='http://localhost:6006/?path=/docs/static--static'
+        target='_blank'
+    >
+        <img src={Plugin} alt='plugin' />
+        <span>
+            <strong>拖拽</strong>
+            drag
+        </span>
+    </a>
+    <a
+        className='link-item'
+        href='http://localhost:6006/?path=/docs/static--static'
         target='_blank'
     >
         <img src={StackAlt} alt='Build' />
@@ -154,44 +165,28 @@ npm install react-layout
             resize
         </span>
     </a>
-    <a
-        className='link-item'
-        href='https://storybook.js.org/docs/react/configure/styling-and-css'
-        target='_blank'
-    >
+    <a className='link-item' href='' target='_blank'>
         <img src={Colors} alt='colors' />
         <span>
             <strong>放置</strong>
             drop
         </span>
     </a>
-    <a
-        className='link-item'
-        href='https://storybook.js.org/docs/react/get-started/setup#configure-storybook-for-your-stack'
-        target='_blank'
-    >
+    <a className='link-item' href='' target='_blank'>
         <img src={Flow} alt='flow' />
         <span>
             <strong>嵌套</strong>
             nested
         </span>
     </a>
-    <a
-        className='link-item'
-        href='https://github.com/storybookjs/storybook'
-        target='_blank'
-    >
+    <a className='link-item' href='' target='_blank'>
         <img src={Code} alt='code' />
         <span>
             <strong>动态</strong>
             change
         </span>
     </a>
-    <a
-        className='link-item'
-        href='https://discord.gg/storybook'
-        target='_blank'
-    >
+    <a className='link-item' href='' target='_blank'>
         <img src={Comments} alt='comments' />
         <span>
             <strong>其他</strong>
