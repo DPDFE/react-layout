@@ -798,6 +798,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                 height: current_height,
                                 top: t_offset,
                                 left: l_offset,
+                                position: 'relative',
                                 overflow:
                                     props.mode === LayoutMode.edit
                                         ? 'unset'

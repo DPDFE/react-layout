@@ -15,13 +15,25 @@ export default {
 
 const Template: ComponentStory<typeof Draggable> = (args) => {
     const draggable_ref = useRef<HTMLDivElement>(null);
+    const wrapper_ref = useRef<HTMLDivElement>(null);
     const [x, setX] = useState<number>(100);
     const [y, setY] = useState<number>(100);
 
     return (
-        <div style={{ width: '100%', height: '500px', border: '1px solid' }}>
+        <div
+            style={{
+                width: '100%',
+                height: '500px',
+                border: '1px solid',
+                position: 'relative'
+            }}
+            ref={wrapper_ref}
+        >
             <Draggable
                 {...args}
+                x={x}
+                y={y}
+                use_css_transform={true}
                 onDragStart={() => {
                     console.log('dragStart');
                 }}
@@ -38,8 +50,6 @@ const Template: ComponentStory<typeof Draggable> = (args) => {
                     style={{
                         width: 120,
                         height: 120,
-                        left: x,
-                        top: y,
                         background: 'red'
                     }}
                 ></div>
@@ -50,14 +60,11 @@ const Template: ComponentStory<typeof Draggable> = (args) => {
 
 export const draggable = Template.bind({});
 draggable.args = {
-    x: 100,
-    y: 100,
     is_draggable: true,
-    use_css_transform: true,
     bound: {
         max_x: Infinity,
         min_x: 0,
         min_y: 0,
-        max_y: 500
+        max_y: 500 - 120
     }
 };

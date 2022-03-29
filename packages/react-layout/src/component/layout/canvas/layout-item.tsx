@@ -362,6 +362,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 {...{ x, y, h, w, i }}
                 threshold={5}
                 use_css_transform={has_inner_layout}
+                use_css_fixed={true}
                 scale={props.scale}
                 is_draggable={is_draggable}
                 onDragStart={() => {

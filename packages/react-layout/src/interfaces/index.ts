@@ -235,6 +235,7 @@ export interface DraggableProps extends EventBaseProps {
     bound?: Partial<BoundType>;
     is_draggable?: boolean;
     use_css_transform?: boolean;
+    use_css_fixed?: boolean;
     draggable_cancel_handler?: string;
     draggable_handler?: string;
     onDragStart?: () => void;

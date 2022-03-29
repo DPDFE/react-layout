@@ -196,7 +196,10 @@ const Draggable = (props: DraggableProps) => {
             ...(props.use_css_transform && drag_state !== DragStates.dragging
                 ? setTopLeft()
                 : setTransform()),
-            position: drag_state === DragStates.dragging ? 'fixed' : 'absolute',
+            position:
+                props.use_css_fixed && drag_state === DragStates.dragging
+                    ? 'fixed'
+                    : 'absolute',
             ...props.style,
             ...child.props.style // 让props覆盖上面配置的style
         }
