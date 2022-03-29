@@ -1,8 +1,8 @@
-import { DirectionType, GuideLineProps, RulerPointer } from "@/interfaces";
-import { addEvent, fomatFloatNumber, removeEvent } from "@dpdfe/event-utils";
-import React, { memo, useEffect, useState } from "react";
-import Menus, { MenuItem } from "../menus";
-import styles from "./styles.module.css";
+import { DirectionType, GuideLineProps, RulerPointer } from '@/interfaces';
+import { addEvent, fomatFloatNumber, removeEvent } from '@dpdfe/event-utils';
+import React, { memo, useEffect, useState } from 'react';
+import Menus, { MenuItem } from '../menus';
+import styles from './styles.module.css';
 
 const GuideLine = (props: GuideLineProps) => {
     const GUIDE_OFFSET = 6,
@@ -14,7 +14,7 @@ const GuideLine = (props: GuideLineProps) => {
         t_offset,
         canvas_viewport_ref,
         guide_lines,
-        removeGuideLine,
+        removeGuideLine
     } = props;
 
     const [scroll_left, setScrollLeft] = useState<number>(0);
@@ -32,7 +32,7 @@ const GuideLine = (props: GuideLineProps) => {
               bottom: 0,
               left: 0,
               right: 0,
-              top: 0,
+              top: 0
           } as DOMRect);
 
     const calcGuidePose = () => {
@@ -53,19 +53,19 @@ const GuideLine = (props: GuideLineProps) => {
     };
 
     useEffect(() => {
-        addEvent(document, "click", clearGuideMenuPos);
+        addEvent(document, 'click', clearGuideMenuPos);
         return () => {
-            addEvent(document, "click", clearGuideMenuPos);
+            addEvent(document, 'click', clearGuideMenuPos);
         };
     }, []);
 
     useEffect(() => {
         calcGuidePose();
-        addEvent(props.canvas_viewport_ref.current, "scroll", calcGuidePose);
+        addEvent(props.canvas_viewport_ref.current, 'scroll', calcGuidePose);
         return () => {
             removeEvent(
                 props.canvas_viewport_ref.current,
-                "scroll",
+                'scroll',
                 calcGuidePose
             );
         };
@@ -87,12 +87,12 @@ const GuideLine = (props: GuideLineProps) => {
                     height: 0,
                     width: viewport_pos!.width + GUIDE_OFFSET,
                     left: viewport_pos!.x - GUIDE_OFFSET,
-                    top: scale_num + scroll_top,
+                    top: scale_num + scroll_top
                 }}
             >
                 <span
                     style={{
-                        left: WORD_OFFSET,
+                        left: WORD_OFFSET
                     }}
                     className={styles.word}
                 >
@@ -118,13 +118,13 @@ const GuideLine = (props: GuideLineProps) => {
                     width: 0,
                     height: viewport_pos!.height + GUIDE_OFFSET,
                     left: scale_num + scroll_left,
-                    top: viewport_pos!.y - GUIDE_OFFSET,
+                    top: viewport_pos!.y - GUIDE_OFFSET
                 }}
             >
                 <span
                     className={styles.word}
                     style={{
-                        top: WORD_OFFSET,
+                        top: WORD_OFFSET
                     }}
                 >
                     x:{num}
@@ -174,19 +174,19 @@ const GuideLine = (props: GuideLineProps) => {
                                 setDeleteGuideMenuPos({
                                     x: e.clientX,
                                     y: e.clientY,
-                                    line: line,
+                                    line: line
                                 });
-                            },
+                            }
                         },
                         {
-                            borderStyle: "solid",
+                            borderStyle: 'solid',
                             display:
                                 scroll_left + x < viewport_pos!.x ||
                                 x + l_offset >
                                     viewport_pos!.width +
                                         canvas_viewport_ref.current!.scrollLeft
-                                    ? "none"
-                                    : "block",
+                                    ? 'none'
+                                    : 'block'
                         }
                     );
                 case DirectionType.vertical:
@@ -201,19 +201,19 @@ const GuideLine = (props: GuideLineProps) => {
                                 setDeleteGuideMenuPos({
                                     x: e.clientX,
                                     y: e.clientY,
-                                    line: line,
+                                    line: line
                                 });
-                            },
+                            }
                         },
                         {
-                            borderStyle: "solid",
+                            borderStyle: 'solid',
                             display:
                                 scroll_top + y < viewport_pos!.y ||
                                 y + t_offset >
                                     viewport_pos!.height +
                                         canvas_viewport_ref.current!.scrollTop
-                                    ? "none"
-                                    : "block",
+                                    ? 'none'
+                                    : 'block'
                         }
                     );
             }
@@ -234,11 +234,11 @@ const GuideLine = (props: GuideLineProps) => {
                     }}
                 >
                     <MenuItem
-                    onClick={(e) => {
-                        e.nativeEvent.stopImmediatePropagation();
-                        removeGuideLine?.(guide_menu_pos.line);
-                        setDeleteGuideMenuPos(undefined);
-                    }}
+                        onClick={(e) => {
+                            e.nativeEvent.stopImmediatePropagation();
+                            removeGuideLine?.(guide_menu_pos.line);
+                            setDeleteGuideMenuPos(undefined);
+                        }}
                     >
                         删除
                     </MenuItem>
@@ -246,6 +246,10 @@ const GuideLine = (props: GuideLineProps) => {
             )}
         </React.Fragment>
     );
+};
+
+GuideLine.defaultProps = {
+    guide_lines: []
 };
 
 export default memo(GuideLine);

@@ -866,13 +866,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
 ReactLayout.defaultProps = {
     scale: 1,
     cols: 10,
-    width: 200,
-    height: 200,
+    width: 400,
+    height: 400,
     row_height: 20,
     container_padding: [0] as [number],
     item_margin: [0, 0],
     mode: LayoutMode.view,
     need_ruler: false,
+    guide_lines: [],
     need_grid_lines: false,
     need_grid_bound: true,
     need_drag_bound: true

@@ -8,7 +8,7 @@ import {
     ReactLayoutContext,
     WidgetType
 } from '@dpdfe/react-layout';
-import "@dpdfe/react-layout/dist/style.css";
+import '@dpdfe/react-layout/dist/style.css';
 
 const ChangeDragLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
@@ -19,7 +19,6 @@ const ChangeDragLayout = () => {
     useEffect(() => {
         setWidgets(generateLayout());
     }, []);
-
 
     function generateLayout() {
         return Array.from({ length: 6 }).map((_, i) => {
@@ -87,7 +86,7 @@ const ChangeDragLayout = () => {
                     item_margin={[10, 10]}
                     container_padding={[10]}
                     style={{ background: '#fff' }}
-                    layout_type={LayoutType.DRAG}
+                    layout_type={LayoutType.GRID}
                     mode={LayoutMode.edit}
                     need_drag_bound={false}
                     scale={scale}

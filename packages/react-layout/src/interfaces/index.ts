@@ -87,7 +87,6 @@ type NodeProps = {
 
 type LayoutBase = NodeProps & {
     children: ReactElement[];
-    widgets: LayoutItem[];
     layout_id: string;
     scale: number;
     cols: number;

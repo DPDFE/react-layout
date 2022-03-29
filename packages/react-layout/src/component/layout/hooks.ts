@@ -123,7 +123,9 @@ export const useLayoutHooks = (
                           min_x: padding.left,
                           max_x: current_width - padding.right,
                           min_y: padding.top,
-                          max_y: Infinity
+                          max_y: current_height
+                              ? current_height - padding.bottom
+                              : Infinity
                       }
                     : DEFAULT_BOUND;
             },
@@ -264,28 +266,34 @@ export const useLayoutHooks = (
         if (client_width && client_height) {
             const { layout_type, mode, scale } = props;
 
-            const current_height =
-                layout_type === LayoutType.DRAG
-                    ? (props as DragLayoutProps).height
-                    : client_height;
-
-            /** 和视窗比较，找到实际最大边界 */
-            const max_b =
-                max_bottom > current_height ? max_bottom : current_height;
-
-            const max_r = max_right > current_width ? max_right : current_width;
-
             const height_stragegy = {
                 [LayoutType.GRID]: () => {
+                    /** 和视窗比较，找到实际最大边界 */
+                    const max_b = Math.max(max_bottom, client_height);
+
+                    const calc_width = current_width * scale;
+                    const calc_height = client_height * scale;
+
+                    const l_offset = calcOffset(client_width, calc_width);
+                    const t_offset = calcOffset(client_height, calc_height);
+
                     setCanvasWrapperWidth(current_width);
                     setCanvasWrapperHeight(max_b);
                     setCurrentHeight(max_b);
-                    setTopOffset(0);
-                    setLeftOffset(0);
+                    setTopOffset(t_offset);
+                    setLeftOffset(l_offset);
                 },
                 [LayoutType.DRAG]: () => {
+                    /** 和视窗比较，找到实际最大边界 */
+                    const max_b = Math.max(
+                        max_bottom,
+                        (props as DragLayoutProps).height
+                    );
+                    const max_r = Math.max(max_right, current_width);
+
                     const calc_width = current_width * scale;
-                    const calc_height = current_height * scale;
+                    const calc_height =
+                        (props as DragLayoutProps).height * scale;
 
                     // 计算水平、垂直偏移量
                     if (mode === LayoutMode.edit) {
@@ -318,7 +326,7 @@ export const useLayoutHooks = (
                             client_height
                         );
 
-                        setCurrentHeight(current_height);
+                        setCurrentHeight((props as DragLayoutProps).height);
                         setCanvasWrapperWidth(wrapper_calc_width);
                         setCanvasWrapperHeight(wrapper_calc_height);
                         setTopOffset(t_offset + Math.abs(max_top) * scale);
@@ -333,7 +341,7 @@ export const useLayoutHooks = (
                         setCanvasWrapperHeight(
                             Math.max(calc_height, client_height)
                         );
-                        setCurrentHeight(current_height);
+                        setCurrentHeight((props as DragLayoutProps).height);
                         setTopOffset(t_offset);
                         setLeftOffset(l_offset);
                     }
