@@ -98,7 +98,6 @@ type LayoutBase = NodeProps & {
     need_grid_lines: boolean;
     need_grid_bound: boolean;
     need_drag_bound: boolean;
-    is_nested_layout: boolean; // 是子布局
 };
 
 export type DragLayout = LayoutBase & {
@@ -184,7 +183,6 @@ export interface LayoutItem extends ItemPos {
     is_draggable?: boolean;
     is_resizable?: boolean;
     has_outer_layout?: boolean; // 子布局的元素
-    has_inner_layout?: boolean; // 元素内有布局
     moved?: boolean;
     is_dragging?: boolean;
     is_checked?: boolean;
@@ -322,6 +320,7 @@ export interface LayoutEntry {
 
 export interface LayoutItemDescriptor {
     id: string;
+    is_ready: boolean;
     layout_id: string;
     pos: LayoutItem;
 }

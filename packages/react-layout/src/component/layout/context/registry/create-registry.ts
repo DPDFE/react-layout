@@ -1,13 +1,15 @@
-import { LayoutEntry, LayoutItemEntry } from "@/interfaces";
+import { LayoutEntry, LayoutItemEntry } from '@/interfaces';
 type EntryMap = {
     draggables: { [id: string]: LayoutItemEntry };
     droppables: { [id: string]: LayoutEntry };
 };
 
 export default function createRegistry() {
+    let draggables_is_ready = false;
+
     const entries: EntryMap = {
         draggables: {},
-        droppables: {},
+        droppables: {}
     };
 
     function findDraggableById(id: string) {
@@ -21,6 +23,13 @@ export default function createRegistry() {
 
     function registerDraggable(entry: LayoutItemEntry) {
         entries.draggables[entry.descriptor.id] = entry;
+
+        if (!draggables_is_ready) {
+            const is_all_ready = Object.keys(entries.draggables).map(
+                (key) => entries.draggables[key].descriptor.is_ready
+            );
+            draggables_is_ready = !is_all_ready.includes(false);
+        }
     }
 
     function unregisterDraggable(entry: LayoutItemEntry) {
@@ -46,7 +55,7 @@ export default function createRegistry() {
         unregister: unregisterDraggable,
         getById: getDraggableById,
         findById: findDraggableById,
-        exists: (id: string): boolean => Boolean(findDraggableById(id)),
+        exists: (id: string): boolean => Boolean(findDraggableById(id))
     };
 
     function findDroppableById(id: string) {
@@ -78,7 +87,7 @@ export default function createRegistry() {
         getById: getDroppableById,
         findById: findDroppableById,
         getAll: () => Object.values(entries.droppables),
-        exists: (id: string): boolean => Boolean(findDroppableById(id)),
+        exists: (id: string): boolean => Boolean(findDroppableById(id))
     };
 
     function clean(): void {
@@ -89,7 +98,8 @@ export default function createRegistry() {
     return {
         draggable: DraggableAPI,
         droppable: DroppableAPI,
-        clean,
+        draggables_is_ready,
+        clean
     };
 }
 

@@ -90,6 +90,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         t_offset,
         l_offset,
         padding,
+        has_outer_layout,
         getCurrentBound,
         snapToDrag
     } = useLayoutHooks(
@@ -126,12 +127,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
             if (
                 e.target === canvas_ref.current &&
                 operator_type === undefined &&
-                !props.is_nested_layout
+                !has_outer_layout
             ) {
                 setCurrentChecked(undefined);
             }
         },
-        [operator_type]
+        [operator_type, has_outer_layout]
     );
 
     /**
@@ -142,7 +143,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         item.type = item.type ?? WidgetType.drag;
         item.is_draggable = item.is_draggable ?? false;
         item.is_resizable = item.is_resizable ?? false;
-        item.has_inner_layout = item.has_inner_layout ?? false;
         item.need_border_draggable_handler =
             item.need_border_draggable_handler ?? false;
 
@@ -387,7 +387,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 setLayout(copyObject(layout));
                 compact(filter_layout);
                 setShadowWidget(undefined);
-                // handleResponder(type, filter_layout, current_widget);
                 return { layout: filter_layout, widget: current_widget };
             }
 
@@ -412,12 +411,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 }
             }
             setLayout(copyObject(layout));
-
-            // handleResponder(
-            //     type,
-            //     replaceWidget(layout, shadow_widget),
-            //     current_widget
-            // );
 
             return {
                 layout: removePersonalValue(
@@ -446,7 +439,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     is_resizable={false}
                     is_draggable={false}
                     is_checked={false}
-                    has_outer_layout={props.is_nested_layout}
                 >
                     <div
                         className={`react-drag-placeholder ${styles.placeholder}`}
@@ -468,7 +460,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     {...child.props}
                     grid={grid}
                     bound={getCurrentBound(widget.type)}
-                    has_outer_layout={props.is_nested_layout}
+                    has_outer_layout={has_outer_layout}
                     mode={props.mode}
                     children={child}
                     scale={props.scale}
@@ -628,7 +620,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
             return copyObject(new_layout);
         },
-        [layout]
+        [layout, grid]
     );
 
     const handlerDraggingItemOut = useCallback(
@@ -649,9 +641,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
             id: props.layout_id,
             type: props.layout_type,
             mode: props.mode,
-            is_root: !props.is_nested_layout
+            is_root: !has_outer_layout
         }),
-        [props.layout_id, props.layout_type, props.mode, props.is_nested_layout]
+        [props.layout_id, props.layout_type, props.mode, has_outer_layout]
     );
 
     const getRef = useCallback(() => canvas_ref.current, []);
@@ -810,7 +802,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                     props.mode === LayoutMode.edit
                                         ? 'unset'
                                         : 'hidden',
-                                ...(props.is_nested_layout
+                                ...(has_outer_layout
                                     ? {}
                                     : {
                                           transform: `scale(${props.scale})`,

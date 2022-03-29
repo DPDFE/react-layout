@@ -14,7 +14,9 @@ import React, {
     useRef,
     useCallback,
     useMemo,
-    useEffect
+    useEffect,
+    useState,
+    useLayoutEffect
 } from 'react';
 
 import { MIN_DRAG_LENGTH } from '../calc';
@@ -29,7 +31,11 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children) as ReactElement;
     const item_ref = ref ?? useRef<HTMLDivElement>(null);
 
+    // 子元素中有布局
+    const [has_inner_layout, setHasInnerLayout] = useState<boolean>();
+
     const { col_width, row_height } = props.grid;
+    const [is_ready, setIsReady] = useState(false);
 
     const {
         i,
@@ -43,7 +49,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         is_resizable,
         need_border_draggable_handler,
         has_outer_layout,
-        has_inner_layout,
         layout_id,
         offset_x,
         offset_y,
@@ -228,7 +233,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ].join(' ')}`,
         style: {
             border: '1px solid transparent',
-            transition: props.is_checked ? 'none' : 'all 0.1s linear',
+            transition:
+                props.is_checked || !is_ready ? 'none' : 'all 0.1s linear',
             width: w,
             height: h,
             ...child.props.style,
@@ -263,10 +269,30 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         return `layout_item_${i}`;
     }, []);
 
+    useLayoutEffect(() => {
+        if (props.is_placeholder) return;
+
+        setHasInnerLayout(!!getLayoutItemRef()?.querySelector('.react-layout'));
+    }, []);
+
+    useEffect(() => {
+        has_inner_layout !== undefined && setIsReady(true);
+    }, [has_inner_layout]);
+
+    useEffect(() => {
+        if (props.is_placeholder) return;
+
+        console.log(unique_id, 'mount');
+        return () => {
+            console.log(unique_id, 'unmount');
+        };
+    }, []);
+
     const descriptor: LayoutItemDescriptor = useMemo(
         () => ({
             id: i,
             layout_id,
+            is_ready,
             pos: {
                 i,
                 x,
@@ -289,7 +315,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             type,
             has_inner_layout,
             is_resizable,
-            is_draggable
+            is_draggable,
+            is_ready
         ]
     );
 
@@ -439,6 +466,7 @@ WidgetItem.defaultProps = {
     type: WidgetType.grid,
     is_checked: false,
     is_placeholder: false,
+    has_outer_layout: false,
     style: {},
     margin: [0, 0] as [number, number]
 };

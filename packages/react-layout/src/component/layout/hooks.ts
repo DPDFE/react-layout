@@ -44,6 +44,9 @@ export const useLayoutHooks = (
     const [is_window_resize, setWindowResize] = useState<number>(Math.random());
 
     const { operator_type } = useContext(LayoutContext);
+
+    const [has_outer_layout, setHasOuterLayout] = useState<boolean>();
+
     /**
      * 让阴影定位组件位于可视范围内
      */
@@ -53,7 +56,7 @@ export const useLayoutHooks = (
             (entries) => {
                 entries.map((entry) => {
                     if (!entry.intersectionRatio) {
-                        if (props.is_nested_layout) {
+                        if (has_outer_layout) {
                             return;
                         }
                         shadow_widget_ref.current?.scrollIntoView({
@@ -76,7 +79,7 @@ export const useLayoutHooks = (
                     shadow_widget_ref.current
                 );
         };
-    }, [JSON.stringify(shadow_widget)]);
+    }, [JSON.stringify(shadow_widget), has_outer_layout]);
 
     /** 监听容器变化，重新计算width、height、grid */
     useLayoutEffect(() => {
@@ -360,6 +363,12 @@ export const useLayoutHooks = (
         client_height
     ]);
 
+    useLayoutEffect(() => {
+        setHasOuterLayout(
+            !!container_ref.current?.parentElement?.closest('.react-layout')
+        );
+    }, []);
+
     return {
         padding,
         is_window_resize,
@@ -370,6 +379,7 @@ export const useLayoutHooks = (
         wrapper_height,
         t_offset,
         l_offset,
+        has_outer_layout,
         getCurrentBound,
         snapToDrag
     };

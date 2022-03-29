@@ -236,7 +236,7 @@ const DefaultLayout = () => {
                     drop_element.i ||
                         (drop_element.i =
                             '1-' +
-                            widgets.length.toString() +
+                            widgets3.length.toString() +
                             '-' +
                             Math.random());
 
@@ -513,16 +513,13 @@ const DefaultLayout = () => {
                                         flexDirection: 'column'
                                     }}
                                 >
-                                    <span style={{ color: 'red' }}>
-                                        {new Date().getTime()}
-                                    </span>
-                                    {/* {
+                                    {
                                         <div className='test'>
                                             我是第{w.i}个div, height: {w.h},
                                             width:
                                             {w.w}
                                         </div>
-                                    } */}
+                                    }
                                     {w.i === '3' && widgets3_component()}
                                     {w.i === '1' && (
                                         <Tabs
