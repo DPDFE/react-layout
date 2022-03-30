@@ -26,6 +26,8 @@ npm install --save @dpdfe/react-layout
 
 ## Usage
 
+文档 https://dpdfe.github.io/react-layout/
+
 ```tsx
 import React, { Component } from "react";
 
