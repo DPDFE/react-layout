@@ -5,7 +5,6 @@
     "workspaces": [
         "packages/*"
     ],
-    "homepage": "https://dpdfe.github.io/react-layout/",
     "scripts": {
         "postinstall": "run-s build:event build:layout",
         "dev": "run-p dev:example dev:layout",
