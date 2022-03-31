@@ -97,6 +97,7 @@ type LayoutBase = NodeProps & {
     need_grid_lines: boolean;
     need_grid_bound: boolean;
     need_drag_bound: boolean;
+    has_outer_layout?: boolean;
 };
 
 export type DragLayout = LayoutBase & {
@@ -231,6 +232,7 @@ export interface DraggableProps extends EventBaseProps {
     threshold?: number;
     x: number;
     y: number;
+    is_dragging?: boolean;
     scale?: number;
     bound?: Partial<BoundType>;
     is_draggable?: boolean;
@@ -259,6 +261,7 @@ export interface ResizableProps extends EventBaseProps {
     scale: number;
     grid: GridType;
     bound: BoundType;
+    is_dragging?: boolean;
     is_resizable?: boolean;
     onResizeStart?: () => void;
     onResize?: ({

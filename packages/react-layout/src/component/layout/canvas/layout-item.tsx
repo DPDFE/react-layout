@@ -195,6 +195,15 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         return children;
     }, [operator_type, child, need_border_draggable_handler, has_inner_layout]);
 
+    const getTransition = () => {
+        const transition = 'all 0.2s cubic-bezier(0.2, 0, 0, 1) 0s';
+        if (props.is_placeholder) return transition;
+
+        if (props.is_checked || !is_ready) return 'none';
+
+        return transition;
+    };
+
     const new_child = React.cloneElement(child, {
         tabIndex: i,
         onMouseDown: () => {
@@ -233,8 +242,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ].join(' ')}`,
         style: {
             border: '1px solid transparent',
-            transition:
-                props.is_checked || !is_ready ? 'none' : 'all 0.1s linear',
+            transition: getTransition(),
             width: w,
             height: h,
             ...child.props.style,
@@ -361,10 +369,11 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             <Draggable
                 {...{ x, y, h, w, i }}
                 threshold={5}
-                use_css_transform={has_inner_layout}
+                use_css_transform={!has_inner_layout}
                 use_css_fixed={true}
                 scale={props.scale}
                 is_draggable={is_draggable}
+                is_dragging={is_dragging}
                 onDragStart={() => {
                     props.onDragStart?.();
                 }}
@@ -374,16 +383,16 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         : undefined
                 }
                 draggable_cancel_handler={props.draggable_cancel_handler}
-                bound={
-                    has_outer_layout
-                        ? DEFAULT_BOUND
-                        : {
-                              max_y: max_y - h,
-                              min_y,
-                              max_x: max_x - w,
-                              min_x
-                          }
-                }
+                // bound={
+                //     has_outer_layout
+                //         ? DEFAULT_BOUND
+                //         : {
+                //               max_y: max_y - h,
+                //               min_y,
+                //               max_x: max_x - w,
+                //               min_x
+                //           }
+                // }
                 onDrag={({ x, y }) => {
                     const item = {
                         x: x - offset_x,
@@ -411,6 +420,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     {...{ x, y, h, w, i, type }}
                     scale={props.scale}
                     is_resizable={is_resizable}
+                    is_dragging={is_dragging}
                     onResizeStart={() => {
                         props.onResizeStart?.();
                     }}
@@ -444,9 +454,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 <div
                     className='checked_border'
                     style={{
-                        position: 'absolute',
-                        top: y,
-                        left: x,
+                        position: is_dragging ? 'fixed' : 'absolute',
+                        transform: `translate(${props.x}px,${props.y}px)`,
                         width: w,
                         height: h,
                         pointerEvents: 'none',

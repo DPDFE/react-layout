@@ -173,8 +173,9 @@ const Draggable = (props: DraggableProps) => {
     };
 
     const setUserSelect = () => {
-        const user_select: 'none' | 'inherit' =
-            drag_state === DragStates.dragging ? 'none' : 'inherit';
+        const user_select: 'none' | 'inherit' = props.is_dragging
+            ? 'none'
+            : 'inherit';
         return {
             UserSelect: user_select,
             WebkitUserSelect: user_select,
@@ -193,13 +194,11 @@ const Draggable = (props: DraggableProps) => {
         }`,
         style: {
             ...setUserSelect(),
-            ...(props.use_css_transform && drag_state !== DragStates.dragging
-                ? setTopLeft()
-                : setTransform()),
+            ...(props.use_css_transform || props.is_dragging
+                ? setTransform()
+                : setTopLeft()),
             position:
-                props.use_css_fixed && drag_state === DragStates.dragging
-                    ? 'fixed'
-                    : 'absolute',
+                props.use_css_fixed && props.is_dragging ? 'fixed' : 'absolute',
             ...props.style,
             ...child.props.style // 让props覆盖上面配置的style
         }

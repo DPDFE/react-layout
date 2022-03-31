@@ -5,6 +5,7 @@ import {
     OperatorType,
     ReactLayoutContextProps
 } from '@/interfaces';
+import { addEvent, removeEvent } from '@dpdfe/event-utils';
 
 import useRegistry from './registry/use-registry';
 
@@ -46,6 +47,98 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
     }, [props]);
 
     const registry = useRegistry();
+
+    useEffect(() => {
+        const drag_item = dragging_layout.current?.drag_item;
+
+        const onMouseMouve = (event: MouseEvent) => {
+            event.stopPropagation();
+
+            const layouts = registry.droppable.getAll();
+            const { pageX, pageY } = event;
+            const cursor_in_layouts = layouts.filter((entry) => {
+                const target_element = entry.getViewPortRef();
+                if (target_element) {
+                    const { left, top, width, height } =
+                        target_element.getBoundingClientRect();
+                    const newState = {
+                        elementX: NaN,
+                        elementY: NaN,
+                        elementH: NaN,
+                        elementW: NaN,
+                        elementPosX: NaN,
+                        elementPosY: NaN
+                    };
+                    newState.elementPosX = left + window.pageXOffset;
+                    newState.elementPosY = top + window.pageYOffset;
+                    newState.elementX = pageX - newState.elementPosX;
+                    newState.elementY = pageY - newState.elementPosY;
+                    newState.elementW = width;
+                    newState.elementH = height;
+
+                    const { elementW, elementH, elementX, elementY } = newState;
+
+                    const cursor_in_element =
+                        elementX > 0 &&
+                        elementY > 0 &&
+                        elementX < elementW &&
+                        elementY < elementH;
+                    return cursor_in_element;
+                }
+                return false;
+            });
+
+            if (cursor_in_layouts.length > 0) {
+                const layout = cursor_in_layouts.reduce((prev, curr) => {
+                    const pre_dom = prev.getViewPortRef()!;
+                    const curr_dom = curr.getViewPortRef()!;
+                    const postion = pre_dom.compareDocumentPosition(curr_dom);
+
+                    // 判断元素相对位置
+                    // https://developer.mozilla.org/zh-CN/docs/Web/API/Node/compareDocumentPosition
+                    if (
+                        postion & Node.DOCUMENT_POSITION_CONTAINED_BY ||
+                        postion & Node.DOCUMENT_POSITION_FOLLOWING
+                    )
+                        return curr;
+                    if (
+                        postion & Node.DOCUMENT_POSITION_CONTAINS ||
+                        postion & Node.DOCUMENT_POSITION_PRECEDING
+                    )
+                        return prev;
+
+                    return curr;
+                });
+
+                if (layout) {
+                    if (
+                        dragging_layout.current &&
+                        dragging_layout_id.current &&
+                        dragging_layout_id.current !== layout.descriptor.id
+                    ) {
+                        const { layout, drag_item } = dragging_layout.current;
+                        layout.handlerDraggingItemOut(drag_item);
+                    }
+                    console.log(
+                        layout.descriptor.id,
+                        dragging_layout_id.current,
+                        drag_item
+                    );
+                    dragging_layout_id.current = layout.descriptor.id;
+                    return;
+                }
+            }
+
+            dragging_layout_id.current = undefined;
+        };
+
+        operator_type === OperatorType.drag &&
+            addEvent(window, 'mousemove', onMouseMouve);
+
+        return () => {
+            removeEvent(window, 'mousemove', onMouseMouve);
+        };
+    }, [operator_type, getResponders]);
 
     return useMemo(() => {
         return {

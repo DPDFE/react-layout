@@ -91,6 +91,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         l_offset,
         padding,
         has_outer_layout,
+        canvas_viewport_scroll_top_left,
         getCurrentBound,
         snapToDrag
     } = useLayoutHooks(
@@ -374,6 +375,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
         (item: ItemPos, is_save?: boolean) => {
             const current_widget = getLayoutItem(item);
 
+            console.log(
+                cloneWidget(current_widget),
+                cloneWidget(item),
+                'move ========='
+            );
             moveToWidget(current_widget, item);
 
             current_widget.is_dragging = is_save ? false : true;
@@ -387,13 +393,37 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 setLayout(copyObject(layout));
                 compact(filter_layout);
                 setShadowWidget(undefined);
+                if (is_save) {
+                    setLayout(filter_layout);
+                }
                 return { layout: filter_layout, widget: current_widget };
             }
 
             const shadow_widget = cloneWidget(current_widget);
             if (!(current_widget.type === WidgetType.drag)) {
                 const filter_layout = getFilterLayout(item);
+                const { top, left } = canvas_viewport_scroll_top_left.current;
+
+                shadow_widget.x += left;
+                shadow_widget.y += top;
+
                 snapToGrid(shadow_widget, grid);
+
+                const { max_x, min_x, max_y, min_y } = getCurrentBound(
+                    item.type
+                );
+
+                shadow_widget.x = clamp(
+                    shadow_widget.x,
+                    min_x,
+                    max_x - shadow_widget.w
+                );
+                shadow_widget.y = clamp(
+                    shadow_widget.y,
+                    min_y,
+                    max_y - shadow_widget.h
+                );
+
                 moveElement(
                     filter_layout,
                     shadow_widget,
@@ -459,7 +489,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     margin={props.item_margin}
                     {...child.props}
                     grid={grid}
-                    bound={getCurrentBound(widget.type)}
+                    // bound={getCurrentBound(widget.type)}
                     has_outer_layout={has_outer_layout}
                     mode={props.mode}
                     children={child}
@@ -616,7 +646,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 snapToGrid(placeholder, grid);
             compact(new_layout);
 
-            if (!is_save) setShadowWidget(placeholder);
+            setShadowWidget(is_save ? undefined : placeholder);
 
             return copyObject(new_layout);
         },
@@ -668,31 +698,37 @@ const ReactLayout = (props: ReactLayoutProps) => {
         ]
     );
 
-    const handlerDraggingLayout = (e: MouseEvent) => {
-        e.stopPropagation();
-        if (
-            dragging_layout.current &&
-            dragging_layout_id.current &&
-            dragging_layout_id.current !== props.layout_id
-        ) {
-            const { layout, drag_item } = dragging_layout.current;
-            layout.handlerDraggingItemOut(drag_item);
-        }
-        dragging_layout_id.current = props.layout_id;
-    };
+    // const handlerDraggingLayout = (e: MouseEvent) => {
+    //     e.stopPropagation();
+    //     console.log(layout_name, '====on mouse over');
+    //     if (
+    //         dragging_layout.current &&
+    //         dragging_layout_id.current &&
+    //         dragging_layout_id.current !== props.layout_id
+    //     ) {
+    //         const { layout, drag_item } = dragging_layout.current;
+    //         layout.handlerDraggingItemOut(drag_item);
+    //     }
+    //     console.log(props.layout_id, dragging_layout_id.current, '=====');
+    //     dragging_layout_id.current = props.layout_id;
+    // };
 
-    useLayoutEffect(() => {
-        canvas_ref.current &&
-            addEvent(canvas_ref.current, 'mouseover', handlerDraggingLayout);
-        return () => {
-            canvas_ref.current &&
-                removeEvent(
-                    canvas_ref.current,
-                    'mouseover',
-                    handlerDraggingLayout
-                );
-        };
-    }, [canvas_ref.current]);
+    // useLayoutEffect(() => {
+    //     canvas_viewport_ref.current &&
+    //         addEvent(
+    //             canvas_viewport_ref.current,
+    //             'mouseover',
+    //             handlerDraggingLayout
+    //         );
+    //     return () => {
+    //         canvas_viewport_ref.current &&
+    //             removeEvent(
+    //                 canvas_viewport_ref.current,
+    //                 'mouseover',
+    //                 handlerDraggingLayout
+    //             );
+    //     };
+    // }, [canvas_viewport_ref.current]);
 
     useLayoutEffect(() => {
         registry.droppable.register(entry);

@@ -108,6 +108,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         cursor={CursorType.nw}
                         x={props.x}
                         y={props.y}
+                        is_dragging={props.is_dragging}
                         onDragStart={handleResizeStart}
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
@@ -122,6 +123,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         cursor={CursorType.ne}
                         x={props.x + props.w}
                         y={props.y}
+                        is_dragging={props.is_dragging}
                         onDragStart={handleResizeStart}
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
@@ -136,6 +138,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         cursor={CursorType.sw}
                         x={props.x}
                         y={props.y + props.h}
+                        is_dragging={props.is_dragging}
                         onDragStart={handleResizeStart}
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}
@@ -150,6 +153,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         cursor={CursorType.se}
                         x={props.x + props.w}
                         y={props.y + props.h}
+                        is_dragging={props.is_dragging}
                         onDragStart={handleResizeStart}
                         onDrag={handleResize}
                         onDragStop={handleResizeStop}

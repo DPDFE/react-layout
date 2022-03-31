@@ -12,7 +12,8 @@ import {
     useLayoutEffect,
     useMemo,
     useState,
-    useContext
+    useContext,
+    useRef
 } from 'react';
 import {
     calcOffset,
@@ -45,7 +46,11 @@ export const useLayoutHooks = (
 
     const { operator_type } = useContext(LayoutContext);
 
-    const [has_outer_layout, setHasOuterLayout] = useState<boolean>();
+    const canvas_viewport_scroll_top_left = useRef({ top: 0, left: 0 });
+
+    const [has_outer_layout, setHasOuterLayout] = useState(
+        props.has_outer_layout
+    );
 
     /**
      * 让阴影定位组件位于可视范围内
@@ -56,9 +61,9 @@ export const useLayoutHooks = (
             (entries) => {
                 entries.map((entry) => {
                     if (!entry.intersectionRatio) {
-                        if (has_outer_layout) {
-                            return;
-                        }
+                        // if (has_outer_layout) {
+                        //     return;
+                        // }
                         shadow_widget_ref.current?.scrollIntoView({
                             block: 'nearest',
                             inline: 'nearest'
@@ -180,11 +185,9 @@ export const useLayoutHooks = (
     const snapToDrag = (l: LayoutItem) => {
         const { type, is_dragging } = l;
 
-        const { min_x, max_x, min_y, max_y } = snapToDragBound(
-            getCurrentBound(l.type),
-            grid,
-            type
-        );
+        const { min_x, max_x, min_y, max_y } = is_dragging
+            ? DEFAULT_BOUND
+            : snapToDragBound(getCurrentBound(l.type), grid, type);
 
         const is_float = type === WidgetType.drag;
 
@@ -217,11 +220,15 @@ export const useLayoutHooks = (
         const { offset_x, offset_y, margin_height, margin_width } =
             layout_item_stragegy[type]();
 
+        const { top, left } = is_dragging
+            ? canvas_viewport_scroll_top_left.current
+            : { top: 0, left: 0 };
+
         const w = Math.max(gridX(l.w) - margin_width, 0);
         const h = Math.max(gridY(l.h) - margin_height, 0);
 
-        const x = clamp(gridX(l.x) + offset_x, min_x, max_x - w);
-        const y = clamp(gridY(l.y) + offset_y, min_y, max_y - h);
+        const x = clamp(gridX(l.x) + offset_x - left, min_x, max_x - w);
+        const y = clamp(gridY(l.y) + offset_y - top, min_y, max_y - h);
 
         return {
             ...l,
@@ -372,10 +379,41 @@ export const useLayoutHooks = (
     ]);
 
     useLayoutEffect(() => {
-        setHasOuterLayout(
-            !!container_ref.current?.parentElement?.closest('.react-layout')
-        );
+        // 如果没有传递参数  内部自己计算
+        props.has_outer_layout === undefined &&
+            setHasOuterLayout(
+                !!container_ref.current?.parentElement?.closest('.react-layout')
+            );
     }, []);
+
+    useLayoutEffect(() => {
+        if (!has_outer_layout) return;
+        const onScroll = () => {
+            let top = 0;
+            let left = 0;
+            if (has_outer_layout) {
+                top = canvas_viewport_ref.current?.scrollTop ?? 0;
+                left = canvas_viewport_ref.current?.scrollLeft ?? 0;
+            }
+            console.log(left, top);
+            canvas_viewport_scroll_top_left.current.top = top;
+            canvas_viewport_scroll_top_left.current.left = left;
+        };
+
+        canvas_viewport_ref.current?.addEventListener(
+            'scroll',
+            onScroll,
+            false
+        );
+
+        return () => {
+            canvas_viewport_ref.current?.removeEventListener(
+                'scroll',
+                onScroll,
+                false
+            );
+        };
+    }, [canvas_viewport_ref.current]);
 
     return {
         padding,
@@ -388,6 +426,7 @@ export const useLayoutHooks = (
         t_offset,
         l_offset,
         has_outer_layout,
+        canvas_viewport_scroll_top_left,
         getCurrentBound,
         snapToDrag
     };
