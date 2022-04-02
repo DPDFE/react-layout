@@ -375,11 +375,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         (item: ItemPos, is_save?: boolean) => {
             const current_widget = getLayoutItem(item);
 
-            console.log(
-                cloneWidget(current_widget),
-                cloneWidget(item),
-                'move ========='
-            );
             moveToWidget(current_widget, item);
 
             current_widget.is_dragging = is_save ? false : true;
@@ -404,8 +399,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 const filter_layout = getFilterLayout(item);
                 const { top, left } = canvas_viewport_scroll_top_left.current;
 
-                shadow_widget.x += left;
-                shadow_widget.y += top;
+                if (is_save) {
+                    shadow_widget.x += left;
+                    shadow_widget.y += top;
+                }
 
                 snapToGrid(shadow_widget, grid);
 
@@ -660,7 +657,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 ? getFilterLayout(dragging_item.descriptor.pos)
                 : layout;
             compact(filter_layout);
-            setLayout(layout);
+            setLayout(filter_layout);
             return filter_layout;
         },
         [layout, getFilterLayout]

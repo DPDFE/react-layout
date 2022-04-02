@@ -395,7 +395,6 @@ export const useLayoutHooks = (
                 top = canvas_viewport_ref.current?.scrollTop ?? 0;
                 left = canvas_viewport_ref.current?.scrollLeft ?? 0;
             }
-            console.log(left, top);
             canvas_viewport_scroll_top_left.current.top = top;
             canvas_viewport_scroll_top_left.current.left = left;
         };

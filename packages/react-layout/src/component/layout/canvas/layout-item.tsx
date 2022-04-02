@@ -287,14 +287,14 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         has_inner_layout !== undefined && setIsReady(true);
     }, [has_inner_layout]);
 
-    useEffect(() => {
-        if (props.is_placeholder) return;
+    // useEffect(() => {
+    //     if (props.is_placeholder) return;
 
-        console.log(unique_id, 'mount');
-        return () => {
-            console.log(unique_id, 'unmount');
-        };
-    }, []);
+    //     console.log(unique_id, 'mount');
+    //     return () => {
+    //         console.log(unique_id, 'unmount');
+    //     };
+    // }, []);
 
     const descriptor: LayoutItemDescriptor = useMemo(
         () => ({
@@ -303,10 +303,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             is_ready,
             pos: {
                 i,
-                x,
-                y,
-                w,
-                h,
+                x: x - offset_x,
+                y: y - offset_y,
+                w: w + margin_width,
+                h: h + margin_height,
                 type,
                 has_inner_layout,
                 is_resizable,

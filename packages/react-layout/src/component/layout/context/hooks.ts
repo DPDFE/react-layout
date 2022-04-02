@@ -49,8 +49,6 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
     const registry = useRegistry();
 
     useEffect(() => {
-        const drag_item = dragging_layout.current?.drag_item;
-
         const onMouseMouve = (event: MouseEvent) => {
             event.stopPropagation();
 
@@ -119,14 +117,12 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
                         const { layout, drag_item } = dragging_layout.current;
                         layout.handlerDraggingItemOut(drag_item);
                     }
-                    console.log(
-                        layout.descriptor.id,
-                        dragging_layout_id.current,
-                        drag_item
-                    );
                     dragging_layout_id.current = layout.descriptor.id;
                     return;
                 }
+            } else if (dragging_layout.current) {
+                const { layout, drag_item } = dragging_layout.current;
+                layout.handlerDraggingItemOut(drag_item);
             }
 
             dragging_layout_id.current = undefined;
