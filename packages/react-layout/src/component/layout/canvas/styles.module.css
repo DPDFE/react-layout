@@ -24,3 +24,10 @@
     border-radius: 3px;
     display: block !important;
 }
+
+.draggable_handler {
+    border: none;
+    position: absolute;
+    cursor: grab;
+    pointer-events: all
+}

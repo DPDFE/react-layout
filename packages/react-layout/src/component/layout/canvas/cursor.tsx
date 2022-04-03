@@ -12,9 +12,8 @@ const Cursor = (props: CursorProps) => {
             y={props.y}
             scale={props.scale}
             is_draggable={true}
-            use_css_fixed={true}
-            use_css_transform={true}
-            is_dragging={props.is_dragging}
+            use_css_fixed={props.use_css_fixed}
+            use_css_transform={props.use_css_transform}
             onDragStart={props.onDragStart}
             onDrag={({ x, y }) => {
                 props.onDrag?.({ x, y, cursor: props.cursor });
@@ -32,9 +31,8 @@ const Cursor = (props: CursorProps) => {
                     cursor: props.cursor,
                     marginTop: -3,
                     marginLeft: -3,
-                    mixBlendMode: 'difference',
-                    filter: 'invert(0)',
-                    backgroundColor: '#ed7116'
+                    backgroundColor: '#128ee9',
+                    ...props.style
                 }}
             ></div>
         </Draggable>

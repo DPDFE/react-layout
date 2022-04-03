@@ -5,6 +5,8 @@ export { default as WidgetItem } from './component/layout/canvas/layout-item';
 
 export { default as Draggable } from './component/layout/canvas/draggable';
 
+export { default as Resizable } from './component/layout/canvas/resizable';
+
 export {
     default as ReactLayoutContext,
     LayoutContext

@@ -31,7 +31,11 @@ export enum CursorType {
     nw = 'nw-resize',
     ne = 'ne-resize',
     sw = 'sw-resize',
-    se = 'se-resize'
+    se = 'se-resize',
+    n = 'n-resize',
+    e = 'e-resize',
+    s = 's-resize',
+    w = 'w-resize'
 }
 
 export enum DirectionType {
@@ -232,7 +236,6 @@ export interface DraggableProps extends EventBaseProps {
     threshold?: number;
     x: number;
     y: number;
-    is_dragging?: boolean;
     scale?: number;
     bound?: Partial<BoundType>;
     is_draggable?: boolean;
@@ -247,22 +250,27 @@ export interface DraggableProps extends EventBaseProps {
 
 export interface CursorProps extends Omit<DraggableProps, 'children'> {
     cursor: CursorType;
+    use_css_transform?: boolean;
+    use_css_fixed?: boolean;
     onDrag?: ({ x, y, cursor }: CursorPointer) => void;
     onDragStop?: ({ x, y, cursor }: CursorPointer) => void;
 }
 
 /** resize */
 export interface ResizableProps extends EventBaseProps {
+    onMouseDown?: (e: React.MouseEvent<Element, MouseEvent>) => void;
     x: number;
     y: number;
     h: number;
     w: number;
-    onMouseDown?: (e: React.MouseEvent) => void;
-    scale: number;
-    grid: GridType;
-    bound: BoundType;
-    is_dragging?: boolean;
+    scale?: number;
+    min_h?: number;
+    min_w?: number;
+    bound?: BoundType;
     is_resizable?: boolean;
+    use_css_transform?: boolean;
+    use_css_fixed?: boolean;
+    cursors?: CursorType[];
     onResizeStart?: () => void;
     onResize?: ({
         x,

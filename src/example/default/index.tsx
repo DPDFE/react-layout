@@ -14,7 +14,7 @@ import {
     WidgetType
 } from '@dpdfe/react-layout';
 import 'antd/dist/antd.css';
-import '@dpdfe/react-layout/dist/style.css';
+import '@dpdfe/react-layout/dist/index.css';
 import { Tabs } from 'antd';
 
 const { TabPane } = Tabs;

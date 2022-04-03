@@ -30,7 +30,8 @@ const Draggable = (props: DraggableProps) => {
     >;
 
     const [drag_state, setDragState] = useState<DragStates>();
-    const [mouse_pos, setMousePos] = useState<Pos>({ x: props.x, y: props.y }); // 鼠标点击坐标
+    const [mouse_pos, setMousePos] = useState<Pos>({ x: 0, y: 0 }); // 鼠标点击坐标
+    const [start_pos, setStartPos] = useState<Pos>({ x: 0, y: 0 });
 
     /** 获取相对父元素偏移量 */
     const offsetXYFromParent = (e: MouseEvent) => {
@@ -80,6 +81,7 @@ const Draggable = (props: DraggableProps) => {
         const { x, y } = offsetXYFromParent(e);
         setDragState(DragStates.ready);
         setMousePos({ x, y });
+        setStartPos({ x: props.x, y: props.y });
     };
 
     function isSloppyClickThresholdExceeded(
@@ -117,8 +119,8 @@ const Draggable = (props: DraggableProps) => {
         const { max_x, max_y, min_x, min_y } = formatBound(props.bound);
 
         const pos = {
-            x: clamp(props.x + delta_x, min_x, max_x),
-            y: clamp(props.y + delta_y, min_y, max_y)
+            x: clamp(start_pos.x + delta_x, min_x, max_x),
+            y: clamp(start_pos.y + delta_y, min_y, max_y)
         };
         if (drag_state === DragStates.dragging) {
             props.onDrag?.(pos);
@@ -154,28 +156,9 @@ const Draggable = (props: DraggableProps) => {
         };
     }, [drag_state]);
 
-    const setTransform = () => {
-        const translate = `translate(${props.x}px,${props.y}px)`;
-        return {
-            transform: translate,
-            WebkitTransform: translate,
-            MozTransform: translate,
-            msTransform: translate,
-            OTransform: translate
-        };
-    };
-
-    const setTopLeft = () => {
-        return {
-            left: `${props.x}px`,
-            top: `${props.y}px`
-        };
-    };
-
     const setUserSelect = () => {
-        const user_select: 'none' | 'inherit' = props.is_dragging
-            ? 'none'
-            : 'inherit';
+        const user_select: 'none' | 'inherit' =
+            drag_state === DragStates.dragging ? 'none' : 'inherit';
         return {
             UserSelect: user_select,
             WebkitUserSelect: user_select,
@@ -193,14 +176,13 @@ const Draggable = (props: DraggableProps) => {
             child.props.className ? child.props.className : ''
         }`,
         style: {
-            ...setUserSelect(),
-            ...(props.use_css_transform || props.is_dragging
-                ? setTransform()
-                : setTopLeft()),
-            position:
-                props.use_css_fixed && props.is_dragging ? 'fixed' : 'absolute',
             ...props.style,
-            ...child.props.style // 让props覆盖上面配置的style
+            ...child.props.style, // 让props覆盖上面配置的style
+            ...setUserSelect(),
+            ...(props.use_css_transform
+                ? setTransform(props.x, props.y)
+                : setTopLeft(props.x, props.y)),
+            position: props.use_css_fixed ? 'fixed' : 'absolute'
         }
     });
 
@@ -210,12 +192,32 @@ const Draggable = (props: DraggableProps) => {
 Draggable.defaultProps = {
     threshold: 0,
     is_draggable: false,
+    use_css_transform: true,
+    use_css_fixed: false,
     scale: 1,
     style: {},
     bound: DEFAULT_BOUND
 };
 
 export default memo(Draggable);
+
+export const setTransform = (x: number, y: number) => {
+    const translate = `translate(${x}px,${y}px)`;
+    return {
+        transform: translate,
+        WebkitTransform: translate,
+        MozTransform: translate,
+        msTransform: translate,
+        OTransform: translate
+    };
+};
+
+export const setTopLeft = (x: number, y: number) => {
+    return {
+        left: `${x}px`,
+        top: `${y}px`
+    };
+};
 
 export function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);

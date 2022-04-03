@@ -20,7 +20,7 @@ import React, {
 } from 'react';
 
 import { MIN_DRAG_LENGTH } from '../calc';
-import Draggable, { DEFAULT_BOUND } from './draggable';
+import Draggable from './draggable';
 import Resizable from './resizable';
 // vite在watch模式下检测style变化需要先将内容引进来才能监听到
 import styles from './styles.module.css';
@@ -112,62 +112,46 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         <React.Fragment>
             <div
                 key={'top_draggable_handler'}
-                className={`draggable_handler`}
+                className={`draggable_handler ${styles.draggable_handler}`}
                 style={{
-                    border: 'none',
                     width: '100%',
                     height: '5%',
                     minHeight: 10,
-                    position: 'absolute',
                     top: 0,
-                    left: 0,
-                    cursor: 'grab',
-                    pointerEvents: 'all'
+                    left: 0
                 }}
             ></div>
             <div
                 key={'left_draggable_handler'}
-                className={`draggable_handler`}
+                className={`draggable_handler  ${styles.draggable_handler}`}
                 style={{
-                    border: 'none',
                     width: '5%',
                     height: '100%',
                     minWidth: 10,
-                    position: 'absolute',
                     top: 0,
-                    right: 0,
-                    cursor: 'grab',
-                    pointerEvents: 'all'
+                    right: 0
                 }}
             ></div>
             <div
                 key={'bottom_draggable_handler'}
-                className={`draggable_handler`}
+                className={`draggable_handler ${styles.draggable_handler}`}
                 style={{
-                    border: 'none',
                     width: '100%',
                     height: '5%',
                     minHeight: 10,
-                    position: 'absolute',
                     bottom: 0,
-                    left: 0,
-                    cursor: 'grab',
-                    pointerEvents: 'all'
+                    left: 0
                 }}
             ></div>
             <div
                 key={'right_draggable_handler'}
-                className={`draggable_handler`}
+                className={`draggable_handler ${styles.draggable_handler}`}
                 style={{
-                    border: 'none',
                     width: '5%',
                     height: '100%',
                     minWidth: 10,
-                    position: 'absolute',
                     top: 0,
-                    left: 0,
-                    cursor: 'grab',
-                    pointerEvents: 'all'
+                    left: 0
                 }}
             ></div>
         </React.Fragment>
@@ -262,13 +246,13 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const getCurrentGrid = () => {
         if (is_float) {
             return {
-                col_width: props.min_w ?? MIN_DRAG_LENGTH,
-                row_height: props.min_h ?? MIN_DRAG_LENGTH
+                min_w: props.min_w ?? MIN_DRAG_LENGTH,
+                min_h: props.min_h ?? MIN_DRAG_LENGTH
             };
         } else {
             return {
-                col_width: (props.min_w ?? 1) * col_width,
-                row_height: (props.min_h ?? 1) * row_height
+                min_w: (props.min_w ?? 1) * col_width,
+                min_h: (props.min_h ?? 1) * row_height
             };
         }
     };
@@ -369,11 +353,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             <Draggable
                 {...{ x, y, h, w, i }}
                 threshold={5}
-                use_css_transform={!has_inner_layout}
-                use_css_fixed={true}
+                use_css_transform={!has_inner_layout && is_dragging}
+                use_css_fixed={is_dragging}
                 scale={props.scale}
                 is_draggable={is_draggable}
-                is_dragging={is_dragging}
                 onDragStart={() => {
                     props.onDragStart?.();
                 }}
@@ -383,16 +366,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         : undefined
                 }
                 draggable_cancel_handler={props.draggable_cancel_handler}
-                // bound={
-                //     has_outer_layout
-                //         ? DEFAULT_BOUND
-                //         : {
-                //               max_y: max_y - h,
-                //               min_y,
-                //               max_x: max_x - w,
-                //               min_x
-                //           }
-                // }
                 onDrag={({ x, y }) => {
                     const item = {
                         x: x - offset_x,
@@ -416,11 +389,17 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 }}
             >
                 <Resizable
+                    style={{
+                        mixBlendMode: 'difference',
+                        filter: 'invert(0)',
+                        backgroundColor: '#ed7116'
+                    }}
                     ref={item_ref}
                     {...{ x, y, h, w, i, type }}
                     scale={props.scale}
+                    use_css_transform={!has_inner_layout && is_dragging}
+                    use_css_fixed={is_dragging}
                     is_resizable={is_resizable}
-                    is_dragging={is_dragging}
                     onResizeStart={() => {
                         props.onResizeStart?.();
                     }}
@@ -434,7 +413,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                             i
                         });
                     }}
-                    grid={getCurrentGrid()}
+                    {...getCurrentGrid()}
                     bound={{ max_x, max_y, min_x, min_y }}
                     onResizeStop={({ x, y, h, w }) => {
                         props.onResizeStop?.({

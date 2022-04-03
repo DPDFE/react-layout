@@ -4,7 +4,7 @@ import {
     LayoutType,
     ReactLayoutContext,
 } from "@dpdfe/react-layout";
-import "@dpdfe/react-layout/dist/style.css";
+import "@dpdfe/react-layout/dist/index.css";
 
 const RulerLayout = () => {
     return (

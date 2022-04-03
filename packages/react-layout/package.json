@@ -11,7 +11,7 @@
     },
     "main": "dist/index.umd.js",
     "module": "dist/index.es.js",
-    "style": "./dist/style.css",
+    "style": "./dist/index.css",
     "source": "src/index.tsx",
     "engines": {
         "node": ">=12.2.0"

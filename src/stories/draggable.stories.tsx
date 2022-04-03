@@ -1,5 +1,4 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import '@dpdfe/react-layout/dist/style.css';
 import '../index.css';
 
 import { Draggable } from '@dpdfe/react-layout';
@@ -14,8 +13,7 @@ export default {
 } as unknown as ComponentMeta<typeof Draggable>;
 
 const Template: ComponentStory<typeof Draggable> = (args) => {
-    const draggable_ref = useRef<HTMLDivElement>(null);
-    const wrapper_ref = useRef<HTMLDivElement>(null);
+    const item_ref = useRef<HTMLDivElement>(null);
     const [x, setX] = useState<number>(100);
     const [y, setY] = useState<number>(100);
 
@@ -24,10 +22,8 @@ const Template: ComponentStory<typeof Draggable> = (args) => {
             style={{
                 width: '100%',
                 height: '500px',
-                border: '1px solid',
-                position: 'relative'
+                border: '1px solid'
             }}
-            ref={wrapper_ref}
         >
             <Draggable
                 {...args}
@@ -38,6 +34,7 @@ const Template: ComponentStory<typeof Draggable> = (args) => {
                     console.log('dragStart');
                 }}
                 onDrag={({ x, y }: { x: number; y: number }) => {
+                    // args.onDrag({ x, y });
                     setX(x);
                     setY(y);
                 }}
@@ -46,7 +43,7 @@ const Template: ComponentStory<typeof Draggable> = (args) => {
                 }}
             >
                 <div
-                    ref={draggable_ref}
+                    ref={item_ref}
                     style={{
                         width: 120,
                         height: 120,
