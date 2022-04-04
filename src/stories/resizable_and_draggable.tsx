@@ -3,14 +3,12 @@ import '@dpdfe/react-layout/dist/index.css';
 import '../index.css';
 
 import { Resizable } from '@dpdfe/react-layout';
-import { resizable_arg_types } from './args/resizable';
 import { useRef, useState } from 'react';
 
 export default {
-    title: 'Resizable',
+    title: 'Resizable_and_draggable',
     component: Resizable,
-    id: 'resizable',
-    argTypes: resizable_arg_types
+    id: 'resizable_and_draggable'
 } as unknown as ComponentMeta<typeof Resizable>;
 
 const Template: ComponentStory<typeof Resizable> = (args) => {
@@ -61,7 +59,7 @@ const Template: ComponentStory<typeof Resizable> = (args) => {
                 <div
                     ref={item_ref}
                     style={{
-                        background: 'yellow',
+                        background: '#fff',
                         border: '1px solid',
                         overflow: 'hidden'
                     }}
@@ -73,8 +71,9 @@ const Template: ComponentStory<typeof Resizable> = (args) => {
     );
 };
 
-export const resizable = Template.bind({});
-resizable.args = {
+const resizable_and_draggable = Template.bind({});
+
+resizable_and_draggable.args = {
     is_resizable: true,
     min_h: 10,
     min_w: 10,
