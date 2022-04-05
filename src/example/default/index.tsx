@@ -67,6 +67,9 @@ const DefaultLayout = () => {
         ];
     }
 
+    console.log('aaa bbb')
+
+
     function generateLayout2() {
         return [
             {

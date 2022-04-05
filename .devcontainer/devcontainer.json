@@ -1,0 +1,15 @@
+//devcontainer.json
+{
+    "name": "react-layout",
+    "dockerFile": "Dockerfile",
+    "settings": {
+      "terminal.integrated.shell.linux": "/bin/bash"
+    },
+    "extensions": ["dbaeumer.vscode-eslint"],
+    "forwardPorts": [3000],
+    "remoteUser": "node",
+    "mounts": [
+        "source=react-layout-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+    ],
+    "postCreateCommand": "sudo chown node node_modules",
+  }

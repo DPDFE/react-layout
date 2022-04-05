@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  node:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/app
+    command: sh -c "cd react-layout && npm run dev"
+    ports:
+      - "3000:3000"
+    stdin_open: true
