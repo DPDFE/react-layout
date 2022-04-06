@@ -16,9 +16,7 @@
         "test": "lerna exec --scope @dpdfe/react-layout yarn jest",
         "storybook": "start-storybook -p 6006",
         "deploy-storybook": "gh-pages -d storybook-static",
-        "build-storybook": "build-storybook",
-        "docker-build": "docker build -t react-layout .",
-        "docker-run": "docker run --rm -p 3000:3000 --name react-app react-layout"
+        "build-storybook": "build-storybook"
     },
     "dependencies": {
         "@jamesives/github-pages-deploy-action": "^4.2.5",

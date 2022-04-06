@@ -67,7 +67,7 @@ const DefaultLayout = () => {
         ];
     }
 
-    console.log('aaa bbb')
+    console.log('deeee')
 
 
     function generateLayout2() {
@@ -103,7 +103,7 @@ const DefaultLayout = () => {
             {
                 x: 630,
                 y: 230,
-                w: 100,
+                w: 200,
                 h: 100,
                 i: '0',
                 is_resizable: true,
@@ -112,7 +112,7 @@ const DefaultLayout = () => {
                 has_inner_layout: false
             },
             {
-                x: 0,
+                x: 1,
                 y: 0,
                 w: 4,
                 h: 10,
