@@ -66,7 +66,7 @@ const DefaultLayout = () => {
             }
         ];
     }
-    
+
     function generateLayout2() {
         return [
             {
@@ -117,7 +117,8 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                has_inner_layout: true
+                has_inner_layout: true,
+                useless_nested: true
             },
             {
                 x: 0,
@@ -128,7 +129,8 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                has_inner_layout: false
+                has_inner_layout: false,
+                useless_nested: true
             },
             {
                 x: 5,

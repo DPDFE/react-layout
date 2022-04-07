@@ -182,6 +182,7 @@ export interface GuideLineProps {
 
 /** 单节点属性 */
 export interface LayoutItem extends ItemPos {
+    useless_nested?: boolean;
     min_w?: number;
     min_h?: number;
     is_draggable?: boolean;

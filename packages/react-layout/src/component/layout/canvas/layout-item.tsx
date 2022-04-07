@@ -179,7 +179,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         return children;
     }, [operator_type, child, need_border_draggable_handler, has_inner_layout]);
 
-    const getTransition = () => {
+    const setTransition = () => {
         const transition = 'all 0.2s cubic-bezier(0.2, 0, 0, 1) 0s';
         if (props.is_placeholder) return transition;
 
@@ -226,7 +226,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ].join(' ')}`,
         style: {
             border: '1px solid transparent',
-            transition: getTransition(),
+            transition: setTransition(),
             width: w,
             height: h,
             ...child.props.style,
