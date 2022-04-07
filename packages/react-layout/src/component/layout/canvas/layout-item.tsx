@@ -48,7 +48,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         is_draggable,
         is_resizable,
         need_border_draggable_handler,
-        has_outer_layout,
         layout_id,
         offset_x,
         offset_y,
@@ -61,8 +60,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     } = props;
 
     const { operator_type, registry } = useContext(LayoutContext);
-
-    const is_float = type === WidgetType.drag;
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -159,6 +156,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const getCurrentChildren = useCallback(() => {
         const children = [child.props.children];
+
         if (props.mode === LayoutMode.edit) {
             if (need_border_draggable_handler) {
                 children.push(draggable_handler);
@@ -181,6 +179,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const setTransition = () => {
         const transition = 'all 0.2s cubic-bezier(0.2, 0, 0, 1) 0s';
+
         if (props.is_placeholder) return transition;
 
         if (props.is_checked || !is_ready) return 'none';
@@ -193,9 +192,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         onMouseDown: () => {
             props.setCurrentChecked?.(i);
         },
-        // onClick: (e: React.MouseEvent) => {
-        //     e.stopPropagation();
-        // },
         onDragLeave: (e: React.MouseEvent) => {
             e.stopPropagation();
         },
@@ -203,7 +199,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             e.stopPropagation();
         },
         onKeyDown: (e: React.KeyboardEvent) => {
-            if (is_float) {
+            if (type === WidgetType.drag) {
                 const keydown_pos = handleKeyDown(e);
                 if (keydown_pos) {
                     props.onPositionChange?.({
@@ -243,18 +239,18 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     /**
      * 获取模块最小范围
      */
-    const getCurrentGrid = () => {
-        if (is_float) {
-            return {
+    const getMinimumBoundary = () => {
+        const bound_strategy = {
+            [WidgetType.drag]: {
                 min_w: props.min_w ?? MIN_DRAG_LENGTH,
                 min_h: props.min_h ?? MIN_DRAG_LENGTH
-            };
-        } else {
-            return {
+            },
+            [WidgetType.grid]: {
                 min_w: (props.min_w ?? 1) * col_width,
                 min_h: (props.min_h ?? 1) * row_height
-            };
-        }
+            }
+        };
+        return bound_strategy[type];
     };
 
     const unique_id = useMemo(() => {
@@ -264,21 +260,12 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     useLayoutEffect(() => {
         if (props.is_placeholder) return;
 
-        setHasInnerLayout(!!getLayoutItemRef()?.querySelector('.react-layout'));
+        setHasInnerLayout(!!getLayoutItemRef()?.querySelector('#react-layout'));
     }, []);
 
     useEffect(() => {
         has_inner_layout !== undefined && setIsReady(true);
     }, [has_inner_layout]);
-
-    // useEffect(() => {
-    //     if (props.is_placeholder) return;
-
-    //     console.log(unique_id, 'mount');
-    //     return () => {
-    //         console.log(unique_id, 'unmount');
-    //     };
-    // }, []);
 
     const descriptor: LayoutItemDescriptor = useMemo(
         () => ({
@@ -413,7 +400,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                             i
                         });
                     }}
-                    {...getCurrentGrid()}
+                    {...getMinimumBoundary()}
                     bound={{ max_x, max_y, min_x, min_y }}
                     onResizeStop={({ x, y, h, w }) => {
                         props.onResizeStop?.({
@@ -455,7 +442,6 @@ WidgetItem.defaultProps = {
     type: WidgetType.grid,
     is_checked: false,
     is_placeholder: false,
-    has_outer_layout: false,
     style: {},
     margin: [0, 0] as [number, number]
 };

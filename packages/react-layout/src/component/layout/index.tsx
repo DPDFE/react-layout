@@ -46,7 +46,6 @@ import { clamp } from './canvas/draggable';
 import { useLayoutHooks } from './hooks';
 import isEqual from 'lodash.isequal';
 import { LayoutContext } from './context';
-import { addEvent, removeEvent } from '@dpdfe/event-utils';
 import drawGridLines from './grid-lines';
 
 const ReactLayout = (props: ReactLayoutProps) => {
@@ -756,7 +755,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     return (
         <div
-            className={`react-layout ${styles.container} ${props.className}`}
+            id={'react-layout'}
+            className={`${styles.container} ${props.className}`}
             ref={container_ref}
             style={{
                 userSelect: props.mode === LayoutMode.edit ? 'none' : 'auto',
@@ -891,6 +891,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
         </div>
     );
 };
+
+ReactLayout.displayName = 'ReactLayout';
 
 ReactLayout.defaultProps = {
     scale: 1,
