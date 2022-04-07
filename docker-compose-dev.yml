@@ -1,0 +1,15 @@
+version: '3.8'
+services:
+  react-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args: 
+        - REACT_APP_NAME=react-layout-dev
+    # 有数据卷的情况下，不更新映射
+    # volumes:
+    #   - .:/app
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./.env

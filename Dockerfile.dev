@@ -5,6 +5,8 @@ WORKDIR /app
 COPY package.json .
 COPY lerna.json  .
 COPY . .
+ARG REACT_APP_NAME
+ENV REACT_APP_NAME=$REACT_APP_NAME
 RUN lerna bootstrap
 RUN npm rebuild esbuild 
 EXPOSE 3000
