@@ -46,7 +46,6 @@ import { clamp } from './canvas/draggable';
 import { useLayoutHooks } from './hooks';
 import isEqual from 'lodash.isequal';
 import { LayoutContext } from './context';
-import { addEvent, removeEvent } from '@dpdfe/event-utils';
 import drawGridLines from './grid-lines';
 
 const ReactLayout = (props: ReactLayoutProps) => {
@@ -146,6 +145,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         item.is_resizable = item.is_resizable ?? false;
         item.need_border_draggable_handler =
             item.need_border_draggable_handler ?? false;
+        item.useless_nested = item.useless_nested ?? false;
 
         const is_float = item.type === WidgetType.drag;
         item.w = Math.max(item.min_w ?? (is_float ? 5 : 1), item.w);
@@ -338,16 +338,17 @@ const ReactLayout = (props: ReactLayoutProps) => {
         return;
     };
 
-    const getDestinationLayoutByItemId = useCallback(
-        (type: OperatorType, widget_id: string, is_save: boolean) => {
+    const getDestinationLayoutByItem = useCallback(
+        (type: OperatorType, widget: LayoutItem, is_save: boolean) => {
             if (
+                !widget.useless_nested &&
                 dragging_layout_id.current &&
                 dragging_layout_id.current !== props.layout_id
             ) {
                 const droppable = registry.droppable.getById(
                     dragging_layout_id.current
                 );
-                const dragging_item = registry.draggable.getById(widget_id);
+                const dragging_item = registry.draggable.getById(widget.i);
                 const widgets = droppable.compactLayoutByDraggingItem(
                     dragging_item,
                     is_save
@@ -383,6 +384,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
             // 当前拖拽元素 原Layout 处理元素移除逻辑
             if (
+                !current_widget.useless_nested &&
                 dragging_layout_id.current &&
                 dragging_layout_id.current !== props.layout_id
             ) {
@@ -515,9 +517,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                 layout: source_layout,
                                 widget: current_widget
                             } = getCurrentLayoutByItem(item, false);
-                            const destination = getDestinationLayoutByItemId(
+                            const destination = getDestinationLayoutByItem(
                                 OperatorType.drag,
-                                current_widget.i,
+                                current_widget,
                                 false
                             );
                             handleResponder(
@@ -537,9 +539,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                 layout: source_layout,
                                 widget: current_widget
                             } = getCurrentLayoutByItem(item, true);
-                            const destination = getDestinationLayoutByItemId(
+                            const destination = getDestinationLayoutByItem(
                                 OperatorType.dragover,
-                                current_widget.i,
+                                current_widget,
                                 true
                             );
                             handleResponder(
@@ -755,7 +757,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     return (
         <div
-            className={`react-layout ${styles.container} ${props.className}`}
+            id={'react-layout'}
+            className={`${styles.container} ${props.className}`}
             ref={container_ref}
             style={{
                 userSelect: props.mode === LayoutMode.edit ? 'none' : 'auto',
@@ -890,6 +893,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
         </div>
     );
 };
+
+ReactLayout.displayName = 'ReactLayout';
 
 ReactLayout.defaultProps = {
     scale: 1,

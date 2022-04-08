@@ -1,4 +1,4 @@
-export const draggable_arg_types = {
+export const resizable_arg_types = {
     children: {
         type: {
             type: 'ReactElement'
@@ -8,21 +8,8 @@ export const draggable_arg_types = {
         table: {
             type: { summary: 'ReactElement' },
             defaultValue: {
-                summary: `<div ref={'draggable_ref'} style={{width: 100, height: 100}}></div>`
+                summary: `<div ref={'item_ref'} style={{width: 100, height: 100}}></div>`
             }
-        }
-    },
-    threshold: {
-        type: {
-            type: 'number',
-            required: false
-        },
-        control: { type: 'number' },
-        description: '移动多少距离后算拖拽开始',
-        defaultValue: 5,
-        table: {
-            type: { summary: 'number' },
-            defaultValue: { summary: 5 }
         }
     },
     x: {
@@ -51,6 +38,56 @@ export const draggable_arg_types = {
             defaultValue: { summary: 10 }
         }
     },
+    h: {
+        type: {
+            type: 'number',
+            required: true
+        },
+        control: { type: 'number' },
+        description: '初始高度',
+        defaultValue: 10,
+        table: {
+            type: { summary: 'number' },
+            defaultValue: { summary: 10 }
+        }
+    },
+    w: {
+        type: {
+            type: 'number',
+            required: true
+        },
+        control: { type: 'number' },
+        description: '初始宽度',
+        defaultValue: 10,
+        table: {
+            type: { summary: 'number' },
+            defaultValue: { summary: 10 }
+        }
+    },
+    min_h: {
+        type: {
+            type: 'number'
+        },
+        control: { type: 'number' },
+        description: '最小高度',
+        defaultValue: 0,
+        table: {
+            type: { summary: 'number' },
+            defaultValue: { summary: 10 }
+        }
+    },
+    min_w: {
+        type: {
+            type: 'number'
+        },
+        control: { type: 'number' },
+        description: '最小宽度',
+        defaultValue: 0,
+        table: {
+            type: { summary: 'number' },
+            defaultValue: { summary: 10 }
+        }
+    },
     scale: {
         type: {
             type: 'number',
@@ -62,42 +99,6 @@ export const draggable_arg_types = {
         table: {
             type: { summary: 'number' },
             defaultValue: { summary: 1 }
-        }
-    },
-    bound: {
-        type: {
-            type: 'object',
-            required: false
-        },
-        control: { type: 'object' },
-        description: '可拖拽范围',
-        defaultValue: {
-            max_x: Infinity,
-            max_y: Infinity,
-            min_x: -Infinity,
-            min_y: -Infinity
-        },
-        table: {
-            type: {
-                summary:
-                    '{max_x: number; max_y: number; min_x: number; min_y:number;}'
-            },
-            defaultValue: {
-                summary: `{max_x: Infinity, max_y: Infinity, min_x: -Infinity, min_y: -Infinity}`
-            }
-        }
-    },
-    is_draggable: {
-        type: {
-            type: 'boolean',
-            required: false
-        },
-        control: { type: 'boolean' },
-        description: '是否可拖拽',
-        defaultValue: true,
-        table: {
-            type: { summary: 'boolean' },
-            defaultValue: { summary: true }
         }
     },
     use_css_transform: {
@@ -126,67 +127,77 @@ export const draggable_arg_types = {
             defaultValue: { summary: false }
         }
     },
-    draggable_cancel_handler: {
+    bound: {
         type: {
-            type: 'string',
+            type: 'object',
             required: false
         },
-        control: { type: 'string' },
-        defaultValue: undefined,
-        description: '不可拖拽的元素',
-        table: {
-            type: { summary: 'string' },
-            defaultValue: { summary: '.draggable_cancel_handler' }
-        }
-    },
-    draggable_handler: {
-        type: {
-            type: 'string',
-            required: false
+        control: { type: 'object' },
+        description: '可拖拽范围',
+        defaultValue: {
+            max_x: Infinity,
+            max_y: Infinity,
+            min_x: -Infinity,
+            min_y: -Infinity
         },
-        control: { type: 'string' },
-        defaultValue: undefined,
-        description: '可拖拽手柄',
         table: {
-            type: { summary: 'string' },
-            defaultValue: { summary: '.draggable_handler' }
-        }
-    },
-    onDragStart: {
-        type: {
-            type: 'function'
-        },
-        control: { type: null },
-        description: '开始拖拽',
-        table: {
+            type: {
+                summary:
+                    '{max_x: number; max_y: number; min_x: number; min_y:number;}'
+            },
             defaultValue: {
-                summary: 'onDragStart?: () => void;'
+                summary: `{max_x: Infinity, max_y: Infinity, min_x: -Infinity, min_y: -Infinity}`
             }
         }
     },
-    onDrag: {
+    is_resizable: {
+        type: {
+            type: 'boolean',
+            required: false
+        },
+        control: { type: 'boolean' },
+        description: '是否可缩放',
+        defaultValue: true,
+        table: {
+            type: { summary: 'boolean' },
+            defaultValue: { summary: true }
+        }
+    },
+    onResizeStart: {
         type: {
             type: 'function'
         },
         control: { type: null },
-        description: '拖拽中',
+        description: '开始缩放',
         table: {
             defaultValue: {
-                summary:
-                    'onDrag?: ({ x, y }: { x: number; y: number }) => void;'
+                summary: 'onResizeStart?: () => void;'
             }
         }
     },
-    onDragStop: {
+    onResize: {
         type: {
             type: 'function'
         },
         control: { type: null },
-        description: '拖拽结束',
+        description: '缩放中',
         table: {
             defaultValue: {
                 summary:
-                    'onDragStop?: ({ x, y }: { x: number; y: number }) => void;'
+                    'onResize?: ({x, y, h, w }: { x: number; y: number; h: number; w: number;}) => void;'
+            }
+        }
+    },
+    onResizeStop: {
+        type: {
+            type: 'function'
+        },
+        control: { type: null },
+        description: '缩放结束',
+        table: {
+            defaultValue: {
+                summary:
+                    'onDragStop?: ({ x, y, h, w }: { x: number; y: number; h: number; w: number; }) => void;'
             }
         }
     }

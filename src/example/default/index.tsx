@@ -14,7 +14,7 @@ import {
     WidgetType
 } from '@dpdfe/react-layout';
 import 'antd/dist/antd.css';
-import '@dpdfe/react-layout/dist/style.css';
+import '@dpdfe/react-layout/dist/index.css';
 import { Tabs } from 'antd';
 
 const { TabPane } = Tabs;
@@ -100,7 +100,7 @@ const DefaultLayout = () => {
             {
                 x: 630,
                 y: 230,
-                w: 100,
+                w: 200,
                 h: 100,
                 i: '0',
                 is_resizable: true,
@@ -109,7 +109,7 @@ const DefaultLayout = () => {
                 has_inner_layout: false
             },
             {
-                x: 0,
+                x: 1,
                 y: 0,
                 w: 4,
                 h: 10,
@@ -117,7 +117,8 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                has_inner_layout: true
+                has_inner_layout: true,
+                useless_nested: true
             },
             {
                 x: 0,
@@ -128,7 +129,8 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                has_inner_layout: false
+                has_inner_layout: false,
+                useless_nested: true
             },
             {
                 x: 5,

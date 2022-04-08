@@ -6,11 +6,21 @@ import {
 } from '@/interfaces';
 import React, { memo, useRef } from 'react';
 import Cursor from './cursor';
-import { clamp, DEFAULT_BOUND } from './draggable';
+import { clamp, DEFAULT_BOUND, setTopLeft, setTransform } from './draggable';
 
 const Resizable = React.forwardRef((props: ResizableProps, ref) => {
     const child = React.Children.only(props.children);
     const resize_ref = ref ?? useRef<HTMLDivElement>(null);
+
+    const min_h = props.min_h ?? 0;
+    const min_w = props.min_w ?? 0;
+    const bound = props.bound ?? DEFAULT_BOUND;
+    const cursors = props.cursors ?? [
+        CursorType.se,
+        CursorType.sw,
+        CursorType.ne,
+        CursorType.nw
+    ];
 
     const handleResizeStart = () => {
         if (!props.is_resizable) {
@@ -19,66 +29,180 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
         props.onResizeStart?.();
     };
 
-    const calcPositionByCursor = ({ x, y, cursor }: CursorPointer) => {
-        let pos;
-        switch (cursor) {
-            case CursorType.nw:
-                pos = calcBoundPositions(
+    const handleResize = ({ x, y, cursor }: CursorPointer) => {
+        props.onResize?.(
+            cursor_mappings[cursor].calcPositionByCursor({ x, y })
+        );
+    };
+
+    const handleResizeStop = ({ x, y, cursor }: CursorPointer) => {
+        props.onResizeStop?.(
+            cursor_mappings[cursor].calcPositionByCursor({ x, y })
+        );
+    };
+
+    const cursor_mappings = {
+        // 上
+        [CursorType.n]: {
+            x: props.x + props.w / 2,
+            y: props.y,
+            bound: {
+                max_y: props.y + props.h - min_h
+            },
+            calcPositionByCursor: ({ x, y }: { x: number; y: number }) => {
+                return calcBoundPositions(
+                    {
+                        x: props.x,
+                        y,
+                        w: props.w,
+                        h: Math.min(props.y - y + props.h, props.y + props.h)
+                    },
+                    bound
+                );
+            }
+        },
+        // 下
+        [CursorType.s]: {
+            x: props.x + props.w / 2,
+            y: props.y + props.h,
+            bound: {
+                min_y: props.y + min_h
+            },
+            calcPositionByCursor: ({ x, y }: { x: number; y: number }) => {
+                return calcBoundPositions(
+                    {
+                        x: props.x,
+                        y: props.y,
+                        w: props.w,
+                        h: y - props.y
+                    },
+                    bound
+                );
+            }
+        },
+        // 左
+        [CursorType.w]: {
+            x: props.x,
+            y: props.y + props.h / 2,
+            bound: {
+                max_x: props.x + props.w - min_w
+            },
+            calcPositionByCursor: ({ x, y }: { x: number; y: number }) => {
+                return calcBoundPositions(
+                    {
+                        x,
+                        y: props.y,
+                        w: Math.min(props.x - x + props.w, props.x + props.w),
+                        h: props.h
+                    },
+                    bound
+                );
+            }
+        },
+        // 右
+        [CursorType.e]: {
+            x: props.x + props.w,
+            y: props.y + props.h / 2,
+            bound: {
+                min_x: props.x + props.w - min_w
+            },
+            calcPositionByCursor: ({ x, y }: { x: number; y: number }) => {
+                return calcBoundPositions(
+                    {
+                        x: props.x,
+                        y: props.y,
+                        w: x - props.x,
+                        h: props.h
+                    },
+                    bound
+                );
+            }
+        },
+        // 左上
+        [CursorType.nw]: {
+            x: props.x,
+            y: props.y,
+            bound: {
+                max_y: props.y + props.h - min_h,
+                max_x: props.x + props.w - min_w
+            },
+            calcPositionByCursor: ({ x, y }: { x: number; y: number }) => {
+                return calcBoundPositions(
                     {
                         x,
                         y,
                         w: Math.min(props.x - x + props.w, props.x + props.w),
                         h: Math.min(props.y - y + props.h, props.y + props.h)
                     },
-                    props.bound
+                    bound
                 );
-                return pos;
-            case CursorType.ne:
-                pos = calcBoundPositions(
+            }
+        },
+        /* 右上 */
+        [CursorType.ne]: {
+            x: props.x + props.w,
+            y: props.y,
+            bound: {
+                min_x: props.x + min_w,
+                max_y: props.y + props.h - min_h
+            },
+            calcPositionByCursor: ({ x, y }: { x: number; y: number }) => {
+                return calcBoundPositions(
                     {
                         x: props.x,
                         y: y,
                         w: x - props.x,
                         h: Math.min(props.y - y + props.h, props.y + props.h)
                     },
-                    props.bound
+                    bound
                 );
-                return pos;
-            case CursorType.sw:
-                pos = calcBoundPositions(
+            }
+        },
+        /* 左下 */
+        [CursorType.sw]: {
+            x: props.x,
+            y: props.y + props.h,
+            bound: {
+                max_x: props.x + props.w - min_w,
+                min_y: props.y + min_h
+            },
+            calcPositionByCursor: ({ x, y }: { x: number; y: number }) => {
+                return calcBoundPositions(
                     {
                         x: x,
                         y: props.y,
                         w: Math.min(props.x - x + props.w, props.x + props.w),
                         h: y - props.y
                     },
-                    props.bound
+                    bound
                 );
-                return pos;
-            case CursorType.se:
-                pos = calcBoundPositions(
+            }
+        },
+        /* 右下 */
+        [CursorType.se]: {
+            x: props.x + props.w,
+            y: props.y + props.h,
+            bound: {
+                min_x: props.x + min_w,
+                min_y: props.y + min_h
+            },
+            calcPositionByCursor: ({ x, y }: { x: number; y: number }) => {
+                return calcBoundPositions(
                     {
                         x: props.x,
                         y: props.y,
                         w: x - props.x,
                         h: y - props.y
                     },
-                    props.bound
+                    bound
                 );
-                return pos;
+            }
         }
-    };
-
-    const handleResize = ({ x, y, cursor }: CursorPointer) => {
-        props.onResize?.(calcPositionByCursor({ x, y, cursor }));
-    };
-
-    const handleResizeStop = ({ x, y, cursor }: CursorPointer) => {
-        props.onResizeStop?.(calcPositionByCursor({ x, y, cursor }));
     };
 
     const new_child = React.cloneElement(child, {
         onMouseDown: (e: React.MouseEvent) => {
+            e.stopPropagation();
             props.onMouseDown?.(e);
             child.props.onMouseDown?.(e);
         },
@@ -88,92 +212,40 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
         }`,
         ref: resize_ref,
         style: {
+            ...(props.use_css_transform
+                ? setTransform(props.x, props.y)
+                : setTopLeft(props.x, props.y)),
+            position: props.use_css_fixed ? 'fixed' : 'absolute',
             width: props.w,
             height: props.h,
-            ...props.style,
             ...child.props.style
         }
     });
 
-    const { row_height, col_width } = props.grid;
-
     return (
         <React.Fragment>
             {new_child}
-            {props.is_resizable && (
-                <React.Fragment>
-                    {/* 左上 */}
-                    <Cursor
-                        scale={props.scale}
-                        cursor={CursorType.nw}
-                        x={props.x}
-                        y={props.y}
-                        is_dragging={props.is_dragging}
-                        onDragStart={handleResizeStart}
-                        onDrag={handleResize}
-                        onDragStop={handleResizeStop}
-                        bound={{
-                            max_y: props.y + props.h - row_height,
-                            max_x: props.x + props.w - col_width
-                        }}
-                    ></Cursor>
-                    {/* 右上 */}
-                    <Cursor
-                        scale={props.scale}
-                        cursor={CursorType.ne}
-                        x={props.x + props.w}
-                        y={props.y}
-                        is_dragging={props.is_dragging}
-                        onDragStart={handleResizeStart}
-                        onDrag={handleResize}
-                        onDragStop={handleResizeStop}
-                        bound={{
-                            min_x: props.x + col_width,
-                            max_y: props.y + row_height
-                        }}
-                    ></Cursor>
-                    {/* 左下 */}
-                    <Cursor
-                        scale={props.scale}
-                        cursor={CursorType.sw}
-                        x={props.x}
-                        y={props.y + props.h}
-                        is_dragging={props.is_dragging}
-                        onDragStart={handleResizeStart}
-                        onDrag={handleResize}
-                        onDragStop={handleResizeStop}
-                        bound={{
-                            max_x: props.x + props.w - col_width,
-                            min_y: props.y + row_height
-                        }}
-                    ></Cursor>
-                    {/* 右下 */}
-                    <Cursor
-                        scale={props.scale}
-                        cursor={CursorType.se}
-                        x={props.x + props.w}
-                        y={props.y + props.h}
-                        is_dragging={props.is_dragging}
-                        onDragStart={handleResizeStart}
-                        onDrag={handleResize}
-                        onDragStop={handleResizeStop}
-                        bound={{
-                            min_x: props.x + col_width,
-                            min_y: props.y + row_height
-                        }}
-                    ></Cursor>
-                </React.Fragment>
-            )}
+            {props.is_resizable &&
+                cursors.map((cur) => {
+                    return (
+                        <Cursor
+                            style={props.style}
+                            scale={props.scale}
+                            cursor={cur}
+                            x={cursor_mappings[cur].x}
+                            y={cursor_mappings[cur].y}
+                            use_css_transform={props.use_css_transform}
+                            use_css_fixed={props.use_css_fixed}
+                            onDragStart={handleResizeStart}
+                            onDrag={handleResize}
+                            onDragStop={handleResizeStop}
+                            bound={cursor_mappings[cur].bound}
+                        ></Cursor>
+                    );
+                })}
         </React.Fragment>
     );
 });
-
-Resizable.defaultProps = {
-    is_resizable: false,
-    scale: 1,
-    style: {},
-    bound: DEFAULT_BOUND
-};
 
 export default memo(Resizable);
 

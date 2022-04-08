@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  react-app-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      args: 
+        - REACT_APP_NAME=react-layout-prod
+    ports:
+      - "8080:80"
+    env_file:
+      - ./.env

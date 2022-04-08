@@ -20,7 +20,7 @@ import React, {
 } from 'react';
 
 import { MIN_DRAG_LENGTH } from '../calc';
-import Draggable, { DEFAULT_BOUND } from './draggable';
+import Draggable from './draggable';
 import Resizable from './resizable';
 // vite在watch模式下检测style变化需要先将内容引进来才能监听到
 import styles from './styles.module.css';
@@ -48,7 +48,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         is_draggable,
         is_resizable,
         need_border_draggable_handler,
-        has_outer_layout,
         layout_id,
         offset_x,
         offset_y,
@@ -61,8 +60,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     } = props;
 
     const { operator_type, registry } = useContext(LayoutContext);
-
-    const is_float = type === WidgetType.drag;
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -112,62 +109,46 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         <React.Fragment>
             <div
                 key={'top_draggable_handler'}
-                className={`draggable_handler`}
+                className={`draggable_handler ${styles.draggable_handler}`}
                 style={{
-                    border: 'none',
                     width: '100%',
                     height: '5%',
                     minHeight: 10,
-                    position: 'absolute',
                     top: 0,
-                    left: 0,
-                    cursor: 'grab',
-                    pointerEvents: 'all'
+                    left: 0
                 }}
             ></div>
             <div
                 key={'left_draggable_handler'}
-                className={`draggable_handler`}
+                className={`draggable_handler  ${styles.draggable_handler}`}
                 style={{
-                    border: 'none',
                     width: '5%',
                     height: '100%',
                     minWidth: 10,
-                    position: 'absolute',
                     top: 0,
-                    right: 0,
-                    cursor: 'grab',
-                    pointerEvents: 'all'
+                    right: 0
                 }}
             ></div>
             <div
                 key={'bottom_draggable_handler'}
-                className={`draggable_handler`}
+                className={`draggable_handler ${styles.draggable_handler}`}
                 style={{
-                    border: 'none',
                     width: '100%',
                     height: '5%',
                     minHeight: 10,
-                    position: 'absolute',
                     bottom: 0,
-                    left: 0,
-                    cursor: 'grab',
-                    pointerEvents: 'all'
+                    left: 0
                 }}
             ></div>
             <div
                 key={'right_draggable_handler'}
-                className={`draggable_handler`}
+                className={`draggable_handler ${styles.draggable_handler}`}
                 style={{
-                    border: 'none',
                     width: '5%',
                     height: '100%',
                     minWidth: 10,
-                    position: 'absolute',
                     top: 0,
-                    left: 0,
-                    cursor: 'grab',
-                    pointerEvents: 'all'
+                    left: 0
                 }}
             ></div>
         </React.Fragment>
@@ -175,6 +156,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const getCurrentChildren = useCallback(() => {
         const children = [child.props.children];
+
         if (props.mode === LayoutMode.edit) {
             if (need_border_draggable_handler) {
                 children.push(draggable_handler);
@@ -195,8 +177,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         return children;
     }, [operator_type, child, need_border_draggable_handler, has_inner_layout]);
 
-    const getTransition = () => {
+    const setTransition = () => {
         const transition = 'all 0.2s cubic-bezier(0.2, 0, 0, 1) 0s';
+
         if (props.is_placeholder) return transition;
 
         if (props.is_checked || !is_ready) return 'none';
@@ -209,9 +192,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         onMouseDown: () => {
             props.setCurrentChecked?.(i);
         },
-        // onClick: (e: React.MouseEvent) => {
-        //     e.stopPropagation();
-        // },
         onDragLeave: (e: React.MouseEvent) => {
             e.stopPropagation();
         },
@@ -219,7 +199,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             e.stopPropagation();
         },
         onKeyDown: (e: React.KeyboardEvent) => {
-            if (is_float) {
+            if (type === WidgetType.drag) {
                 const keydown_pos = handleKeyDown(e);
                 if (keydown_pos) {
                     props.onPositionChange?.({
@@ -242,7 +222,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ].join(' ')}`,
         style: {
             border: '1px solid transparent',
-            transition: getTransition(),
+            transition: setTransition(),
             width: w,
             height: h,
             ...child.props.style,
@@ -259,18 +239,18 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     /**
      * 获取模块最小范围
      */
-    const getCurrentGrid = () => {
-        if (is_float) {
-            return {
-                col_width: props.min_w ?? MIN_DRAG_LENGTH,
-                row_height: props.min_h ?? MIN_DRAG_LENGTH
-            };
-        } else {
-            return {
-                col_width: (props.min_w ?? 1) * col_width,
-                row_height: (props.min_h ?? 1) * row_height
-            };
-        }
+    const getMinimumBoundary = () => {
+        const bound_strategy = {
+            [WidgetType.drag]: {
+                min_w: props.min_w ?? MIN_DRAG_LENGTH,
+                min_h: props.min_h ?? MIN_DRAG_LENGTH
+            },
+            [WidgetType.grid]: {
+                min_w: (props.min_w ?? 1) * col_width,
+                min_h: (props.min_h ?? 1) * row_height
+            }
+        };
+        return bound_strategy[type];
     };
 
     const unique_id = useMemo(() => {
@@ -280,21 +260,12 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     useLayoutEffect(() => {
         if (props.is_placeholder) return;
 
-        setHasInnerLayout(!!getLayoutItemRef()?.querySelector('.react-layout'));
+        setHasInnerLayout(!!getLayoutItemRef()?.querySelector('#react-layout'));
     }, []);
 
     useEffect(() => {
         has_inner_layout !== undefined && setIsReady(true);
     }, [has_inner_layout]);
-
-    // useEffect(() => {
-    //     if (props.is_placeholder) return;
-
-    //     console.log(unique_id, 'mount');
-    //     return () => {
-    //         console.log(unique_id, 'unmount');
-    //     };
-    // }, []);
 
     const descriptor: LayoutItemDescriptor = useMemo(
         () => ({
@@ -369,11 +340,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             <Draggable
                 {...{ x, y, h, w, i }}
                 threshold={5}
-                use_css_transform={!has_inner_layout}
-                use_css_fixed={true}
+                use_css_transform={!has_inner_layout && is_dragging}
+                use_css_fixed={is_dragging}
                 scale={props.scale}
                 is_draggable={is_draggable}
-                is_dragging={is_dragging}
                 onDragStart={() => {
                     props.onDragStart?.();
                 }}
@@ -383,16 +353,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         : undefined
                 }
                 draggable_cancel_handler={props.draggable_cancel_handler}
-                // bound={
-                //     has_outer_layout
-                //         ? DEFAULT_BOUND
-                //         : {
-                //               max_y: max_y - h,
-                //               min_y,
-                //               max_x: max_x - w,
-                //               min_x
-                //           }
-                // }
                 onDrag={({ x, y }) => {
                     const item = {
                         x: x - offset_x,
@@ -416,11 +376,17 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 }}
             >
                 <Resizable
+                    style={{
+                        mixBlendMode: 'difference',
+                        filter: 'invert(0)',
+                        backgroundColor: '#ed7116'
+                    }}
                     ref={item_ref}
                     {...{ x, y, h, w, i, type }}
                     scale={props.scale}
+                    use_css_transform={!has_inner_layout && is_dragging}
+                    use_css_fixed={is_dragging}
                     is_resizable={is_resizable}
-                    is_dragging={is_dragging}
                     onResizeStart={() => {
                         props.onResizeStart?.();
                     }}
@@ -434,7 +400,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                             i
                         });
                     }}
-                    grid={getCurrentGrid()}
+                    {...getMinimumBoundary()}
                     bound={{ max_x, max_y, min_x, min_y }}
                     onResizeStop={({ x, y, h, w }) => {
                         props.onResizeStop?.({
@@ -476,7 +442,6 @@ WidgetItem.defaultProps = {
     type: WidgetType.grid,
     is_checked: false,
     is_placeholder: false,
-    has_outer_layout: false,
     style: {},
     margin: [0, 0] as [number, number]
 };

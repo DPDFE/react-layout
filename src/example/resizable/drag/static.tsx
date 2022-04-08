@@ -8,7 +8,7 @@ import {
     WidgetType,
     DirectionType
 } from '@dpdfe/react-layout';
-import '@dpdfe/react-layout/dist/style.css';
+import '@dpdfe/react-layout/dist/index.css';
 
 const ResizableDragStaticLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);

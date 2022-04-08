@@ -48,6 +48,11 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
 
     const registry = useRegistry();
 
+    // checked_index 变化清楚页面选中状态
+    useEffect(() => {
+        window.getSelection()?.empty();
+    }, [checked_index]);
+
     useEffect(() => {
         const onMouseMouve = (event: MouseEvent) => {
             event.stopPropagation();

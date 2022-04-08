@@ -8,7 +8,7 @@ import {
     ReactLayoutContext,
     WidgetType
 } from '@dpdfe/react-layout';
-import '@dpdfe/react-layout/dist/style.css';
+import '@dpdfe/react-layout/dist/index.css';
 
 const ChangeDragLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
@@ -48,9 +48,11 @@ const ChangeDragLayout = () => {
                 style={{
                     display: 'flex',
                     alignItems: 'center',
-                    padding: '4px 10px'
+                    padding: '4px 10px',
+                    borderBottom: '1px solid #ddd'
                 }}
             >
+                <span style={{wordBreak: 'keep-all', margin: '0 30px'}}>{`${process.env.REACT_APP_NAME}`}</span>
                 <span>高度(px)：</span>
                 <Input
                     style={{ marginRight: 10, width: 150 }}

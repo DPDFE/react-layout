@@ -5,17 +5,17 @@
 
 ## Feature
 
-- 支持栅栏化布局响应式效果  
-- 支持浮动布局效果  
-- 支持混合（栅栏化、浮动）布局效果  
-- 支持布局嵌套  
-- 支持固定宽高和无限画布两种模式  
-- 支持固定宽高修改画布大小、缩放  
-- 支持画布滚动  
-- 支持画布标尺  
-- 支持外部拖拽添加  
-- 支持布局元素拖动、放大、缩小、选中 
-- 支持浮动布局元素键盘事件  
+- 支持栅栏化布局响应式效果
+- 支持浮动布局效果
+- 支持混合（栅栏化、浮动）布局效果
+- 支持布局嵌套
+- 支持固定宽高和无限画布两种模式
+- 支持固定宽高修改画布大小、缩放
+- 支持画布滚动
+- 支持画布标尺
+- 支持外部拖拽添加
+- 支持布局元素拖动、放大、缩小、选中
+- 支持浮动布局元素键盘事件
 - 支持画布、元素属性效果自定义
 
 ## Install
@@ -32,7 +32,7 @@ npm install --save @dpdfe/react-layout
 import React, { Component } from "react";
 
 import { ReactLayout, ReactLayoutContext } from "@dpdfe/react-layout";
-import "@dpdfe/react-layout/dist/style.css";
+import "@dpdfe/react-layout/dist/index.css";
 
 class Example extends Component {
     render() {
