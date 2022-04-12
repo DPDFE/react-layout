@@ -137,6 +137,7 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             addEvent(window, 'mousemove', onMouseMouve);
 
         return () => {
+            dragging_layout_id.current = undefined;
             removeEvent(window, 'mousemove', onMouseMouve);
         };
     }, [operator_type, getResponders]);

@@ -198,6 +198,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
             );
 
             setShadowWidget(undefined);
+            compact(layout);
+            setLayout(layout);
 
             if (item && item.i) {
                 setCurrentChecked(item.i);
