@@ -1,10 +1,10 @@
 version: '3.8'
 services:
-  react-app:
+  react-app-dev:
     build:
       context: .
       dockerfile: Dockerfile.dev
-      args: 
+      args:
         - REACT_APP_NAME=react-layout-dev
     # 有数据卷的情况下，不更新映射
     # volumes:

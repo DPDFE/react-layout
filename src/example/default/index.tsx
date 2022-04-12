@@ -90,7 +90,8 @@ const DefaultLayout = () => {
                 type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
-                is_nested: false
+                is_nested: false,
+                useless_nested: true
             }
         ];
     }
