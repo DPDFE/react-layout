@@ -7,7 +7,6 @@ import {
     ReactLayoutContext,
     WidgetType
 } from '@dpdfe/react-layout';
-import '@dpdfe/react-layout/dist/index.css';
 
 const DraggableDragStaticLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
