@@ -117,6 +117,7 @@ export type DragEditLayout = LayoutBase &
         width: number;
         height: number;
         mode: LayoutMode.edit;
+        cursors?: CursorType[];
     };
 
 export type DragLayoutProps = DragLayout | DragEditLayout;
@@ -130,6 +131,7 @@ export type GridEditLayout = LayoutBase &
     GuideLine & {
         layout_type: LayoutType.GRID;
         mode: LayoutMode.edit;
+        cursors?: CursorType[];
     };
 
 export type GridLayoutProps = GridLayout | GridEditLayout;
@@ -206,6 +208,7 @@ interface EventBaseProps extends NodeProps {
 
 /** 子元素 */
 export interface WidgetItemProps extends EventBaseProps, LayoutItem {
+    cursors?: CursorType[];
     layout_id: string;
     offset_x: number;
     offset_y: number;

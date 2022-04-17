@@ -38,7 +38,8 @@ import {
     ReactLayoutProps,
     GridType,
     WidgetLocation,
-    WidgetType
+    WidgetType,
+    EditLayoutProps
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
@@ -496,6 +497,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     mode={props.mode}
                     children={child}
                     scale={props.scale}
+                    cursors={(props as EditLayoutProps).cursors}
                     is_checked={checked_index === widget.i}
                     is_resizable={
                         widget.is_resizable && checked_index === widget.i

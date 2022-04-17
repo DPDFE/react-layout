@@ -379,7 +379,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     style={{
                         mixBlendMode: 'difference',
                         filter: 'invert(0)',
-                        backgroundColor: '#ed7116'
+                        backgroundColor: '#ed7116',
+                        zIndex: 200
                     }}
                     ref={item_ref}
                     {...{ x, y, h, w, i, type }}
@@ -390,6 +391,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     onResizeStart={() => {
                         props.onResizeStart?.();
                     }}
+                    cursors={props.cursors}
                     onResize={({ x, y, h, w }) => {
                         props.onResize?.({
                             x: x - offset_x,
@@ -428,7 +430,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         backgroundColor: 'transparent',
                         mixBlendMode: 'difference',
                         filter: 'invert(0)',
-                        borderRadius: 5,
+                        // borderRadius: 5,
                         border: '1px dashed #ed7116' // #ed7116
                     }}
                 ></div>
