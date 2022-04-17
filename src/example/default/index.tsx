@@ -91,7 +91,7 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_nested: false,
-                useless_nested: true
+                useless_nested: false
             }
         ];
     }
@@ -119,7 +119,7 @@ const DefaultLayout = () => {
                 is_draggable: true,
                 type: WidgetType.grid,
                 has_inner_layout: true,
-                useless_nested: true
+                useless_nested: false
             },
             {
                 x: 0,
@@ -131,7 +131,7 @@ const DefaultLayout = () => {
                 is_draggable: true,
                 type: WidgetType.grid,
                 has_inner_layout: false,
-                useless_nested: true
+                useless_nested: false
             },
             {
                 x: 5,

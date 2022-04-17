@@ -26,7 +26,7 @@ const Cursor = (props: CursorProps) => {
             <div
                 tabIndex={0}
                 ref={cursor_ref}
-                className={[styles['resize-handler']].join(' ')}
+                className={styles['resize-handler']}
                 style={{
                     cursor: props.cursor,
                     marginTop: -3,

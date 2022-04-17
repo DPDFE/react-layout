@@ -4,6 +4,7 @@ import {
     CursorType,
     ResizableProps
 } from '@/interfaces';
+import classNames from 'classnames';
 import React, { memo, useRef } from 'react';
 import Cursor from './cursor';
 import { clamp, DEFAULT_BOUND, setTopLeft, setTransform } from './draggable';
@@ -207,9 +208,11 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
             child.props.onMouseDown?.(e);
         },
         props: child.props,
-        className: `react-resizable ${props.className ? props.className : ''} ${
-            child.props.className ? child.props.className : ''
-        }`,
+        className: classNames(
+            'react-resizable',
+            props.className,
+            child.props.className
+        ),
         ref: resize_ref,
         style: {
             ...(props.use_css_transform

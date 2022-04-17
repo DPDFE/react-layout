@@ -4,6 +4,7 @@ import {
     removeEvent,
     matchesSelectorAndParentsTo
 } from '@dpdfe/event-utils';
+import classNames from 'classnames';
 import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
 
 export const DEFAULT_BOUND = {
@@ -172,9 +173,7 @@ const Draggable = (props: DraggableProps) => {
             child.props.onMouseDown?.(e);
             handleDragStart(e as unknown as MouseEvent);
         },
-        className: `${props.className ? props.className : ''} ${
-            child.props.className ? child.props.className : ''
-        }`,
+        className: classNames(props.className, child.props.className),
         style: {
             ...props.style,
             ...child.props.style, // 让props覆盖上面配置的style

@@ -112,45 +112,45 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 className={`draggable_handler ${styles.draggable_handler}`}
                 style={{
                     width: '100%',
-                    height: '5%',
+                    height: 10,
                     minHeight: 10,
                     top: 0,
                     left: 0
                 }}
             ></div>
-            <div
+            {/* <div
                 key={'left_draggable_handler'}
                 className={`draggable_handler  ${styles.draggable_handler}`}
                 style={{
-                    width: '5%',
+                    width: 10,
                     height: '100%',
                     minWidth: 10,
                     top: 0,
                     right: 0
                 }}
-            ></div>
+            ></div> */}
             <div
                 key={'bottom_draggable_handler'}
                 className={`draggable_handler ${styles.draggable_handler}`}
                 style={{
                     width: '100%',
-                    height: '5%',
+                    height: 10,
                     minHeight: 10,
                     bottom: 0,
                     left: 0
                 }}
             ></div>
-            <div
+            {/* <div
                 key={'right_draggable_handler'}
                 className={`draggable_handler ${styles.draggable_handler}`}
                 style={{
-                    width: '5%',
+                    width: 10,
                     height: '100%',
                     minWidth: 10,
                     top: 0,
                     left: 0
                 }}
-            ></div>
+            ></div> */}
         </React.Fragment>
     );
 
@@ -340,7 +340,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             <Draggable
                 {...{ x, y, h, w, i }}
                 threshold={5}
-                use_css_transform={!has_inner_layout && is_dragging}
+                use_css_transform={!has_inner_layout || is_dragging}
                 use_css_fixed={is_dragging}
                 scale={props.scale}
                 is_draggable={is_draggable}
@@ -384,7 +384,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     ref={item_ref}
                     {...{ x, y, h, w, i, type }}
                     scale={props.scale}
-                    use_css_transform={!has_inner_layout && is_dragging}
+                    use_css_transform={!has_inner_layout || is_dragging}
                     use_css_fixed={is_dragging}
                     is_resizable={is_resizable}
                     onResizeStart={() => {

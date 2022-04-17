@@ -47,6 +47,7 @@ import { useLayoutHooks } from './hooks';
 import isEqual from 'lodash.isequal';
 import { LayoutContext } from './context';
 import drawGridLines from './grid-lines';
+import classNames from 'classnames';
 
 const ReactLayout = (props: ReactLayoutProps) => {
     const {
@@ -758,7 +759,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     return (
         <div
             id={'react-layout'}
-            className={`${styles.container} ${props.className}`}
+            className={classNames(styles.container, props.className)}
             ref={container_ref}
             style={{
                 userSelect: props.mode === LayoutMode.edit ? 'none' : 'auto',
@@ -801,6 +802,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     className={'canvas_viewport'}
                     style={{
                         overflowY: 'auto',
+                        overflowX: has_outer_layout ? 'hidden' : 'auto',
                         position: 'relative',
                         flex: 1,
                         scrollBehavior: 'smooth'
@@ -842,7 +844,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                         ? 'unset'
                                         : 'hidden',
                                 ...(has_outer_layout
-                                    ? {}
+                                    ? { overflowX: 'auto', overflowY: 'hidden' }
                                     : {
                                           transform: `scale(${props.scale})`,
                                           transformOrigin: '0 0'
