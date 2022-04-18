@@ -178,7 +178,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     }, [operator_type, child, need_border_draggable_handler, has_inner_layout]);
 
     const setTransition = () => {
-        const transition = 'all 0.2s cubic-bezier(0.2, 0, 0, 1) 0s';
+        const transition = 'all 0.1s linear';
 
         if (props.is_placeholder) return transition;
 
