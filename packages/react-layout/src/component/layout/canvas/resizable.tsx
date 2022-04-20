@@ -232,6 +232,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                 cursors.map((cur) => {
                     return (
                         <Cursor
+                            key={cur}
                             style={props.style}
                             scale={props.scale}
                             cursor={cur}

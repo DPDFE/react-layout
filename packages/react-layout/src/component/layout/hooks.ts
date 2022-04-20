@@ -182,6 +182,37 @@ export const useLayoutHooks = (
         padding
     ]);
 
+    /** 对drop节点做边界计算以后再排序 */
+    const getBoundResult = (item: LayoutItem) => {
+        const { max_x, min_x, max_y, min_y } = getCurrentBound(item.type);
+
+        item.x = clamp(item.x, min_x, max_x - item.w);
+        item.y = clamp(item.y, min_y, max_y - item.h);
+
+        if (item.type === WidgetType.grid) {
+            if (item.w > props.cols) {
+                item.w = props.cols;
+                item.x = 0;
+            } else if (item.w < props.cols && item.x + item.w > props.cols) {
+                item.x = props.cols - item.w;
+            }
+        }
+
+        return item;
+    };
+
+    const snapToGrid = (pos: LayoutItem) => {
+        const { row_height, col_width } = grid;
+
+        pos.is_dragging = false;
+        pos.x = Math.round(pos.x / col_width);
+        pos.y = Math.round(pos.y / row_height);
+        pos.w = Math.round(pos.w / col_width);
+        pos.h = Math.round(pos.h / row_height);
+
+        return getBoundResult(pos);
+    };
+
     const snapToDrag = (l: LayoutItem) => {
         const { type, is_dragging } = l;
 
@@ -198,7 +229,7 @@ export const useLayoutHooks = (
             return is_float || is_dragging ? count : count * grid.row_height;
         };
 
-        const layout_item_stragegy = {
+        const layout_item_strategy = {
             [WidgetType.drag]: () => {
                 return {
                     margin_height: 0,
@@ -218,7 +249,7 @@ export const useLayoutHooks = (
         };
 
         const { offset_x, offset_y, margin_height, margin_width } =
-            layout_item_stragegy[type]();
+            layout_item_strategy[type]();
 
         const { top, left } = is_dragging
             ? canvas_viewport_scroll_top_left.current
@@ -426,7 +457,9 @@ export const useLayoutHooks = (
         l_offset,
         has_outer_layout,
         canvas_viewport_scroll_top_left,
+        snapToGrid,
         getCurrentBound,
+        getBoundResult,
         snapToDrag
     };
 };

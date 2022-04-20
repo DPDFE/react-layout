@@ -133,7 +133,7 @@ const DraggableGridResponsiveLayout = () => {
                     );
             }}
             onResize={(start: DragStart) => {
-                console.log(start, 'on resize');
+                // console.log(start, 'on resize');
             }}
             onResizeStart={(result: DragStart) => {
                 console.log(result, 'on resize start');

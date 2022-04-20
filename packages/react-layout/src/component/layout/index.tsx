@@ -16,7 +16,6 @@ import WidgetItem from './canvas/layout-item';
 import {
     compact,
     moveElement,
-    snapToGrid,
     cloneWidget,
     moveToWidget,
     replaceWidget,
@@ -93,8 +92,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
         padding,
         has_outer_layout,
         canvas_viewport_scroll_top_left,
+        getBoundResult,
         getCurrentBound,
-        snapToDrag
+        snapToDrag,
+        snapToGrid
     } = useLayoutHooks(
         layout,
         props,
@@ -209,16 +210,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         }
     };
 
-    /** 对drop节点做边界计算以后再排序 */
-    const getBoundResult = (item: LayoutItem) => {
-        const { max_x, min_x, max_y, min_y } = getCurrentBound(item.type);
-
-        item.x = clamp(item.x, min_x, max_x - item.w);
-        item.y = clamp(item.y, min_y, max_y - item.h);
-
-        return item;
-    };
-
     const getDropItem = (
         canvas_ref: RefObject<HTMLElement>,
         e: React.MouseEvent,
@@ -239,7 +230,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
             const pos = { w, h, i, x, y, type: WidgetType.grid };
 
-            snapToGrid(pos, grid);
+            snapToGrid(pos);
 
             return pos;
         } else {
@@ -351,6 +342,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     dragging_layout_id.current
                 );
                 const dragging_item = registry.draggable.getById(widget.i);
+
                 const widgets = droppable.compactLayoutByDraggingItem(
                     dragging_item,
                     is_save
@@ -410,7 +402,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     shadow_widget.y += top;
                 }
 
-                snapToGrid(shadow_widget, grid);
+                snapToGrid(shadow_widget);
 
                 const { max_x, min_x, max_y, min_y } = getCurrentBound(
                     item.type
@@ -459,6 +451,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         return (
             shadow_widget && (
                 <WidgetItem
+                    key='shadow'
                     {...snapToDrag(shadow_widget)}
                     layout_id={props.layout_id}
                     ref={shadow_widget_ref}
@@ -646,8 +639,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
             const new_layout = layout.concat(placeholder);
 
-            !(placeholder.type === WidgetType.drag) &&
-                snapToGrid(placeholder, grid);
+            placeholder.type === WidgetType.grid && snapToGrid(placeholder);
             compact(new_layout);
 
             setShadowWidget(is_save ? undefined : placeholder);
@@ -701,38 +693,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
             layout_name
         ]
     );
-
-    // const handlerDraggingLayout = (e: MouseEvent) => {
-    //     e.stopPropagation();
-    //     console.log(layout_name, '====on mouse over');
-    //     if (
-    //         dragging_layout.current &&
-    //         dragging_layout_id.current &&
-    //         dragging_layout_id.current !== props.layout_id
-    //     ) {
-    //         const { layout, drag_item } = dragging_layout.current;
-    //         layout.handlerDraggingItemOut(drag_item);
-    //     }
-    //     console.log(props.layout_id, dragging_layout_id.current, '=====');
-    //     dragging_layout_id.current = props.layout_id;
-    // };
-
-    // useLayoutEffect(() => {
-    //     canvas_viewport_ref.current &&
-    //         addEvent(
-    //             canvas_viewport_ref.current,
-    //             'mouseover',
-    //             handlerDraggingLayout
-    //         );
-    //     return () => {
-    //         canvas_viewport_ref.current &&
-    //             removeEvent(
-    //                 canvas_viewport_ref.current,
-    //                 'mouseover',
-    //                 handlerDraggingLayout
-    //             );
-    //     };
-    // }, [canvas_viewport_ref.current]);
 
     useLayoutEffect(() => {
         registry.droppable.register(entry);
@@ -803,8 +763,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     ref={canvas_viewport_ref}
                     className={'canvas_viewport'}
                     style={{
-                        overflowY: 'auto',
-                        overflowX: has_outer_layout ? 'hidden' : 'auto',
+                        overflow: 'auto',
                         position: 'relative',
                         flex: 1,
                         scrollBehavior: 'smooth'
@@ -846,7 +805,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                         ? 'unset'
                                         : 'hidden',
                                 ...(has_outer_layout
-                                    ? { overflowX: 'auto', overflowY: 'hidden' }
+                                    ? {}
                                     : {
                                           transform: `scale(${props.scale})`,
                                           transformOrigin: '0 0'

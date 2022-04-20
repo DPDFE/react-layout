@@ -106,7 +106,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     // 如果child是一个iframe，就是一个黑洞，用遮罩把黑洞填上
     const draggable_handler = (
-        <React.Fragment>
+        <React.Fragment key={'draggable_handler'}>
             <div
                 key={'top_draggable_handler'}
                 className={`draggable_handler ${styles.draggable_handler}`}
@@ -376,6 +376,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 }}
             >
                 <Resizable
+                    key={unique_id}
                     style={{
                         mixBlendMode: 'difference',
                         filter: 'invert(0)',

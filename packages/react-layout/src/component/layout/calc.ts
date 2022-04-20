@@ -14,17 +14,6 @@ export const WRAPPER_PADDING = 200; // 编辑状态下的边框
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
 
-export function snapToGrid(pos: LayoutItem, grid: GridType) {
-    const { row_height, col_width } = grid;
-
-    pos.is_dragging = false;
-    pos.x = Math.round(pos.x / col_width);
-    pos.y = Math.round(pos.y / row_height);
-    pos.w = Math.round(pos.w / col_width);
-    pos.h = Math.round(pos.h / row_height);
-    return pos;
-}
-
 export function snapToDragBound(
     pos: BoundType,
     grid: GridType,

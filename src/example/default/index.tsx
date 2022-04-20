@@ -110,7 +110,7 @@ const DefaultLayout = () => {
                 has_inner_layout: false
             },
             {
-                x: 1,
+                x: 0,
                 y: 0,
                 w: 4,
                 h: 10,
@@ -271,7 +271,7 @@ const DefaultLayout = () => {
                                     }}
                                 ></span>
                                 我是第{w.i}
-                                个div, height: {w.h}, width:
+                                个div, x: {w.x}, y: {w.y}, height: {w.h}, width:
                                 {w.w}
                             </div>
                         </div>
@@ -366,7 +366,7 @@ const DefaultLayout = () => {
                         //     );
                     }}
                     onResize={(start: DragStart) => {
-                        console.log(start, 'on resize');
+                        // console.log(start, 'on resize');
                     }}
                     onResizeStart={(result: DragStart) => {
                         console.log(result, 'on resize start');
@@ -417,6 +417,8 @@ const DefaultLayout = () => {
                         container_padding={[10]}
                         scale={scale}
                         need_grid_lines={true}
+                        need_drag_bound={false}
+                        need_grid_bound={false}
                         guide_lines={guide_line}
                         mode={LayoutMode.edit}
                         // need_ruler={true}
@@ -518,8 +520,8 @@ const DefaultLayout = () => {
                                 >
                                     {
                                         <div className='test'>
-                                            我是第{w.i}个div, height: {w.h},
-                                            width:
+                                            我是第{w.i}个div, x: {w.x}, y: {w.y}
+                                            , height: {w.h}, width:
                                             {w.w}
                                         </div>
                                     }
@@ -579,6 +581,9 @@ const DefaultLayout = () => {
                                                                         我是第
                                                                         {w.i}
                                                                         个div,
+                                                                        x: {w.x}
+                                                                        , y:{' '}
+                                                                        {w.y},
                                                                         height:{' '}
                                                                         {w.h},
                                                                         width:
