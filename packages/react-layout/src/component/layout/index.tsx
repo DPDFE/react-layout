@@ -78,7 +78,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
     const layout_name = useMemo(() => {
-        return `layout_name_${props.layout_id}`;
+        return `${props.layout_id}`;
     }, []);
 
     const {
