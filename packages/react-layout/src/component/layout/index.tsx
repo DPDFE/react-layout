@@ -90,7 +90,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         t_offset,
         l_offset,
         padding,
-        has_outer_layout,
+        is_child_layout,
         canvas_viewport_scroll_top_left,
         getBoundResult,
         getCurrentBound,
@@ -130,12 +130,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
             if (
                 e.target === canvas_ref.current &&
                 operator_type === undefined &&
-                !has_outer_layout
+                !is_child_layout
             ) {
                 setCurrentChecked(undefined);
             }
         },
-        [operator_type, has_outer_layout]
+        [operator_type, is_child_layout]
     );
 
     /**
@@ -148,7 +148,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         item.is_resizable = item.is_resizable ?? false;
         item.need_border_draggable_handler =
             item.need_border_draggable_handler ?? false;
-        item.useless_nested = item.useless_nested ?? false;
+        item.is_droppable = item.is_droppable ?? false;
 
         const is_float = item.type === WidgetType.drag;
         item.w = Math.max(item.min_w ?? (is_float ? 5 : 1), item.w);
@@ -196,7 +196,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         if (shadow_widget) {
             const item = handleResponder(
                 OperatorType.dropover,
-                layout,
+                removePersonalValue(layout),
                 shadow_widget
             );
 
@@ -237,7 +237,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const w = drop_item ? drop_item.w : 100;
             const h = drop_item ? drop_item.h : 100;
 
-            return { w, h, i, x, y, type: WidgetType.drag };
+            return { w, h, i, x, y, type: WidgetType.drag, is_droppable: true };
         }
     };
 
@@ -274,18 +274,20 @@ const ReactLayout = (props: ReactLayoutProps) => {
         setLayout(layout);
     };
 
+    // 现在这个数据接口有些复杂
     const handleResponder = (
         type: OperatorType,
-        layout: LayoutItem[],
+        source_layout: LayoutItem[],
         widget: LayoutItem,
-        destination?: WidgetLocation
+        destination?: WidgetLocation,
+        layout_id?: string
     ) => {
         const data = {
             type,
             widget_id: widget.i,
             source: {
                 layout_id: props.layout_id,
-                widgets: copyObject(layout)
+                widgets: copyObject(source_layout)
             }
         };
         setOperatorType(type);
@@ -334,7 +336,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const getDestinationLayoutByItem = useCallback(
         (type: OperatorType, widget: LayoutItem, is_save: boolean) => {
             if (
-                !widget.useless_nested &&
+                widget.is_droppable &&
                 dragging_layout_id.current &&
                 dragging_layout_id.current !== props.layout_id
             ) {
@@ -378,7 +380,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
             // 当前拖拽元素 原Layout 处理元素移除逻辑
             if (
-                !current_widget.useless_nested &&
+                current_widget.is_droppable &&
                 dragging_layout_id.current &&
                 dragging_layout_id.current !== props.layout_id
             ) {
@@ -389,7 +391,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 if (is_save) {
                     setLayout(filter_layout);
                 }
-                return { layout: filter_layout, widget: current_widget };
+                return {
+                    layout: filter_layout,
+                    widget: current_widget
+                };
             }
 
             const shadow_widget = cloneWidget(current_widget);
@@ -486,7 +491,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     {...child.props}
                     grid={grid}
                     // bound={getCurrentBound(widget.type)}
-                    has_outer_layout={has_outer_layout}
+                    is_child_layout={is_child_layout}
                     mode={props.mode}
                     children={child}
                     scale={props.scale}
@@ -667,9 +672,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
             id: props.layout_id,
             type: props.layout_type,
             mode: props.mode,
-            is_root: !has_outer_layout
+            is_root: !is_child_layout
         }),
-        [props.layout_id, props.layout_type, props.mode, has_outer_layout]
+        [props.layout_id, props.layout_type, props.mode, is_child_layout]
     );
 
     const getRef = useCallback(() => canvas_ref.current, []);
@@ -682,7 +687,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
             descriptor,
             getRef,
             getViewPortRef,
-            unique_id: layout_name
+            unique_id: layout_name,
+            is_droppable: props.is_droppable
         }),
         [
             compactLayoutByDraggingItem,
@@ -690,7 +696,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
             getRef,
             getViewPortRef,
             descriptor,
-            layout_name
+            layout_name,
+            props.is_droppable
         ]
     );
 
@@ -804,7 +811,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                     props.mode === LayoutMode.edit
                                         ? 'unset'
                                         : 'hidden',
-                                ...(has_outer_layout
+                                ...(is_child_layout
                                     ? {}
                                     : {
                                           transform: `scale(${props.scale})`,

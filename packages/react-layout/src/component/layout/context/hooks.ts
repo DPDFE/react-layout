@@ -60,6 +60,9 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             const layouts = registry.droppable.getAll();
             const { pageX, pageY } = event;
             const cursor_in_layouts = layouts.filter((entry) => {
+                if (!entry.is_droppable) {
+                    return false;
+                }
                 const target_element = entry.getViewPortRef();
                 if (target_element) {
                     const { left, top, width, height } =

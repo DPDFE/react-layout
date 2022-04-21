@@ -48,9 +48,7 @@ export const useLayoutHooks = (
 
     const canvas_viewport_scroll_top_left = useRef({ top: 0, left: 0 });
 
-    const [has_outer_layout, setHasOuterLayout] = useState(
-        props.has_outer_layout
-    );
+    const [is_child_layout, setIsChildLayout] = useState(props.is_child_layout);
 
     /**
      * 让阴影定位组件位于可视范围内
@@ -61,9 +59,6 @@ export const useLayoutHooks = (
             (entries) => {
                 entries.map((entry) => {
                     if (!entry.intersectionRatio) {
-                        // if (has_outer_layout) {
-                        //     return;
-                        // }
                         shadow_widget_ref.current?.scrollIntoView({
                             block: 'nearest',
                             inline: 'nearest'
@@ -84,7 +79,7 @@ export const useLayoutHooks = (
                     shadow_widget_ref.current
                 );
         };
-    }, [JSON.stringify(shadow_widget), has_outer_layout]);
+    }, [JSON.stringify(shadow_widget), is_child_layout]);
 
     /** 监听容器变化，重新计算width、height、grid */
     useLayoutEffect(() => {
@@ -411,18 +406,18 @@ export const useLayoutHooks = (
 
     useLayoutEffect(() => {
         // 如果没有传递参数  内部自己计算
-        props.has_outer_layout === undefined &&
-            setHasOuterLayout(
+        props.is_child_layout === undefined &&
+            setIsChildLayout(
                 !!container_ref.current?.parentElement?.closest('.react-layout')
             );
     }, []);
 
     useLayoutEffect(() => {
-        if (!has_outer_layout) return;
+        if (!is_child_layout) return;
         const onScroll = () => {
             let top = 0;
             let left = 0;
-            if (has_outer_layout) {
+            if (is_child_layout) {
                 top = canvas_viewport_ref.current?.scrollTop ?? 0;
                 left = canvas_viewport_ref.current?.scrollLeft ?? 0;
             }
@@ -455,7 +450,7 @@ export const useLayoutHooks = (
         wrapper_height,
         t_offset,
         l_offset,
-        has_outer_layout,
+        is_child_layout,
         canvas_viewport_scroll_top_left,
         snapToGrid,
         getCurrentBound,

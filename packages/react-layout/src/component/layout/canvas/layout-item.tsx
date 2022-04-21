@@ -31,8 +31,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children) as ReactElement;
     const item_ref = ref ?? useRef<HTMLDivElement>(null);
 
-    // 子元素中有布局
-    const [has_inner_layout, setHasInnerLayout] = useState<boolean>();
+    const [is_parent_layout, setIsParentLayout] = useState<boolean>();
 
     const { col_width, row_height } = props.grid;
     const [is_ready, setIsReady] = useState(false);
@@ -169,13 +168,13 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     OperatorType.drop,
                     OperatorType.resize
                 ].includes(operator_type) &&
-                !has_inner_layout
+                !is_parent_layout
             ) {
                 children.push(mask_handler);
             }
         }
         return children;
-    }, [operator_type, child, need_border_draggable_handler, has_inner_layout]);
+    }, [operator_type, child, need_border_draggable_handler, is_parent_layout]);
 
     const setTransition = () => {
         const transition = 'all 0.1s linear';
@@ -260,12 +259,12 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     useLayoutEffect(() => {
         if (props.is_placeholder) return;
 
-        setHasInnerLayout(!!getLayoutItemRef()?.querySelector('#react-layout'));
+        setIsParentLayout(!!getLayoutItemRef()?.querySelector('#react-layout'));
     }, []);
 
     useEffect(() => {
-        has_inner_layout !== undefined && setIsReady(true);
-    }, [has_inner_layout]);
+        is_parent_layout !== undefined && setIsReady(true);
+    }, [is_parent_layout]);
 
     const descriptor: LayoutItemDescriptor = useMemo(
         () => ({
@@ -279,7 +278,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 w: w + margin_width,
                 h: h + margin_height,
                 type,
-                has_inner_layout,
+                is_parent_layout,
                 is_resizable,
                 is_draggable
             }
@@ -292,7 +291,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             w,
             h,
             type,
-            has_inner_layout,
+            is_parent_layout,
             is_resizable,
             is_draggable,
             is_ready
@@ -340,7 +339,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             <Draggable
                 {...{ x, y, h, w, i }}
                 threshold={5}
-                use_css_transform={!has_inner_layout || is_dragging}
+                use_css_transform={!is_parent_layout || is_dragging}
                 use_css_fixed={is_dragging}
                 scale={props.scale}
                 is_draggable={is_draggable}
@@ -386,7 +385,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     ref={item_ref}
                     {...{ x, y, h, w, i, type }}
                     scale={props.scale}
-                    use_css_transform={!has_inner_layout || is_dragging}
+                    use_css_transform={!is_parent_layout || is_dragging}
                     use_css_fixed={is_dragging}
                     is_resizable={is_resizable}
                     onResizeStart={() => {

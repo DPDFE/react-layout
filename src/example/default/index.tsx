@@ -90,8 +90,7 @@ const DefaultLayout = () => {
                 type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
-                is_nested: false,
-                useless_nested: false
+                is_nested: false
             }
         ];
     }
@@ -118,8 +117,7 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                has_inner_layout: true,
-                useless_nested: false
+                has_inner_layout: true
             },
             {
                 x: 0,
@@ -130,8 +128,7 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                has_inner_layout: false,
-                useless_nested: false
+                has_inner_layout: false
             },
             {
                 x: 5,
@@ -397,6 +394,7 @@ const DefaultLayout = () => {
                     }}
                 >
                     <ReactLayout
+                        is_droppable={true}
                         // getDroppingItem={() => {
                         //     return {
                         //         h: 2,
@@ -539,6 +537,7 @@ const DefaultLayout = () => {
                                         >
                                             <TabPane tab='Tab 1' key='1'>
                                                 <ReactLayout
+                                                    is_droppable={true}
                                                     widgets={widgets2}
                                                     layout_id={'tab 1'}
                                                     layout_type={
@@ -597,6 +596,7 @@ const DefaultLayout = () => {
                                             </TabPane>
                                             <TabPane tab='Tab 2' key='2'>
                                                 <ReactLayout
+                                                    is_droppable={true}
                                                     widgets={widgets2}
                                                     layout_id={'tab 2'}
                                                     layout_type={

@@ -81,6 +81,8 @@ export type ItemPos = {
     h: number;
     w: number;
     type: WidgetType;
+
+    is_droppable?: boolean; // 可以放入其他元素内部
 };
 
 type NodeProps = {
@@ -101,7 +103,8 @@ type LayoutBase = NodeProps & {
     need_grid_lines: boolean;
     need_grid_bound: boolean;
     need_drag_bound: boolean;
-    has_outer_layout?: boolean;
+    is_child_layout?: boolean; // 是子布局
+    is_droppable?: boolean; //不允许放
 };
 
 export type DragLayout = LayoutBase & {
@@ -184,12 +187,11 @@ export interface GuideLineProps {
 
 /** 单节点属性 */
 export interface LayoutItem extends ItemPos {
-    useless_nested?: boolean;
     min_w?: number;
     min_h?: number;
     is_draggable?: boolean;
     is_resizable?: boolean;
-    has_outer_layout?: boolean; // 子布局的元素
+    is_child_layout?: boolean; // 子布局的元素
     moved?: boolean;
     is_dragging?: boolean;
     is_checked?: boolean;
@@ -322,6 +324,7 @@ type LayoutEntryApi = (
 ) => LayoutItem[] | undefined;
 
 export interface LayoutEntry {
+    is_droppable?: boolean;
     unique_id: string;
     descriptor: LayoutDescriptor;
     compactLayoutByDraggingItem: (
