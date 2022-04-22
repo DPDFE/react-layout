@@ -228,7 +228,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const w = grid.col_width * (drop_item?.w ?? 2);
             const h = grid.row_height * (drop_item?.h ?? 2);
 
-            const pos = { w, h, i, x, y, type: WidgetType.grid };
+            const pos = { ...drop_item, w, h, i, x, y, type: WidgetType.grid };
 
             snapToGrid(pos);
 
@@ -268,6 +268,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         const shadow_widget = getBoundResult(
             getDropItem(canvas_ref, e, props, grid)
         );
+
         setShadowWidget(shadow_widget);
         const new_layout = [shadow_widget, ...layout];
         compact(new_layout);
