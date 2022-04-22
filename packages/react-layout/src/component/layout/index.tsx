@@ -788,9 +788,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             height: wrapper_height
                         }}
                         /** 阻止了onDragOver以后，onDrop事件才生效 */
-                        onDrop={props.mode === LayoutMode.edit ? onDrop : noop}
+                        onDrop={
+                            props.mode === LayoutMode.edit && props.is_droppable
+                                ? onDrop
+                                : noop
+                        }
                         onDragOver={
-                            props.mode === LayoutMode.edit ? onDragOver : noop
+                            props.mode === LayoutMode.edit && props.is_droppable
+                                ? onDragOver
+                                : noop
                         }
                         onDragLeave={
                             props.mode === LayoutMode.edit ? onDragLeave : noop
