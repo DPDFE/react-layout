@@ -32,7 +32,8 @@
         "build:js": "vite build",
         "dev": "run-p watch:ts watch:js",
         "watch:ts": "tsc -w",
-        "watch:js": "vite build --watch"
+        "watch:js": "vite build --watch",
+        "prepublish": " npm version patch"
     },
     "dependencies": {
         "@dpdfe/event-utils": "^0.0.7",
