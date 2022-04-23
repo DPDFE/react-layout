@@ -1,4 +1,3 @@
-
 /**
  * @description 代理localstorage get、set方法
  * @using ` import {LocalStorage} from '@dpdfe/event-utils'
@@ -19,7 +18,7 @@
  */
 const LocalStorage = (
     storage: Record<string, any> = {},
-    key_prefix: string = 'storage-',
+    key_prefix: string = 'storage-'
 ) => {
     // 格式化 key，如添加前缀
     const getFormattedKey = (key: string): string => {
@@ -30,7 +29,7 @@ const LocalStorage = (
     const ensureKeyRegistered = (key: string): void => {
         if (!storage.hasOwnProperty(key)) {
             throw new Error(
-                `未注册的 LocalStorage key：${key}。请先在 Storage 注册，统一管理。`,
+                `未注册的 LocalStorage key：${key}。请先在 Storage 注册，统一管理。`
             );
         }
     };
@@ -38,24 +37,24 @@ const LocalStorage = (
     /** 获取值 */
     const getStorageItem = (key: string) => {
         const res = localStorage.getItem(getFormattedKey(key));
-        return res && res !== 'undefined' ? JSON.parse(res) : undefined
+        return res && res !== 'undefined' ? JSON.parse(res) : undefined;
     };
 
     /** 设置值 */
     const setStorageItem = (key: string, value: any) => {
         localStorage.setItem(getFormattedKey(key), JSON.stringify(value));
-    }
+    };
 
     /** 删除值 */
     const removeStorageItem = (key: string) => {
         localStorage.removeItem(getFormattedKey(key));
-    }
+    };
 
     /** 初始化默认值 */
     const initStorage = () => {
         Object.keys(storage).map((key) => {
-            const last_item = getStorageItem(key)
-            if (last_item) {
+            const last_item = getStorageItem(key);
+            if (last_item !== undefined) {
                 storage[key] = last_item;
             } else {
                 setStorageItem(key, storage[key]);
@@ -75,7 +74,7 @@ const LocalStorage = (
         set: (target: typeof storage, key: string, value: any) => {
             ensureKeyRegistered(key);
             storage[key] = value;
-            setStorageItem(key, value)
+            setStorageItem(key, value);
             return true;
         },
 
@@ -83,7 +82,7 @@ const LocalStorage = (
             ensureKeyRegistered(key);
             removeStorageItem(key);
             return getStorageItem(key) ? false : true;
-        },
+        }
     });
 };
 export default LocalStorage;
