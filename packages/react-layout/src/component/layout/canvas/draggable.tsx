@@ -143,8 +143,10 @@ const Draggable = (props: DraggableProps) => {
         switch (drag_state) {
             case DragStates.ready:
             case DragStates.dragging:
-                addEvent(document, 'mousemove', handleDrag);
-                addEvent(document, 'mouseup', handleDragStop);
+                addEvent(document, 'mousemove', handleDrag, { capture: true });
+                addEvent(document, 'mouseup', handleDragStop, {
+                    capture: true
+                });
                 break;
             case DragStates.draged:
                 props.onDragStop?.({ x: props.x, y: props.y });
@@ -152,8 +154,8 @@ const Draggable = (props: DraggableProps) => {
                 break;
         }
         return () => {
-            removeEvent(document, 'mousemove', handleDrag);
-            removeEvent(document, 'mouseup', handleDragStop);
+            removeEvent(document, 'mousemove', handleDrag, { capture: true });
+            removeEvent(document, 'mouseup', handleDragStop, { capture: true });
         };
     }, [drag_state]);
 
