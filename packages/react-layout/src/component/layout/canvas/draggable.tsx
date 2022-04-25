@@ -48,6 +48,8 @@ const Draggable = (props: DraggableProps) => {
 
     /** 开始 偏移量大于5px 判断为开始拖拽 */
     const handleDragStart = (e: MouseEvent) => {
+        removeEvent(document, 'mousemove', handleDrag, { capture: true });
+
         if (!props.is_draggable) {
             return;
         }

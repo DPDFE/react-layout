@@ -296,9 +296,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
         switch (type) {
             case OperatorType.dragstart:
                 // 触发onDragStart事件
+                setCurrentChecked(widget.i);
                 responders.onDragStart?.(data);
                 break;
             case OperatorType.resizestart:
+                setCurrentChecked(widget.i);
                 responders.onResizeStart?.(data);
                 break;
             case OperatorType.resize:
@@ -317,6 +319,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 responders.onDragStop?.({ ...data, destination });
                 break;
             case OperatorType.changeover:
+                setCurrentChecked(widget.i);
                 responders.onPositionChange?.(data);
                 break;
         }
