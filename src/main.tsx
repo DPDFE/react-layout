@@ -14,6 +14,7 @@ import DraggableGridStaticLayout from "./example/draggable/grid/static";
 import DraggableGridResponsiveLayout from "./example/draggable/grid/adaptive";
 import DraggableDragStaticLayout from "./example/draggable/drag/static";
 import DraggableDragResponsiveLayout from "./example/draggable/drag/adaptive";
+import DraggableChartReRenderResponsiveLayout from "./example/draggable/charts-rerender/adaptive";
 
 import ResizableGridStaticLayout from "./example/resizable/grid/static";
 import ResizableGridResponsiveLayout from "./example/resizable/grid/adaptive";
@@ -65,6 +66,11 @@ function Router() {
             name: "drag responsive",
             path: "/draggable/drag-responsive",
             element: <DraggableDragResponsiveLayout />,
+        },{
+            index: 5,
+            name: "charts re-render",
+            path: "/draggable/charts-rerender",
+            element: <DraggableChartReRenderResponsiveLayout />,
         },
     ];
 
