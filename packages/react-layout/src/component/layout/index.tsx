@@ -847,13 +847,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                     ></canvas>
                                 )}
                             {shadowGridItem()}
-                            {React.Children.map(
-                                props.children,
-                                (child, idx) => {
-                                    const widget = layout?.[idx];
-                                    return processGridItem(widget, child);
-                                }
-                            )}
+                            {props.children.map((child) => {
+                                const widget = layout.find(
+                                    (l) => l.i === child.key
+                                );
+                                return widget ? (
+                                    processGridItem(widget, child)
+                                ) : (
+                                    <></>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
