@@ -10,6 +10,7 @@ import {
     WidgetType
 } from '@dpdfe/react-layout';
 import './styles.css';
+import { Button } from 'antd';
 
 const DraggableGridResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
@@ -173,6 +174,15 @@ const DraggableGridResponsiveLayout = () => {
                                 padding: 10
                             }}
                         >
+                            <Button
+                                onClick={() => {
+                                    setWidgets(
+                                        widgets.filter((_) => _.i !== w.i)
+                                    );
+                                }}
+                            >
+                                删除
+                            </Button>
                             <span
                                 style={{ color: 'red' }}
                                 className={'draggable-cancel'}

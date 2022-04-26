@@ -180,7 +180,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     const item = child.props['data-drag'] as LayoutItem;
                     ensureWidgetModelValid(item);
                     getBoundResult(item);
-                    return { ...item };
+                    return item;
                 }
             );
             setSourceLayout(new_layout);
@@ -916,6 +916,8 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
+                !isEqual(prev[key], next[key]) &&
+                    console.log(key, prev[key], next[key]);
                 return isEqual(prev[key], next[key]);
             }
         })

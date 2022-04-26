@@ -9,6 +9,7 @@ export default defineConfig({
         }
     },
     build: {
+        sourcemap: true,
         cssCodeSplit: true,
         emptyOutDir: false,
         outDir: path.resolve(__dirname, 'dist'),

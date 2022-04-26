@@ -5,9 +5,10 @@ import {
     LayoutItem,
     LayoutMode,
     ReactLayoutContext,
-    WidgetType,
-} from "@dpdfe/react-layout";
-import "@dpdfe/react-layout/dist/index.css";
+    WidgetType
+} from '@dpdfe/react-layout';
+import '@dpdfe/react-layout/dist/index.css';
+import { Button } from 'antd';
 
 const DraggableDragResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
@@ -63,6 +64,13 @@ const DraggableDragResponsiveLayout = () => {
                                 background: '#fff'
                             }}
                         >
+                            <Button
+                                onClick={() => {
+                                    widgets.filter((_) => _.i !== w.i);
+                                }}
+                            >
+                                删除
+                            </Button>
                             我是第{w.i}个div, height: {w.h}, width:
                             {w.w}
                         </div>
