@@ -848,6 +848,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                 )}
                             {shadowGridItem()}
                             {props.children.map((child) => {
+                                // 要保证child key和widget i一致
                                 const widget = layout.find(
                                     (l) => l.i === child.key
                                 );
@@ -919,8 +920,6 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                !isEqual(prev[key], next[key]) &&
-                    console.log(key, prev[key], next[key]);
                 return isEqual(prev[key], next[key]);
             }
         })

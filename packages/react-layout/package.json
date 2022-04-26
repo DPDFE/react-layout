@@ -2,7 +2,7 @@
     "name": "@dpdfe/react-layout",
     "description": "react layout",
     "author": "pearone stefan-hui",
-    "version": "0.0.21",
+    "version": "0.0.24",
     "license": "MIT",
     "homepage": "https://github.com/DPDFE/react-layout/tree/main/packages/react-layout",
     "repository": {
@@ -33,7 +33,8 @@
         "dev": "run-p watch:ts watch:js",
         "watch:ts": "tsc -w",
         "watch:js": "vite build --watch",
-        "patch": " npm version patch"
+        "patch": " npm version patch",
+        "pub": "npm publish"
     },
     "dependencies": {
         "@dpdfe/event-utils": "^0.0.7",

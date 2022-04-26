@@ -225,6 +225,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             width: w,
             height: h,
             ...child.props.style,
+            ...(is_dragging && { zIndex: 1000 }),
             pointerEvents:
                 is_dragging || props.is_placeholder ? 'none' : 'auto',
             cursor:
@@ -468,8 +469,6 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                !isEqual(prev[key], next[key]) &&
-                    console.log(key, prev[key], next[key]);
                 return isEqual(prev[key], next[key]);
             }
         })
