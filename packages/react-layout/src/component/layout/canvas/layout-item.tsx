@@ -187,6 +187,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     };
 
     const new_child = React.cloneElement(child, {
+        key: i,
         tabIndex: i,
         onMouseDown: () => {
             props.setCurrentChecked?.(i);

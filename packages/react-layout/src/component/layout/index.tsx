@@ -441,6 +441,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     moveToWidget(current_widget, shadow_widget);
                     setShadowWidget(undefined);
                 } else {
+                    // console.log('shadow_widget', shadow_widget);
                     setShadowWidget(shadow_widget);
                 }
             }
@@ -460,8 +461,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
         return (
             shadow_widget && (
                 <WidgetItem
-                    key='shadow'
                     {...snapToDrag(shadow_widget)}
+                    key='shadow'
                     layout_id={props.layout_id}
                     ref={shadow_widget_ref}
                     padding={padding}
@@ -483,7 +484,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
         );
     };
 
-    const processGridItem = (widget: LayoutItem, child: React.ReactElement) => {
+    const processGridItem = (
+        child: React.ReactElement,
+        widget?: LayoutItem
+    ) => {
         if (widget) {
             return (
                 <WidgetItem
@@ -608,7 +612,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 />
             );
         } else {
-            return <Fragment></Fragment>;
+            console.warn(
+                `child.key:${child.key} 没有找到对应的布局信息，请保证child.key === widget.i`
+            );
+            return <div key={Math.random()}></div>;
         }
     };
 
@@ -847,17 +854,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                     ></canvas>
                                 )}
                             {shadowGridItem()}
-                            {props.children.map((child) => {
-                                // 要保证child key和widget i一致
-                                const widget = layout.find(
-                                    (l) => l.i === child.key
-                                );
-                                return widget ? (
-                                    processGridItem(widget, child)
-                                ) : (
-                                    <></>
-                                );
-                            })}
+                            {layout.length > 0 &&
+                                props.children.map((child) => {
+                                    // 要保证child key和widget i一致
+                                    const widget = layout.find(
+                                        (l) => l.i === child.key
+                                    );
+                                    return processGridItem(child, widget);
+                                })}
                         </div>
                     </div>
                 </div>

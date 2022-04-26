@@ -298,10 +298,9 @@ export function calcOffset(client: number, calc: number) {
 
 export function removePersonalValue(arr: LayoutItem[]) {
     return arr.map((item) => {
-        const w = { ...item };
-        delete w.is_dragging;
-        delete w.moved;
-        return w;
+        delete item.is_dragging;
+        delete item.moved;
+        return item;
     });
 }
 
