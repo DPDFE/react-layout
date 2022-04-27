@@ -738,8 +738,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     return (
         <div
-            id={'react-layout'}
-            className={classNames(styles.container, props.className)}
+            className={classNames(
+                'react-layout',
+                styles.container,
+                props.className
+            )}
             ref={container_ref}
             style={{
                 userSelect: props.mode === LayoutMode.edit ? 'none' : 'auto',
