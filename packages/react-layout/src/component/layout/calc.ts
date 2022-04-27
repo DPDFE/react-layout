@@ -307,5 +307,5 @@ export function removePersonalValue(arr: LayoutItem[]) {
 export function addPersonalValue(item: LayoutItem) {
     item.is_dragging = false;
     item.moved = false;
-    return item;
+    return { ...item };
 }
