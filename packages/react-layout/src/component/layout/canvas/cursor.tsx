@@ -22,6 +22,10 @@ const Cursor = (props: CursorProps) => {
                 props.onDragStop?.({ x, y, cursor: props.cursor });
             }}
             bound={props.bound}
+            onContextMenu={(e) => {
+                e.preventDefault();
+                return false;
+            }}
         >
             <div
                 tabIndex={0}

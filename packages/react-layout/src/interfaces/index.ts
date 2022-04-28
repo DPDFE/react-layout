@@ -1,4 +1,10 @@
-import React, { ReactChild, ReactElement, RefObject } from 'react';
+import React, {
+    DOMAttributes,
+    ReactChild,
+    ReactElement,
+    ReactNode,
+    RefObject
+} from 'react';
 
 export enum OperatorType {
     dragstart = 'dragstart',
@@ -237,8 +243,10 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     onPositionChange?: (item: ItemPos) => void;
 }
 
+/** ? 怎么能直接继承 React.HTMLAttributes<HTMLElement> ？？？ */
 /** drag */
 export interface DraggableProps extends EventBaseProps {
+    onContextMenu?: (e: React.MouseEvent<Element, MouseEvent>) => void;
     threshold?: number;
     x: number;
     y: number;

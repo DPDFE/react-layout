@@ -163,7 +163,7 @@ const Draggable = (props: DraggableProps) => {
 
     const setUserSelect = () => {
         const user_select: 'none' | 'inherit' =
-            drag_state === DragStates.dragging ? 'none' : 'inherit';
+            drag_state === DragStates.draged ? 'inherit' : 'none';
         return {
             UserSelect: user_select,
             WebkitUserSelect: user_select,
@@ -176,6 +176,11 @@ const Draggable = (props: DraggableProps) => {
             e.stopPropagation();
             child.props.onMouseDown?.(e);
             handleDragStart(e as unknown as MouseEvent);
+        },
+        // 右键菜单的时候不触发mouseup,这里处理一下
+        onContextMenu: (e) => {
+            handleDragStop();
+            child.props.onContextMenu?.(e);
         },
         className: classNames(props.className, child.props.className),
         style: {
