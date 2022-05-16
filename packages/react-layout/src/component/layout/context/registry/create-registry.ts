@@ -1,105 +1,86 @@
-import { LayoutEntry, LayoutItemEntry } from '@/interfaces';
+import { LayoutItemEntry } from '@/interfaces';
+import Droppable from '../droppable';
+
 type EntryMap = {
     draggables: { [id: string]: LayoutItemEntry };
-    droppables: { [id: string]: LayoutEntry };
+    droppables: { [id: string]: Droppable };
+    droppable_sequence: string[];
 };
 
 export default function createRegistry() {
-    let draggables_is_ready = false;
-
     const entries: EntryMap = {
         draggables: {},
-        droppables: {}
+        droppables: {}, // 所有的布局
+        droppable_sequence: [] // 布局构建的顺序
     };
 
-    function findDraggableById(id: string) {
-        return entries.draggables[id] || null;
-    }
-
     function getDraggableById(id: string): LayoutItemEntry {
-        const entry = findDraggableById(id);
-        return entry;
+        return entries.draggables[id] || null;
     }
 
     function registerDraggable(entry: LayoutItemEntry) {
         entries.draggables[entry.descriptor.id] = entry;
-
-        if (!draggables_is_ready) {
-            const is_all_ready = Object.keys(entries.draggables).map(
-                (key) => entries.draggables[key].descriptor.is_ready
-            );
-            draggables_is_ready = !is_all_ready.includes(false);
-        }
     }
 
     function unregisterDraggable(entry: LayoutItemEntry) {
-        const current = findDraggableById(entry.descriptor.id);
+        const current = getDraggableById(entry.descriptor.id);
 
         if (!current) {
-            return;
-        }
-
-        if (entry.unique_id !== current.unique_id) {
             return;
         }
 
         delete entries.draggables[entry.descriptor.id];
     }
 
-    const DraggableAPI = {
-        register: registerDraggable,
-        update: (entry: LayoutItemEntry, last: LayoutItemEntry) => {
-            unregisterDraggable(last);
-            registerDraggable(entry);
-        },
-        unregister: unregisterDraggable,
-        getById: getDraggableById,
-        findById: findDraggableById,
-        exists: (id: string): boolean => Boolean(findDraggableById(id))
-    };
-
-    function findDroppableById(id: string) {
+    function getDroppableById(id: string) {
         return entries.droppables[id] || null;
     }
 
-    function getDroppableById(id: string): LayoutEntry {
-        const entry = findDroppableById(id);
-        return entry;
+    function registerDroppable(entry: Droppable) {
+        entries.droppables[entry.id] = entry;
+        if (!entries.droppable_sequence.includes(entry.id)) {
+            entries.droppable_sequence.push(entry.id);
+        }
     }
 
-    const DroppableAPI = {
-        register: (entry: LayoutEntry) => {
-            entries.droppables[entry.descriptor.id] = entry;
-        },
-        unregister: (entry: LayoutEntry) => {
-            const current = findDroppableById(entry.descriptor.id);
+    function unregisterDroppable(entry: Droppable) {
+        const current = getDroppableById(entry.id);
+        if (!current) {
+            return;
+        }
 
-            if (!current) {
-                return;
-            }
+        delete entries.droppables[entry.id];
+    }
 
-            if (entry.unique_id !== current.unique_id) {
-                return;
-            }
-
-            delete entries.droppables[entry.descriptor.id];
-        },
-        getById: getDroppableById,
-        findById: findDroppableById,
-        getAll: () => Object.values(entries.droppables),
-        exists: (id: string): boolean => Boolean(findDroppableById(id))
-    };
-
-    function clean(): void {
+    const clean = () => {
         entries.draggables = {};
         entries.droppables = {};
-    }
+        entries.droppable_sequence = [];
+    };
 
     return {
-        draggable: DraggableAPI,
-        droppable: DroppableAPI,
-        draggables_is_ready,
-        clean
+        clean,
+        draggable: {
+            register: registerDraggable,
+            update: (entry: LayoutItemEntry, last: LayoutItemEntry) => {
+                unregisterDraggable(last);
+                registerDraggable(entry);
+            },
+            unregister: unregisterDraggable,
+            getById: getDraggableById,
+            exists: (id: string): boolean => Boolean(getDraggableById(id))
+        },
+        droppable: {
+            register: registerDroppable,
+            unregister: unregisterDroppable,
+            getById: getDroppableById,
+            getAll: () => {
+                return entries.droppable_sequence.map((seq) => {
+                    return entries.droppables[seq];
+                });
+            },
+            exists: (id: string): boolean => Boolean(getDroppableById(id))
+        }
     };
 }
 

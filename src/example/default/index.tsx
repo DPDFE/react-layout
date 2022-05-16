@@ -51,7 +51,8 @@ const DefaultLayout = () => {
                 type: WidgetType.drag,
                 is_resizable: true,
                 is_draggable: true,
-                is_nested: false
+                is_nested: false,
+                is_droppable: true
             },
             {
                 i: '3-1',
@@ -62,7 +63,8 @@ const DefaultLayout = () => {
                 type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
-                is_nested: false
+                is_nested: false,
+                is_droppable: true
             }
         ];
     }
@@ -79,7 +81,8 @@ const DefaultLayout = () => {
                 type: WidgetType.drag,
                 is_resizable: true,
                 is_draggable: true,
-                is_nested: false
+                is_nested: true,
+                is_droppable: true
             },
             {
                 i: '1-1',
@@ -90,7 +93,8 @@ const DefaultLayout = () => {
                 type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
-                is_nested: false
+                is_nested: true,
+                is_droppable: true
             }
         ];
     }
@@ -106,7 +110,8 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.drag,
-                has_inner_layout: false
+                has_inner_layout: true,
+                is_droppable: true
             },
             {
                 x: 0,
@@ -117,7 +122,8 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                has_inner_layout: true
+                has_inner_layout: true,
+                is_droppable: true
             },
             {
                 x: 0,
@@ -128,7 +134,8 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                has_inner_layout: false
+                has_inner_layout: false,
+                is_droppable: true
             },
             {
                 x: 5,
@@ -139,7 +146,8 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                has_inner_layout: true
+                has_inner_layout: true,
+                is_droppable: true
             }
             // {
             //     x: 0,
@@ -212,6 +220,9 @@ const DefaultLayout = () => {
     const widgets3_component = () => {
         return (
             <ReactLayout
+                style={{
+                    background: '#fff'
+                }}
                 layout_id={'widgets3'}
                 widgets={widgets3}
                 layout_type={LayoutType.GRID}
@@ -394,6 +405,9 @@ const DefaultLayout = () => {
                     }}
                 >
                     <ReactLayout
+                        style={{
+                            background: '#fff'
+                        }}
                         is_droppable={true}
                         // getDroppingItem={() => {
                         //     return {
@@ -402,8 +416,7 @@ const DefaultLayout = () => {
                         //         i: 'drop_element'
                         //     };
                         // }}
-                        style={{ background: '#fff' }}
-                        need_ruler
+                        // need_ruler
                         widgets={widgets}
                         layout_id={'root'}
                         layout_type={LayoutType.GRID}
@@ -537,6 +550,9 @@ const DefaultLayout = () => {
                                         >
                                             <TabPane tab='Tab 1' key='1'>
                                                 <ReactLayout
+                                                    style={{
+                                                        background: '#fff'
+                                                    }}
                                                     is_droppable={true}
                                                     widgets={widgets2}
                                                     layout_id={'tab 1'}
@@ -596,6 +612,9 @@ const DefaultLayout = () => {
                                             </TabPane>
                                             <TabPane tab='Tab 2' key='2'>
                                                 <ReactLayout
+                                                    style={{
+                                                        background: '#fff'
+                                                    }}
                                                     is_droppable={true}
                                                     widgets={widgets2}
                                                     layout_id={'tab 2'}
@@ -664,6 +683,9 @@ const DefaultLayout = () => {
                                                     layout_type={
                                                         LayoutType.GRID
                                                     }
+                                                    style={{
+                                                        background: '#fff'
+                                                    }}
                                                     mode={LayoutMode.edit}
                                                     container_padding={[
                                                         10, 10, 10, 10

@@ -4,7 +4,8 @@ import {
     GridType,
     MarginType,
     BoundType,
-    WidgetType
+    WidgetType,
+    Pos
 } from '@/interfaces';
 import React, { RefObject } from 'react';
 
@@ -64,7 +65,7 @@ export function getDropPosition(
     return { x, y };
 }
 
-export function collides(item_1: LayoutItem, item_2: LayoutItem): boolean {
+export function collides(item_1: Pos, item_2: Pos): boolean {
     if (item_1.i === item_2.i) return false; // 相同节点
     if (item_1.x + item_1.w <= item_2.x) return false; // 👈
     if (item_1.x >= item_2.x + item_2.w) return false; // 👉

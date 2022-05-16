@@ -26,6 +26,7 @@ import Resizable from './resizable';
 import styles from './styles.module.css';
 import './styles.module.css';
 import { LayoutContext } from '../context';
+import { CHANGE_OPERATOR } from '../constants';
 
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children) as ReactElement;
@@ -162,12 +163,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             }
             // 拖拽过程中让所有元素都可以触发move事件
             if (
-                operator_type &&
-                [
-                    OperatorType.drag,
-                    OperatorType.drop,
-                    OperatorType.resize
-                ].includes(operator_type) &&
+                operator_type.current &&
+                CHANGE_OPERATOR.includes(operator_type.current) &&
                 !is_parent_layout
             ) {
                 children.push(mask_handler);
@@ -202,10 +199,13 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             if (type === WidgetType.drag) {
                 const keydown_pos = handleKeyDown(e);
                 if (keydown_pos) {
-                    props.onPositionChange?.({
-                        ...{ x, y, h, w, i, type },
-                        ...keydown_pos
-                    });
+                    props.onPositionChange?.(
+                        {
+                            ...{ x, y, h, w, i, type },
+                            ...keydown_pos
+                        },
+                        e as unknown as MouseEvent
+                    );
                 }
             }
         },
@@ -345,8 +345,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 use_css_fixed={is_dragging}
                 scale={props.scale}
                 is_draggable={is_draggable}
-                onDragStart={() => {
-                    props.onDragStart?.();
+                onDragStart={(e) => {
+                    props.onDragStart?.(e);
                 }}
                 draggable_handler={
                     need_border_draggable_handler
@@ -354,26 +354,31 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         : undefined
                 }
                 draggable_cancel_handler={props.draggable_cancel_handler}
-                onDrag={({ x, y }) => {
-                    const item = {
-                        x: x - offset_x,
-                        y: y - offset_y,
-                        w: w + margin_width,
-                        h: h + margin_height,
-                        type,
-                        i
-                    };
-                    props.onDrag?.(item);
+                onDrag={({ e, x, y }) => {
+                    props.onDrag?.(
+                        {
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            w: w + margin_width,
+                            h: h + margin_height,
+                            type,
+                            i
+                        },
+                        e
+                    );
                 }}
-                onDragStop={({ x, y }) => {
-                    props.onDragStop?.({
-                        x: x - offset_x,
-                        y: y - offset_y,
-                        w: w + margin_width,
-                        h: h + margin_height,
-                        type,
-                        i
-                    });
+                onDragStop={({ e, x, y }) => {
+                    props.onDragStop?.(
+                        {
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            w: w + margin_width,
+                            h: h + margin_height,
+                            type,
+                            i
+                        },
+                        e
+                    );
                 }}
             >
                 <Resizable
@@ -390,31 +395,37 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     use_css_transform={!is_parent_layout || is_dragging}
                     use_css_fixed={is_dragging}
                     is_resizable={is_resizable}
-                    onResizeStart={() => {
-                        props.onResizeStart?.();
+                    onResizeStart={(e) => {
+                        props.onResizeStart?.(e);
                     }}
                     cursors={props.cursors}
-                    onResize={({ x, y, h, w }) => {
-                        props.onResize?.({
-                            x: x - offset_x,
-                            y: y - offset_y,
-                            w: w + margin_width,
-                            h: h + margin_height,
-                            type,
-                            i
-                        });
+                    onResize={({ e, x, y, h, w }) => {
+                        props.onResize?.(
+                            {
+                                x: x - offset_x,
+                                y: y - offset_y,
+                                w: w + margin_width,
+                                h: h + margin_height,
+                                type,
+                                i
+                            },
+                            e
+                        );
                     }}
                     {...getMinimumBoundary()}
                     bound={{ max_x, max_y, min_x, min_y }}
-                    onResizeStop={({ x, y, h, w }) => {
-                        props.onResizeStop?.({
-                            x: x - offset_x,
-                            y: y - offset_y,
-                            w: w + margin_width,
-                            h: h + margin_height,
-                            type,
-                            i
-                        });
+                    onResizeStop={({ e, x, y, h, w }) => {
+                        props.onResizeStop?.(
+                            {
+                                x: x - offset_x,
+                                y: y - offset_y,
+                                w: w + margin_width,
+                                h: h + margin_height,
+                                type,
+                                i
+                            },
+                            e
+                        );
                     }}
                 >
                     {new_child}

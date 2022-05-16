@@ -144,6 +144,7 @@ const DraggableGridResponsiveLayout = () => {
             }}
         >
             <ReactLayout
+                is_droppable
                 layout_id={'root'}
                 widgets={widgets}
                 // need_ruler
