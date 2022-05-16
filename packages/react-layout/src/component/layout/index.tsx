@@ -404,11 +404,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         // 按照布局渲染的顺序，渲染层级越后的元素层级越高，注册时间越晚
         if (covered_layouts.length) {
             const covered_layout = covered_layouts[covered_layouts.length - 1];
-
-            // 计算定位
-            registry.droppable
-                .getById(covered_layout.id)
-                .addShadow(widget, is_save);
             if (covered_layout.id !== moving_droppable.current?.id) {
                 // 删除旧布局元素的影子
                 if (moving_droppable.current) {
@@ -417,7 +412,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         .deleteShadow(widget, is_save);
                 }
             }
+
             moving_droppable.current = covered_layout;
+            // 计算定位
+            registry.droppable
+                .getById(covered_layout.id)
+                .addShadow(widget, is_save);
 
             // 初始布局赋值
             if (!start_droppable.current) {
@@ -497,8 +497,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         ?.getBoundingClientRect();
 
                     if (start_pos && moving_pos) {
-                        shadow_widget.x -= moving_pos.x - start_pos.x;
-                        shadow_widget.y -= moving_pos.y - start_pos.y;
+                        shadow_widget.x -= moving_pos.left - start_pos.left;
+                        shadow_widget.y -= moving_pos.top - start_pos.top;
                     }
                 }
 
@@ -532,16 +532,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     true
                 );
 
-                compact(filter_layout.concat([shadow_widget]));
+                compact([shadow_widget].concat(filter_layout));
                 if (is_save) {
                     moveToWidget(current_widget, shadow_widget);
                     setShadowWidget(undefined);
                 } else {
                     setShadowWidget(shadow_widget);
-                    setLayout(layout);
                 }
             }
-            setRerender(Math.random());
         },
         [layout, grid]
     );
