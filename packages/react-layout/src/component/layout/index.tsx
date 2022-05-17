@@ -102,23 +102,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
     );
 
     /**
-     * @description 当操作结束以后更新操作状态为undefined
-     */
-    // useEffect(() => {
-    //     if (
-    //         operator_type &&
-    //         [
-    //             OperatorType.changeover,
-    //             OperatorType.dragover,
-    //             OperatorType.dropover,
-    //             OperatorType.resizeover
-    //         ].includes(operator_type)
-    //     ) {
-    //         setOperatorType(undefined);
-    //     }
-    // }, [operator_type]);
-
-    /**
      * @description 只有在无状态的情况下，点击空白处才会取消选中状态
      */
     const onClick = useCallback(
@@ -307,6 +290,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
             setCurrentChecked(undefined);
             current_widget.is_dragging = false;
             getCurrentCoveredLayout(current_widget, item_pos, true, e);
+            // is_save
+            // 如果要保存，只保存start current_moving，重新set
         }
 
         return;
@@ -381,13 +366,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         is_save: boolean,
         e: MouseEvent
     ) => {
-        //移动到位
-        if (start_droppable.current) {
-            registry.droppable
-                .getById(start_droppable.current?.id)
-                .move(widget, item_pos, is_save);
-        }
-
         const covered_layouts = registry.droppable.getAll().filter((entry) => {
             const layout_ref = entry.getViewPortRef();
             if (layout_ref) {
@@ -402,44 +380,41 @@ const ReactLayout = (props: ReactLayoutProps) => {
         });
 
         // 按照布局渲染的顺序，渲染层级越后的元素层级越高，注册时间越晚
-        if (covered_layouts.length) {
-            const covered_layout = covered_layouts[covered_layouts.length - 1];
-            if (covered_layout.id !== moving_droppable.current?.id) {
-                // 删除旧布局元素的影子
-                if (moving_droppable.current) {
-                    registry.droppable
-                        .getById(moving_droppable.current.id)
-                        .deleteShadow(widget, is_save);
-                }
-            }
+        const covered_layout =
+            covered_layouts.length > 0
+                ? covered_layouts[covered_layouts.length - 1]
+                : registry.droppable.getAll()[0];
 
-            moving_droppable.current = covered_layout;
-            // 计算定位
-            registry.droppable
-                .getById(covered_layout.id)
-                .addShadow(widget, is_save);
-
-            // 初始布局赋值
-            if (!start_droppable.current) {
-                start_droppable.current = covered_layout;
-            } else if (
-                operator_type.current &&
-                END_OPERATOR.includes(operator_type.current)
-            ) {
-                start_droppable.current = undefined;
-            }
-        } else {
-            if (start_droppable.current) {
-                registry.droppable
-                    .getById(start_droppable.current.id)
-                    .deleteShadow(widget);
-            }
+        if (covered_layout.id !== moving_droppable.current?.id) {
+            // 删除旧布局元素的影子
             if (moving_droppable.current) {
                 registry.droppable
                     .getById(moving_droppable.current.id)
                     .deleteShadow(widget);
             }
+        }
 
+        moving_droppable.current = covered_layout;
+
+        // 计算定位 + 移动到位
+        if (moving_droppable.current && start_droppable.current) {
+            registry.droppable
+                .getById(start_droppable.current.id)
+                .move(widget, item_pos);
+
+            registry.droppable
+                .getById(moving_droppable.current.id)
+                .addShadow(widget, is_save);
+        }
+
+        // 初始布局赋值
+        if (!start_droppable.current) {
+            start_droppable.current = covered_layout;
+        } else if (
+            operator_type.current &&
+            END_OPERATOR.includes(operator_type.current)
+        ) {
+            start_droppable.current = undefined;
             moving_droppable.current = undefined;
         }
     };
@@ -451,27 +426,25 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     /**
      * 移动
+     * 直接修改了layout的内容，set rerender 让重新渲染
      */
     const move = useCallback(
         (current_widget: LayoutItem, item_pos: ItemPos) => {
             moveToWidget(current_widget, item_pos);
-            // 直接修改了layout的内容，set rerender 让重新渲染
             setRerender(Math.random());
         },
         [layout]
     );
 
     /**
-     * 删除一个组件
+     * 删除阴影
      */
     const deleteShadow = useCallback(
-        (current_widget, is_save = false) => {
-            // console.log('deleteShadow', current_widget);
+        (current_widget) => {
             setShadowWidget(undefined);
-            const layout = getFilterLayoutById(current_widget.i);
-            compact(layout);
-            // is_save TODO: save
-            // setLayout(layout);
+            const filter_layout = getFilterLayoutById(current_widget.i);
+            compact(filter_layout);
+            setRerender(Math.random());
         },
         [layout, getFilterLayoutById]
     );
@@ -480,8 +453,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
      * 定位
      */
     const addShadow = useCallback(
-        (current_widget, is_save = false) => {
+        (current_widget: LayoutItem, is_save = false) => {
             const shadow_widget = cloneWidget(current_widget);
+
             if (current_widget.type === WidgetType.grid) {
                 const filter_layout = getFilterLayoutById(current_widget.i);
                 const { top, left } = canvas_viewport_scroll_top_left.current;
@@ -534,7 +508,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
                 compact([shadow_widget].concat(filter_layout));
                 if (is_save) {
-                    moveToWidget(current_widget, shadow_widget);
+                    console.log([shadow_widget].concat(filter_layout));
+                    setLayout([shadow_widget].concat(filter_layout));
+                    console.log(start_droppable.current);
+                    start_droppable.current;
                     setShadowWidget(undefined);
                 } else {
                     setShadowWidget(shadow_widget);
@@ -565,6 +542,18 @@ const ReactLayout = (props: ReactLayoutProps) => {
         addShadow,
         move
     ]);
+
+    /**
+     * @description 当操作结束以后更新操作状态为undefined
+     */
+    useEffect(() => {
+        if (
+            operator_type.current &&
+            END_OPERATOR.includes(operator_type.current)
+        ) {
+            operator_type.current = undefined;
+        }
+    }, [operator_type.current]);
 
     useEffect(() => {
         canvas_ref.current?.addEventListener('click', onClick);
@@ -823,7 +812,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                     ></canvas>
                                 )}
                             {shadowGridItem()}
-                            <div key={rerender}></div>
                             {layout.length > 0 &&
                                 props.children.map((child) => {
                                     // 要保证child key和widget i一致
@@ -837,17 +825,19 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 </div>
             </div>
 
-            {props.mode === LayoutMode.edit && canvas_viewport_ref.current && (
-                <GuideLine
-                    scale={props.scale}
-                    t_offset={t_offset}
-                    l_offset={l_offset}
-                    guide_lines={props.guide_lines}
-                    canvas_viewport_ref={canvas_viewport_ref}
-                    ruler_hover_pos={ruler_hover_pos}
-                    removeGuideLine={props.removeGuideLine}
-                ></GuideLine>
-            )}
+            {props.mode === LayoutMode.edit &&
+                canvas_viewport_ref.current &&
+                ruler_hover_pos && (
+                    <GuideLine
+                        scale={props.scale}
+                        t_offset={t_offset}
+                        l_offset={l_offset}
+                        guide_lines={props.guide_lines}
+                        canvas_viewport_ref={canvas_viewport_ref}
+                        ruler_hover_pos={ruler_hover_pos}
+                        removeGuideLine={props.removeGuideLine}
+                    ></GuideLine>
+                )}
         </div>
     );
 };

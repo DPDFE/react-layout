@@ -429,7 +429,7 @@ const DefaultLayout = () => {
                         scale={scale}
                         need_grid_lines={true}
                         need_drag_bound={false}
-                        need_grid_bound={false}
+                        need_grid_bound={true}
                         guide_lines={guide_line}
                         mode={LayoutMode.edit}
                         // need_ruler={true}
