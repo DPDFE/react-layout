@@ -20,12 +20,13 @@ import React, {
 } from 'react';
 
 import { MIN_DRAG_LENGTH } from '../calc';
-import Draggable from './draggable';
+import Draggable, { clamp } from './draggable';
 import Resizable from './resizable';
 // vite在watch模式下检测style变化需要先将内容引进来才能监听到
 import styles from './styles.module.css';
 import './styles.module.css';
 import { LayoutContext } from '../context';
+import { useScroll } from 'ahooks';
 
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children) as ReactElement;
@@ -41,7 +42,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         w,
         h,
         x,
-        y,
         type,
         is_dragging,
         is_draggable,
@@ -55,10 +55,39 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         min_x,
         max_x,
         min_y,
-        max_y
+        max_y,
+        is_sticky
     } = props;
 
-    const { operator_type, registry } = useContext(LayoutContext);
+    const { operator_type, registry, sticky_target_queue } =
+        useContext(LayoutContext);
+
+    const pos = useScroll(props.canvas_viewport_ref.current);
+    const sticky_pos = useRef<number>(props.y);
+
+    if (is_sticky && pos) {
+        if (props.y - pos.top < 0) {
+            if (!sticky_target_queue.current.includes(i)) {
+                sticky_target_queue.current.push(i);
+            }
+        } else {
+            sticky_target_queue.current = sticky_target_queue.current.filter(
+                (q) => q != i
+            );
+        }
+    }
+
+    const is_sticky_target =
+        sticky_target_queue.current[sticky_target_queue.current.length - 1];
+
+    // console.log(sticky_target_idx.current);
+    if (is_sticky_target === i) {
+        sticky_pos.current = pos!.top;
+    } else {
+        sticky_pos.current = props.y;
+    }
+
+    const y = sticky_pos.current;
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -181,7 +210,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
         if (props.is_placeholder) return transition;
 
-        if (props.is_checked || !is_ready) return 'none';
+        if (props.is_checked || !is_ready || is_sticky_target === i)
+            return 'none';
 
         return transition;
     };
@@ -232,7 +262,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             cursor:
                 props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'
-                    : 'inherit'
+                    : 'inherit',
+            zIndex: is_sticky_target === i ? 1000 : 'auto'
         },
         children: getCurrentChildren()
     });
@@ -465,7 +496,8 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                     'onResizeStart',
                     'onResize',
                     'onResizeStop',
-                    'onPositionChange'
+                    'onPositionChange',
+                    'canvas_viewport_ref'
                 ].includes(key)
             ) {
                 return true;

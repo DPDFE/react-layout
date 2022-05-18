@@ -24,90 +24,104 @@ const DraggableGridResponsiveLayout = () => {
         return [
             {
                 w: 2,
-                h: 10,
+                h: 20,
                 i: '0',
                 x: 5,
-                y: 5,
+                y: 40,
+                is_sticky: true,
                 is_resizable: false,
                 is_draggable: true,
                 type: WidgetType.grid,
                 is_nested: false,
-                draggable_cancel_handler: '.draggable-cancel'
+                draggable_cancel_handler: '.draggable-cancel',
+                need_border_draggable_handler: false,
+                is_droppable: false,
+                is_dragging: false,
+                moved: false
             },
             {
                 w: 2,
                 h: 10,
                 i: '1',
-                x: 0,
-                y: 0,
+                x: 3,
+                y: 10,
                 is_resizable: false,
                 is_draggable: true,
                 type: WidgetType.grid,
+                is_sticky: true,
                 is_nested: false,
-                draggable_cancel_handler: '.draggable-cancel'
+                draggable_cancel_handler: '.draggable-cancel',
+                need_border_draggable_handler: false,
+                is_droppable: false,
+                is_dragging: false,
+                moved: false
             },
             {
                 w: 2,
-                h: 10,
+                h: 30,
                 i: '2',
                 x: 5,
-                y: 5,
+                y: 50,
                 is_resizable: false,
                 is_draggable: true,
                 type: WidgetType.grid,
                 is_nested: false,
-                draggable_cancel_handler: '.draggable-cancel'
+                draggable_cancel_handler: '.draggable-cancel',
+                need_border_draggable_handler: false,
+                is_droppable: false,
+                is_dragging: false,
+                moved: false
             },
             {
                 w: 2,
                 h: 10,
                 i: '3',
                 x: 4,
-                y: 4,
+                y: 30,
                 is_resizable: false,
                 is_draggable: true,
                 type: WidgetType.grid,
                 is_nested: false,
-                draggable_cancel_handler: '.draggable-cancel'
+                draggable_cancel_handler: '.draggable-cancel',
+                need_border_draggable_handler: false,
+                is_droppable: false,
+                is_dragging: false,
+                moved: false
             },
             {
                 w: 2,
                 h: 10,
                 i: '4',
-                x: 8,
-                y: 8,
+                x: 4,
+                y: 20,
                 is_resizable: false,
                 is_draggable: true,
+                is_sticky: false,
                 type: WidgetType.grid,
                 is_nested: false,
-                draggable_cancel_handler: '.draggable-cancel'
+                draggable_cancel_handler: '.draggable-cancel',
+                need_border_draggable_handler: false,
+                is_droppable: false,
+                is_dragging: false,
+                moved: false
             },
             {
                 w: 2,
                 h: 10,
                 i: '5',
                 x: 3,
-                y: 3,
+                y: 0,
                 is_resizable: false,
                 is_draggable: true,
                 type: WidgetType.grid,
                 is_nested: false,
-                draggable_cancel_handler: '.draggable-cancel'
+                draggable_cancel_handler: '.draggable-cancel',
+                need_border_draggable_handler: false,
+                is_droppable: false,
+                is_dragging: false,
+                moved: false
             }
         ];
-        // return Array.from({ length: 6 }).map((_, i) => {
-        //     const random = parseInt((Math.random() * 10).toFixed());
-        //     return {
-        //         w: 2,
-        //         h: 10,
-        //         i: i.toString(),
-        //         x: random,
-        //         y: random,
-        //         is_resizable: false,
-        //         is_draggable: true,
-        //         type: WidgetType.grid
-        //     };
-        // });
     }
 
     const handleWidgetsChange = (id: string, widgets: LayoutItem[]) => {
@@ -127,6 +141,7 @@ const DraggableGridResponsiveLayout = () => {
                 // console.log(result, 'on drag stop');
                 const { source, destination } = result;
                 handleWidgetsChange(source.layout_id, source.widgets);
+                console.log(source.widgets);
                 destination &&
                     handleWidgetsChange(
                         destination.layout_id,

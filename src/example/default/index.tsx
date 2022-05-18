@@ -212,6 +212,10 @@ const DefaultLayout = () => {
     const widgets3_component = () => {
         return (
             <ReactLayout
+                style={{
+                    background: '#fff'
+                }}
+                is_droppable={true}
                 layout_id={'widgets3'}
                 widgets={widgets3}
                 layout_type={LayoutType.GRID}
@@ -538,6 +542,9 @@ const DefaultLayout = () => {
                                             <TabPane tab='Tab 1' key='1'>
                                                 <ReactLayout
                                                     is_droppable={true}
+                                                    style={{
+                                                        background: '#fff'
+                                                    }}
                                                     widgets={widgets2}
                                                     layout_id={'tab 1'}
                                                     layout_type={
@@ -597,6 +604,9 @@ const DefaultLayout = () => {
                                             <TabPane tab='Tab 2' key='2'>
                                                 <ReactLayout
                                                     is_droppable={true}
+                                                    style={{
+                                                        background: '#fff'
+                                                    }}
                                                     widgets={widgets2}
                                                     layout_id={'tab 2'}
                                                     layout_type={
@@ -660,6 +670,10 @@ const DefaultLayout = () => {
                                             </TabPane>
                                             <TabPane tab='Tab 3' key='3'>
                                                 <ReactLayout
+                                                    is_droppable={true}
+                                                    style={{
+                                                        background: '#fff'
+                                                    }}
                                                     layout_id={'tab 3'}
                                                     layout_type={
                                                         LayoutType.GRID

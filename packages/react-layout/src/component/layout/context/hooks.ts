@@ -10,6 +10,7 @@ import { addEvent, removeEvent } from '@dpdfe/event-utils';
 import useRegistry from './registry/use-registry';
 
 export const useLayoutContext = (props: ReactLayoutContextProps) => {
+    const sticky_target_queue = useRef<string[]>([]);
     const [checked_index, setCurrentChecked] = useState<string>();
     const [operator_type, setOperatorType] = useState<OperatorType>();
     const dragging_layout_id = useRef<string>();
@@ -147,6 +148,7 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
 
     return useMemo(() => {
         return {
+            sticky_target_queue,
             checked_index,
             setCurrentChecked,
             operator_type,
@@ -157,6 +159,7 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             dragging_layout_id
         };
     }, [
+        sticky_target_queue,
         checked_index,
         setCurrentChecked,
         operator_type,

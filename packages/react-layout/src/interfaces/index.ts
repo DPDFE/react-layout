@@ -195,6 +195,7 @@ export interface GuideLineProps {
 export interface LayoutItem extends ItemPos {
     min_w?: number;
     min_h?: number;
+    is_sticky?: boolean;
     is_draggable?: boolean;
     is_resizable?: boolean;
     is_child_layout?: boolean; // 子布局的元素
@@ -216,6 +217,7 @@ interface EventBaseProps extends NodeProps {
 
 /** 子元素 */
 export interface WidgetItemProps extends EventBaseProps, LayoutItem {
+    canvas_viewport_ref: RefObject<HTMLDivElement>;
     cursors?: CursorType[];
     layout_id: string;
     offset_x: number;
