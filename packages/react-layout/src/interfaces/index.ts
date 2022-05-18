@@ -6,6 +6,13 @@ import React, {
     RefObject
 } from 'react';
 
+export interface StickyTarget {
+    id: string;
+    max_x: number;
+    min_x: number;
+    y: number;
+}
+
 export enum OperatorType {
     dragstart = 'dragstart',
     drag = 'drag',

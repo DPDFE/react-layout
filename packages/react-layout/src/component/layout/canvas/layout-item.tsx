@@ -27,6 +27,7 @@ import styles from './styles.module.css';
 import './styles.module.css';
 import { LayoutContext } from '../context';
 import { useScroll } from 'ahooks';
+import { copyObject } from '@/utils/utils';
 
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children) as ReactElement;
@@ -59,29 +60,95 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         is_sticky
     } = props;
 
-    const { operator_type, registry, sticky_target_queue } =
-        useContext(LayoutContext);
+    const {
+        operator_type,
+        registry,
+        sticky_target_queue,
+        sticky_target_idx_queue,
+        sticky_target_queue_mappings
+    } = useContext(LayoutContext);
 
     const pos = useScroll(props.canvas_viewport_ref.current);
     const sticky_pos = useRef<number>(props.y);
 
     if (is_sticky && pos) {
-        if (props.y - pos.top < 0) {
-            if (!sticky_target_queue.current.includes(i)) {
-                sticky_target_queue.current.push(i);
+        // 页面滚动到当前元素位置
+        if (pos.top - props.y > 0) {
+            // 是否为当前正在滚动元素
+            if (
+                sticky_target_queue.current.filter((q) => q.id === i).length ===
+                0
+            ) {
+                // 判断两条线相交
+                const filter = sticky_target_queue.current.filter((q) => {
+                    // 不相交
+                    if (q.max_x < x || q.min_x > x + w) {
+                        return true;
+                    } else {
+                        // 相交
+                        //挤掉上面同位置的元素
+                        if (q.y > props.y) {
+                            return true;
+                        }
+                        // 记录当前元素挤掉的元素，当当前元素还原后，被挤掉元素状态也可被还原
+                        if (!sticky_target_queue_mappings.current[i]) {
+                            sticky_target_queue_mappings.current[i] = [];
+                        }
+                        if (
+                            !sticky_target_queue_mappings.current[i].includes(
+                                q.id
+                            )
+                        ) {
+                            sticky_target_queue_mappings.current[i].push(q.id);
+                        }
+
+                        return false;
+                    }
+                });
+
+                // 曾经被添加过后被挤掉的元素不允许重新添加
+                if (!sticky_target_idx_queue.current.includes(i)) {
+                    sticky_target_queue.current = [
+                        ...filter,
+                        {
+                            id: i,
+                            max_x: x + w,
+                            min_x: x,
+                            y: props.y
+                        }
+                    ];
+                }
+
+                // 标记被添加过
+                if (!sticky_target_idx_queue.current.includes(i)) {
+                    sticky_target_idx_queue.current.push(i);
+                }
             }
         } else {
+            // 高度还没有当前元素
+            // 还原当前元素状态
             sticky_target_queue.current = sticky_target_queue.current.filter(
-                (q) => q != i
+                (q) => q.id != i
             );
+            // 还原被当前元素挤掉元素状态
+            sticky_target_idx_queue.current =
+                sticky_target_idx_queue.current.filter(
+                    (q) =>
+                        q != i &&
+                        !sticky_target_queue_mappings.current[i]?.includes(q)
+                );
+
+            delete sticky_target_queue_mappings.current[i];
         }
     }
 
-    const is_sticky_target =
-        sticky_target_queue.current[sticky_target_queue.current.length - 1];
+    // 可以同时置顶一批元素
+    const is_sticky_target = sticky_target_queue.current.find(
+        (q) => q.id === i
+    );
 
-    // console.log(sticky_target_idx.current);
-    if (is_sticky_target === i) {
+    // 如果是置顶元素，为滚动高度，否则是自身原来高度
+    if (is_sticky_target) {
         sticky_pos.current = pos!.top;
     } else {
         sticky_pos.current = props.y;
@@ -210,8 +277,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
         if (props.is_placeholder) return transition;
 
-        if (props.is_checked || !is_ready || is_sticky_target === i)
-            return 'none';
+        if (props.is_checked || !is_ready || is_sticky_target) return 'none';
 
         return transition;
     };
@@ -263,7 +329,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'
                     : 'inherit',
-            zIndex: is_sticky_target === i ? 1000 : 'auto'
+            zIndex: is_sticky_target ? 1000 : 'auto'
         },
         children: getCurrentChildren()
     });
