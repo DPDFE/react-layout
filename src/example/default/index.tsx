@@ -102,7 +102,7 @@ const DefaultLayout = () => {
     function generateLayout() {
         return [
             {
-                x: 630,
+                x: 430,
                 y: 230,
                 w: 200,
                 h: 100,

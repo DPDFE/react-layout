@@ -3,8 +3,7 @@ import {
     LayoutMode,
     LayoutItemEntry,
     LayoutItemDescriptor,
-    WidgetType,
-    OperatorType
+    WidgetType
 } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, {

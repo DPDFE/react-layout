@@ -321,30 +321,6 @@ export interface MenuItemProps extends NodeProps {
     onClick?: (e: React.MouseEvent) => void;
 }
 
-export interface LayoutDescriptor {
-    id: string;
-    is_root: boolean;
-    type: LayoutType;
-    mode: LayoutMode;
-}
-
-type LayoutEntryApi = (
-    dragging_item?: LayoutItemEntry
-) => LayoutItem[] | undefined;
-
-export interface LayoutEntry {
-    is_droppable?: boolean;
-    unique_id: string;
-    descriptor: LayoutDescriptor;
-    compactLayoutByDraggingItem: (
-        dragging_item: LayoutItemEntry,
-        is_save: boolean
-    ) => LayoutItem[];
-    handlerDraggingItemOut: LayoutEntryApi;
-    getRef: () => HTMLDivElement | null;
-    getViewPortRef: () => HTMLDivElement | null;
-}
-
 export interface LayoutItemDescriptor {
     id: string;
     is_ready: boolean;
@@ -364,9 +340,9 @@ export type WidgetLocation = {
 };
 
 export type DragStart = {
-    operator_type: OperatorType;
+    type: OperatorType;
     widget_id: string;
-    source: WidgetLocation;
+    source?: WidgetLocation;
 };
 
 export type DragResult = DragStart & {

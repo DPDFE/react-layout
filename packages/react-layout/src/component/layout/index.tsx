@@ -31,7 +31,8 @@ import {
     ReactLayoutProps,
     GridType,
     WidgetType,
-    EditLayoutProps
+    EditLayoutProps,
+    WidgetLocation
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
@@ -68,8 +69,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const [shadow_widget, setShadowWidget] = useState<ItemPos>();
 
-    const [source_layout, setSourceLayout] = useState<LayoutItem[]>([]);
-    const pre_source_layout = useRef<LayoutItem[]>();
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
     const [rerender, setRerender] = useState<number>(0); // 重绘
 
@@ -135,21 +134,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
     }
 
     /**
-     * layout 不变不做事情
-     */
-    useEffect(() => {
-        if (!isEqual(pre_source_layout.current, source_layout)) {
-            const new_layout = source_layout.map((item) => {
-                return addPersonalValue(item);
-            });
-            compact(new_layout);
-            setLayout(new_layout);
-        }
-
-        pre_source_layout.current = source_layout;
-    }, [source_layout]);
-
-    /**
      * 根据children信息生成layout
      */
     useEffect(() => {
@@ -159,10 +143,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     const item = child.props['data-drag'] as LayoutItem;
                     ensureWidgetModelValid(item);
                     getBoundResult(item);
-                    return item;
+                    return addPersonalValue(item);
                 }
             );
-            setSourceLayout(new_layout);
+            compact(new_layout);
+            setLayout(new_layout);
         }
     }, [props.children]);
 
@@ -278,64 +263,72 @@ const ReactLayout = (props: ReactLayoutProps) => {
         operator_type.current = operator;
 
         const current_widget = getLayoutItem(item_pos);
+        let result = {};
 
         if (START_OPERATOR.includes(operator)) {
             setCurrentChecked(item_pos.i);
         }
         if (CHANGE_OPERATOR.includes(operator)) {
             current_widget.is_dragging = true;
-            getCurrentCoveredLayout(current_widget, item_pos, false, e);
+            result = getCurrentCoveredLayout(
+                current_widget,
+                item_pos,
+                false,
+                e
+            );
         }
         if (END_OPERATOR.includes(operator)) {
             setCurrentChecked(undefined);
             current_widget.is_dragging = false;
-            getCurrentCoveredLayout(current_widget, item_pos, true, e);
-            // is_save
-            // 如果要保存，只保存start current_moving，重新set
+            result = getCurrentCoveredLayout(current_widget, item_pos, true, e);
         }
 
-        return;
+        // 状态还原
+        if (
+            operator_type.current &&
+            END_OPERATOR.includes(operator_type.current)
+        ) {
+            start_droppable.current = undefined;
+            moving_droppable.current = undefined;
+        }
 
-        // const data = {
-        //     operator_type,
-        //     widget_id: item_pos.i,
-        //     source: {
-        //         layout_id: props.layout_id,
-        //         widgets: copyObject(source_layout)
-        //     }
-        // };
-        // const responders = getResponders();
-        // switch (operator_type) {
-        //     case OperatorType.dragstart:
-        //         // 触发onDragStart事件
-        //         responders.onDragStart?.(data);
-        //         break;
-        //     case OperatorType.resizestart:
-        //         responders.onResizeStart?.(data);
-        //         break;
-        //     case OperatorType.resize:
-        //         responders.onResize?.(data);
-        //         break;
-        //     case OperatorType.resizeover:
-        //         responders.onResizeStop?.(data);
-        //         break;
-        //     // drop 事件需要return回调值
-        //     case OperatorType.dropover:
-        //         return responders.onDrop?.({ ...data, widget });
-        //     case OperatorType.drag:
-        //         responders.onDrag?.({ ...data, destination });
-        //         break;
-        //     case OperatorType.dragover:
-        //         responders.onDragStop?.({ ...data, destination });
-        //         break;
-        //     case OperatorType.changeover:
-        //         responders.onPositionChange?.(data);
-        //         break;
-        // }
+        const data = {
+            type: operator,
+            widget_id: item_pos.i,
+            ...result
+        };
+        const responders = getResponders();
+        switch (operator) {
+            case OperatorType.dragstart:
+                // 触发onDragStart事件
+                responders.onDragStart?.(data);
+                break;
+            case OperatorType.resizestart:
+                responders.onResizeStart?.(data);
+                break;
+            case OperatorType.resize:
+                responders.onResize?.(data);
+                break;
+            case OperatorType.resizeover:
+                responders.onResizeStop?.(data);
+                break;
+            // // drop 事件需要return回调值
+            // case OperatorType.dropover:
+            //     return responders.onDrop?.({ ...data, widget });
+            case OperatorType.drag:
+                responders.onDrag?.(data);
+                break;
+            case OperatorType.dragover:
+                responders.onDragStop?.(data);
+                break;
+            case OperatorType.changeover:
+                responders.onPositionChange?.(data);
+                break;
+        }
 
-        // if (END_OPERATOR.includes(operator_type)) {
-        //     responders.onChange?.({ ...data, destination });
-        // }
+        if (END_OPERATOR.includes(operator)) {
+            responders.onChange?.(data);
+        }
     };
 
     const getLayoutItem = useCallback(
@@ -396,26 +389,21 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
         moving_droppable.current = covered_layout;
 
-        // 计算定位 + 移动到位
+        // 初始布局赋值
+        if (!start_droppable.current) {
+            start_droppable.current = covered_layout;
+        }
+
         if (moving_droppable.current && start_droppable.current) {
+            // 移动到位
             registry.droppable
                 .getById(start_droppable.current.id)
                 .move(widget, item_pos);
 
-            registry.droppable
+            // 计算定位
+            return registry.droppable
                 .getById(moving_droppable.current.id)
                 .addShadow(widget, is_save);
-        }
-
-        // 初始布局赋值
-        if (!start_droppable.current) {
-            start_droppable.current = covered_layout;
-        } else if (
-            operator_type.current &&
-            END_OPERATOR.includes(operator_type.current)
-        ) {
-            start_droppable.current = undefined;
-            moving_droppable.current = undefined;
         }
     };
 
@@ -445,6 +433,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const filter_layout = getFilterLayoutById(current_widget.i);
             compact(filter_layout);
             setRerender(Math.random());
+
+            return filter_layout;
         },
         [layout, getFilterLayoutById]
     );
@@ -455,9 +445,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const addShadow = useCallback(
         (current_widget: LayoutItem, is_save = false) => {
             const shadow_widget = cloneWidget(current_widget);
-
+            const filter_layout = getFilterLayoutById(current_widget.i);
             if (current_widget.type === WidgetType.grid) {
-                const filter_layout = getFilterLayoutById(current_widget.i);
                 const { top, left } = canvas_viewport_scroll_top_left.current;
 
                 if (
@@ -507,15 +496,29 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 );
 
                 compact([shadow_widget].concat(filter_layout));
-                if (is_save) {
-                    console.log([shadow_widget].concat(filter_layout));
-                    setLayout([shadow_widget].concat(filter_layout));
-                    console.log(start_droppable.current);
-                    start_droppable.current;
-                    setShadowWidget(undefined);
-                } else {
-                    setShadowWidget(shadow_widget);
-                }
+
+                setShadowWidget(shadow_widget);
+            }
+            if (start_droppable.current!.id === moving_droppable.current!.id) {
+                return {
+                    source: {
+                        layout_id: moving_droppable.current!.id,
+                        widgets: [shadow_widget].concat(filter_layout)
+                    },
+                    destination: undefined
+                };
+            } else {
+                return {
+                    source: {
+                        layout_id: start_droppable.current!.id,
+                        widgets:
+                            start_droppable.current!.deleteShadow(shadow_widget)
+                    },
+                    destination: {
+                        layout_id: moving_droppable.current!.id,
+                        widgets: [shadow_widget].concat(filter_layout)
+                    }
+                };
             }
         },
         [layout, grid]

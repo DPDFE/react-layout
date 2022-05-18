@@ -1,9 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-    LayoutEntry,
-    LayoutItemEntry,
     OperatorType,
-    ReactLayoutContextProps
+    ReactLayoutContextProps,
+    WidgetLocation
 } from '@/interfaces';
 
 import useRegistry from './registry/use-registry';
@@ -16,11 +15,6 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
 
     const [checked_index, setCurrentChecked] = useState<string>();
     const dragging_layout_id = useRef<string>();
-    const dragging_layout =
-        useRef<{
-            layout: LayoutEntry;
-            drag_item: LayoutItemEntry;
-        }>();
 
     const getResponders = useCallback(() => {
         const {
@@ -61,7 +55,6 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             checked_index,
             setCurrentChecked,
             operator_type,
-            dragging_layout,
             registry,
             getResponders,
             dragging_layout_id,
@@ -72,7 +65,6 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
         checked_index,
         setCurrentChecked,
         operator_type,
-        dragging_layout,
         registry,
         getResponders,
         dragging_layout_id,

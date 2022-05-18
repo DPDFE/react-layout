@@ -6,8 +6,8 @@ class Droppable {
     getRef: () => HTMLDivElement | null;
     getViewPortRef: () => HTMLDivElement | null;
     getCurrentLayout: () => LayoutItem[];
-    deleteShadow: (widget: LayoutItem) => void;
-    addShadow: (widget: LayoutItem, is_save?: boolean) => void;
+    deleteShadow: (widget: LayoutItem) => LayoutItem[];
+    addShadow: (widget: LayoutItem, is_save?: boolean) => any;
     move: (current_widget: LayoutItem, item_pos: ItemPos) => void;
 
     constructor({
