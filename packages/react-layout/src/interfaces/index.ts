@@ -224,6 +224,7 @@ interface EventBaseProps extends NodeProps {
 
 /** 子元素 */
 export interface WidgetItemProps extends EventBaseProps, LayoutItem {
+    need_mask?: boolean;
     canvas_viewport_ref: RefObject<HTMLDivElement>;
     cursors?: CursorType[];
     layout_id: string;

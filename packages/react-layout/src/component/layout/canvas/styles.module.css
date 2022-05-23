@@ -14,8 +14,9 @@
     transition: transition_time;
 }
 
-.no-border {
-    border: 1px solid transparent !important;
+.checked-border {
+    /* border: 0px solid transparent !important; */
+    border: 1px dashed #128ee9 !important;
 }
 
 .resize-handler {

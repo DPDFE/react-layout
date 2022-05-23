@@ -27,7 +27,6 @@ import styles from './styles.module.css';
 import './styles.module.css';
 import { LayoutContext } from '../context';
 import { useScroll } from 'ahooks';
-import { copyObject } from '@/utils/utils';
 
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children) as ReactElement;
@@ -45,8 +44,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         x,
         type,
         is_dragging,
-        is_draggable,
-        is_resizable,
         need_border_draggable_handler,
         layout_id,
         offset_x,
@@ -148,13 +145,15 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     );
 
     // 如果是置顶元素，为滚动高度，否则是自身原来高度
-    if (is_sticky_target) {
-        sticky_pos.current = pos!.top;
+    if (is_sticky_target && pos) {
+        sticky_pos.current = pos.top;
     } else {
         sticky_pos.current = props.y;
     }
 
     const y = sticky_pos.current;
+    const is_resizable = y !== props.y ? false : props.is_resizable;
+    const is_draggable = y !== props.y ? false : props.is_draggable;
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -253,24 +252,33 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         const children = [child.props.children];
 
         if (props.mode === LayoutMode.edit) {
-            if (need_border_draggable_handler) {
-                children.push(draggable_handler);
-            }
             // 拖拽过程中让所有元素都可以触发move事件
             if (
-                operator_type &&
-                [
-                    OperatorType.drag,
-                    OperatorType.drop,
-                    OperatorType.resize
-                ].includes(operator_type) &&
-                !is_parent_layout
+                (operator_type &&
+                    [
+                        OperatorType.drag,
+                        OperatorType.drop,
+                        OperatorType.resize
+                    ].includes(operator_type)) ||
+                props.need_mask
             ) {
                 children.push(mask_handler);
             }
+            // 让drag_handler放置在最上面
+            if (need_border_draggable_handler) {
+                children.push(draggable_handler);
+            }
         }
+
         return children;
-    }, [operator_type, child, need_border_draggable_handler, is_parent_layout]);
+    }, [
+        operator_type,
+        child,
+        need_border_draggable_handler,
+        is_parent_layout,
+        props.is_checked,
+        props.is_placeholder
+    ]);
 
     const setTransition = () => {
         const transition = 'all 0.1s linear';
@@ -314,7 +322,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         className: `${[
             child.props.className,
             styles.layout_item,
-            props.is_checked ? styles['no-border'] : ''
+            props.is_checked && !props.is_placeholder
+                ? styles['checked-border']
+                : ''
         ].join(' ')}`,
         style: {
             border: '1px solid transparent',
@@ -322,14 +332,13 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             width: w,
             height: h,
             ...child.props.style,
-            ...(is_dragging && { zIndex: 1000 }),
             pointerEvents:
                 is_dragging || props.is_placeholder ? 'none' : 'auto',
             cursor:
                 props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'
                     : 'inherit',
-            zIndex: is_sticky_target ? 1000 : 'auto'
+            zIndex: is_sticky_target || is_dragging ? 1000 : 'auto'
         },
         children: getCurrentChildren()
     });
@@ -476,10 +485,11 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 <Resizable
                     key={unique_id}
                     style={{
-                        mixBlendMode: 'difference',
-                        filter: 'invert(0)',
-                        backgroundColor: '#ed7116',
-                        zIndex: 200
+                        // mixBlendMode: 'difference',
+                        // filter: 'invert(0)',
+                        backgroundColor: '#128ee9',
+                        zIndex: is_sticky_target || is_dragging ? 1000 : 'auto'
+                        // zIndex: 200
                     }}
                     ref={item_ref}
                     {...{ x, y, h, w, i, type }}
@@ -517,23 +527,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     {new_child}
                 </Resizable>
             </Draggable>
-            {props.is_checked && !props.is_placeholder && (
-                <div
-                    className='checked_border'
-                    style={{
-                        position: is_dragging ? 'fixed' : 'absolute',
-                        transform: `translate(${props.x}px,${props.y}px)`,
-                        width: w,
-                        height: h,
-                        pointerEvents: 'none',
-                        backgroundColor: 'transparent',
-                        mixBlendMode: 'difference',
-                        filter: 'invert(0)',
-                        // borderRadius: 5,
-                        border: '1px dashed #ed7116' // #ed7116
-                    }}
-                ></div>
-            )}
         </React.Fragment>
     );
 });
