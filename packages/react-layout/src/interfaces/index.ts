@@ -209,6 +209,7 @@ export interface LayoutItem extends ItemPos {
     moved?: boolean;
     is_dragging?: boolean;
     is_checked?: boolean;
+    need_mask?: boolean;
     need_border_draggable_handler?: boolean;
     draggable_cancel_handler?: string;
 }
