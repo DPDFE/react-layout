@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     OperatorType,
     ReactLayoutContextProps,
-    WidgetLocation
+    StickyTarget
 } from '@/interfaces';
 
 import useRegistry from './registry/use-registry';
@@ -12,6 +12,9 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
     const start_droppable = useRef<Droppable>(); // 开始拖拽的布局
     const moving_droppable = useRef<Droppable>(); // 拖拽中覆盖的布局
     const operator_type = useRef<OperatorType>();
+    const sticky_target_queue = useRef<StickyTarget[]>([]);
+    const sticky_target_idx_queue = useRef<string[]>([]);
+    const sticky_target_queue_mappings = useRef<Record<string, string[]>>({});
 
     const [checked_index, setCurrentChecked] = useState<string>();
     const dragging_layout_id = useRef<string>();
@@ -52,6 +55,9 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
 
     return useMemo(() => {
         return {
+            sticky_target_queue,
+            sticky_target_idx_queue,
+            sticky_target_queue_mappings,
             checked_index,
             setCurrentChecked,
             operator_type,
@@ -62,6 +68,9 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             moving_droppable
         };
     }, [
+        sticky_target_queue,
+        sticky_target_idx_queue,
+        sticky_target_queue_mappings,
         checked_index,
         setCurrentChecked,
         operator_type,

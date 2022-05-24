@@ -599,6 +599,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     is_resizable={false}
                     is_draggable={false}
                     is_checked={false}
+                    canvas_viewport_ref={canvas_viewport_ref}
                 >
                     <div
                         className={`react-drag-placeholder ${styles.placeholder}`}
@@ -637,6 +638,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     is_resizable={
                         widget.is_resizable && checked_index === widget.i
                     }
+                    is_sticky={widget.is_sticky}
+                    canvas_viewport_ref={canvas_viewport_ref}
                     setCurrentChecked={
                         props.mode === LayoutMode.edit
                             ? setCurrentChecked

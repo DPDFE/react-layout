@@ -90,6 +90,55 @@ const DefaultLayout = () => {
                 h: 2,
                 x: 0,
                 y: 0,
+                is_sticky: true,
+                type: WidgetType.grid,
+                is_resizable: true,
+                is_draggable: true,
+                is_nested: false
+            },
+            {
+                i: '1-2',
+                w: 2,
+                h: 2,
+                x: 0,
+                y: 0,
+                is_sticky: true,
+                type: WidgetType.grid,
+                is_resizable: true,
+                is_draggable: true,
+                is_nested: false
+            },
+            {
+                i: '1-3',
+                w: 2,
+                h: 2,
+                x: 0,
+                y: 0,
+                is_sticky: true,
+                type: WidgetType.grid,
+                is_resizable: true,
+                is_draggable: true,
+                is_nested: false
+            },
+            {
+                i: '1-4',
+                w: 2,
+                h: 2,
+                x: 0,
+                y: 0,
+                is_sticky: true,
+                type: WidgetType.grid,
+                is_resizable: true,
+                is_draggable: true,
+                is_nested: false
+            },
+            {
+                i: '1-5',
+                w: 2,
+                h: 2,
+                x: 0,
+                y: 0,
+                is_sticky: true,
                 type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
@@ -119,6 +168,7 @@ const DefaultLayout = () => {
                 w: 4,
                 h: 10,
                 i: '1',
+                is_sticky: true,
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
@@ -131,6 +181,7 @@ const DefaultLayout = () => {
                 w: 2,
                 h: 5,
                 i: '2',
+                is_sticky: true,
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
@@ -143,52 +194,55 @@ const DefaultLayout = () => {
                 w: 4,
                 h: 10,
                 i: '3',
+                // is_sticky: true,
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
                 has_inner_layout: true,
                 is_droppable: true
+            },
+            {
+                x: 0,
+                y: 10,
+                w: 2,
+                h: 3,
+                i: '6',
+                is_resizable: true,
+                is_draggable: true,
+                type: WidgetType.grid
+            },
+            {
+                x: 0,
+                y: 20,
+                w: 2,
+                h: 4,
+                i: '7',
+                is_resizable: true,
+                is_draggable: true,
+                type: WidgetType.grid
+            },
+            {
+                x: 0,
+                y: 1,
+                w: 2,
+                h: 3,
+                i: '8',
+                is_sticky: true,
+                is_resizable: true,
+                is_draggable: true,
+                type: WidgetType.grid
+            },
+            {
+                x: 0,
+                y: 1,
+                w: 2,
+                h: 2,
+                i: '9',
+                is_sticky: true,
+                is_resizable: true,
+                is_draggable: true,
+                type: WidgetType.grid
             }
-            // {
-            //     x: 0,
-            //     y: 10,
-            //     w: 2,
-            //     h: 3,
-            //     i: '6',
-            //     is_resizable: true,
-            //     is_draggable: true,
-            //     type: WidgetType.grid,
-            // }
-            // {
-            //     x: 2,
-            //     y: 0,
-            //     w: 2,
-            //     h: 4,
-            //     i: '2',
-            //     is_resizable: true,
-            //     is_draggable: true,
-            //    type: WidgetType.grid,
-            // },
-            // {
-            //     x: 4,
-            //     y: 1,
-            //     w: 2,
-            //     h: 3,
-            //     i: '3',
-            //     is_resizable: true,
-            //     is_draggable: true,
-            //     type: WidgetType.grid,
-            // },
-            // {
-            //     x: 6,
-            //     y: 1,
-            //     w: 2,
-            //     h: 2,
-            //     i: '4',
-            //     is_resizable: true,
-            //     is_draggable: true,
-            //     type: WidgetType.grid,
-            // }
         ];
         // return Array.from({ length: 3 }).map((_, i) => {
         //     return {
@@ -223,6 +277,7 @@ const DefaultLayout = () => {
                 style={{
                     background: '#fff'
                 }}
+                is_droppable={true}
                 layout_id={'widgets3'}
                 widgets={widgets3}
                 layout_type={LayoutType.GRID}
@@ -679,13 +734,14 @@ const DefaultLayout = () => {
                                             </TabPane>
                                             <TabPane tab='Tab 3' key='3'>
                                                 <ReactLayout
+                                                    is_droppable={true}
+                                                    style={{
+                                                        background: '#fff'
+                                                    }}
                                                     layout_id={'tab 3'}
                                                     layout_type={
                                                         LayoutType.GRID
                                                     }
-                                                    style={{
-                                                        background: '#fff'
-                                                    }}
                                                     mode={LayoutMode.edit}
                                                     container_padding={[
                                                         10, 10, 10, 10
