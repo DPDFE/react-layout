@@ -5,6 +5,8 @@ export interface StickyTarget {
     max_x: number;
     min_x: number;
     y: number;
+    is_sticky: boolean; // 当前置顶
+    replace_targets: string[]; // 关联元素 A => [B,C] 当前元素替换了的元素，当当前元素还原，替换元素也还原
 }
 
 export enum OperatorType {

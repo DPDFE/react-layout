@@ -9,12 +9,12 @@ import useRegistry from './registry/use-registry';
 import Droppable from './droppable';
 
 export const useLayoutContext = (props: ReactLayoutContextProps) => {
+    const operator_type = useRef<OperatorType>(); // 操作状态
+
     const start_droppable = useRef<Droppable>(); // 开始拖拽的布局
     const moving_droppable = useRef<Droppable>(); // 拖拽中覆盖的布局
-    const operator_type = useRef<OperatorType>();
-    const sticky_target_queue = useRef<StickyTarget[]>([]);
-    const sticky_target_idx_queue = useRef<string[]>([]);
-    const sticky_target_queue_mappings = useRef<Record<string, string[]>>({});
+
+    const sticky_target_queue = useRef<StickyTarget[]>([]); //当前置顶元素列表
 
     const [checked_index, setCurrentChecked] = useState<string>();
     const dragging_layout_id = useRef<string>();
@@ -56,8 +56,6 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
     return useMemo(() => {
         return {
             sticky_target_queue,
-            sticky_target_idx_queue,
-            sticky_target_queue_mappings,
             checked_index,
             setCurrentChecked,
             operator_type,
@@ -69,8 +67,6 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
         };
     }, [
         sticky_target_queue,
-        sticky_target_idx_queue,
-        sticky_target_queue_mappings,
         checked_index,
         setCurrentChecked,
         operator_type,

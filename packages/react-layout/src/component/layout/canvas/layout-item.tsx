@@ -57,13 +57,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         is_sticky
     } = props;
 
-    const {
-        operator_type,
-        registry,
-        sticky_target_queue,
-        sticky_target_idx_queue,
-        sticky_target_queue_mappings
-    } = useContext(LayoutContext);
+    const { operator_type, registry, sticky_target_queue } =
+        useContext(LayoutContext);
 
     const pos = useScroll(props.canvas_viewport_ref.current);
     const sticky_pos = useRef<number>(props.y);
@@ -71,80 +66,70 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     if (is_sticky && pos) {
         // 页面滚动到当前元素位置
         if (pos.top - props.y > 0) {
-            // 是否为当前正在滚动元素
-            if (
-                sticky_target_queue.current.filter((q) => q.id === i).length ===
-                0
-            ) {
+            // 曾经被添加过后被挤掉的元素不允许重新添加，滚动到过的元素
+            const target = sticky_target_queue.current.find((q) => q.id === i);
+
+            if (!target) {
+                const replace_targets: string[] = [];
                 // 判断两条线相交
-                const filter = sticky_target_queue.current.filter((q) => {
-                    // 不相交
-                    if (q.max_x < x || q.min_x > x + w) {
-                        return true;
-                    } else {
-                        // 相交
-                        //挤掉上面同位置的元素
-                        if (q.y > props.y) {
-                            return true;
+                sticky_target_queue.current = sticky_target_queue.current
+                    .map((q) => {
+                        // 不相交
+                        if (q.max_x < x || q.min_x > x + w) {
+                            return q;
+                        } else {
+                            // 相交
+                            //当前元素位于sticky元素上方 不操作
+                            if (q.y > props.y) {
+                                return q;
+                            }
+                            // 记录当前元素挤掉的元素，当当前元素还原后，被挤掉元素状态也可被还原
+                            if (
+                                !replace_targets.includes(q.id) &&
+                                q.is_sticky
+                            ) {
+                                replace_targets.push(q.id);
+                            }
+                            q.is_sticky = false;
+                            return q;
                         }
-                        // 记录当前元素挤掉的元素，当当前元素还原后，被挤掉元素状态也可被还原
-                        if (!sticky_target_queue_mappings.current[i]) {
-                            sticky_target_queue_mappings.current[i] = [];
-                        }
-                        if (
-                            !sticky_target_queue_mappings.current[i].includes(
-                                q.id
-                            )
-                        ) {
-                            sticky_target_queue_mappings.current[i].push(q.id);
-                        }
-
-                        return false;
-                    }
-                });
-
-                // 曾经被添加过后被挤掉的元素不允许重新添加
-                if (!sticky_target_idx_queue.current.includes(i)) {
-                    sticky_target_queue.current = [
-                        ...filter,
+                    })
+                    .concat([
+                        // 如果页面的grid发生变化，这里计算的值应该会有问题
                         {
                             id: i,
                             max_x: x + w,
                             min_x: x,
-                            y: props.y
+                            y: props.y,
+                            is_sticky: true,
+                            replace_targets
                         }
-                    ];
-                }
-
-                // 标记被添加过
-                if (!sticky_target_idx_queue.current.includes(i)) {
-                    sticky_target_idx_queue.current.push(i);
-                }
+                    ]);
             }
         } else {
             // 高度还没有当前元素
             // 还原当前元素状态
-            sticky_target_queue.current = sticky_target_queue.current.filter(
-                (q) => q.id != i
-            );
-            // 还原被当前元素挤掉元素状态
-            sticky_target_idx_queue.current =
-                sticky_target_idx_queue.current.filter(
-                    (q) =>
-                        q != i &&
-                        !sticky_target_queue_mappings.current[i]?.includes(q)
-                );
+            const target = sticky_target_queue.current.find((q) => q.id == i);
 
-            delete sticky_target_queue_mappings.current[i];
+            if (target) {
+                sticky_target_queue.current = sticky_target_queue.current
+                    .map((q) => {
+                        if (target.replace_targets.includes(q.id)) {
+                            q.is_sticky = true;
+                        }
+                        return q;
+                    })
+                    .filter((q) => q.id !== i);
+            }
         }
     }
 
-    // 可以同时置顶一批元素
+    // 可以同时置顶一批元素，当前元素，没有被顶掉
     const is_sticky_target = sticky_target_queue.current.find(
-        (q) => q.id === i
+        (q) => q.id === i && q.is_sticky
     );
 
-    // 如果是置顶元素，为滚动高度，否则是自身原来高度
+    // 当前置顶的元素，是否处于置顶状态，如果处于置顶状态高度为滚动高度，否则是自身原来高度
     if (is_sticky_target && pos) {
         sticky_pos.current = pos.top;
     } else {
