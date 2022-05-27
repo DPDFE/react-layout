@@ -44,6 +44,7 @@ import drawGridLines from './grid-lines';
 import classNames from 'classnames';
 import Droppable from './context/droppable';
 import { END_OPERATOR, START_OPERATOR, CHANGE_OPERATOR } from './constants';
+import { useScroll } from 'ahooks';
 
 const ReactLayout = (props: ReactLayoutProps) => {
     const {
@@ -72,6 +73,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
     const [rerender, setRerender] = useState<number>(0); // 重绘
 
+    const pos = useScroll(canvas_viewport_ref.current);
+
     const layout_name = useMemo(() => {
         return `${props.layout_id}`;
     }, []);
@@ -86,7 +89,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         l_offset,
         padding,
         is_child_layout,
-        canvas_viewport_scroll_top_left,
         getBoundResult,
         getCurrentBound,
         snapToDrag,
@@ -281,13 +283,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             setCurrentChecked(undefined);
             current_widget.is_dragging = false;
             result = getCurrentCoveredLayout(current_widget, item_pos, true, e);
-        }
 
-        // 状态还原
-        if (
-            operator_type.current &&
-            END_OPERATOR.includes(operator_type.current)
-        ) {
             start_droppable.current = undefined;
             moving_droppable.current = undefined;
         }
@@ -447,7 +443,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const shadow_widget = cloneWidget(current_widget);
             const filter_layout = getFilterLayoutById(current_widget.i);
             if (current_widget.type === WidgetType.grid) {
-                const { top, left } = canvas_viewport_scroll_top_left.current;
+                // const { top, left } =
+                //     shadow_widget.is_dragging && pos
+                //         ? { top: pos.top, left: pos.left }
+                //         : { top: 0, left: 0 };
+                // console.log(top, left);
 
                 if (
                     moving_droppable.current?.id !== start_droppable.current?.id
@@ -465,9 +465,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     }
                 }
 
+                // shadow_widget.x += left;
+                // shadow_widget.y += top;
+
                 if (is_save) {
-                    shadow_widget.x += left;
-                    shadow_widget.y += top;
                 }
 
                 snapToGrid(shadow_widget);

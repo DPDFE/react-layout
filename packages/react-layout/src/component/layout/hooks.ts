@@ -25,6 +25,7 @@ import {
 import ResizeObserver from 'resize-observer-polyfill';
 import { LayoutContext } from './context';
 import { clamp, DEFAULT_BOUND } from './canvas/draggable';
+import { useScroll } from 'ahooks';
 
 export const useLayoutHooks = (
     layout: LayoutItem[],
@@ -46,7 +47,7 @@ export const useLayoutHooks = (
 
     const { operator_type } = useContext(LayoutContext);
 
-    const canvas_viewport_scroll_top_left = useRef({ top: 0, left: 0 });
+    const pos = useScroll(canvas_viewport_ref.current);
 
     const [is_child_layout, setIsChildLayout] = useState(props.is_child_layout);
 
@@ -246,9 +247,11 @@ export const useLayoutHooks = (
         const { offset_x, offset_y, margin_height, margin_width } =
             layout_item_strategy[type]();
 
-        const { top, left } = is_dragging
-            ? canvas_viewport_scroll_top_left.current
-            : { top: 0, left: 0 };
+        const { top, left } = { top: 0, left: 0 };
+        // const { top, left } =
+        //     is_dragging && pos
+        //         ? { top: pos.top, left: pos.left }
+        //         : { top: 0, left: 0 };
 
         const w = Math.max(gridX(l.w) - margin_width, 0);
         const h = Math.max(gridY(l.h) - margin_height, 0);
@@ -412,34 +415,6 @@ export const useLayoutHooks = (
             );
     }, []);
 
-    useLayoutEffect(() => {
-        if (!is_child_layout) return;
-        const onScroll = () => {
-            let top = 0;
-            let left = 0;
-            if (is_child_layout) {
-                top = canvas_viewport_ref.current?.scrollTop ?? 0;
-                left = canvas_viewport_ref.current?.scrollLeft ?? 0;
-            }
-            canvas_viewport_scroll_top_left.current.top = top;
-            canvas_viewport_scroll_top_left.current.left = left;
-        };
-
-        canvas_viewport_ref.current?.addEventListener(
-            'scroll',
-            onScroll,
-            false
-        );
-
-        return () => {
-            canvas_viewport_ref.current?.removeEventListener(
-                'scroll',
-                onScroll,
-                false
-            );
-        };
-    }, [canvas_viewport_ref.current]);
-
     return {
         padding,
         is_window_resize,
@@ -451,7 +426,6 @@ export const useLayoutHooks = (
         t_offset,
         l_offset,
         is_child_layout,
-        canvas_viewport_scroll_top_left,
         snapToGrid,
         getCurrentBound,
         getBoundResult,

@@ -5,7 +5,7 @@ import {
     StickyTarget
 } from '@/interfaces';
 
-import useRegistry from './registry/use-registry';
+import useRegistry from './registry/use';
 import Droppable from './droppable';
 
 export const useLayoutContext = (props: ReactLayoutContextProps) => {
