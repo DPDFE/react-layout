@@ -3,13 +3,17 @@ import {
     LayoutEntry,
     LayoutItemEntry,
     OperatorType,
-    ReactLayoutContextProps
+    ReactLayoutContextProps,
+    StickyTarget
 } from '@/interfaces';
 import { addEvent, removeEvent } from '@dpdfe/event-utils';
 
 import useRegistry from './registry/use-registry';
 
 export const useLayoutContext = (props: ReactLayoutContextProps) => {
+    const sticky_target_queue = useRef<StickyTarget[]>([]);
+    const sticky_target_idx_queue = useRef<string[]>([]);
+    const sticky_target_queue_mappings = useRef<Record<string, string[]>>({});
     const [checked_index, setCurrentChecked] = useState<string>();
     const [operator_type, setOperatorType] = useState<OperatorType>();
     const dragging_layout_id = useRef<string>();
@@ -147,6 +151,9 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
 
     return useMemo(() => {
         return {
+            sticky_target_queue,
+            sticky_target_idx_queue,
+            sticky_target_queue_mappings,
             checked_index,
             setCurrentChecked,
             operator_type,
@@ -157,6 +164,9 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             dragging_layout_id
         };
     }, [
+        sticky_target_queue,
+        sticky_target_idx_queue,
+        sticky_target_queue_mappings,
         checked_index,
         setCurrentChecked,
         operator_type,

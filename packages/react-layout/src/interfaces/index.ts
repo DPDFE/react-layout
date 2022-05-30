@@ -6,6 +6,13 @@ import React, {
     RefObject
 } from 'react';
 
+export interface StickyTarget {
+    id: string;
+    max_x: number;
+    min_x: number;
+    y: number;
+}
+
 export enum OperatorType {
     dragstart = 'dragstart',
     drag = 'drag',
@@ -195,12 +202,14 @@ export interface GuideLineProps {
 export interface LayoutItem extends ItemPos {
     min_w?: number;
     min_h?: number;
+    is_sticky?: boolean;
     is_draggable?: boolean;
     is_resizable?: boolean;
     is_child_layout?: boolean; // 子布局的元素
     moved?: boolean;
     is_dragging?: boolean;
     is_checked?: boolean;
+    need_mask?: boolean;
     need_border_draggable_handler?: boolean;
     draggable_cancel_handler?: string;
 }
@@ -216,6 +225,8 @@ interface EventBaseProps extends NodeProps {
 
 /** 子元素 */
 export interface WidgetItemProps extends EventBaseProps, LayoutItem {
+    need_mask?: boolean;
+    canvas_viewport_ref: RefObject<HTMLDivElement>;
     cursors?: CursorType[];
     layout_id: string;
     offset_x: number;

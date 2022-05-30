@@ -20,12 +20,13 @@ import React, {
 } from 'react';
 
 import { MIN_DRAG_LENGTH } from '../calc';
-import Draggable from './draggable';
+import Draggable, { clamp } from './draggable';
 import Resizable from './resizable';
 // vite在watch模式下检测style变化需要先将内容引进来才能监听到
 import styles from './styles.module.css';
 import './styles.module.css';
 import { LayoutContext } from '../context';
+import { useScroll } from 'ahooks';
 
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children) as ReactElement;
@@ -41,11 +42,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         w,
         h,
         x,
-        y,
         type,
         is_dragging,
-        is_draggable,
-        is_resizable,
         need_border_draggable_handler,
         layout_id,
         offset_x,
@@ -55,10 +53,107 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         min_x,
         max_x,
         min_y,
-        max_y
+        max_y,
+        is_sticky
     } = props;
 
-    const { operator_type, registry } = useContext(LayoutContext);
+    const {
+        operator_type,
+        registry,
+        sticky_target_queue,
+        sticky_target_idx_queue,
+        sticky_target_queue_mappings
+    } = useContext(LayoutContext);
+
+    const pos = useScroll(props.canvas_viewport_ref.current);
+    const sticky_pos = useRef<number>(props.y);
+
+    if (is_sticky && pos) {
+        // 页面滚动到当前元素位置
+        if (pos.top - props.y > 0) {
+            // 是否为当前正在滚动元素
+            if (
+                sticky_target_queue.current.filter((q) => q.id === i).length ===
+                0
+            ) {
+                // 判断两条线相交
+                const filter = sticky_target_queue.current.filter((q) => {
+                    // 不相交
+                    if (q.max_x < x || q.min_x > x + w) {
+                        return true;
+                    } else {
+                        // 相交
+                        //挤掉上面同位置的元素
+                        if (q.y > props.y) {
+                            return true;
+                        }
+                        // 记录当前元素挤掉的元素，当当前元素还原后，被挤掉元素状态也可被还原
+                        if (!sticky_target_queue_mappings.current[i]) {
+                            sticky_target_queue_mappings.current[i] = [];
+                        }
+                        if (
+                            !sticky_target_queue_mappings.current[i].includes(
+                                q.id
+                            )
+                        ) {
+                            sticky_target_queue_mappings.current[i].push(q.id);
+                        }
+
+                        return false;
+                    }
+                });
+
+                // 曾经被添加过后被挤掉的元素不允许重新添加
+                if (!sticky_target_idx_queue.current.includes(i)) {
+                    sticky_target_queue.current = [
+                        ...filter,
+                        {
+                            id: i,
+                            max_x: x + w,
+                            min_x: x,
+                            y: props.y
+                        }
+                    ];
+                }
+
+                // 标记被添加过
+                if (!sticky_target_idx_queue.current.includes(i)) {
+                    sticky_target_idx_queue.current.push(i);
+                }
+            }
+        } else {
+            // 高度还没有当前元素
+            // 还原当前元素状态
+            sticky_target_queue.current = sticky_target_queue.current.filter(
+                (q) => q.id != i
+            );
+            // 还原被当前元素挤掉元素状态
+            sticky_target_idx_queue.current =
+                sticky_target_idx_queue.current.filter(
+                    (q) =>
+                        q != i &&
+                        !sticky_target_queue_mappings.current[i]?.includes(q)
+                );
+
+            delete sticky_target_queue_mappings.current[i];
+        }
+    }
+
+    // 可以同时置顶一批元素
+    const is_sticky_target = sticky_target_queue.current.find(
+        (q) => q.id === i && is_sticky
+    );
+
+    // 如果是置顶元素，为滚动高度，否则是自身原来高度
+    if (is_sticky_target && pos) {
+        sticky_pos.current = pos.top;
+    } else {
+        sticky_pos.current = props.y;
+    }
+
+    const y = sticky_pos.current;
+    const is_resizable = y !== props.y ? false : props.is_resizable;
+    const is_draggable = y !== props.y ? false : props.is_draggable;
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -157,31 +252,40 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         const children = [child.props.children];
 
         if (props.mode === LayoutMode.edit) {
-            if (need_border_draggable_handler) {
-                children.push(draggable_handler);
-            }
             // 拖拽过程中让所有元素都可以触发move事件
             if (
-                operator_type &&
-                [
-                    OperatorType.drag,
-                    OperatorType.drop,
-                    OperatorType.resize
-                ].includes(operator_type) &&
-                !is_parent_layout
+                (operator_type &&
+                    [
+                        OperatorType.drag,
+                        OperatorType.drop,
+                        OperatorType.resize
+                    ].includes(operator_type)) ||
+                props.need_mask
             ) {
                 children.push(mask_handler);
             }
+            // 让drag_handler放置在最上面
+            if (need_border_draggable_handler) {
+                children.push(draggable_handler);
+            }
         }
+
         return children;
-    }, [operator_type, child, need_border_draggable_handler, is_parent_layout]);
+    }, [
+        operator_type,
+        child,
+        need_border_draggable_handler,
+        is_parent_layout,
+        props.is_checked,
+        props.is_placeholder
+    ]);
 
     const setTransition = () => {
         const transition = 'all 0.1s linear';
 
         if (props.is_placeholder) return transition;
 
-        if (props.is_checked || !is_ready) return 'none';
+        if (props.is_checked || !is_ready || is_sticky) return 'none';
 
         return transition;
     };
@@ -218,7 +322,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         className: `${[
             child.props.className,
             styles.layout_item,
-            props.is_checked ? styles['no-border'] : ''
+            props.is_checked && !props.is_placeholder
+                ? styles['checked-border']
+                : ''
         ].join(' ')}`,
         style: {
             border: '1px solid transparent',
@@ -226,13 +332,13 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             width: w,
             height: h,
             ...child.props.style,
-            ...(is_dragging && { zIndex: 1000 }),
             pointerEvents:
                 is_dragging || props.is_placeholder ? 'none' : 'auto',
             cursor:
                 props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'
-                    : 'inherit'
+                    : 'inherit',
+            zIndex: is_sticky_target || is_dragging ? 1000 : 'auto'
         },
         children: getCurrentChildren()
     });
@@ -379,10 +485,11 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 <Resizable
                     key={unique_id}
                     style={{
-                        mixBlendMode: 'difference',
-                        filter: 'invert(0)',
-                        backgroundColor: '#ed7116',
-                        zIndex: 200
+                        // mixBlendMode: 'difference',
+                        // filter: 'invert(0)',
+                        backgroundColor: '#128ee9',
+                        zIndex: is_sticky_target || is_dragging ? 1000 : 'auto'
+                        // zIndex: 200
                     }}
                     ref={item_ref}
                     {...{ x, y, h, w, i, type }}
@@ -420,23 +527,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     {new_child}
                 </Resizable>
             </Draggable>
-            {props.is_checked && !props.is_placeholder && (
-                <div
-                    className='checked_border'
-                    style={{
-                        position: is_dragging ? 'fixed' : 'absolute',
-                        transform: `translate(${props.x}px,${props.y}px)`,
-                        width: w,
-                        height: h,
-                        pointerEvents: 'none',
-                        backgroundColor: 'transparent',
-                        mixBlendMode: 'difference',
-                        filter: 'invert(0)',
-                        // borderRadius: 5,
-                        border: '1px dashed #ed7116' // #ed7116
-                    }}
-                ></div>
-            )}
         </React.Fragment>
     );
 });
@@ -465,7 +555,8 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                     'onResizeStart',
                     'onResize',
                     'onResizeStop',
-                    'onPositionChange'
+                    'onPositionChange',
+                    'canvas_viewport_ref'
                 ].includes(key)
             ) {
                 return true;
