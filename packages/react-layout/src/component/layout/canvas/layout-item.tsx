@@ -141,7 +141,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     // 可以同时置顶一批元素
     const is_sticky_target = sticky_target_queue.current.find(
-        (q) => q.id === i
+        (q) => q.id === i && is_sticky
     );
 
     // 如果是置顶元素，为滚动高度，否则是自身原来高度
