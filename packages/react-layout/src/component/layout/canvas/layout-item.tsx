@@ -459,7 +459,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     );
                 }}
                 onDragStop={({ e, x, y }) => {
-                    console.log(x, y);
                     props.onDragStop?.(
                         {
                             x: x - offset_x,

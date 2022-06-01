@@ -443,11 +443,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const shadow_widget = cloneWidget(current_widget);
             const filter_layout = getFilterLayoutById(current_widget.i);
             if (current_widget.type === WidgetType.grid) {
-                // const { top, left } =
-                //     shadow_widget.is_dragging && pos
-                //         ? { top: pos.top, left: pos.left }
-                //         : { top: 0, left: 0 };
-                // console.log(top, left);
+                const { top, left } =
+                    shadow_widget.is_dragging && pos
+                        ? { top: pos.top, left: pos.left }
+                        : { top: 0, left: 0 };
 
                 if (
                     moving_droppable.current?.id !== start_droppable.current?.id
@@ -465,8 +464,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     }
                 }
 
-                // shadow_widget.x += left;
-                // shadow_widget.y += top;
+                shadow_widget.x += left;
+                shadow_widget.y += top;
+
+                console.log(shadow_widget);
 
                 if (is_save) {
                 }
@@ -761,6 +762,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                     ? '100%'
                                     : wrapper_width,
                             height: wrapper_height
+                            /**
+                             * 元素在拖拽出画布时，使用的是fixed定位
+                             */
+                            // filter: 'opacity(1)'
                         }}
                         /** 阻止了onDragOver以后，onDrop事件才生效 */
                         onDrop={

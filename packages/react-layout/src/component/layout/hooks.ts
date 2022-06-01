@@ -247,11 +247,11 @@ export const useLayoutHooks = (
         const { offset_x, offset_y, margin_height, margin_width } =
             layout_item_strategy[type]();
 
-        const { top, left } = { top: 0, left: 0 };
-        // const { top, left } =
-        //     is_dragging && pos
-        //         ? { top: pos.top, left: pos.left }
-        //         : { top: 0, left: 0 };
+        // const { top, left } = { top: 0, left: 0 };
+        const { top, left } =
+            is_dragging && pos
+                ? { top: pos.top, left: pos.left }
+                : { top: 0, left: 0 };
 
         const w = Math.max(gridX(l.w) - margin_width, 0);
         const h = Math.max(gridY(l.h) - margin_height, 0);
