@@ -415,7 +415,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const move = useCallback(
         (current_widget: LayoutItem, item_pos: ItemPos) => {
             moveToWidget(current_widget, item_pos);
-            setRerender(Math.random());
         },
         [layout]
     );
@@ -443,31 +442,26 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const shadow_widget = cloneWidget(current_widget);
             const filter_layout = getFilterLayoutById(current_widget.i);
             if (current_widget.type === WidgetType.grid) {
-                const { top, left } =
-                    shadow_widget.is_dragging && pos
-                        ? { top: pos.top, left: pos.left }
-                        : { top: 0, left: 0 };
-
                 if (
                     moving_droppable.current?.id !== start_droppable.current?.id
                 ) {
-                    const moving_pos = moving_droppable.current
-                        ?.getViewPortRef()
-                        ?.getBoundingClientRect();
-                    const start_pos = start_droppable.current
-                        ?.getViewPortRef()
-                        ?.getBoundingClientRect();
+                    /**
+                     * 画布元素相对于实际画布[0,0]进行坐标变换，不针对视窗变化处理
+                     */
+                    const moving_pos = (
+                        moving_droppable.current?.getViewPortRef()
+                            ?.firstChild as HTMLElement
+                    ).getBoundingClientRect();
+                    const start_pos = (
+                        start_droppable.current?.getViewPortRef()
+                            ?.firstChild as HTMLElement
+                    ).getBoundingClientRect();
 
                     if (start_pos && moving_pos) {
                         shadow_widget.x -= moving_pos.left - start_pos.left;
                         shadow_widget.y -= moving_pos.top - start_pos.top;
                     }
                 }
-
-                shadow_widget.x += left;
-                shadow_widget.y += top;
-
-                console.log(shadow_widget);
 
                 if (is_save) {
                 }

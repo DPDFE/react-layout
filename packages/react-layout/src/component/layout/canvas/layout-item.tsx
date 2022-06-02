@@ -432,8 +432,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             <Draggable
                 {...{ x, y, h, w, i }}
                 threshold={5}
-                use_css_transform={!is_parent_layout || is_dragging}
-                use_css_fixed={is_dragging}
+                use_css_transform
                 scale={props.scale}
                 is_draggable={is_draggable}
                 onDragStart={(e) => {
@@ -484,8 +483,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     ref={item_ref}
                     {...{ x, y, h, w, i, type }}
                     scale={props.scale}
-                    use_css_transform={!is_parent_layout || is_dragging}
-                    use_css_fixed={is_dragging}
+                    use_css_transform
                     is_resizable={is_resizable}
                     onResizeStart={(e) => {
                         props.onResizeStart?.(e);

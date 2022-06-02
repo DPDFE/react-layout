@@ -264,7 +264,6 @@ export interface DraggableProps extends EventBaseProps {
     bound?: Partial<BoundType>;
     is_draggable?: boolean;
     use_css_transform?: boolean;
-    use_css_fixed?: boolean;
     draggable_cancel_handler?: string;
     draggable_handler?: string;
     onDragStart?: (e: MouseEvent) => void;
@@ -275,7 +274,6 @@ export interface DraggableProps extends EventBaseProps {
 export interface CursorProps extends Omit<DraggableProps, 'children'> {
     cursor: CursorType;
     use_css_transform?: boolean;
-    use_css_fixed?: boolean;
     onDrag?: ({ e, x, y, cursor }: CursorPointer) => void;
     onDragStop?: ({ e, x, y, cursor }: CursorPointer) => void;
 }
@@ -293,7 +291,6 @@ export interface ResizableProps extends EventBaseProps {
     bound?: BoundType;
     is_resizable?: boolean;
     use_css_transform?: boolean;
-    use_css_fixed?: boolean;
     cursors?: CursorType[];
     onResizeStart?: (e: MouseEvent) => void;
     onResize?: ({

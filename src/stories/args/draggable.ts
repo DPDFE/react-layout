@@ -113,19 +113,6 @@ export const draggable_arg_types = {
             defaultValue: { summary: true }
         }
     },
-    use_css_fixed: {
-        type: {
-            type: 'boolean',
-            required: false
-        },
-        control: { type: 'boolean' },
-        description: '需要position:fixed',
-        defaultValue: false,
-        table: {
-            type: { summary: 'boolean' },
-            defaultValue: { summary: false }
-        }
-    },
     draggable_cancel_handler: {
         type: {
             type: 'string',

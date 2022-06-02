@@ -227,7 +227,7 @@ const Draggable = (props: DraggableProps) => {
             ...(props.use_css_transform
                 ? setTransform(props.x, props.y)
                 : setTopLeft(props.x, props.y)),
-            position: props.use_css_fixed ? 'fixed' : 'absolute'
+            position: 'absolute'
         }
     });
 
@@ -238,7 +238,6 @@ Draggable.defaultProps = {
     threshold: 0,
     is_draggable: false,
     use_css_transform: true,
-    use_css_fixed: false,
     scale: 1,
     style: {},
     bound: DEFAULT_BOUND

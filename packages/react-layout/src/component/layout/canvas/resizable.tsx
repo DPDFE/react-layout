@@ -216,7 +216,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
             ...(props.use_css_transform
                 ? setTransform(props.x, props.y)
                 : setTopLeft(props.x, props.y)),
-            position: props.use_css_fixed ? 'fixed' : 'absolute',
+            position: 'absolute',
             width: props.w,
             height: props.h,
             ...child.props.style
@@ -237,7 +237,6 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                             x={cursor_mappings[cur].x}
                             y={cursor_mappings[cur].y}
                             use_css_transform={props.use_css_transform}
-                            use_css_fixed={props.use_css_fixed}
                             onDragStart={handleResizeStart}
                             onDrag={handleResize}
                             onDragStop={handleResizeStop}
