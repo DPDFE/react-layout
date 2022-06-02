@@ -333,7 +333,6 @@ export interface MenuItemProps extends NodeProps {
 
 export interface LayoutItemDescriptor {
     id: string;
-    is_ready: boolean;
     layout_id: string;
     pos: LayoutItem;
 }

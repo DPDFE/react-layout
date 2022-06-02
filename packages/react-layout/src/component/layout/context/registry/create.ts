@@ -79,6 +79,9 @@ export default function createRegistry() {
                     return entries.droppables[seq];
                 });
             },
+            getFirstRegister: () => {
+                return entries.droppables[entries.droppable_sequence[0]];
+            },
             exists: (id: string): boolean => Boolean(getDroppableById(id))
         }
     };

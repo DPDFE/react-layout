@@ -32,10 +32,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children) as ReactElement;
     const item_ref = ref ?? useRef<HTMLDivElement>(null);
 
-    const [is_parent_layout, setIsParentLayout] = useState<boolean>();
-
     const { col_width, row_height } = props.grid;
-    const [is_ready, setIsReady] = useState(false);
 
     const {
         i,
@@ -240,8 +237,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             // 拖拽过程中让所有元素都可以触发move事件，但是释放了以后还要能选中
             if (
                 (operator_type.current &&
-                    CHANGE_OPERATOR.includes(operator_type.current) &&
-                    !is_parent_layout) ||
+                    CHANGE_OPERATOR.includes(operator_type.current)) ||
                 props.need_mask
             ) {
                 children.push(mask_handler);
@@ -257,7 +253,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         operator_type,
         child,
         need_border_draggable_handler,
-        is_parent_layout,
         props.is_checked,
         props.is_placeholder
     ]);
@@ -267,7 +262,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
         if (props.is_placeholder) return transition;
 
-        if (props.is_checked || !is_ready || is_sticky) return 'none';
+        if (props.is_checked || is_sticky) return 'none';
 
         return transition;
     };
@@ -349,21 +344,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         return `layout_item_${i}`;
     }, []);
 
-    useLayoutEffect(() => {
-        if (props.is_placeholder) return;
-
-        setIsParentLayout(!!getLayoutItemRef()?.querySelector('#react-layout'));
-    }, []);
-
-    useEffect(() => {
-        is_parent_layout !== undefined && setIsReady(true);
-    }, [is_parent_layout]);
-
     const descriptor: LayoutItemDescriptor = useMemo(
         () => ({
             id: i,
             layout_id,
-            is_ready,
             pos: {
                 i,
                 x: x - offset_x,
@@ -371,24 +355,11 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 w: w + margin_width,
                 h: h + margin_height,
                 type,
-                is_parent_layout,
                 is_resizable,
                 is_draggable
             }
         }),
-        [
-            i,
-            layout_id,
-            x,
-            y,
-            w,
-            h,
-            type,
-            is_parent_layout,
-            is_resizable,
-            is_draggable,
-            is_ready
-        ]
+        [i, layout_id, x, y, w, h, type, is_resizable, is_draggable]
     );
 
     const getLayoutItemRef = useCallback((): HTMLElement | null => {

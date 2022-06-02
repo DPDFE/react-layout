@@ -52,19 +52,6 @@ export function cloneWidget(w: LayoutItem) {
     };
 }
 
-export function getDropPosition(
-    canvas_ref: RefObject<HTMLElement>,
-    e: React.MouseEvent,
-    scale: number
-) {
-    const current = (canvas_ref as RefObject<HTMLElement>).current!;
-
-    const { left, top } = current.getBoundingClientRect();
-    const x = (e.clientX + current.scrollLeft - left) / scale;
-    const y = (e.clientY + current.scrollTop - top) / scale;
-    return { x, y };
-}
-
 export function collides(item_1: Pos, item_2: Pos): boolean {
     if (item_1.i === item_2.i) return false; // 相同节点
     if (item_1.x + item_1.w <= item_2.x) return false; // 👈
