@@ -47,40 +47,36 @@ export const useLayoutHooks = (
 
     const { operator_type } = useContext(LayoutContext);
 
-    const pos = useScroll(canvas_viewport_ref.current);
-
-    const [is_child_layout, setIsChildLayout] = useState(props.is_child_layout);
-
     /**
      * 让阴影定位组件位于可视范围内
      */
-    // useLayoutEffect(() => {
-    //     /** 判断元素是否消失 */
-    //     const intersectionObserverInstance = new IntersectionObserver(
-    //         (entries) => {
-    //             entries.map((entry) => {
-    //                 if (!entry.intersectionRatio) {
-    //                     shadow_widget_ref.current?.scrollIntoView({
-    //                         block: 'nearest',
-    //                         inline: 'nearest'
-    //                     });
-    //                 }
-    //             });
-    //         },
-    //         { root: canvas_viewport_ref.current }
-    //     );
+    useLayoutEffect(() => {
+        /** 判断元素是否消失 */
+        const intersectionObserverInstance = new IntersectionObserver(
+            (entries) => {
+                entries.map((entry) => {
+                    if (!entry.intersectionRatio) {
+                        shadow_widget_ref.current?.scrollIntoView({
+                            block: 'nearest',
+                            inline: 'nearest'
+                        });
+                    }
+                });
+            },
+            { root: canvas_viewport_ref.current }
+        );
 
-    //     shadow_widget &&
-    //         shadow_widget_ref.current &&
-    //         intersectionObserverInstance.observe(shadow_widget_ref.current);
-    //     return () => {
-    //         shadow_widget &&
-    //             shadow_widget_ref.current &&
-    //             intersectionObserverInstance.unobserve(
-    //                 shadow_widget_ref.current
-    //             );
-    //     };
-    // }, [JSON.stringify(shadow_widget), is_child_layout]);
+        shadow_widget &&
+            shadow_widget_ref.current &&
+            intersectionObserverInstance.observe(shadow_widget_ref.current);
+        return () => {
+            shadow_widget &&
+                shadow_widget_ref.current &&
+                intersectionObserverInstance.unobserve(
+                    shadow_widget_ref.current
+                );
+        };
+    }, [JSON.stringify(shadow_widget)]);
 
     /** 监听容器变化，重新计算width、height、grid */
     useLayoutEffect(() => {
@@ -401,14 +397,6 @@ export const useLayoutHooks = (
         client_height
     ]);
 
-    useLayoutEffect(() => {
-        // 如果没有传递参数  内部自己计算
-        props.is_child_layout === undefined &&
-            setIsChildLayout(
-                !!container_ref.current?.parentElement?.closest('.react-layout')
-            );
-    }, []);
-
     return {
         padding,
         is_window_resize,
@@ -419,7 +407,6 @@ export const useLayoutHooks = (
         wrapper_height,
         t_offset,
         l_offset,
-        is_child_layout,
         snapToGrid,
         getCurrentBound,
         getBoundResult,

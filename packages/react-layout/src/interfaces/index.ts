@@ -114,7 +114,6 @@ type LayoutBase = NodeProps & {
     need_grid_lines: boolean;
     need_grid_bound: boolean;
     need_drag_bound: boolean;
-    is_child_layout?: boolean; // 是子布局
     is_droppable?: boolean; //不允许放
 };
 
@@ -204,7 +203,6 @@ export interface LayoutItem extends ItemPos {
     is_sticky?: boolean;
     is_draggable?: boolean;
     is_resizable?: boolean;
-    is_child_layout?: boolean; // 子布局的元素
     moved?: boolean;
     is_dragging?: boolean;
     is_checked?: boolean;
