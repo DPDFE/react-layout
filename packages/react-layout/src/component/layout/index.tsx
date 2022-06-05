@@ -299,18 +299,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
             start_droppable.current = covered_layout;
         }
 
+        moving_droppable.current = covered_layout;
+
         if (
             operator_type.current &&
-            [
-                (OperatorType.drag,
-                OperatorType.dragover,
-                OperatorType.dragstart,
-                OperatorType.drop,
-                OperatorType.dropover)
-            ].includes(operator_type.current)
+            [OperatorType.resize, OperatorType.resizeover].includes(
+                operator_type.current
+            )
         ) {
-            moving_droppable.current = covered_layout;
-        } else {
             moving_droppable.current = start_droppable.current;
         }
 
@@ -373,10 +369,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const shadow_widget = cloneWidget(current_widget);
             const filter_layout = getFilterLayoutById(current_widget.i);
 
-            if (
-                current_widget.type === WidgetType.grid &&
-                drop_enter_counter.current !== 0
-            ) {
+            if (current_widget.type === WidgetType.grid) {
                 if (
                     moving_droppable.current?.id !== start_droppable.current?.id
                 ) {
