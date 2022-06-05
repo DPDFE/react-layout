@@ -16,6 +16,8 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
 
     const sticky_target_queue = useRef<StickyTarget[]>([]); //当前置顶元素列表
 
+    const drop_enter_counter = useRef<number>(0); // 拖拽状态
+
     const [checked_index, setCurrentChecked] = useState<string>();
 
     const getResponders = useCallback(() => {
@@ -61,7 +63,8 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             registry,
             getResponders,
             start_droppable,
-            moving_droppable
+            moving_droppable,
+            drop_enter_counter
         };
     }, [
         sticky_target_queue,
@@ -71,7 +74,8 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
         registry,
         getResponders,
         start_droppable,
-        moving_droppable
+        moving_droppable,
+        drop_enter_counter
     ]);
 };
 

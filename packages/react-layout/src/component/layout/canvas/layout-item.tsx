@@ -273,12 +273,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         onMouseDown: () => {
             props.setCurrentChecked?.(i);
         },
-        onDragLeave: (e: React.MouseEvent) => {
-            e.stopPropagation();
-        },
-        onDragEnter: (e: React.MouseEvent) => {
-            e.stopPropagation();
-        },
         onKeyDown: (e: React.KeyboardEvent) => {
             if (type === WidgetType.drag) {
                 const keydown_pos = handleKeyDown(e);
@@ -312,8 +306,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             width: w,
             height: h,
             ...child.props.style,
-            pointerEvents:
-                is_dragging || props.is_placeholder ? 'none' : 'auto',
+            // pointerEvents:
+            //     is_dragging || props.is_placeholder ? 'none' : 'auto',
             cursor:
                 props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'
