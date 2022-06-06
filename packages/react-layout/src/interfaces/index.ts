@@ -10,6 +10,7 @@ export interface StickyTarget {
 }
 
 export enum OperatorType {
+    dropstart = 'dropstart',
     dragstart = 'dragstart',
     drag = 'drag',
     dragover = 'dragover',

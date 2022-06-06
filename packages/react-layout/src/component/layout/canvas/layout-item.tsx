@@ -32,6 +32,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const child = React.Children.only(props.children) as ReactElement;
     const item_ref = ref ?? useRef<HTMLDivElement>(null);
 
+    const [is_parent_layout, setIsParentLayout] = useState<boolean>();
+
     const { col_width, row_height } = props.grid;
 
     const {
@@ -194,17 +196,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     left: 0
                 }}
             ></div>
-            {/* <div
-                key={'left_draggable_handler'}
-                className={`draggable_handler  ${styles.draggable_handler}`}
-                style={{
-                    width: 10,
-                    height: '100%',
-                    minWidth: 10,
-                    top: 0,
-                    right: 0
-                }}
-            ></div> */}
             <div
                 key={'bottom_draggable_handler'}
                 className={`draggable_handler ${styles.draggable_handler}`}
@@ -216,17 +207,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     left: 0
                 }}
             ></div>
-            {/* <div
-                key={'right_draggable_handler'}
-                className={`draggable_handler ${styles.draggable_handler}`}
-                style={{
-                    width: 10,
-                    height: '100%',
-                    minWidth: 10,
-                    top: 0,
-                    left: 0
-                }}
-            ></div> */}
         </React.Fragment>
     );
 
@@ -237,7 +217,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             // 拖拽过程中让所有元素都可以触发move事件，但是释放了以后还要能选中
             if (
                 (operator_type.current &&
-                    CHANGE_OPERATOR.includes(operator_type.current)) ||
+                    CHANGE_OPERATOR.includes(operator_type.current) &&
+                    is_parent_layout) ||
                 props.need_mask
             ) {
                 children.push(mask_handler);
@@ -256,6 +237,12 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         props.is_checked,
         props.is_placeholder
     ]);
+
+    useLayoutEffect(() => {
+        if (props.is_placeholder) return;
+
+        setIsParentLayout(!!getLayoutItemRef()?.querySelector('#react-layout'));
+    }, []);
 
     const setTransition = () => {
         const transition = 'all 0.1s linear';
@@ -306,8 +293,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             width: w,
             height: h,
             ...child.props.style,
-            // pointerEvents:
-            //     is_dragging || props.is_placeholder ? 'none' : 'auto',
             cursor:
                 props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'

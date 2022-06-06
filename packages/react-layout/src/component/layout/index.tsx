@@ -39,7 +39,12 @@ import { LayoutContext } from './context';
 import drawGridLines from './grid-lines';
 import classNames from 'classnames';
 import Droppable from './context/droppable';
-import { END_OPERATOR, START_OPERATOR, CHANGE_OPERATOR } from './constants';
+import {
+    END_OPERATOR,
+    START_OPERATOR,
+    CHANGE_OPERATOR,
+    DRAG_OPERATOR
+} from './constants';
 
 const ReactLayout = (props: ReactLayoutProps) => {
     const {
@@ -50,7 +55,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
         start_droppable,
         moving_droppable,
         getResponders,
-        drop_enter_counter
+        drop_enter_counter,
+        drag_item
     } = useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
@@ -59,17 +65,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const grid_lines_ref = useRef<HTMLCanvasElement>(null); //
     const canvas_ref = useRef<HTMLDivElement>(null);
     const shadow_widget_ref = useRef<HTMLDivElement>(null);
-    const flex_container_ref = useRef<HTMLDivElement>(null);
+
+    const index = useRef<number>(0);
 
     const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
 
     const [shadow_widget, setShadowWidget] = useState<ItemPos>();
 
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
-
-    const layout_name = useMemo(() => {
-        return `${props.layout_id}`;
-    }, []);
 
     const {
         current_width,
@@ -299,7 +302,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
             start_droppable.current = covered_layout;
         }
 
-        moving_droppable.current = covered_layout;
+        if (covered_layout !== moving_droppable.current) {
+            moving_droppable.current = covered_layout;
+        }
+
+        index.current += 1;
 
         if (
             operator_type.current &&
@@ -354,7 +361,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 ? getFilterLayoutById(current_widget.i)
                 : layout;
             compact(filter_layout);
-            setLayout([...layout]);
+            if (
+                operator_type.current &&
+                DRAG_OPERATOR.includes(operator_type.current)
+            ) {
+                setLayout([...layout]);
+            }
 
             return filter_layout;
         },
@@ -447,7 +459,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     useEffect(() => {
         const instance = new Droppable({
-            id: layout_name,
+            id: props.layout_id,
             is_droppable: props.is_droppable,
             getRef,
             getViewPortRef,
@@ -456,6 +468,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
             addShadow,
             move
         });
+
+        // console.log('useEffect');
 
         registry.droppable.register(instance);
         return () => registry.droppable.unregister(instance);
@@ -658,10 +672,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 ></HorizontalRuler>
             )}
 
-            <div
-                style={{ display: 'flex', flex: 1, overflow: 'hidden' }}
-                ref={flex_container_ref}
-            >
+            <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
                 {/* 垂直标尺 */}
                 {canvas_viewport_ref.current && props.need_ruler && (
                     <VerticalRuler
@@ -690,7 +701,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         props.mode === LayoutMode.edit &&
                         props.is_droppable &&
                         registry.droppable.getFirstRegister()?.id ===
-                            layout_name
+                            props.layout_id
                             ? (e) => {
                                   handleResponder(
                                       e,
@@ -704,13 +715,20 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         props.mode === LayoutMode.edit &&
                         props.is_droppable &&
                         registry.droppable.getFirstRegister()?.id ===
-                            layout_name
+                            props.layout_id
                             ? (e) => {
-                                  handleResponder(
-                                      e,
-                                      OperatorType.drop,
-                                      getDropItem(e)
-                                  );
+                                  const widget = getDropItem(e);
+                                  delete drag_item.current?.is_dragging;
+
+                                  //  不要开火太多次
+                                  if (!isEqual(drag_item.current, widget)) {
+                                      handleResponder(
+                                          e,
+                                          OperatorType.drop,
+                                          widget
+                                      );
+                                  }
+                                  drag_item.current = widget;
                               }
                             : noop
                     }
@@ -720,7 +738,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     onDragLeave={
                         props.mode === LayoutMode.edit &&
                         registry.droppable.getFirstRegister()?.id ===
-                            layout_name
+                            props.layout_id
                             ? () => {
                                   drop_enter_counter.current -= 1;
 
@@ -751,11 +769,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     >
                         {/* 实际画布区域 */}
                         <div
-                            id={layout_name}
+                            id={props.layout_id}
                             ref={canvas_ref}
                             onClick={(e) => {
                                 registry.droppable.getFirstRegister()?.id ===
-                                    layout_name && onClick(e);
+                                    props.layout_id && onClick(e);
                             }}
                             className={styles.canvas}
                             style={{
@@ -770,7 +788,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                         ? 'unset'
                                         : 'hidden',
                                 ...(registry.droppable.getFirstRegister()
-                                    ?.id !== layout_name
+                                    ?.id !== props.layout_id
                                     ? {}
                                     : {
                                           transform: `scale(${props.scale})`,
