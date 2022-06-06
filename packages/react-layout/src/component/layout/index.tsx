@@ -173,8 +173,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         e.preventDefault();
         e.stopPropagation();
 
-        console.log('handleResponder', operator);
-
         operator_type.current = operator;
 
         let result = {};
@@ -413,10 +411,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 setShadowWidget(shadow_widget);
             }
 
-            console.log(
-                start_droppable.current!.id,
-                moving_droppable.current!.id
-            );
             if (
                 start_droppable.current!.id === moving_droppable.current!.id &&
                 operator_type.current &&
