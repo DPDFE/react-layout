@@ -302,6 +302,15 @@ export function formatOutputValue(arr: LayoutItem[]) {
 export function formatInputValue(item: LayoutItem) {
     item.type = item.type ?? WidgetType.drag;
 
+    item.is_draggable = item.is_draggable ?? false;
+
+    item.is_resizable = item.is_resizable ?? false;
+
+    item.need_border_draggable_handler =
+        item.need_border_draggable_handler ?? false;
+
+    item.is_droppable = item.is_droppable ?? false;
+
     item.w = Math.max(
         item.min_w ?? (item.type === WidgetType.drag ? 5 : 1),
         item.w

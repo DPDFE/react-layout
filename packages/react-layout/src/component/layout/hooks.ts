@@ -196,7 +196,7 @@ export const useLayoutHooks = (
     const snapToGrid = (pos: LayoutItem) => {
         const { row_height, col_width } = grid;
 
-        delete pos.is_dragging;
+        pos.is_dragging = false;
         pos.x = Math.round(pos.x / col_width);
         pos.y = Math.round(pos.y / row_height);
         pos.w = Math.round(pos.w / col_width);
