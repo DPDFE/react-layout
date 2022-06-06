@@ -187,11 +187,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
         if (END_OPERATOR.includes(operator)) {
             current_widget.is_dragging = false;
-            result = getCurrentCoveredLayout(e, current_widget, item_pos);
 
             registry.droppable
                 .getById(moving_droppable.current!.id)
                 .deleteShadow(current_widget);
+
+            result = getCurrentCoveredLayout(e, current_widget, item_pos);
 
             start_droppable.current = undefined;
             moving_droppable.current = undefined;
@@ -405,11 +406,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     shadow_widget.y,
                     true
                 );
-
-                compact([shadow_widget].concat(filter_layout));
-
-                setShadowWidget(shadow_widget);
             }
+            const result = compact([shadow_widget].concat(filter_layout));
+            setShadowWidget(shadow_widget);
 
             if (
                 start_droppable.current!.id === moving_droppable.current!.id &&
@@ -419,7 +418,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 return {
                     source: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: [shadow_widget].concat(filter_layout)
+                        widgets: result
                     },
                     destination: undefined
                 };
@@ -433,7 +432,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     },
                     destination: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: [shadow_widget].concat(filter_layout)
+                        widgets: result
                     }
                 };
             }
