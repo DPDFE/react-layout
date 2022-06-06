@@ -306,7 +306,8 @@ const DefaultLayout = () => {
                             '-' +
                             Math.random());
 
-                    const new_widgets = layout.concat([drop_element]);
+                    // const new_widgets = layout.concat([drop_element]);
+                    const new_widgets = layout;
 
                     setWidgets3(new_widgets);
                     console.log('add widgets3');
@@ -437,27 +438,6 @@ const DefaultLayout = () => {
                     }}
                     onResizeStop={(result: DragStart) => {
                         console.log(result, 'on resize stop');
-                    }}
-                    onDrop={(result: DropResult) => {
-                        console.log(result, 'on drop');
-                        const { source, widget } = result;
-                        const drop_element = JSON.parse(
-                            JSON.stringify({
-                                ...widget,
-                                i:
-                                    source.widgets.length.toString() +
-                                    Math.random(),
-                                is_resizable: true,
-                                is_draggable: true
-                            })
-                        );
-
-                        const new_widgets = source.widgets.concat([
-                            drop_element
-                        ]);
-                        console.log('add widgets', new_widgets);
-                        handleWidgetsChange(source.layout_id, new_widgets);
-                        return drop_element;
                     }}
                 >
                     <ReactLayout

@@ -101,7 +101,7 @@ export const useLayoutHooks = (
     /** 视窗宽度 */
     const client_width = useMemo(() => {
         return canvas_viewport_ref.current?.clientWidth ?? 0;
-    }, [is_window_resize, operator_type]);
+    }, [is_window_resize, operator_type.current]);
 
     /** 视窗高度 */
     const client_height = useMemo(() => {
@@ -175,7 +175,7 @@ export const useLayoutHooks = (
     ]);
 
     /** 对drop节点做边界计算以后再排序 */
-    const getBoundResult = (item: LayoutItem) => {
+    const boundControl = (item: LayoutItem) => {
         const { max_x, min_x, max_y, min_y } = getCurrentBound(item.type);
 
         item.x = clamp(item.x, min_x, max_x - item.w);
@@ -196,13 +196,13 @@ export const useLayoutHooks = (
     const snapToGrid = (pos: LayoutItem) => {
         const { row_height, col_width } = grid;
 
-        pos.is_dragging = false;
+        delete pos.is_dragging;
         pos.x = Math.round(pos.x / col_width);
         pos.y = Math.round(pos.y / row_height);
         pos.w = Math.round(pos.w / col_width);
         pos.h = Math.round(pos.h / row_height);
 
-        return getBoundResult(pos);
+        return boundControl(pos);
     };
 
     const snapToDrag = (l: LayoutItem) => {
@@ -289,7 +289,7 @@ export const useLayoutHooks = (
     }, [layout, shadow_widget]);
 
     const GetCurrentContainerHeight = () => {
-        if (props.layout_type === LayoutType.DRAG && operator_type) {
+        if (props.layout_type === LayoutType.DRAG && operator_type.current) {
             return;
         }
         if (client_width && client_height) {
@@ -392,7 +392,7 @@ export const useLayoutHooks = (
         max_right,
         max_top,
         max_bottom,
-        operator_type,
+        operator_type.current,
         client_width,
         client_height
     ]);
@@ -409,7 +409,7 @@ export const useLayoutHooks = (
         l_offset,
         snapToGrid,
         getCurrentBound,
-        getBoundResult,
+        boundControl,
         snapToDrag
     };
 };

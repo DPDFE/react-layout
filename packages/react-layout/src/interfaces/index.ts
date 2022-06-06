@@ -347,29 +347,25 @@ export type WidgetLocation = {
     widgets: LayoutItem[];
 };
 
-export type DragStart = {
+export type DragSourceResult = {
     type: OperatorType;
     widget_id: string;
     source?: WidgetLocation;
 };
 
-export type DragResult = DragStart & {
+export type DragDestinationResult = DragSourceResult & {
     destination?: WidgetLocation;
-};
-
-export type DropResult = DragStart & {
-    widget: LayoutItem;
 };
 
 export interface ReactLayoutContextProps {
     getDroppingItem?: () => { h: number; w: number; i: string };
-    onDrop?: (result: DropResult) => LayoutItem;
-    onDragStart?: (start: DragStart) => void;
-    onDrag?: (result: DragResult) => void;
-    onDragStop?: (result: DragResult) => void;
-    onResizeStart?: (start: DragStart) => void;
-    onResize?: (start: DragStart) => void;
-    onResizeStop?: (start: DragStart) => void;
-    onChange?: (result: DragResult) => void;
-    onPositionChange?: (start: DragStart) => void;
+    onDrop?: (result: DragDestinationResult) => void;
+    onDragStart?: (result: DragSourceResult) => void;
+    onDrag?: (result: DragDestinationResult) => void;
+    onDragStop?: (result: DragDestinationResult) => void;
+    onResizeStart?: (result: DragSourceResult) => void;
+    onResize?: (result: DragSourceResult) => void;
+    onResizeStop?: (result: DragSourceResult) => void;
+    onChange?: (result: DragDestinationResult) => void;
+    onPositionChange?: (result: DragSourceResult) => void;
 }

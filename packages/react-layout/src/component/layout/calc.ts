@@ -7,7 +7,6 @@ import {
     WidgetType,
     Pos
 } from '@/interfaces';
-import React, { RefObject } from 'react';
 
 export const RULER_GAP = 100; // 标尺间隔大小
 export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
@@ -150,6 +149,8 @@ export function compact(layout: LayoutItem[]) {
         l = compactItem(compare_with, l, sorted);
         compare_with.push(l);
     });
+
+    return compare_with;
 }
 
 export function getAllCollisions(sorted: LayoutItem[], item: LayoutItem) {
@@ -284,7 +285,7 @@ export function calcOffset(client: number, calc: number) {
     return client - calc > 0 ? (client - calc) / 2 : 0;
 }
 
-export function removePersonalValue(arr: LayoutItem[]) {
+export function formatOutputValue(arr: LayoutItem[]) {
     return arr.map((item) => {
         delete item.is_dragging;
         delete item.moved;
@@ -292,7 +293,23 @@ export function removePersonalValue(arr: LayoutItem[]) {
     });
 }
 
-export function addPersonalValue(item: LayoutItem) {
+/**
+ * 获取组件实际宽高
+ * 组件信息补全
+ * @param item
+ * @returns
+ */
+export function formatInputValue(item: LayoutItem) {
+    item.type = item.type ?? WidgetType.drag;
+
+    item.w = Math.max(
+        item.min_w ?? (item.type === WidgetType.drag ? 5 : 1),
+        item.w
+    );
+    item.h = Math.max(
+        item.min_h ?? (item.type === WidgetType.drag ? 5 : 1),
+        item.h
+    );
     item.is_dragging = false;
     item.moved = false;
     return { ...item };
