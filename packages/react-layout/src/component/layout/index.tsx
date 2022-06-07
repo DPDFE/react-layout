@@ -270,7 +270,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     return false;
                 }
                 // 如果是当前元素的子元素，不支持放置
-                if (draggable_ref.contains(layout_ref)) {
+                if (draggable_ref?.contains(layout_ref)) {
                     return false;
                 }
                 const { left, top, width, height } =
