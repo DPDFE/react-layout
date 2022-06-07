@@ -407,7 +407,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     true
                 );
             }
-            const result = compact([shadow_widget].concat(filter_layout));
+
+            compact([shadow_widget].concat(filter_layout));
+
             setShadowWidget(shadow_widget);
 
             if (
@@ -418,7 +420,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 return {
                     source: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: result
+                        widgets: replaceWidget(layout, shadow_widget)
                     },
                     destination: undefined
                 };
@@ -432,7 +434,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     },
                     destination: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: result
+                        widgets: [shadow_widget].concat(layout)
                     }
                 };
             }

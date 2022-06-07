@@ -101,7 +101,7 @@ export const useLayoutHooks = (
     /** 视窗宽度 */
     const client_width = useMemo(() => {
         return canvas_viewport_ref.current?.clientWidth ?? 0;
-    }, [is_window_resize, operator_type.current]);
+    }, [is_window_resize]);
 
     /** 视窗高度 */
     const client_height = useMemo(() => {
@@ -196,7 +196,7 @@ export const useLayoutHooks = (
     const snapToGrid = (pos: LayoutItem) => {
         const { row_height, col_width } = grid;
 
-        pos.is_dragging = false;
+        delete pos.is_dragging;
         pos.x = Math.round(pos.x / col_width);
         pos.y = Math.round(pos.y / row_height);
         pos.w = Math.round(pos.w / col_width);
