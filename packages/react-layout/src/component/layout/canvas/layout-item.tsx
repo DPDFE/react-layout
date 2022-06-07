@@ -223,6 +223,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             ) {
                 children.push(mask_handler);
             }
+
             // 让drag_handler放置在最上面
             if (need_border_draggable_handler) {
                 children.push(draggable_handler);

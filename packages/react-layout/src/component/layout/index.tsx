@@ -143,6 +143,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         const drop_item = responders.getDroppingItem?.();
 
         return {
+            is_droppable: true,
             ...drop_item,
             ...(layout_type === LayoutType.GRID
                 ? {
@@ -192,9 +193,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
         if (END_OPERATOR.includes(operator)) {
             current_widget.is_dragging = false;
 
-            registry.droppable
-                .getById(moving_droppable.current!.id)
-                .deleteShadow(current_widget);
+            moving_droppable.current &&
+                registry.droppable
+                    .getById(moving_droppable.current.id)
+                    .deleteShadow(current_widget);
 
             result = getCurrentCoveredLayout(e, current_widget, item_pos);
 
@@ -259,10 +261,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
         widget: LayoutItem,
         item_pos?: ItemPos
     ) => {
+        const draggable_ref = registry.draggable.getById(widget.i)?.getRef();
+
         const covered_layouts = registry.droppable.getAll().filter((entry) => {
             const layout_ref = entry.getViewPortRef();
             if (layout_ref) {
                 if (!entry.is_droppable) {
+                    return false;
+                }
+                // 如果是当前元素的子元素，不支持放置
+                if (draggable_ref.contains(layout_ref)) {
                     return false;
                 }
                 const { left, top, width, height } =
@@ -282,36 +290,26 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 ? covered_layouts[covered_layouts.length - 1]
                 : registry.droppable.getFirstRegister();
 
-        if (covered_layout.id !== moving_droppable.current?.id) {
-            // 删除旧布局元素的影子
-            if (moving_droppable.current) {
-                registry.droppable
-                    .getById(moving_droppable.current.id)
-                    .deleteShadow(widget);
-            }
-        }
-
         // 初始布局赋值
         if (!start_droppable.current) {
             start_droppable.current = registry.droppable.getById(
                 widget.layout_id!
             );
+            moving_droppable.current = start_droppable.current;
         }
 
-        if (covered_layout !== moving_droppable.current) {
-            const layout_id =
-                widget.layout_id ?? registry.droppable.getFirstRegister()?.id;
+        // 删除旧布局的影子
+        if (
+            widget.is_droppable &&
+            covered_layout !== moving_droppable.current
+        ) {
+            if (moving_droppable.current) {
+                registry.droppable
+                    .getById(moving_droppable.current.id)
+                    .deleteShadow(widget);
+            }
 
-            console.log(
-                layout_id,
-                start_droppable.current?.id,
-                covered_layout.id
-            );
-            // if (start_droppable.current && layout_id !== covered_layout.id) {
-            //     // moving_droppable.current = start_droppable.current;
-            // } else {
             moving_droppable.current = covered_layout;
-            // }
         }
 
         if (
@@ -322,12 +320,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         ) {
             moving_droppable.current = start_droppable.current;
         }
-
-        // console.log(
-        //     'handleResponder',
-        //     start_droppable.current,
-        //     moving_droppable.current
-        // );
 
         if (moving_droppable.current && start_droppable.current) {
             // 移动到位
