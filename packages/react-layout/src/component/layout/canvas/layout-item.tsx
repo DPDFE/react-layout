@@ -393,7 +393,11 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         ? '.draggable_handler'
                         : undefined
                 }
-                draggable_cancel_handler={props.draggable_cancel_handler}
+                draggable_cancel_handler={
+                    props.draggable_cancel_handler
+                        ? [props.draggable_cancel_handler]
+                        : []
+                }
                 onDrag={({ e, x, y }) => {
                     props.onDrag?.(
                         {

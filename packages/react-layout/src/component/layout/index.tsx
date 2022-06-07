@@ -301,6 +301,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
             moving_droppable.current = start_droppable.current;
         }
 
+        console.log(
+            'handleResponder',
+            start_droppable.current,
+            moving_droppable.current
+        );
+
         if (moving_droppable.current && start_droppable.current) {
             // 移动到位
             registry.droppable
@@ -411,6 +417,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             compact([shadow_widget].concat(filter_layout));
 
             setShadowWidget(shadow_widget);
+            console.log(filter_layout);
 
             if (
                 start_droppable.current!.id === moving_droppable.current!.id &&
@@ -434,7 +441,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     },
                     destination: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: [shadow_widget].concat(layout)
+                        widgets: [shadow_widget].concat(filter_layout)
                     }
                 };
             }

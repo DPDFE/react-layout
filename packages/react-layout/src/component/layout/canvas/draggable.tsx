@@ -82,14 +82,28 @@ const Draggable = (props: DraggableProps) => {
         const current = (child.ref as RefObject<HTMLElement>).current;
 
         // 有禁止拖拽元素时阻止拖拽效果
-        if (e.target && props.draggable_cancel_handler) {
-            const is_cancel_match = matchesSelectorAndParentsTo(
-                e.target as Node,
-                props.draggable_cancel_handler,
-                current as Node
-            );
+        if (
+            e.target &&
+            props.draggable_cancel_handler &&
+            props.draggable_cancel_handler.length > 0
+        ) {
+            const is_match_target = props.draggable_cancel_handler
+                .map((target) => {
+                    const is_cancel_match = matchesSelectorAndParentsTo(
+                        e.target as Node,
+                        target,
+                        current as Node
+                    );
 
-            if (is_cancel_match) {
+                    console.log(is_cancel_match);
+                    if (is_cancel_match) {
+                        return true;
+                    }
+                    return false;
+                })
+                .some((state) => state === true);
+
+            if (is_match_target) {
                 return;
             }
         }

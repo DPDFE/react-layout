@@ -263,7 +263,7 @@ export interface DraggableProps extends EventBaseProps {
     bound?: Partial<BoundType>;
     is_draggable?: boolean;
     use_css_transform?: boolean;
-    draggable_cancel_handler?: string;
+    draggable_cancel_handler?: string[];
     draggable_handler?: string;
     onDragStart?: (e: MouseEvent) => void;
     onDrag?: ({ e, x, y }: { e: MouseEvent; x: number; y: number }) => void;
