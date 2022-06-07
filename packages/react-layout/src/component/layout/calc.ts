@@ -299,17 +299,17 @@ export function formatOutputValue(arr: LayoutItem[]) {
  * @param item
  * @returns
  */
-export function formatInputValue(item: LayoutItem) {
+export function formatInputValue(item: LayoutItem, parent_layout_id: string) {
+    item.layout_id = parent_layout_id;
+
     item.type = item.type ?? WidgetType.drag;
 
     item.is_draggable = item.is_draggable ?? false;
-
     item.is_resizable = item.is_resizable ?? false;
+    item.is_droppable = item.is_droppable ?? false;
 
     item.need_border_draggable_handler =
         item.need_border_draggable_handler ?? false;
-
-    item.is_droppable = item.is_droppable ?? false;
 
     item.w = Math.max(
         item.min_w ?? (item.type === WidgetType.drag ? 5 : 1),

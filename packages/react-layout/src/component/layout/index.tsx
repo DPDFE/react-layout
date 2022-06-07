@@ -117,7 +117,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const new_layout = React.Children.toArray(props.children).map(
                 (child: React.ReactElement) => {
                     return boundControl(
-                        formatInputValue(child.props['data-drag'] as LayoutItem)
+                        formatInputValue(
+                            child.props['data-drag'] as LayoutItem,
+                            props.layout_id
+                        )
                     );
                 }
             );
@@ -130,7 +133,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     /**
      * 获取drop元素
      */
-    const getDropItem = (e: React.MouseEvent): ItemPos => {
+    const getDropItem = (e: React.MouseEvent) => {
         const { scale, layout_type } = props;
 
         const current = canvas_ref.current!;
@@ -156,7 +159,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
             type:
                 layout_type === LayoutType.GRID
                     ? WidgetType.grid
-                    : WidgetType.drag
+                    : WidgetType.drag,
+            layout_id: registry.droppable.getFirstRegister()?.id
         };
     };
 
@@ -258,8 +262,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
         const covered_layouts = registry.droppable.getAll().filter((entry) => {
             const layout_ref = entry.getViewPortRef();
             if (layout_ref) {
+                if (!entry.is_droppable) {
+                    return false;
+                }
                 const { left, top, width, height } =
                     layout_ref.getBoundingClientRect();
+
                 return (
                     clamp(e.clientX, left, left + width) === e.clientX &&
                     clamp(e.clientY, top, top + height) === e.clientY
@@ -284,12 +292,26 @@ const ReactLayout = (props: ReactLayoutProps) => {
         }
 
         // 初始布局赋值
-        if (!start_droppable.current && covered_layout) {
-            start_droppable.current = covered_layout;
+        if (!start_droppable.current) {
+            start_droppable.current = registry.droppable.getById(
+                widget.layout_id!
+            );
         }
 
         if (covered_layout !== moving_droppable.current) {
+            const layout_id =
+                widget.layout_id ?? registry.droppable.getFirstRegister()?.id;
+
+            console.log(
+                layout_id,
+                start_droppable.current?.id,
+                covered_layout.id
+            );
+            // if (start_droppable.current && layout_id !== covered_layout.id) {
+            //     // moving_droppable.current = start_droppable.current;
+            // } else {
             moving_droppable.current = covered_layout;
+            // }
         }
 
         if (
@@ -301,11 +323,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
             moving_droppable.current = start_droppable.current;
         }
 
-        console.log(
-            'handleResponder',
-            start_droppable.current,
-            moving_droppable.current
-        );
+        // console.log(
+        //     'handleResponder',
+        //     start_droppable.current,
+        //     moving_droppable.current
+        // );
 
         if (moving_droppable.current && start_droppable.current) {
             // 移动到位
@@ -417,7 +439,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             compact([shadow_widget].concat(filter_layout));
 
             setShadowWidget(shadow_widget);
-            console.log(filter_layout);
+            // console.log(filter_layout);
 
             if (
                 start_droppable.current!.id === moving_droppable.current!.id &&

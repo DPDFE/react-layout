@@ -208,13 +208,9 @@ export interface LayoutItem extends ItemPos {
     is_dragging?: boolean;
     is_checked?: boolean;
     need_mask?: boolean;
+    layout_id?: string;
     need_border_draggable_handler?: boolean;
     draggable_cancel_handler?: string;
-}
-
-export interface LayoutItemDimesion extends LayoutItem {
-    layout_id: string;
-    element: HTMLElement | null;
 }
 
 interface EventBaseProps extends NodeProps {
