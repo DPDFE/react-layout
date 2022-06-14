@@ -196,7 +196,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             moving_droppable.current &&
                 registry.droppable
                     .getById(moving_droppable.current.id)
-                    .deleteShadow(current_widget);
+                    .cleanShadow(current_widget);
 
             result = getCurrentCoveredLayout(e, current_widget, item_pos);
 
@@ -306,7 +306,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             if (moving_droppable.current) {
                 registry.droppable
                     .getById(moving_droppable.current.id)
-                    .deleteShadow(widget);
+                    .cleanShadow(widget);
             }
 
             moving_droppable.current = covered_layout;
@@ -358,7 +358,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     /**
      * 删除阴影
      */
-    const deleteShadow = useCallback(
+    const cleanShadow = useCallback(
         (current_widget) => {
             setShadowWidget(undefined);
             const filter_layout = current_widget
@@ -430,8 +430,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
             compact([shadow_widget].concat(filter_layout));
 
-            setShadowWidget(shadow_widget);
-            // console.log(filter_layout);
+            // 最后保存状态的时候不画shadow
+            if (
+                operator_type.current &&
+                !END_OPERATOR.includes(operator_type.current)
+            ) {
+                setShadowWidget(shadow_widget);
+            }
 
             if (
                 start_droppable.current!.id === moving_droppable.current!.id &&
@@ -469,7 +474,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             is_droppable: props.is_droppable,
             getRef,
             getViewPortRef,
-            deleteShadow,
+            cleanShadow,
             getFilterLayoutById,
             addShadow,
             move
@@ -477,7 +482,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
         registry.droppable.register(instance);
         return () => registry.droppable.unregister(instance);
-    }, [getRef, getViewPortRef, deleteShadow, addShadow, move]);
+    }, [getRef, getViewPortRef, cleanShadow, addShadow, move]);
 
     useEffect(() => {
         if (
@@ -740,7 +745,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                               .getById(
                                                   moving_droppable.current.id
                                               )
-                                              .deleteShadow();
+                                              .cleanShadow();
                                       }
                                   }
                               }

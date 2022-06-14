@@ -250,7 +250,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
         if (props.is_placeholder) return transition;
 
-        if (props.is_checked || is_sticky) return 'none';
+        if (props.is_checked || is_sticky_target) return 'none';
 
         return transition;
     };

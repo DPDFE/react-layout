@@ -6,7 +6,7 @@ class Droppable {
     getRef: () => HTMLDivElement | null;
     getViewPortRef: () => HTMLDivElement | null;
     getFilterLayoutById: (i: string) => LayoutItem[];
-    deleteShadow: (widget?: LayoutItem) => LayoutItem[];
+    cleanShadow: (widget?: LayoutItem) => LayoutItem[];
     addShadow: (widget: LayoutItem, is_save?: boolean) => any;
     move: (current_widget: LayoutItem, item_pos: ItemPos) => void;
 
@@ -15,7 +15,7 @@ class Droppable {
         is_droppable = false,
         getRef,
         getViewPortRef,
-        deleteShadow,
+        cleanShadow,
         getFilterLayoutById,
         addShadow,
         move
@@ -24,7 +24,7 @@ class Droppable {
         this.is_droppable = is_droppable;
         this.getRef = getRef;
         this.getViewPortRef = getViewPortRef;
-        this.deleteShadow = deleteShadow;
+        this.cleanShadow = cleanShadow;
         this.getFilterLayoutById = getFilterLayoutById;
         this.addShadow = addShadow;
         this.move = move;
