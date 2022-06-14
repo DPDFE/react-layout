@@ -90,11 +90,12 @@ const DefaultLayout = () => {
                 h: 2,
                 x: 0,
                 y: 0,
-                // is_sticky: true,
+                is_sticky: true,
                 type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
-                is_nested: false
+                is_nested: true,
+                is_droppable: true
             },
             {
                 i: '1-2',
@@ -102,10 +103,11 @@ const DefaultLayout = () => {
                 h: 2,
                 x: 0,
                 y: 0,
-                // is_sticky: true,
+                is_sticky: true,
                 type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
+                is_droppable: true,
                 is_nested: false
             },
             {
@@ -114,10 +116,11 @@ const DefaultLayout = () => {
                 h: 2,
                 x: 0,
                 y: 0,
-                // is_sticky: true,
+                is_sticky: true,
                 type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
+                is_droppable: true,
                 is_nested: false
             },
             {
@@ -126,10 +129,11 @@ const DefaultLayout = () => {
                 h: 2,
                 x: 0,
                 y: 0,
-                // is_sticky: true,
+                is_sticky: true,
                 type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
+                is_droppable: true,
                 is_nested: false
             },
             {
@@ -138,7 +142,7 @@ const DefaultLayout = () => {
                 h: 2,
                 x: 0,
                 y: 0,
-                // is_sticky: true,
+                is_sticky: true,
                 type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
@@ -168,7 +172,7 @@ const DefaultLayout = () => {
                 w: 4,
                 h: 10,
                 i: '1',
-                // is_sticky: true,
+                is_sticky: true,
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
@@ -181,7 +185,7 @@ const DefaultLayout = () => {
                 w: 2,
                 h: 10,
                 i: '2',
-                // is_sticky: true,
+                is_sticky: true,
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
@@ -194,7 +198,7 @@ const DefaultLayout = () => {
                 w: 4,
                 h: 10,
                 i: '3',
-                // is_sticky: true,
+                is_sticky: true,
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
@@ -209,6 +213,7 @@ const DefaultLayout = () => {
                 i: '6',
                 is_resizable: true,
                 is_draggable: true,
+                is_droppable: true,
                 type: WidgetType.grid
             },
             {
@@ -219,6 +224,7 @@ const DefaultLayout = () => {
                 i: '7',
                 is_resizable: true,
                 is_draggable: true,
+                is_droppable: true,
                 type: WidgetType.grid
             },
             {
@@ -227,9 +233,10 @@ const DefaultLayout = () => {
                 w: 2,
                 h: 3,
                 i: '8',
-                // is_sticky: true,
+                is_sticky: true,
                 is_resizable: true,
                 is_draggable: true,
+                is_droppable: true,
                 type: WidgetType.grid
             },
             {
@@ -238,9 +245,10 @@ const DefaultLayout = () => {
                 w: 2,
                 h: 2,
                 i: '9',
-                // is_sticky: true,
+                is_sticky: true,
                 is_resizable: true,
                 is_draggable: true,
+                is_droppable: true,
                 type: WidgetType.grid
             }
         ];

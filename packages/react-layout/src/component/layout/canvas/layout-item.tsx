@@ -53,7 +53,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         max_x,
         min_y,
         max_y,
-        is_sticky
+        is_sticky,
+        is_resizable,
+        is_draggable
     } = props;
 
     const { operator_type, registry, sticky_target_queue } =
@@ -136,8 +138,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     }
 
     const y = sticky_pos.current;
-    const is_resizable = y !== props.y ? false : props.is_resizable;
-    const is_draggable = y !== props.y ? false : props.is_draggable;
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
