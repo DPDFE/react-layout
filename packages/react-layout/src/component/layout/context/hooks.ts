@@ -23,8 +23,8 @@ import {
     WRAPPER_PADDING
 } from './calc';
 import ResizeObserver from 'resize-observer-polyfill';
-import { LayoutContext } from './context';
-import { clamp, DEFAULT_BOUND } from './canvas/draggable';
+import { LayoutContext } from '.';
+import { clamp, DEFAULT_BOUND } from '../../canvas/draggable';
 import { useScroll } from 'ahooks';
 
 export const useLayoutHooks = (
@@ -47,36 +47,36 @@ export const useLayoutHooks = (
 
     const { operator_type } = useContext(LayoutContext);
 
-    /**
-     * 让阴影定位组件位于可视范围内
-     */
-    useLayoutEffect(() => {
-        /** 判断元素是否消失 */
-        const intersectionObserverInstance = new IntersectionObserver(
-            (entries) => {
-                entries.map((entry) => {
-                    if (!entry.intersectionRatio) {
-                        shadow_widget_ref.current?.scrollIntoView({
-                            block: 'nearest',
-                            inline: 'nearest'
-                        });
-                    }
-                });
-            },
-            { root: canvas_viewport_ref.current }
-        );
+    // /**
+    //  * 让阴影定位组件位于可视范围内
+    //  */
+    // useLayoutEffect(() => {
+    //     /** 判断元素是否消失 */
+    //     const intersectionObserverInstance = new IntersectionObserver(
+    //         (entries) => {
+    //             entries.map((entry) => {
+    //                 if (!entry.intersectionRatio) {
+    //                     shadow_widget_ref.current?.scrollIntoView({
+    //                         block: 'nearest',
+    //                         inline: 'nearest'
+    //                     });
+    //                 }
+    //             });
+    //         },
+    //         { root: canvas_viewport_ref.current }
+    //     );
 
-        shadow_widget &&
-            shadow_widget_ref.current &&
-            intersectionObserverInstance.observe(shadow_widget_ref.current);
-        return () => {
-            shadow_widget &&
-                shadow_widget_ref.current &&
-                intersectionObserverInstance.unobserve(
-                    shadow_widget_ref.current
-                );
-        };
-    }, [JSON.stringify(shadow_widget)]);
+    //     shadow_widget &&
+    //         shadow_widget_ref.current &&
+    //         intersectionObserverInstance.observe(shadow_widget_ref.current);
+    //     return () => {
+    //         shadow_widget &&
+    //             shadow_widget_ref.current &&
+    //             intersectionObserverInstance.unobserve(
+    //                 shadow_widget_ref.current
+    //             );
+    //     };
+    // }, [JSON.stringify(shadow_widget)]);
 
     /** 监听容器变化，重新计算width、height、grid */
     useLayoutEffect(() => {
@@ -159,7 +159,7 @@ export const useLayoutHooks = (
     const grid = useMemo(() => {
         const { item_margin, cols, row_height } = props;
 
-        const sub_left = current_width - Math.max(padding.left, item_margin[1]);
+        const sub_left = current_width - 2 * item_margin[1];
         const width = sub_left - Math.max(item_margin[1] - padding.right, 0);
 
         return {

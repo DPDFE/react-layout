@@ -157,6 +157,14 @@ export function getAllCollisions(sorted: LayoutItem[], item: LayoutItem) {
     return sorted.filter((l) => collides(l, item));
 }
 
+/**
+ *
+ * @param layout
+ * @param l
+ * @param collision
+ * @param is_user_action
+ * @returns
+ */
 function moveElementAwayFromCollision(
     layout: LayoutItem[],
     l: LayoutItem,
@@ -188,6 +196,15 @@ function moveElementAwayFromCollision(
     return moveElement(layout, collision, collision.x, collision.y + 1);
 }
 
+/**
+ * 移动元素
+ * @param layout
+ * @param l
+ * @param x
+ * @param y
+ * @param is_user_action
+ * @returns
+ */
 export function moveElement(
     layout: LayoutItem[],
     l: LayoutItem,
@@ -222,7 +239,12 @@ export function moveElement(
     return layout;
 }
 
-// 生成从0开始的数组
+/**
+ * 生成从0开始的数组
+ * @param count1
+ * @param count2
+ * @returns
+ */
 export const reciprocalNum = (count1: number, count2: number) => {
     const list: any[] = [];
     for (let i = -count1; i <= count2; i++) {
@@ -231,13 +253,23 @@ export const reciprocalNum = (count1: number, count2: number) => {
     return list;
 };
 
-// 获取5的整数倍数值
+/**
+ * 获取5的整数倍数值
+ * @param count
+ * @param approximation
+ * @returns
+ */
 export const fiveMultipleIntergral = (count: number, approximation = 5) => {
     const max = Math.ceil(count / approximation) * approximation;
     const min = Math.floor(count / approximation) * approximation;
     return max - count >= approximation / 2 ? min : max;
 };
 
+/**
+ * 补全padding
+ * @param bound
+ * @returns
+ */
 export function completedPadding(
     bound?: [number, number?, number?, number?]
 ): MarginType {
@@ -281,10 +313,21 @@ export function completedPadding(
     return pos;
 }
 
+/**
+ * 取中间值
+ * @param client
+ * @param calc
+ * @returns
+ */
 export function calcOffset(client: number, calc: number) {
     return client - calc > 0 ? (client - calc) / 2 : 0;
 }
 
+/**
+ * 格式化输出
+ * @param arr
+ * @returns
+ */
 export function formatOutputValue(arr: LayoutItem[]) {
     return arr.map((item) => {
         delete item.is_dragging;

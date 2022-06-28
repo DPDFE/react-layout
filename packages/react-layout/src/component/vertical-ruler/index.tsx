@@ -1,12 +1,12 @@
-import { DirectionType, VerticalRulerProps } from "@/interfaces";
+import { DirectionType, VerticalRulerProps } from '@/interfaces';
 import {
     fiveMultipleIntergral,
     reciprocalNum,
-    RULER_GAP,
-} from "@/component/layout/calc";
-import React, { useEffect, useState } from "react";
-import styles from "./styles.module.css";
-import { addEvent, removeEvent } from "@dpdfe/event-utils";
+    RULER_GAP
+} from '@/component/layout/context/calc';
+import React, { useEffect, useState } from 'react';
+import styles from './styles.module.css';
+import { addEvent, removeEvent } from '@dpdfe/event-utils';
 
 const VerticalRuler = (props: VerticalRulerProps) => {
     const [y_offset, setYOffset] = useState<number[]>([]); // 尺子垂直间隔
@@ -18,7 +18,7 @@ const VerticalRuler = (props: VerticalRulerProps) => {
         canvas_viewport_ref,
         t_offset,
         setRulerHoverPos,
-        addGuideLine,
+        addGuideLine
     } = props;
 
     const viewport_pos = canvas_viewport_ref.current?.getBoundingClientRect();
@@ -57,13 +57,13 @@ const VerticalRuler = (props: VerticalRulerProps) => {
         calcVerticalRulerPos();
         addEvent(
             props.canvas_viewport_ref.current,
-            "scroll",
+            'scroll',
             calcVerticalRulerPos
         );
         return () => {
             removeEvent(
                 props.canvas_viewport_ref.current,
-                "scroll",
+                'scroll',
                 calcVerticalRulerPos
             );
         };
@@ -75,7 +75,7 @@ const VerticalRuler = (props: VerticalRulerProps) => {
                 className={styles.vertical}
                 style={{
                     paddingTop: ruler_offset_top,
-                    marginTop: ruler_align_top,
+                    marginTop: ruler_align_top
                 }}
                 onMouseMove={(e) => {
                     setRulerHoverPos({
@@ -85,7 +85,7 @@ const VerticalRuler = (props: VerticalRulerProps) => {
                             t_offset +
                             canvas_viewport_ref.current!.scrollTop -
                             Math.floor(viewport_pos!.y),
-                        direction: DirectionType.vertical,
+                        direction: DirectionType.vertical
                     });
                 }}
                 onMouseOut={() => {
@@ -100,7 +100,7 @@ const VerticalRuler = (props: VerticalRulerProps) => {
                                 canvas_viewport_ref.current!.scrollTop -
                                 Math.floor(viewport_pos!.y)) /
                             props.scale,
-                        direction: DirectionType.vertical,
+                        direction: DirectionType.vertical
                     });
                 }}
             >

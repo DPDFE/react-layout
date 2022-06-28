@@ -8,7 +8,7 @@ import React, {
 } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
-import WidgetItem from './canvas/layout-item';
+import WidgetItem from '../canvas/layout-item';
 import {
     compact,
     moveElement,
@@ -16,7 +16,7 @@ import {
     moveToWidget,
     formatInputValue,
     replaceWidget
-} from './calc';
+} from './context/calc';
 import styles from './styles.module.css';
 import {
     LayoutMode,
@@ -31,8 +31,8 @@ import {
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
-import { clamp } from './canvas/draggable';
-import { useLayoutHooks } from './hooks';
+import { clamp } from '../canvas/draggable';
+import { useLayoutHooks } from './context/hooks';
 import isEqual from 'lodash.isequal';
 import { LayoutContext } from './context';
 import drawGridLines from './grid-lines';
@@ -182,7 +182,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
         operator_type.current = operator;
 
-        let result = {};
+        let result = getCurrentCoveredLayout(e, current_widget, item_pos);
 
         if (START_OPERATOR.includes(operator)) {
             setCurrentChecked(current_widget.i);
@@ -303,7 +303,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         // 删除旧布局的影子
         if (
             widget.is_droppable &&
-            covered_layout !== moving_droppable.current
+            covered_layout.id !== moving_droppable.current?.id
         ) {
             if (moving_droppable.current) {
                 registry.droppable
@@ -351,7 +351,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
      */
     const move = useCallback(
         (current_widget: LayoutItem, item_pos: ItemPos) => {
-            console.log(item_pos);
             moveToWidget(current_widget, item_pos);
             setLayout([...layout]);
         },
@@ -463,6 +462,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         layout_id: moving_droppable.current!.id,
                         widgets: replaceWidget(layout, shadow_widget)
                     },
+                    widget: shadow_widget,
                     destination: undefined
                 };
             } else {
@@ -473,6 +473,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             shadow_widget.i
                         )
                     },
+                    widget: shadow_widget,
                     destination: {
                         layout_id: moving_droppable.current!.id,
                         widgets: [shadow_widget].concat(filter_layout)

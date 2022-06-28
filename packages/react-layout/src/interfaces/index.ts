@@ -346,7 +346,7 @@ export type WidgetLocation = {
 export type DragSourceResult = {
     type: OperatorType;
     widget_id: string;
-    source?: WidgetLocation;
+    source: WidgetLocation;
 };
 
 export type DragDestinationResult = DragSourceResult & {

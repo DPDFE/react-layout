@@ -18,14 +18,14 @@ import React, {
     useLayoutEffect
 } from 'react';
 
-import { MIN_DRAG_LENGTH } from '../calc';
+import { MIN_DRAG_LENGTH } from '../layout/context/calc';
 import Draggable, { clamp } from './draggable';
 import Resizable from './resizable';
 // vite在watch模式下检测style变化需要先将内容引进来才能监听到
 import styles from './styles.module.css';
 import './styles.module.css';
-import { LayoutContext } from '../context';
-import { CHANGE_OPERATOR } from '../constants';
+import { LayoutContext } from '../layout/context';
+import { CHANGE_OPERATOR } from '../layout/constants';
 import { useScroll } from 'ahooks';
 
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
@@ -126,8 +126,9 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     }
 
     // 可以同时置顶一批元素，当前元素，没有被顶掉
+    // 操作过程中不置顶
     const is_sticky_target = sticky_target_queue.current.find(
-        (q) => q.id === i && q.is_sticky
+        (q) => q.id === i && q.is_sticky && operator_type.current === undefined
     );
 
     // 当前置顶的元素，是否处于置顶状态，如果处于置顶状态高度为滚动高度，否则是自身原来高度
@@ -290,7 +291,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ].join(' ')}`,
         style: {
             border: '1px solid transparent',
-            transition: setTransition(),
             width: w,
             height: h,
             ...child.props.style,
@@ -298,7 +298,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'
                     : 'inherit',
-            zIndex: is_sticky_target || is_dragging ? 1000 : 'auto'
+            zIndex: is_sticky_target || is_dragging ? 1000 : 'auto',
+            transition: setTransition()
         },
         children: getCurrentChildren()
     });
