@@ -39,6 +39,8 @@ const Draggable = (props: DraggableProps) => {
     const [drag_state, setDragState] = useState<DragStates>();
     const [mouse_pos, setMousePos] = useState<Pos>({ x: 0, y: 0 }); // 鼠标点击坐标
     const [start_pos, setStartPos] = useState<Pos>({ x: 0, y: 0 });
+    const [current_pos, setCurrentPos] =
+        useState<{ e: MouseEvent; x: number; y: number }>();
     const mouse_event_ref = useRef<MouseEvent>();
     const is_dragging = useRef<Boolean>(false);
 
@@ -145,6 +147,8 @@ const Draggable = (props: DraggableProps) => {
             y: clamp(start_pos.y + delta_y, min_y, max_y)
         };
 
+        setCurrentPos(pos);
+
         if (
             drag_state === DragStates.dragging &&
             isSloppyClickThresholdExceeded(mouse_pos, {
@@ -165,11 +169,9 @@ const Draggable = (props: DraggableProps) => {
     const handleDragStop = (e: MouseEvent) => {
         is_dragging.current = false;
         removeDragEvent();
-        props.onDragStop?.({
-            e,
-            x: props.x,
-            y: props.y
-        });
+        if (current_pos) {
+            props.onDragStop?.(current_pos);
+        }
 
         setDragState(undefined);
     };

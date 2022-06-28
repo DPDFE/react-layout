@@ -421,6 +421,7 @@ const DefaultLayout = () => {
                         // );
                         const { source, destination } = result;
                         handleWidgetsChange(source.layout_id, source.widgets);
+
                         destination &&
                             handleWidgetsChange(
                                 destination.layout_id,

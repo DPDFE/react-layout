@@ -144,6 +144,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
         return {
             is_droppable: true,
+            is_draggable: true,
+            is_resizable: true,
             ...drop_item,
             ...(layout_type === LayoutType.GRID
                 ? {
@@ -349,6 +351,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
      */
     const move = useCallback(
         (current_widget: LayoutItem, item_pos: ItemPos) => {
+            console.log(item_pos);
             moveToWidget(current_widget, item_pos);
             setLayout([...layout]);
         },
@@ -428,7 +431,19 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 );
             }
 
-            compact([shadow_widget].concat(filter_layout));
+            const compact_with = compact([shadow_widget].concat(filter_layout));
+            const compact_with_mappings = {};
+            compact_with.map((c) => {
+                compact_with_mappings[c.i] = copyObject(c);
+            });
+
+            setLayout(
+                layout.map((l) => {
+                    return compact_with_mappings[l.i] && shadow_widget.i !== l.i
+                        ? compact_with_mappings[l.i]
+                        : l;
+                })
+            );
 
             // 最后保存状态的时候不画shadow
             if (
@@ -704,6 +719,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                       OperatorType.dropover,
                                       getDropItem(e)
                                   );
+                                  drag_item.current = undefined;
                               }
                             : noop
                     }
@@ -717,8 +733,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                   const widget = getDropItem(e);
                                   delete drag_item.current?.is_dragging;
 
-                                  //  不要开火太多次
+                                  if (!drag_item.current) {
+                                      handleResponder(
+                                          e,
+                                          OperatorType.dragstart,
+                                          widget
+                                      );
+                                  }
                                   if (!isEqual(drag_item.current, widget)) {
+                                      //  不要开火太多次
                                       handleResponder(
                                           e,
                                           OperatorType.drop,
