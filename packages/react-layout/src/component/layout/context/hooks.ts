@@ -159,7 +159,7 @@ export const useLayoutHooks = (
     const grid = useMemo(() => {
         const { item_margin, cols, row_height } = props;
 
-        const sub_left = current_width - 2 * item_margin[1];
+        const sub_left = current_width - Math.max(padding.left, item_margin[1]);
         const width = sub_left - Math.max(item_margin[1] - padding.right, 0);
 
         return {
