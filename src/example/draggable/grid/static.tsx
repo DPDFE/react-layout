@@ -26,13 +26,27 @@ const DraggableGridStaticLayout = () => {
                 y: random,
                 is_resizable: false,
                 is_draggable: true,
+
                 type: WidgetType.grid
             };
         });
     }
 
     return (
-        <ReactLayoutContext>
+        <ReactLayoutContext
+            onDragStart={() => {
+                console.log('onDragStart');
+            }}
+            onDrag={(layout: LayoutItem[]) => {
+                // console.log('onDrag');
+            }}
+            onDragStop={(layout: { source: any }) => {
+                console.log('onDragStop');
+                console.log(layout);
+                const { source } = layout;
+                setWidgets(source.widgets);
+            }}
+        >
             <ReactLayout
                 widgets={widgets}
                 style={{ background: '#fff' }}
@@ -44,16 +58,6 @@ const DraggableGridStaticLayout = () => {
                 need_grid_bound={true}
                 layout_type={LayoutType.DRAG}
                 mode={LayoutMode.edit}
-                onDragStart={() => {
-                    console.log('onDragStart');
-                }}
-                onDrag={(layout: LayoutItem[]) => {
-                    // console.log('onDrag');
-                }}
-                onDragStop={(layout: LayoutItem[]) => {
-                    console.log('onDragStop');
-                    setWidgets(layout);
-                }}
             >
                 {widgets.map((w) => {
                     return (
