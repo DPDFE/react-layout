@@ -461,7 +461,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     widget: shadow_widget,
                     destination: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: [shadow_widget].concat(new_layout)
+                        widgets: [
+                            compact_with_mappings[shadow_widget.i]
+                        ].concat(new_layout)
                     }
                 };
             }
