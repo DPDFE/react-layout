@@ -180,12 +180,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
         e.preventDefault();
         e.stopPropagation();
 
-        operator_type.current = operator;
+        let result = undefined;
 
-        let result = getCurrentCoveredLayout(e, current_widget, item_pos);
+        operator_type.current = operator;
 
         if (START_OPERATOR.includes(operator)) {
             setCurrentChecked(current_widget.i);
+            result = getCurrentCoveredLayout(e, current_widget, item_pos);
         }
         if (CHANGE_OPERATOR.includes(operator)) {
             current_widget.is_dragging = true;
@@ -195,12 +196,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
         if (END_OPERATOR.includes(operator)) {
             current_widget.is_dragging = false;
 
+            result = getCurrentCoveredLayout(e, current_widget, item_pos);
+
             moving_droppable.current &&
                 registry.droppable
                     .getById(moving_droppable.current.id)
                     .cleanShadow(current_widget);
-
-            result = getCurrentCoveredLayout(e, current_widget, item_pos);
 
             start_droppable.current = undefined;
             moving_droppable.current = undefined;
@@ -338,8 +339,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const getRef = useCallback(() => canvas_ref.current, [canvas_ref.current]);
 
-    const getCurrentLayout = useCallback(() => layout, [layout]);
-
     const getViewPortRef = useCallback(
         () => canvas_viewport_ref.current,
         [canvas_viewport_ref.current]
@@ -406,21 +405,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
                 snapToGrid(shadow_widget);
 
-                const { max_x, min_x, max_y, min_y } = getCurrentBound(
-                    current_widget.type
-                );
-
-                shadow_widget.x = clamp(
-                    shadow_widget.x,
-                    min_x,
-                    max_x - shadow_widget.w
-                );
-                shadow_widget.y = clamp(
-                    shadow_widget.y,
-                    min_y,
-                    max_y - shadow_widget.h
-                );
-
                 moveElement(
                     filter_layout,
                     shadow_widget,
@@ -431,25 +415,26 @@ const ReactLayout = (props: ReactLayoutProps) => {
             }
 
             const compact_with = compact([shadow_widget].concat(filter_layout));
+
             const compact_with_mappings = {};
             compact_with.map((c) => {
                 compact_with_mappings[c.i] = copyObject(c);
             });
 
-            setLayout(
-                layout.map((l) => {
-                    return compact_with_mappings[l.i] && shadow_widget.i !== l.i
-                        ? compact_with_mappings[l.i]
-                        : l;
-                })
-            );
+            const new_layout = layout.map((l) => {
+                return compact_with_mappings[l.i]
+                    ? compact_with_mappings[l.i]
+                    : l;
+            });
 
             // 最后保存状态的时候不画shadow
             if (
                 operator_type.current &&
-                !END_OPERATOR.includes(operator_type.current)
+                [OperatorType.drag, OperatorType.drop].includes(
+                    operator_type.current
+                )
             ) {
-                setShadowWidget(shadow_widget);
+                setShadowWidget(compact_with_mappings[shadow_widget.i]);
             }
 
             if (
@@ -460,7 +445,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 return {
                     source: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: replaceWidget(layout, shadow_widget)
+                        widgets: new_layout
                     },
                     widget: shadow_widget,
                     destination: undefined
@@ -476,7 +461,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     widget: shadow_widget,
                     destination: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: [shadow_widget].concat(filter_layout)
+                        widgets: [shadow_widget].concat(new_layout)
                     }
                 };
             }
