@@ -1,5 +1,5 @@
 import React, { FC, useEffect } from 'react';
-import { ReactLayoutContextProps } from '@/interfaces';
+import { ItemPos, ReactLayoutContextProps } from '@/interfaces';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { LayoutItem, OperatorType, StickyTarget } from '@/interfaces';
@@ -31,9 +31,11 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
 
     const drop_enter_counter = useRef<number>(0); // 拖拽状态
 
-    const drag_item = useRef<LayoutItem>();
+    const drag_item = useRef<LayoutItem>(); // 拖拽的元素
 
-    const [checked_index, setCurrentChecked] = useState<string>();
+    const [checked_index, setCurrentChecked] = useState<string>(); // 选中widget index
+
+    const [placeholder, setPlaceHolder] = useState<ItemPos>(); // 全局的阴影
 
     const getResponders = useCallback(() => {
         const {
@@ -80,7 +82,9 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             start_droppable,
             moving_droppable,
             drop_enter_counter,
-            drag_item
+            drag_item,
+            placeholder,
+            setPlaceHolder
         };
     }, [
         sticky_target_queue,
@@ -92,7 +96,9 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
         start_droppable,
         moving_droppable,
         drop_enter_counter,
-        drag_item
+        drag_item,
+        placeholder,
+        setPlaceHolder
     ]);
 };
 

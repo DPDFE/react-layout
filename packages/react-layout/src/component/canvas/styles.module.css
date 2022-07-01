@@ -1,4 +1,4 @@
-@value colors: "../../../style/theme.css";
+@value colors: "../../style/theme.css";
 @value light_theme, black_theme, light_theme_border, dark_theme_border from colors;
 /* @value transition_time: none; */
 @value transition_time: all 0.1s linear;

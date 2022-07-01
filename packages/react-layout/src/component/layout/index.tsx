@@ -56,7 +56,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
         moving_droppable,
         getResponders,
         drop_enter_counter,
-        drag_item
+        drag_item,
+        placeholder,
+        setPlaceHolder
     } = useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
@@ -66,9 +68,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const canvas_ref = useRef<HTMLDivElement>(null);
     const shadow_widget_ref = useRef<HTMLDivElement>(null);
 
-    const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
+    const [shadow_pos, setShadowPos] = useState<ItemPos>(); //上一时刻阴影的计算结果
 
-    const [shadow_widget, setShadowWidget] = useState<ItemPos>();
+    const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
 
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
@@ -91,7 +93,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         container_ref,
         canvas_viewport_ref,
         shadow_widget_ref,
-        shadow_widget
+        placeholder
     );
 
     /**
@@ -195,7 +197,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
         if (END_OPERATOR.includes(operator)) {
             current_widget.is_dragging = false;
-
             result = getCurrentCoveredLayout(e, current_widget, item_pos);
 
             moving_droppable.current &&
@@ -361,7 +362,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
      */
     const cleanShadow = useCallback(
         (current_widget) => {
-            setShadowWidget(undefined);
+            setPlaceHolder(undefined);
             const filter_layout = current_widget
                 ? getFilterLayoutById(current_widget.i)
                 : layout;
@@ -378,8 +379,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
      */
     const addShadow = useCallback(
         (current_widget: LayoutItem) => {
-            const shadow_widget = cloneWidget(current_widget);
+            const shadow = cloneWidget(current_widget);
             const filter_layout = getFilterLayoutById(current_widget.i);
+
+            const compact_with_mappings = {};
 
             if (current_widget.type === WidgetType.grid) {
                 if (
@@ -398,28 +401,33 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     ).getBoundingClientRect();
 
                     if (start_pos && moving_pos) {
-                        shadow_widget.x -= moving_pos.left - start_pos.left;
-                        shadow_widget.y -= moving_pos.top - start_pos.top;
+                        shadow.x -= moving_pos.left - start_pos.left;
+                        shadow.y -= moving_pos.top - start_pos.top;
                     }
                 }
 
-                snapToGrid(shadow_widget);
+                snapToGrid(shadow);
+                setShadowPos(cloneWidget(shadow));
 
-                moveElement(
-                    filter_layout,
-                    shadow_widget,
-                    shadow_widget.x,
-                    shadow_widget.y,
-                    true
-                );
+                const layout =
+                    shadow_pos &&
+                    shadow_pos.x == shadow.x &&
+                    shadow_pos.y == shadow.y
+                        ? filter_layout
+                        : moveElement(
+                              filter_layout,
+                              shadow,
+                              shadow.x,
+                              shadow.y,
+                              true
+                          );
+
+                const compact_with = compact([shadow].concat(layout));
+
+                compact_with.map((c) => {
+                    compact_with_mappings[c.i] = copyObject(c);
+                });
             }
-
-            const compact_with = compact([shadow_widget].concat(filter_layout));
-
-            const compact_with_mappings = {};
-            compact_with.map((c) => {
-                compact_with_mappings[c.i] = copyObject(c);
-            });
 
             const new_layout = layout.map((l) => {
                 return compact_with_mappings[l.i]
@@ -434,7 +442,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     operator_type.current
                 )
             ) {
-                setShadowWidget(compact_with_mappings[shadow_widget.i]);
+                setPlaceHolder(compact_with_mappings[shadow.i]);
             }
 
             if (
@@ -447,7 +455,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         layout_id: moving_droppable.current!.id,
                         widgets: new_layout
                     },
-                    widget: shadow_widget,
+                    widget: shadow,
                     destination: undefined
                 };
             } else {
@@ -455,20 +463,18 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     source: {
                         layout_id: start_droppable.current!.id,
                         widgets: start_droppable.current!.getFilterLayoutById(
-                            shadow_widget.i
+                            shadow.i
                         )
                     },
-                    widget: shadow_widget,
+                    widget: shadow,
                     destination: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: [
-                            compact_with_mappings[shadow_widget.i]
-                        ].concat(new_layout)
+                        widgets: [shadow].concat(new_layout)
                     }
                 };
             }
         },
-        [layout, grid]
+        [layout, grid, shadow_pos]
     );
 
     useEffect(() => {
@@ -511,16 +517,17 @@ const ReactLayout = (props: ReactLayoutProps) => {
      */
     const shadowGridItem = () => {
         return (
-            shadow_widget && (
+            placeholder &&
+            moving_droppable.current?.id === props.layout_id && (
                 <WidgetItem
-                    {...snapToDrag(shadow_widget)}
+                    {...snapToDrag(placeholder)}
                     key='shadow'
                     layout_id={props.layout_id}
                     ref={shadow_widget_ref}
                     padding={padding}
                     margin={props.item_margin}
                     is_placeholder={true}
-                    bound={getCurrentBound(shadow_widget.type)}
+                    bound={getCurrentBound(placeholder.type)}
                     scale={props.scale}
                     mode={LayoutMode.view}
                     grid={grid}
