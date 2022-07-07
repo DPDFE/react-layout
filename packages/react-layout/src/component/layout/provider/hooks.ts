@@ -21,11 +21,10 @@ import {
     replaceWidget,
     snapToDragBound,
     WRAPPER_PADDING
-} from './calc';
+} from '../context/calc';
 import ResizeObserver from 'resize-observer-polyfill';
-import { LayoutContext } from '.';
+import { LayoutContext } from '../context';
 import { clamp, DEFAULT_BOUND } from '../../canvas/draggable';
-import { useScroll } from 'ahooks';
 
 export const useLayoutHooks = (
     layout: LayoutItem[],
@@ -100,12 +99,12 @@ export const useLayoutHooks = (
 
     /** 视窗宽度 */
     const client_width = useMemo(() => {
-        return canvas_viewport_ref.current?.clientWidth ?? 0;
+        return canvas_viewport_ref.current?.offsetWidth ?? 0;
     }, [is_window_resize]);
 
     /** 视窗高度 */
     const client_height = useMemo(() => {
-        return canvas_viewport_ref.current?.clientHeight ?? 0;
+        return canvas_viewport_ref.current?.offsetHeight ?? 0;
     }, [is_window_resize]);
 
     /** 补全边距 */

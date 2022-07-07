@@ -32,7 +32,7 @@ import {
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
 import { clamp } from '../canvas/draggable';
-import { useLayoutHooks } from './context/hooks';
+import { useLayoutHooks } from './provider/hooks';
 import isEqual from 'lodash.isequal';
 import { LayoutContext } from './context';
 import drawGridLines from './grid-lines';
@@ -651,6 +651,20 @@ const ReactLayout = (props: ReactLayoutProps) => {
         }
     };
 
+    /**
+     * 设置选择样式
+     * @returns
+     */
+    const setUserSelect = () => {
+        const user_select: 'none' | 'auto' =
+            props.mode === LayoutMode.edit ? 'none' : 'auto';
+        return {
+            UserSelect: user_select,
+            WebkitUserSelect: user_select,
+            MozUserSelect: user_select
+        };
+    };
+
     return (
         <div
             className={classNames(
@@ -659,12 +673,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 props.className
             )}
             ref={container_ref}
-            style={{
-                userSelect: props.mode === LayoutMode.edit ? 'none' : 'auto',
-                WebkitUserSelect:
-                    props.mode === LayoutMode.edit ? 'none' : 'auto',
-                MozUserSelect: props.mode === LayoutMode.edit ? 'none' : 'auto'
-            }}
+            style={setUserSelect()}
         >
             {/* 水平标尺 */}
             {canvas_viewport_ref.current && props.need_ruler && (

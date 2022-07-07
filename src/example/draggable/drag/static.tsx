@@ -35,7 +35,7 @@ const DraggableDragStaticLayout = () => {
         <ReactLayoutContext>
             <ReactLayout
                 widgets={widgets}
-                style={{ background: '#fff' }}
+                style={{ background: '#d6b4b4' }}
                 need_ruler
                 height={600}
                 width={1200}
