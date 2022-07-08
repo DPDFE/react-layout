@@ -90,7 +90,7 @@ const DefaultLayout = () => {
                 h: 2,
                 x: 0,
                 y: 0,
-                is_sticky: true,
+                is_sticky: false,
                 type: WidgetType.grid,
                 is_resizable: true,
                 is_draggable: true,
@@ -233,7 +233,7 @@ const DefaultLayout = () => {
                 w: 2,
                 h: 3,
                 i: '8',
-                // is_sticky: true,
+                is_sticky: true,
                 is_resizable: true,
                 is_draggable: true,
                 is_droppable: true,
@@ -295,7 +295,7 @@ const DefaultLayout = () => {
                 cols={8}
                 item_margin={[10, 10]}
                 need_drag_bound={false}
-                need_grid_bound={false}
+                need_grid_bound={true}
                 is_nested_layout={true}
                 // onDrop={(layout: LayoutItem[], item: ItemPos) => {
                 //     const drop_element = JSON.parse(
@@ -616,7 +616,7 @@ const DefaultLayout = () => {
                                                     cols={8}
                                                     item_margin={[10, 10]}
                                                     need_drag_bound={false}
-                                                    need_grid_bound={false}
+                                                    need_grid_bound={true}
                                                     is_nested_layout={true}
                                                 >
                                                     {widgets2.map((w) => {

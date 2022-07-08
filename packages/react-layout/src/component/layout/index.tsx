@@ -31,7 +31,7 @@ import {
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
-import { clamp } from '../canvas/draggable';
+import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
 import { useLayoutHooks } from './provider/hooks';
 import isEqual from 'lodash.isequal';
 import { LayoutContext } from './context';
@@ -84,8 +84,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         l_offset,
         padding,
         boundControl,
-        getCurrentBound,
-        snapToDrag,
+        getBoundingSize,
         snapToGrid
     } = useLayoutHooks(
         layout,
@@ -438,9 +437,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             // 最后保存状态的时候不画shadow
             if (
                 operator_type.current &&
-                [OperatorType.drag, OperatorType.drop].includes(
-                    operator_type.current
-                )
+                CHANGE_OPERATOR.includes(operator_type.current)
             ) {
                 setPlaceHolder(compact_with_mappings[shadow.i]);
             }
@@ -503,13 +500,26 @@ const ReactLayout = (props: ReactLayoutProps) => {
     }, [operator_type.current]);
 
     useEffect(() => {
-        grid_lines_ref.current &&
-            drawGridLines(
-                grid_lines_ref.current,
-                current_width,
-                current_height
-            );
+        drawGridLines(current_width, current_height, grid_lines_ref.current);
     }, [current_width, current_height, grid_lines_ref.current]);
+
+    /**
+     * 偏移量
+     */
+    const getMarginSize = {
+        [WidgetType.drag]: {
+            margin_height: 0,
+            margin_width: 0,
+            offset_x: 0,
+            offset_y: 0
+        },
+        [WidgetType.grid]: {
+            margin_height: props.item_margin[0],
+            margin_width: props.item_margin[1],
+            offset_x: Math.max(props.item_margin[1], padding.left),
+            offset_y: Math.max(props.item_margin[0], padding.top)
+        }
+    };
 
     /**
      * shadow dom
@@ -520,14 +530,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
             placeholder &&
             moving_droppable.current?.id === props.layout_id && (
                 <WidgetItem
-                    {...snapToDrag(placeholder)}
+                    {...getMarginSize[placeholder.type]}
+                    {...DEFAULT_BOUND}
+                    {...placeholder}
                     key='shadow'
                     layout_id={props.layout_id}
                     ref={shadow_widget_ref}
                     padding={padding}
                     margin={props.item_margin}
                     is_placeholder={true}
-                    bound={getCurrentBound(placeholder.type)}
+                    bound={getBoundingSize[placeholder.type]}
                     scale={props.scale}
                     mode={LayoutMode.view}
                     grid={grid}
@@ -557,9 +569,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
         if (widget) {
             return (
                 <WidgetItem
+                    {...getMarginSize[widget.type]}
+                    {...(widget.is_dragging
+                        ? DEFAULT_BOUND
+                        : getBoundingSize[widget.type])}
                     layout_id={props.layout_id}
                     key={widget.i}
-                    {...snapToDrag(widget)}
+                    {...widget}
                     padding={padding}
                     margin={props.item_margin}
                     {...child.props}
@@ -791,6 +807,25 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             height: wrapper_height
                         }}
                     >
+                        {/* 网格线 */}
+                        {props.mode === LayoutMode.edit &&
+                            registry.droppable.getFirstRegister()?.id ===
+                                props.layout_id &&
+                            props.need_grid_lines && (
+                                <canvas
+                                    width={current_width}
+                                    height={current_height}
+                                    ref={grid_lines_ref}
+                                    style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        top: 0,
+                                        left: 0,
+                                        position: 'absolute',
+                                        pointerEvents: 'none'
+                                    }}
+                                ></canvas>
+                            )}
                         {/* 实际画布区域 */}
                         <div
                             id={props.layout_id}
@@ -823,23 +858,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                       })
                             }}
                         >
-                            {/* 网格线 */}
-                            {props.mode === LayoutMode.edit &&
-                                props.need_grid_lines && (
-                                    <canvas
-                                        width={current_width}
-                                        height={current_height}
-                                        ref={grid_lines_ref}
-                                        style={{
-                                            width: '100%',
-                                            height: '100%',
-                                            top: 0,
-                                            left: 0,
-                                            position: 'absolute',
-                                            pointerEvents: 'none'
-                                        }}
-                                    ></canvas>
-                                )}
                             {shadowGridItem()}
                             {layout.length > 0 &&
                                 props.children.map((child) => {

@@ -19,7 +19,7 @@ import React, {
 } from 'react';
 
 import { MIN_DRAG_LENGTH } from '../layout/context/calc';
-import Draggable, { clamp } from './draggable';
+import Draggable, { clamp, DEFAULT_BOUND } from './draggable';
 import Resizable from './resizable';
 // vite在watch模式下检测style变化需要先将内容引进来才能监听到
 import styles from './styles.module.css';
@@ -36,11 +36,13 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const { col_width, row_height } = props.grid;
 
+    const { operator_type, registry, sticky_target_queue } =
+        useContext(LayoutContext);
+
+    const pos = useScroll(props.canvas_viewport_ref.current);
+
     const {
         i,
-        w,
-        h,
-        x,
         type,
         is_dragging,
         need_border_draggable_handler,
@@ -49,24 +51,37 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         offset_y,
         margin_height,
         margin_width,
-        min_x,
-        max_x,
-        min_y,
-        max_y,
         is_sticky,
         is_resizable,
-        is_draggable
+        is_draggable,
+        min_x,
+        min_y,
+        max_x,
+        max_y
     } = props;
 
-    const { operator_type, registry, sticky_target_queue } =
-        useContext(LayoutContext);
+    const gridX = (count: number) => {
+        return type === WidgetType.drag || is_dragging
+            ? count
+            : count * col_width;
+    };
+    const gridY = (count: number) => {
+        return type === WidgetType.drag || is_dragging
+            ? count
+            : count * row_height;
+    };
 
-    const pos = useScroll(props.canvas_viewport_ref.current);
-    const sticky_pos = useRef<number>(props.y);
+    const x = gridX(clamp(props.x, min_x, max_x - props.w)) + offset_x;
+    const _y = gridY(clamp(props.y, min_y, max_y - props.h)) + offset_y;
+
+    const w = Math.max(gridX(clamp(props.w, min_x, max_x)) - margin_width, 0);
+    const h = Math.max(gridY(clamp(props.h, min_y, max_y)) - margin_height, 0);
+
+    const sticky_pos = useRef<number>(_y);
 
     if (is_sticky && pos) {
         // 页面滚动到当前元素位置
-        if (pos.top - props.y > 0) {
+        if (pos.top - _y > 0) {
             // 曾经被添加过后被挤掉的元素不允许重新添加，滚动到过的元素
             const target = sticky_target_queue.current.find((q) => q.id === i);
 
@@ -81,7 +96,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         } else {
                             // 相交
                             //当前元素位于sticky元素上方 不操作
-                            if (q.y > props.y) {
+                            if (q.y > _y) {
                                 return q;
                             }
                             // 记录当前元素挤掉的元素，当当前元素还原后，被挤掉元素状态也可被还原
@@ -101,7 +116,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                             id: i,
                             max_x: x + w,
                             min_x: x,
-                            y: props.y,
+                            y: _y,
                             is_sticky: true,
                             replace_targets
                         }
@@ -135,7 +150,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     if (is_sticky_target && pos) {
         sticky_pos.current = pos.top;
     } else {
-        sticky_pos.current = props.y;
+        sticky_pos.current = _y;
     }
 
     const y = sticky_pos.current;
@@ -459,7 +474,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                         );
                     }}
                     {...getMinimumBoundary()}
-                    bound={{ max_x, max_y, min_x, min_y }}
                     onResizeStop={({ e, x, y, h, w }) => {
                         props.onResizeStop?.(
                             {

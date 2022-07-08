@@ -41,7 +41,7 @@ const DraggableDragStaticLayout = () => {
                 width={1200}
                 layout_type={LayoutType.DRAG}
                 mode={LayoutMode.edit}
-                need_drag_bound={true}
+                need_drag_bound={false}
                 onDragStart={() => {
                     console.log('onDragStart');
                 }}

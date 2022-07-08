@@ -14,25 +14,6 @@ export const WRAPPER_PADDING = 200; // 编辑状态下的边框
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
 
-export function snapToDragBound(
-    pos: BoundType,
-    grid: GridType,
-    type: WidgetType
-) {
-    const { row_height, col_width } = grid;
-
-    if (type === WidgetType.drag) {
-        return pos;
-    }
-
-    return {
-        min_x: pos.min_x * col_width,
-        min_y: pos.min_y * row_height,
-        max_x: pos.max_x * col_width,
-        max_y: pos.max_y * row_height
-    };
-}
-
 export function moveToWidget(target: LayoutItem, to: ItemPos) {
     target.x = to.x;
     target.y = to.y;
