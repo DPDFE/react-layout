@@ -3,7 +3,6 @@ const drawGridLines = (
     height: number,
     container: HTMLCanvasElement | null
 ) => {
-    console.log('render line', container);
     if (!container) return;
 
     // 为了防止字体模糊，获取当前屏幕的像素比，将内容按倍数放大绘制，然后缩放展示

@@ -228,7 +228,6 @@ export const useLayoutHooks = (
             max_right = Math.max(max_right, gridX(x + w) + padding.right);
             max_top = Math.min(max_top, gridY(y));
             max_bottom = Math.max(max_bottom, gridY(y + h) + padding.bottom);
-            // console.log(max_bottom, y, h, padding.bottom);
         }
 
         return { max_left, max_right, max_top, max_bottom };

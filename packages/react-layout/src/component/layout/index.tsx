@@ -181,36 +181,19 @@ const ReactLayout = (props: ReactLayoutProps) => {
         e.preventDefault();
         e.stopPropagation();
 
-        let result = undefined;
-
         operator_type.current = operator;
 
         if (START_OPERATOR.includes(operator)) {
             setCurrentChecked(current_widget.i);
-            result = getCurrentCoveredLayout(e, current_widget, item_pos);
         }
         if (CHANGE_OPERATOR.includes(operator)) {
             current_widget.is_dragging = true;
-            result = getCurrentCoveredLayout(e, current_widget, item_pos);
-        }
-
-        if (END_OPERATOR.includes(operator)) {
-            current_widget.is_dragging = false;
-            result = getCurrentCoveredLayout(e, current_widget, item_pos);
-
-            moving_droppable.current &&
-                registry.droppable
-                    .getById(moving_droppable.current.id)
-                    .cleanShadow(current_widget);
-
-            start_droppable.current = undefined;
-            moving_droppable.current = undefined;
         }
 
         const data = {
             type: operator,
             widget_id: current_widget.i,
-            ...result
+            ...getCurrentCoveredLayout(e, current_widget, item_pos)
         };
         const responders = getResponders();
         switch (operator) {
@@ -243,6 +226,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
         if (END_OPERATOR.includes(operator)) {
             responders.onChange?.(data);
+
+            moving_droppable.current &&
+                registry.droppable
+                    .getById(moving_droppable.current.id)
+                    .cleanShadow(current_widget);
+
+            start_droppable.current = undefined;
+            moving_droppable.current = undefined;
+            console.log('current_widget', current_widget);
         }
     };
 
@@ -501,7 +493,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     useEffect(() => {
         drawGridLines(current_width, current_height, grid_lines_ref.current);
-    }, [current_width, current_height, grid_lines_ref.current]);
+    }, [current_width, current_height]);
 
     /**
      * 偏移量
@@ -807,25 +799,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             height: wrapper_height
                         }}
                     >
-                        {/* 网格线 */}
-                        {props.mode === LayoutMode.edit &&
-                            registry.droppable.getFirstRegister()?.id ===
-                                props.layout_id &&
-                            props.need_grid_lines && (
-                                <canvas
-                                    width={current_width}
-                                    height={current_height}
-                                    ref={grid_lines_ref}
-                                    style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        top: 0,
-                                        left: 0,
-                                        position: 'absolute',
-                                        pointerEvents: 'none'
-                                    }}
-                                ></canvas>
-                            )}
                         {/* 实际画布区域 */}
                         <div
                             id={props.layout_id}
@@ -858,6 +831,25 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                       })
                             }}
                         >
+                            {/* 网格线 */}
+                            {props.mode === LayoutMode.edit &&
+                                registry.droppable.getFirstRegister()?.id ===
+                                    props.layout_id &&
+                                props.need_grid_lines && (
+                                    <canvas
+                                        width={current_width}
+                                        height={current_height}
+                                        ref={grid_lines_ref}
+                                        style={{
+                                            width: '100%',
+                                            height: '100%',
+                                            top: 0,
+                                            left: 0,
+                                            position: 'absolute',
+                                            pointerEvents: 'none'
+                                        }}
+                                    ></canvas>
+                                )}
                             {shadowGridItem()}
                             {layout.length > 0 &&
                                 props.children.map((child) => {
