@@ -55,7 +55,7 @@ export const useLayoutHooks = (
             {
                 root: canvas_viewport_ref.current,
                 threshold: [0].concat(
-                    Array.from(new Array(100).keys()).map((i) => (i + 1) * 0.01)
+                    Array.from(new Array(10).keys()).map((i) => (i + 1) * 0.1)
                 )
             }
         );
