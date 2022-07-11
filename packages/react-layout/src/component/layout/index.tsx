@@ -14,8 +14,7 @@ import {
     moveElement,
     cloneWidget,
     moveToWidget,
-    formatInputValue,
-    replaceWidget
+    formatInputValue
 } from './context/calc';
 import styles from './styles.module.css';
 import {
@@ -234,7 +233,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
             start_droppable.current = undefined;
             moving_droppable.current = undefined;
-            console.log('current_widget', current_widget);
         }
     };
 
