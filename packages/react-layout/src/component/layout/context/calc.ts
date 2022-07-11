@@ -158,7 +158,8 @@ function moveElementAwayFromCollision(
         w: collision.w,
         h: collision.h,
         i: 'fake_item',
-        type: WidgetType.grid
+        type: WidgetType.grid,
+        layout_id: ''
     };
 
     if (is_user_action) {

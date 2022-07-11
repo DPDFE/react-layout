@@ -352,7 +352,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 h: h + margin_height,
                 type,
                 is_resizable,
-                is_draggable
+                is_draggable,
+                layout_id
             }
         }),
         [i, layout_id, x, y, w, h, type, is_resizable, is_draggable]

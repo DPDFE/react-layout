@@ -73,6 +73,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
+    const latest_layout_ref = useRef<LayoutItem[]>(); // 上一次layout init状态
+
     const {
         current_width,
         grid,
@@ -125,8 +127,19 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 }
             );
 
-            compact(new_layout);
-            setLayout(new_layout);
+            if (!isEqual(latest_layout_ref.current, new_layout)) {
+                new_layout.map((child, index) => {
+                    !isEqual(latest_layout_ref.current?.[index], child) &&
+                        console.log(latest_layout_ref.current?.[index], child);
+                });
+                console.log('init');
+                compact(new_layout);
+                setLayout(new_layout);
+                latest_layout_ref.current = new_layout;
+            }
+            if (!latest_layout_ref.current) {
+                latest_layout_ref.current = new_layout;
+            }
         }
     }, [props.children]);
 
@@ -341,7 +354,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const move = useCallback(
         (current_widget: LayoutItem, item_pos: ItemPos) => {
             moveToWidget(current_widget, item_pos);
-            setLayout([...layout]);
+            setLayout(
+                layout.map((l) =>
+                    l.i === current_widget.i ? current_widget : l
+                )
+            );
         },
         [layout]
     );
@@ -563,6 +580,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     {...(widget.is_dragging
                         ? DEFAULT_BOUND
                         : getBoundingSize[widget.type])}
+                    // @ts-ignore
                     layout_id={props.layout_id}
                     key={widget.i}
                     {...widget}

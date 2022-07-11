@@ -150,7 +150,11 @@ export const useLayoutHooks = (
                 max_bottom = 0;
 
             (shadow_widget
-                ? layout.concat({ ...shadow_widget, i: '__dragging__' })
+                ? layout.concat({
+                      ...shadow_widget,
+                      i: '__dragging__',
+                      layout_id: ''
+                  })
                 : layout
             ).forEach((l) => {
                 const { x, y, h, w, is_dragging, type } = l;
