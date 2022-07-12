@@ -1,5 +1,4 @@
-import { LayoutItemEntry } from '@/interfaces';
-import Droppable from '../droppable';
+import { Droppable, LayoutItemEntry } from '@/interfaces';
 
 type EntryMap = {
     draggables: { [id: string]: LayoutItemEntry };

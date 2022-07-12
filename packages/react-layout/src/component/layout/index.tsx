@@ -28,7 +28,8 @@ import {
     RulerPointer,
     ReactLayoutProps,
     WidgetType,
-    EditLayoutProps
+    EditLayoutProps,
+    Droppable
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
@@ -38,13 +39,11 @@ import isEqual from 'lodash.isequal';
 import { LayoutContext } from './context';
 import drawGridLines from './grid-lines';
 import classNames from 'classnames';
-import Droppable from './context/droppable';
 import deepClone from 'lodash/cloneDeep';
 import {
     END_OPERATOR,
     START_OPERATOR,
     CHANGE_OPERATOR,
-    DRAG_OPERATOR,
     DROP_OPERATOR
 } from './constants';
 
@@ -77,6 +76,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
     const latest_layout_ref = useRef<LayoutItem[]>(); // 上一次layout init状态
+
+    console.log('index');
 
     const {
         current_width,

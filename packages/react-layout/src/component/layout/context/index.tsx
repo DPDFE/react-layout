@@ -1,11 +1,10 @@
 import React, { FC, useEffect } from 'react';
-import { ItemPos, ReactLayoutContextProps } from '@/interfaces';
+import { Droppable, ItemPos, ReactLayoutContextProps } from '@/interfaces';
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { LayoutItem, OperatorType, StickyTarget } from '@/interfaces';
 
 import useRegistry from './registry/use';
-import Droppable from './droppable';
 
 export const LayoutContext = React.createContext<LayoutContextStore>(
     {} as LayoutContextStore
