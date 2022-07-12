@@ -24,8 +24,9 @@ const DraggableGridStaticLayout = () => {
                 i: i.toString(),
                 x: random,
                 y: random,
-                is_resizable: false,
+                is_resizable: true,
                 is_draggable: true,
+                layout_id: 'root',
                 type: WidgetType.grid
             };
         });
@@ -42,6 +43,8 @@ const DraggableGridStaticLayout = () => {
                 container_padding={[10]}
                 item_margin={[10, 10]}
                 need_grid_bound={true}
+                need_grid_lines={true}
+                need_drag_bound={false}
                 layout_type={LayoutType.DRAG}
                 mode={LayoutMode.edit}
                 onDragStart={() => {

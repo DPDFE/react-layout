@@ -37,6 +37,7 @@ import { LayoutContext } from './context';
 import drawGridLines from './grid-lines';
 import classNames from 'classnames';
 import Droppable from './context/droppable';
+import deepClone from 'lodash/cloneDeep';
 import {
     END_OPERATOR,
     START_OPERATOR,
@@ -132,9 +133,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     !isEqual(latest_layout_ref.current?.[index], child) &&
                         console.log(latest_layout_ref.current?.[index], child);
                 });
-                console.log('init');
+
                 compact(new_layout);
-                setLayout(new_layout);
+                setLayout(deepClone(new_layout));
                 latest_layout_ref.current = new_layout;
             }
             if (!latest_layout_ref.current) {
