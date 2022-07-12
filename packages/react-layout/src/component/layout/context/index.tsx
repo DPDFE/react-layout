@@ -34,7 +34,8 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
 
     const [checked_index, setCurrentChecked] = useState<string>(); // 选中widget index
 
-    const [placeholder, setPlaceHolder] = useState<ItemPos>(); // 全局的阴影
+    // useRef 在数据变化的时候不会导致页面的rerender，可以用来进行数据的存储，如果想要视图的变化，需要通过其他的方式trigger render。比如：useState
+    const placeholder = useRef<ItemPos>(); // 全局的阴影
 
     const getResponders = useCallback(() => {
         const {
@@ -82,8 +83,7 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             moving_droppable,
             drop_enter_counter,
             drag_item,
-            placeholder,
-            setPlaceHolder
+            placeholder
         };
     }, [
         sticky_target_queue,
@@ -96,8 +96,7 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
         moving_droppable,
         drop_enter_counter,
         drag_item,
-        placeholder,
-        setPlaceHolder
+        placeholder
     ]);
 };
 

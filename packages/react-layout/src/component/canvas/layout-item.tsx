@@ -41,7 +41,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const pos = useScroll(props.canvas_viewport_ref.current);
 
-    console.log('WidgetItem', props.i);
+    // console.log('WidgetItem', props.i);
 
     const {
         i,

@@ -264,6 +264,7 @@ export default memo(Draggable);
 export const setTransform = (x: number, y: number) => {
     const translate = `translate(${x}px,${y}px)`;
     return {
+        willChange: 'transform',
         transform: translate,
         WebkitTransform: translate,
         MozTransform: translate,

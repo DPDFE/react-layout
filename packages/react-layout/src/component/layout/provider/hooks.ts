@@ -35,7 +35,7 @@ export const useLayoutHooks = (
 
     const [is_window_resize, setWindowResize] = useState<number>(Math.random());
 
-    const { operator_type } = useContext(LayoutContext);
+    const { operator_type, moving_droppable } = useContext(LayoutContext);
 
     /**
      * 让阴影定位组件位于可视范围内
@@ -148,14 +148,16 @@ export const useLayoutHooks = (
             max_top = 0,
             max_bottom = 0;
 
-        (shadow_widget
-            ? layout.concat({
-                  ...shadow_widget,
-                  i: '__dragging__',
-                  layout_id: ''
-              })
-            : layout
-        ).forEach((l) => {
+        const calc_layout =
+            moving_droppable.current?.id === props.layout_id && shadow_widget
+                ? layout.concat({
+                      ...shadow_widget!,
+                      i: '__dragging__',
+                      layout_id: ''
+                  })
+                : layout;
+
+        calc_layout.forEach((l) => {
             const { x, y, h, w, is_dragging, type } = l;
 
             const gridX = (count: number) => {
@@ -185,7 +187,6 @@ export const useLayoutHooks = (
     ]);
 
     const current_height: number = useMemo(() => {
-        console.log('current_height', max_bottom, props.layout_id);
         return props.layout_type === LayoutType.DRAG
             ? (props as DragLayoutProps).height
             : Math.max(max_bottom, client_height);
