@@ -77,7 +77,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const latest_layout_ref = useRef<LayoutItem[]>(); // 上一次layout init状态
 
-    console.log('index');
+    console.log('index', props.layout_id);
 
     const {
         current_width,
@@ -137,6 +137,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         console.log(latest_layout_ref.current?.[index], child);
                 });
 
+                console.log('init');
                 compact(new_layout);
                 setLayout(deepClone(new_layout));
                 latest_layout_ref.current = new_layout;
@@ -273,26 +274,28 @@ const ReactLayout = (props: ReactLayoutProps) => {
     ) => {
         const draggable_ref = registry.draggable.getById(widget.i)?.getRef();
 
-        const covered_layouts = registry.droppable.getAll().filter((entry) => {
-            const layout_ref = entry.getViewPortRef();
-            if (layout_ref) {
-                if (!entry.is_droppable) {
-                    return false;
-                }
-                // 如果是当前元素的子元素，不支持放置
-                if (draggable_ref?.contains(layout_ref)) {
-                    return false;
-                }
-                const { left, top, width, height } =
-                    layout_ref.getBoundingClientRect();
+        const covered_layouts = registry.droppable
+            .getAll()
+            .filter((entry: Droppable) => {
+                const layout_ref = entry.getViewPortRef();
+                if (layout_ref) {
+                    if (!entry.is_droppable) {
+                        return false;
+                    }
+                    // 如果是当前元素的子元素，不支持放置
+                    if (draggable_ref?.contains(layout_ref)) {
+                        return false;
+                    }
+                    const { left, top, width, height } =
+                        layout_ref.getBoundingClientRect();
 
-                return (
-                    clamp(e.clientX, left, left + width) === e.clientX &&
-                    clamp(e.clientY, top, top + height) === e.clientY
-                );
-            }
-            return false;
-        });
+                    return (
+                        clamp(e.clientX, left, left + width) === e.clientX &&
+                        clamp(e.clientY, top, top + height) === e.clientY
+                    );
+                }
+                return false;
+            });
 
         // 按照布局渲染的顺序，渲染层级越后的元素层级越高，注册时间越晚
         const covered_layout =
@@ -358,6 +361,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const move = useCallback(
         (current_widget: LayoutItem, item_pos: ItemPos) => {
             moveToWidget(current_widget, item_pos);
+            console.log('move', props.layout_id);
             setLayout(
                 layout.map((l) =>
                     l.i === current_widget.i ? current_widget : l
@@ -372,11 +376,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
      */
     const cleanShadow = useCallback(
         (current_widget) => {
+            console.log('clean placeholder');
             setPlaceHolder(undefined);
             const filter_layout = current_widget
                 ? getFilterLayoutById(current_widget.i)
                 : layout;
             compact(filter_layout);
+            console.log('cleanShadow', props.layout_id);
             setLayout([...layout]);
 
             return filter_layout;
@@ -417,6 +423,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 }
 
                 snapToGrid(shadow);
+                console.log('setShadowPos', props.layout_id);
                 setShadowPos(cloneWidget(shadow));
 
                 const layout =
@@ -934,27 +941,7 @@ export default memo(ReactLayout, compareProps);
 function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
     return !Object.keys(prev)
         .map((key) => {
-            if (
-                [
-                    'drag_item',
-                    'getResponders',
-                    'onDrop',
-                    'onDragStart',
-                    'onDrag',
-                    'onDragStop',
-                    'onResizeStart',
-                    'onResize',
-                    'onResizeStop',
-                    'removeGuideLine',
-                    'addGuideLine',
-                    'onPositionChange',
-                    'onChange'
-                ].includes(key)
-            ) {
-                return true;
-            } else {
-                return isEqual(prev[key], next[key]);
-            }
+            return isEqual(prev[key], next[key]);
         })
         .some((state) => state === false);
 }

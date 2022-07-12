@@ -141,57 +141,60 @@ export const useLayoutHooks = (
     ]);
 
     /** 获取元素最大边界 */
-    const { max_left, max_right, max_top, max_bottom, current_height } =
-        useMemo(() => {
-            // 元素计算大小
-            let max_left = 0,
-                max_right = 0,
-                max_top = 0,
-                max_bottom = 0;
+    const { max_left, max_right, max_top, max_bottom } = useMemo(() => {
+        // 元素计算大小
+        let max_left = 0,
+            max_right = 0,
+            max_top = 0,
+            max_bottom = 0;
 
-            (shadow_widget
-                ? layout.concat({
-                      ...shadow_widget,
-                      i: '__dragging__',
-                      layout_id: ''
-                  })
-                : layout
-            ).forEach((l) => {
-                const { x, y, h, w, is_dragging, type } = l;
+        (shadow_widget
+            ? layout.concat({
+                  ...shadow_widget,
+                  i: '__dragging__',
+                  layout_id: ''
+              })
+            : layout
+        ).forEach((l) => {
+            const { x, y, h, w, is_dragging, type } = l;
 
-                const gridX = (count: number) => {
-                    return type === WidgetType.drag || is_dragging
-                        ? count
-                        : count * grid.col_width;
-                };
-                const gridY = (count: number) => {
-                    return type === WidgetType.drag || is_dragging
-                        ? count
-                        : count * grid.row_height;
-                };
+            const gridX = (count: number) => {
+                return type === WidgetType.drag || is_dragging
+                    ? count
+                    : count * grid.col_width;
+            };
+            const gridY = (count: number) => {
+                return type === WidgetType.drag || is_dragging
+                    ? count
+                    : count * grid.row_height;
+            };
 
-                max_left = Math.min(max_left, gridX(x));
-                max_right = Math.max(max_right, gridX(x + w) + padding.right);
-                max_top = Math.min(max_top, gridY(y));
-                max_bottom = Math.max(
-                    max_bottom,
-                    gridY(y + h) + padding.bottom
-                );
-            });
+            max_left = Math.min(max_left, gridX(x));
+            max_right = Math.max(max_right, gridX(x + w) + padding.right);
+            max_top = Math.min(max_top, gridY(y));
+            max_bottom = Math.max(max_bottom, gridY(y + h) + padding.bottom);
+        });
 
-            const current_height =
-                props.layout_type === LayoutType.DRAG
-                    ? (props as DragLayoutProps).height
-                    : Math.max(max_bottom, client_height);
+        return { max_left, max_right, max_top, max_bottom };
+    }, [
+        layout,
+        shadow_widget,
+        client_height,
+        props.layout_type,
+        (props as DragLayoutProps).height
+    ]);
 
-            return { max_left, max_right, max_top, max_bottom, current_height };
-        }, [
-            layout,
-            shadow_widget,
-            client_height,
-            props.layout_type,
-            (props as DragLayoutProps).height
-        ]);
+    const current_height: number = useMemo(() => {
+        console.log('current_height', max_bottom, props.layout_id);
+        return props.layout_type === LayoutType.DRAG
+            ? (props as DragLayoutProps).height
+            : Math.max(max_bottom, client_height);
+    }, [
+        props.layout_type,
+        (props as DragLayoutProps).height,
+        max_bottom,
+        client_height
+    ]);
 
     /**
      * 边界范围

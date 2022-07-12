@@ -475,8 +475,8 @@ const DefaultLayout = () => {
                         height={height}
                         row_height={50}
                         cols={8}
-                        item_margin={[10, 10]}
-                        container_padding={[10]}
+                        item_margin={[10, 15, 10, 10]}
+                        container_padding={[15]}
                         scale={scale}
                         need_grid_lines={true}
                         need_drag_bound={false}
