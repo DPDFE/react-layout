@@ -39,6 +39,8 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const { operator_type, registry, sticky_target_queue } =
         useContext(LayoutContext);
 
+    console.log('WidgetItem', props.i);
+
     const pos = useScroll(props.canvas_viewport_ref.current);
 
     const {

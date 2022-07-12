@@ -365,3 +365,14 @@ export interface ReactLayoutContextProps {
     onChange?: (result: DragDestinationResult) => void;
     onPositionChange?: (result: DragSourceResult) => void;
 }
+
+export interface Droppable {
+    id: string;
+    is_droppable?: boolean;
+    getRef: () => HTMLDivElement | null;
+    getViewPortRef: () => HTMLDivElement | null;
+    getFilterLayoutById: (i: string) => LayoutItem[];
+    cleanShadow: (widget?: LayoutItem) => LayoutItem[];
+    addShadow: (widget: LayoutItem, is_save?: boolean) => any;
+    move: (current_widget: LayoutItem, item_pos: ItemPos) => void;
+}

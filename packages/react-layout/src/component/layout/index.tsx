@@ -4,7 +4,9 @@ import React, {
     useRef,
     useState,
     memo,
-    useContext
+    useContext,
+    useLayoutEffect,
+    useMemo
 } from 'react';
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
@@ -482,8 +484,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
         [layout, grid, shadow_pos]
     );
 
-    useEffect(() => {
-        const instance = new Droppable({
+    const entry: Droppable = useMemo(
+        () => ({
             id: props.layout_id,
             is_droppable: props.is_droppable,
             getRef,
@@ -492,11 +494,21 @@ const ReactLayout = (props: ReactLayoutProps) => {
             getFilterLayoutById,
             addShadow,
             move
-        });
+        }),
+        [
+            getRef,
+            getViewPortRef,
+            cleanShadow,
+            getFilterLayoutById,
+            addShadow,
+            move
+        ]
+    );
 
-        registry.droppable.register(instance);
-        return () => registry.droppable.unregister(instance);
-    }, [getRef, getViewPortRef, cleanShadow, addShadow, move]);
+    useLayoutEffect(() => {
+        registry.droppable.register(entry);
+        return () => registry.droppable.unregister(entry);
+    }, [registry, entry]);
 
     useEffect(() => {
         if (
