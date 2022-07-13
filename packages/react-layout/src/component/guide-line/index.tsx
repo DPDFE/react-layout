@@ -38,11 +38,13 @@ const GuideLine = (props: GuideLineProps) => {
     const calcGuidePose = () => {
         const scroll_left =
             l_offset +
-            viewport_pos!.x -
-            canvas_viewport_ref.current!.scrollLeft;
+            (viewport_pos?.x ?? 0) -
+            (canvas_viewport_ref.current?.scrollLeft ?? 0);
 
         const scroll_top =
-            t_offset + viewport_pos!.y - canvas_viewport_ref.current!.scrollTop;
+            t_offset +
+            (viewport_pos?.y ?? 0) -
+            (canvas_viewport_ref.current?.scrollTop ?? 0);
 
         setScrollLeft(scroll_left);
         setScrollTop(scroll_top);
