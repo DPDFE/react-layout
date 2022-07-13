@@ -24,11 +24,11 @@ const DraggableGridResponsiveLayout = () => {
         return [
             {
                 w: 2,
-                h: 20,
+                h: 10,
                 i: '0',
                 x: 5,
-                y: 40,
-                is_sticky: true,
+                y: 10,
+                is_sticky: false,
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
@@ -48,7 +48,7 @@ const DraggableGridResponsiveLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
-                is_sticky: true,
+                is_sticky: false,
                 is_nested: false,
                 draggable_cancel_handler: '.draggable-cancel',
                 need_border_draggable_handler: false,
@@ -58,10 +58,10 @@ const DraggableGridResponsiveLayout = () => {
             },
             {
                 w: 2,
-                h: 30,
+                h: 10,
                 i: '2',
-                x: 5,
-                y: 50,
+                x: 8,
+                y: 10,
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
@@ -109,7 +109,7 @@ const DraggableGridResponsiveLayout = () => {
                 w: 2,
                 h: 10,
                 i: '5',
-                x: 3,
+                x: 0,
                 y: 0,
                 is_resizable: true,
                 is_draggable: true,
@@ -130,6 +130,56 @@ const DraggableGridResponsiveLayout = () => {
                 setWidgets(widgets);
                 break;
         }
+    };
+
+    const color_lists = [
+        '#e6ee1e',
+        '#e8134d',
+        '#5b7b67',
+        '#e3b94d',
+        '#b38618',
+        '#0bb0d5',
+        '#d021b1',
+        '#076355',
+        '#215ca7',
+        '#e634d0',
+        '#79c140',
+        '#c45e90',
+        '#c07dba',
+        '#a122c9',
+        '#45b76a',
+        '#917646',
+        '#61b3dc',
+        '#40b76b',
+        '#0bba41',
+        '#edc558'
+    ];
+
+    const getRandomColor = () => {
+        let color = '#';
+        const randomArr = [
+            '0',
+            '1',
+            '2',
+            '3',
+            '4',
+            '5',
+            '6',
+            '7',
+            '8',
+            '9',
+            'a',
+            'b',
+            'c',
+            'd',
+            'e',
+            'f'
+        ];
+        for (var i = 0; i < 6; i++) {
+            const a = Math.random() * 15;
+            color += randomArr[parseInt(a.toString())];
+        }
+        return color;
     };
 
     return (
@@ -179,15 +229,17 @@ const DraggableGridResponsiveLayout = () => {
                     // setWidgets(layout);
                 }}
             >
-                {widgets.map((w) => {
+                {widgets.map((w, idx) => {
+                    const color = color_lists[idx];
+
                     return (
                         <div
-                            className={'widget_item'}
                             key={w.i}
                             data-drag={w}
                             style={{
                                 border: '1px solid',
-                                padding: 10
+                                padding: 10,
+                                backgroundColor: color
                             }}
                         >
                             <Button

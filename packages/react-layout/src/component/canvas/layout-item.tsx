@@ -36,12 +36,23 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
 
     const { col_width, row_height } = props.grid;
 
+    // useContext 会引发页面渲染
     const { operator_type, registry, sticky_target_queue } =
         useContext(LayoutContext);
 
     const pos = useScroll(props.canvas_viewport_ref.current);
 
-    // console.log('WidgetItem', props.i);
+    // let operator_type = { current: undefined },
+    //     registry = {
+    //         draggable: {
+    //             register: () => {},
+    //             unregister: () => {},
+    //             update: () => {}
+    //         }
+    //     },
+    //     sticky_target_queue = { current: [] };
+
+    console.log('WidgetItem', props.i);
 
     const {
         i,
@@ -528,7 +539,7 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                // !isEqual(prev[key], next[key]) &&
+                // isEqual(prev[key], next[key]) &&
                 //     console.log(key, prev[key], next[key]);
                 return isEqual(prev[key], next[key]);
             }

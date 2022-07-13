@@ -76,8 +76,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const latest_layout_ref = useRef<LayoutItem[]>(); // 上一次layout init状态
 
-    console.log('index', props.layout_id);
-
     const {
         current_width,
         grid,
@@ -131,12 +129,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
             );
 
             if (!isEqual(latest_layout_ref.current, new_layout)) {
-                new_layout.map((child, index) => {
-                    !isEqual(latest_layout_ref.current?.[index], child) &&
-                        console.log(latest_layout_ref.current?.[index], child);
-                });
-
-                console.log('init');
                 compact(new_layout);
                 setLayout(deepClone(new_layout));
                 latest_layout_ref.current = new_layout;
