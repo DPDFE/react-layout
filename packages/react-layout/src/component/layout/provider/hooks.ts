@@ -123,10 +123,11 @@ export const useLayoutHooks = (
     const grid = useMemo(() => {
         const { item_margin, cols, row_height } = props;
 
-        const width =
-            current_width -
-            Math.max(padding.left, item_margin[1]) -
-            Math.max(item_margin[1] - padding.right, 0);
+        const offset_left = Math.max(padding.left, item_margin[1]);
+        const offset_top =
+            Math.max(item_margin[1], padding.right) - item_margin[1];
+
+        const width = current_width - offset_top - offset_left;
 
         return {
             col_width: width / cols,
