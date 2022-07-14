@@ -357,9 +357,17 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const cleanShadow = useCallback(
         (current_widget) => {
             placeholder.current = undefined;
+            setShadowPos(undefined);
             compact(
                 current_widget ? getFilterLayoutById(current_widget.i) : layout
             );
+            // 非结束状态时，保存一下临时状态，填补shadow
+            if (
+                operator_type.current &&
+                !END_OPERATOR.includes(operator_type.current)
+            ) {
+                setLayout([...layout]);
+            }
         },
         [layout, getFilterLayoutById]
     );
