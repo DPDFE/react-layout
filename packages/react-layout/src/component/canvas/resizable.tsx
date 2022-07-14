@@ -23,11 +23,13 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
         CursorType.nw
     ];
 
-    const handleResizeStart = (e: MouseEvent) => {
+    const handleResizeStart = ({ e, x, y, cursor }: CursorPointer) => {
         if (!props.is_resizable) {
             return;
         }
-        props.onResizeStart?.(e);
+        console.log(x, y, cursor);
+        const pos = cursor_mappings[cursor].calcPositionByCursor({ x, y });
+        props.onResizeStart?.({ ...pos, e });
     };
 
     const handleResize = ({ e, x, y, cursor }: CursorPointer) => {

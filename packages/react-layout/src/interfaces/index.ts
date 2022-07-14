@@ -239,10 +239,10 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     mode: LayoutMode.edit | LayoutMode.view;
     is_placeholder: boolean;
     setCurrentChecked?: (idx: string) => void;
-    onDragStart?: (e: MouseEvent) => void;
+    onDragStart?: (item: ItemPos, e: MouseEvent) => void;
     onDrag?: (item: ItemPos, e: MouseEvent) => void;
     onDragStop?: (item: ItemPos, e: MouseEvent) => void;
-    onResizeStart?: (e: MouseEvent) => void;
+    onResizeStart?: (item: ItemPos, e: MouseEvent) => void;
     onResize?: (item: ItemPos, e: MouseEvent) => void;
     onResizeStop?: (item: ItemPos, e: MouseEvent) => void;
     onPositionChange?: (item: ItemPos, e: MouseEvent) => void;
@@ -261,7 +261,15 @@ export interface DraggableProps extends EventBaseProps {
     use_css_transform?: boolean;
     draggable_cancel_handler?: string[];
     draggable_handler?: string;
-    onDragStart?: (e: MouseEvent) => void;
+    onDragStart?: ({
+        e,
+        x,
+        y
+    }: {
+        e: MouseEvent;
+        x: number;
+        y: number;
+    }) => void;
     onDrag?: ({ e, x, y }: { e: MouseEvent; x: number; y: number }) => void;
     onDragStop?: ({ e, x, y }: { e: MouseEvent; x: number; y: number }) => void;
 }
@@ -269,6 +277,7 @@ export interface DraggableProps extends EventBaseProps {
 export interface CursorProps extends Omit<DraggableProps, 'children'> {
     cursor: CursorType;
     use_css_transform?: boolean;
+    onDragStart?: ({ e, x, y, cursor }: CursorPointer) => void;
     onDrag?: ({ e, x, y, cursor }: CursorPointer) => void;
     onDragStop?: ({ e, x, y, cursor }: CursorPointer) => void;
 }
@@ -287,7 +296,19 @@ export interface ResizableProps extends EventBaseProps {
     is_resizable?: boolean;
     use_css_transform?: boolean;
     cursors?: CursorType[];
-    onResizeStart?: (e: MouseEvent) => void;
+    onResizeStart?: ({
+        x,
+        y,
+        h,
+        w,
+        e
+    }: {
+        x: number;
+        y: number;
+        h: number;
+        w: number;
+        e: MouseEvent;
+    }) => void;
     onResize?: ({
         x,
         y,
@@ -343,27 +364,25 @@ export type WidgetLocation = {
     widgets: LayoutItem[];
 };
 
-export type DragSourceResult = {
+export type LayoutResult = {
     type: OperatorType;
     widget_id: string;
     source: WidgetLocation;
-};
-
-export type DragDestinationResult = DragSourceResult & {
+    widget: LayoutItem;
     destination?: WidgetLocation;
 };
 
 export interface ReactLayoutContextProps {
     getDroppingItem?: () => { h: number; w: number; i: string };
-    onDrop?: (result: DragDestinationResult) => void;
-    onDragStart?: (result: DragSourceResult) => void;
-    onDrag?: (result: DragDestinationResult) => void;
-    onDragStop?: (result: DragDestinationResult) => void;
-    onResizeStart?: (result: DragSourceResult) => void;
-    onResize?: (result: DragSourceResult) => void;
-    onResizeStop?: (result: DragSourceResult) => void;
-    onChange?: (result: DragDestinationResult) => void;
-    onPositionChange?: (result: DragSourceResult) => void;
+    onDrop?: (result: LayoutResult) => void;
+    onDragStart?: (result: LayoutResult) => void;
+    onDrag?: (result: LayoutResult) => void;
+    onDragStop?: (result: LayoutResult) => void;
+    onResizeStart?: (result: LayoutResult) => void;
+    onResize?: (result: LayoutResult) => void;
+    onResizeStop?: (result: LayoutResult) => void;
+    onChange?: (result: LayoutResult) => void;
+    onPositionChange?: (result: LayoutResult) => void;
 }
 
 export interface Droppable {
@@ -372,7 +391,14 @@ export interface Droppable {
     getRef: () => HTMLDivElement | null;
     getViewPortRef: () => HTMLDivElement | null;
     getFilterLayoutById: (i: string) => LayoutItem[];
-    cleanShadow: (widget?: LayoutItem) => LayoutItem[];
-    addShadow: (widget: LayoutItem, is_save?: boolean) => any;
+    cleanShadow: (widget?: LayoutItem) => void;
+    addShadow: (
+        widget: LayoutItem,
+        is_save?: boolean
+    ) => {
+        source: WidgetLocation;
+        widget: LayoutItem;
+        destination?: WidgetLocation;
+    };
     move: (current_widget: LayoutItem, item_pos: ItemPos) => void;
 }

@@ -52,8 +52,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     //     },
     //     sticky_target_queue = { current: [] };
 
-    console.log('WidgetItem', props.i);
-
     const {
         i,
         type,
@@ -416,8 +414,18 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 use_css_transform
                 scale={props.scale}
                 is_draggable={is_draggable}
-                onDragStart={(e) => {
-                    props.onDragStart?.(e);
+                onDragStart={({ e, x, y }) => {
+                    props.onDragStart?.(
+                        {
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            w: w + margin_width,
+                            h: h + margin_height,
+                            type,
+                            i
+                        },
+                        e
+                    );
                 }}
                 draggable_handler={
                     need_border_draggable_handler
@@ -470,8 +478,18 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     scale={props.scale}
                     use_css_transform
                     is_resizable={is_resizable}
-                    onResizeStart={(e) => {
-                        props.onResizeStart?.(e);
+                    onResizeStart={({ e, x, y, h, w }) => {
+                        props.onResizeStart?.(
+                            {
+                                x: x - offset_x,
+                                y: y - offset_y,
+                                w: w + margin_width,
+                                h: h + margin_height,
+                                type,
+                                i
+                            },
+                            e
+                        );
                     }}
                     cursors={props.cursors}
                     onResize={({ e, x, y, h, w }) => {
@@ -539,8 +557,8 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                // isEqual(prev[key], next[key]) &&
-                //     console.log(key, prev[key], next[key]);
+                //-- !isEqual(prev[key], next[key]) &&
+                //     console.log(prev['i'], key, prev[key], next[key]);
                 return isEqual(prev[key], next[key]);
             }
         })

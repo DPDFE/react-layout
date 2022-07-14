@@ -13,7 +13,9 @@ const Cursor = (props: CursorProps) => {
             scale={props.scale}
             is_draggable={true}
             use_css_transform={props.use_css_transform}
-            onDragStart={props.onDragStart}
+            onDragStart={({ e, x, y }) => {
+                props.onDragStart?.({ e, x, y, cursor: props.cursor });
+            }}
             onDrag={({ e, x, y }) => {
                 props.onDrag?.({ e, x, y, cursor: props.cursor });
             }}

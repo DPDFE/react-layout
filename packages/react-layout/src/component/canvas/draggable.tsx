@@ -97,7 +97,6 @@ const Draggable = (props: DraggableProps) => {
                         current as Node
                     );
 
-                    console.log(is_cancel_match);
                     if (is_cancel_match) {
                         return true;
                     }
@@ -158,7 +157,7 @@ const Draggable = (props: DraggableProps) => {
         ) {
             if (!is_dragging.current) {
                 is_dragging.current = true;
-                props.onDragStart?.(e);
+                props.onDragStart?.(pos);
             } else {
                 props.onDrag?.(pos);
             }

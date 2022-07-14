@@ -192,10 +192,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
         operator_type.current = operator;
 
         if (START_OPERATOR.includes(operator)) {
-            setCurrentChecked(current_widget.i);
-        }
-        if (CHANGE_OPERATOR.includes(operator)) {
             current_widget.is_dragging = true;
+            setCurrentChecked(current_widget.i);
         }
 
         const data = {
@@ -325,17 +323,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
             moving_droppable.current = start_droppable.current;
         }
 
-        if (moving_droppable.current && start_droppable.current) {
-            // 移动到位
-            registry.droppable
-                .getById(start_droppable.current.id)
-                .move(widget, item_pos ?? widget);
+        // 移动到位
+        registry.droppable
+            .getById(start_droppable.current.id)
+            .move(widget, item_pos ?? widget);
 
-            // 计算定位
-            return registry.droppable
-                .getById(moving_droppable.current.id)
-                .addShadow(widget);
-        }
+        // 计算定位
+        return registry.droppable
+            .getById(moving_droppable.current!.id)
+            .addShadow(widget);
     };
 
     const getRef = useCallback(() => canvas_ref.current, [canvas_ref.current]);
@@ -367,13 +363,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const cleanShadow = useCallback(
         (current_widget) => {
             placeholder.current = undefined;
-            const filter_layout = current_widget
-                ? getFilterLayoutById(current_widget.i)
-                : layout;
-            compact(filter_layout);
+            compact(
+                current_widget ? getFilterLayoutById(current_widget.i) : layout
+            );
             setLayout([...layout]);
-
-            return filter_layout;
         },
         [layout, getFilterLayoutById]
     );
@@ -611,8 +604,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             ? setCurrentChecked
                             : noop
                     }
-                    onDragStart={(e) => {
-                        handleResponder(e, OperatorType.dragstart, widget);
+                    onDragStart={(item, e) => {
+                        handleResponder(
+                            e,
+                            OperatorType.dragstart,
+                            widget,
+                            item
+                        );
                     }}
                     onDrag={(item, e) => {
                         if (checked_index === widget.i) {
@@ -632,12 +630,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             );
                         }
                     }}
-                    onResizeStart={(e) => {
+                    onResizeStart={(item, e) => {
                         if (checked_index === widget.i) {
                             handleResponder(
                                 e,
                                 OperatorType.resizestart,
-                                widget
+                                widget,
+                                item
                             );
                         }
                     }}
