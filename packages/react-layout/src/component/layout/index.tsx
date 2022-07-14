@@ -360,7 +360,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
             compact(
                 current_widget ? getFilterLayoutById(current_widget.i) : layout
             );
-            setLayout([...layout]);
         },
         [layout, getFilterLayoutById]
     );
@@ -420,7 +419,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 });
             }
 
-            const new_layout = layout.map((l) => {
+            const moved_layout = layout.map((l) => {
                 return l.i === shadow.i
                     ? shadow
                     : compact_with_mappings[l.i] ?? l;
@@ -434,6 +433,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 placeholder.current = shadow;
             }
 
+            // 结束状态保存一下更新后布局
+            if (
+                operator_type.current &&
+                END_OPERATOR.includes(operator_type.current)
+            ) {
+                setLayout(moved_layout);
+            }
+
             // 同一个布局
             if (
                 start_droppable.current!.id === moving_droppable.current!.id &&
@@ -443,7 +450,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 return {
                     source: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: new_layout
+                        widgets: moved_layout
                     },
                     widget: shadow,
                     destination: undefined
@@ -460,7 +467,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     widget: shadow,
                     destination: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: [shadow].concat(new_layout)
+                        widgets: [shadow].concat(moved_layout)
                     }
                 };
             }

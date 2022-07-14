@@ -27,7 +27,6 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
         if (!props.is_resizable) {
             return;
         }
-        console.log(x, y, cursor);
         const pos = cursor_mappings[cursor].calcPositionByCursor({ x, y });
         props.onResizeStart?.({ ...pos, e });
     };
