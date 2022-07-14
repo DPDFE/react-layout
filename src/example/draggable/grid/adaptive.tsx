@@ -191,7 +191,7 @@ const DraggableGridResponsiveLayout = () => {
                 // console.log(result, 'on drag stop');
                 const { source, destination } = result;
                 handleWidgetsChange(source.layout_id, source.widgets);
-                console.log(source.widgets);
+                // console.log(source.widgets);
                 destination &&
                     handleWidgetsChange(
                         destination.layout_id,

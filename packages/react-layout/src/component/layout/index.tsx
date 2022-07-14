@@ -128,14 +128,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 }
             );
 
-            if (!isEqual(latest_layout_ref.current, new_layout)) {
-                compact(new_layout);
-                setLayout(deepClone(new_layout));
-                latest_layout_ref.current = new_layout;
-            }
-            if (!latest_layout_ref.current) {
-                latest_layout_ref.current = new_layout;
-            }
+            compact(new_layout);
+            setLayout(deepClone(new_layout));
         }
     }, [props.children]);
 
@@ -406,7 +400,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 snapToGrid(shadow);
                 setShadowPos(cloneWidget(shadow));
 
-                const layout =
+                const moved_layout =
                     shadow_pos &&
                     shadow_pos.x == shadow.x &&
                     shadow_pos.y == shadow.y
@@ -419,7 +413,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                               true
                           );
 
-                const compact_with = compact([shadow].concat(layout));
+                const compact_with = compact([shadow].concat(moved_layout));
 
                 compact_with.map((c) => {
                     compact_with_mappings[c.i] = copyObject(c);
@@ -427,9 +421,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
             }
 
             const new_layout = layout.map((l) => {
-                return compact_with_mappings[l.i]
-                    ? compact_with_mappings[l.i]
-                    : l;
+                return l.i === shadow.i
+                    ? shadow
+                    : compact_with_mappings[l.i] ?? l;
             });
 
             // 最后保存状态的时候不画shadow
@@ -437,9 +431,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 operator_type.current &&
                 CHANGE_OPERATOR.includes(operator_type.current)
             ) {
-                placeholder.current = compact_with_mappings[shadow.i];
+                placeholder.current = shadow;
             }
 
+            // 同一个布局
             if (
                 start_droppable.current!.id === moving_droppable.current!.id &&
                 operator_type.current &&
@@ -454,6 +449,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     destination: undefined
                 };
             } else {
+                // 不同布局
                 return {
                     source: {
                         layout_id: start_droppable.current!.id,
