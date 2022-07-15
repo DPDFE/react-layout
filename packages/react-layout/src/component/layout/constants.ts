@@ -20,7 +20,7 @@ export const END_OPERATOR = [
 ];
 
 export const DROP_OPERATOR = [
-    OperatorType.dragstart,
+    OperatorType.dropstart,
     OperatorType.drop,
     OperatorType.dropover
 ];

@@ -74,8 +74,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
-    const latest_layout_ref = useRef<LayoutItem[]>(); // 上一次layout init状态
-
     const {
         current_width,
         grid,
@@ -456,60 +454,84 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 placeholder.current = shadow;
             }
 
-            // 同一个布局
+            // drop逻辑的返回值需要单独处理
             if (
-                start_droppable.current!.id === moving_droppable.current!.id &&
                 operator_type.current &&
-                !DROP_OPERATOR.includes(operator_type.current)
+                DROP_OPERATOR.includes(operator_type.current)
             ) {
-                // 结束状态保存一下更新后布局
-                if (
-                    operator_type.current &&
-                    END_OPERATOR.includes(operator_type.current)
-                ) {
-                    setLayout(moved_layout);
-                }
-
-                return {
-                    source: {
-                        layout_id: moving_droppable.current!.id,
-                        widgets: moved_layout
-                    },
-                    widget: shadow,
-                    destination: undefined
-                };
-            } else {
-                // 结束状态保存一下更新后布局
                 if (
                     operator_type.current &&
                     END_OPERATOR.includes(operator_type.current)
                 ) {
                     setLayout([shadow].concat(moved_layout));
-                    if (start_droppable.current) {
-                        registry.droppable
-                            .getById(start_droppable.current.id)
-                            .saveLayout(
+                }
+
+                return {
+                    source: {
+                        layout_id: moving_droppable.current!.id,
+                        widgets: [shadow].concat(moved_layout)
+                    },
+                    widget: shadow,
+                    destination: undefined
+                };
+                // 拖拽和缩放
+            } else {
+                if (
+                    start_droppable.current!.id ===
+                        moving_droppable.current!.id &&
+                    operator_type.current
+                ) {
+                    // 同一个布局
+                    // 结束状态保存一下更新后布局
+                    if (
+                        operator_type.current &&
+                        END_OPERATOR.includes(operator_type.current)
+                    ) {
+                        setLayout(moved_layout);
+                    }
+
+                    return {
+                        source: {
+                            layout_id: moving_droppable.current!.id,
+                            widgets: moved_layout
+                        },
+                        widget: shadow,
+                        destination: undefined
+                    };
+                } else {
+                    // 结束状态保存一下更新后布局
+                    if (
+                        operator_type.current &&
+                        END_OPERATOR.includes(operator_type.current)
+                    ) {
+                        setLayout([shadow].concat(moved_layout));
+                        if (start_droppable.current) {
+                            registry.droppable
+                                .getById(start_droppable.current.id)
+                                .saveLayout(
+                                    start_droppable.current!.getFilterLayoutById(
+                                        shadow.i
+                                    )
+                                );
+                        }
+                    }
+
+                    // 不同布局
+                    return {
+                        source: {
+                            layout_id: start_droppable.current!.id,
+                            widgets:
                                 start_droppable.current!.getFilterLayoutById(
                                     shadow.i
                                 )
-                            );
-                    }
+                        },
+                        widget: shadow,
+                        destination: {
+                            layout_id: moving_droppable.current!.id,
+                            widgets: [shadow].concat(moved_layout)
+                        }
+                    };
                 }
-
-                // 不同布局
-                return {
-                    source: {
-                        layout_id: start_droppable.current!.id,
-                        widgets: start_droppable.current!.getFilterLayoutById(
-                            shadow.i
-                        )
-                    },
-                    widget: shadow,
-                    destination: {
-                        layout_id: moving_droppable.current!.id,
-                        widgets: [shadow].concat(moved_layout)
-                    }
-                };
             }
         },
         [layout, grid, shadow_pos]
@@ -855,6 +877,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                                   moving_droppable.current.id
                                               )
                                               .cleanShadow();
+
+                                          operator_type.current = undefined;
+                                          start_droppable.current = undefined;
+                                          moving_droppable.current = undefined;
                                       }
                                   }
                               }
