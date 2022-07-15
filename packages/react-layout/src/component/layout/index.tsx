@@ -816,6 +816,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         registry.droppable.getFirstRegister()?.id ===
                             props.layout_id
                             ? (e) => {
+                                  drop_enter_counter.current = 0;
                                   handleResponder(
                                       e,
                                       OperatorType.dropover,
