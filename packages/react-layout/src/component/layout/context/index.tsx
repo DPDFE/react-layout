@@ -32,6 +32,8 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
 
     const drag_item = useRef<LayoutItem>(); // 拖拽的元素
 
+    const target_widget_ref = useRef<HTMLDivElement>(null); // 目标元素
+
     const [checked_index, setCurrentChecked] = useState<string>(); // 选中widget index
 
     // useRef 在数据变化的时候不会导致页面的rerender，可以用来进行数据的存储，如果想要视图的变化，需要通过其他的方式trigger render。比如：useState
@@ -83,7 +85,8 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             moving_droppable,
             drop_enter_counter,
             drag_item,
-            placeholder
+            placeholder,
+            target_widget_ref
         };
     }, [
         sticky_target_queue,
@@ -96,7 +99,8 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
         moving_droppable,
         drop_enter_counter,
         drag_item,
-        placeholder
+        placeholder,
+        target_widget_ref
     ]);
 };
 

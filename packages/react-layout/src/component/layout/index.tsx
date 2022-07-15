@@ -58,7 +58,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
         getResponders,
         drop_enter_counter,
         drag_item,
-        placeholder
+        placeholder,
+        target_widget_ref
     } = useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
@@ -66,7 +67,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const canvas_wrapper_ref = useRef<HTMLDivElement>(null); // canvas存放的画布，增加边距支持滚动
     const grid_lines_ref = useRef<HTMLCanvasElement>(null); //
     const canvas_ref = useRef<HTMLDivElement>(null);
-    const shadow_widget_ref = useRef<HTMLDivElement>(null);
 
     const [shadow_pos, setShadowPos] = useState<ItemPos>(); //上一时刻阴影的计算结果
 
@@ -91,7 +91,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         props,
         container_ref,
         canvas_viewport_ref,
-        shadow_widget_ref,
+        target_widget_ref,
         placeholder.current
     );
 
@@ -603,7 +603,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     {...placeholder.current}
                     key='shadow'
                     layout_id={props.layout_id}
-                    ref={shadow_widget_ref}
                     padding={padding}
                     margin={props.item_margin}
                     is_placeholder={true}
@@ -644,6 +643,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     // @ts-ignore
                     layout_id={props.layout_id}
                     key={widget.i}
+                    ref={
+                        checked_index === widget.i
+                            ? target_widget_ref
+                            : undefined
+                    }
                     {...widget}
                     padding={padding}
                     margin={props.item_margin}
