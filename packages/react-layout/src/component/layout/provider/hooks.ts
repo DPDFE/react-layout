@@ -40,37 +40,37 @@ export const useLayoutHooks = (
     /**
      * 让阴影定位组件位于可视范围内
      */
-    useLayoutEffect(() => {
-        /** 判断元素是否消失 */
-        const intersectionObserverInstance = new IntersectionObserver(
-            (entries) => {
-                entries.map((entry) => {
-                    shadow_widget_ref.current?.scrollIntoView({
-                        block: 'nearest',
-                        inline: 'nearest',
-                        behavior: 'smooth'
-                    });
-                });
-            },
-            {
-                root: canvas_viewport_ref.current,
-                threshold: [0].concat(
-                    Array.from(new Array(10).keys()).map((i) => (i + 1) * 0.1)
-                )
-            }
-        );
+    // useLayoutEffect(() => {
+    //     /** 判断元素是否消失 */
+    //     const intersectionObserverInstance = new IntersectionObserver(
+    //         (entries) => {
+    //             entries.map((entry) => {
+    //                 shadow_widget_ref.current?.scrollIntoView({
+    //                     block: 'nearest',
+    //                     inline: 'nearest',
+    //                     behavior: 'smooth'
+    //                 });
+    //             });
+    //         },
+    //         {
+    //             root: canvas_viewport_ref.current,
+    //             threshold: [0].concat(
+    //                 Array.from(new Array(10).keys()).map((i) => (i + 1) * 0.1)
+    //             )
+    //         }
+    //     );
 
-        shadow_widget &&
-            shadow_widget_ref.current &&
-            intersectionObserverInstance.observe(shadow_widget_ref.current);
-        return () => {
-            shadow_widget &&
-                shadow_widget_ref.current &&
-                intersectionObserverInstance.unobserve(
-                    shadow_widget_ref.current
-                );
-        };
-    }, [JSON.stringify(shadow_widget)]);
+    //     shadow_widget &&
+    //         shadow_widget_ref.current &&
+    //         intersectionObserverInstance.observe(shadow_widget_ref.current);
+    //     return () => {
+    //         shadow_widget &&
+    //             shadow_widget_ref.current &&
+    //             intersectionObserverInstance.unobserve(
+    //                 shadow_widget_ref.current
+    //             );
+    //     };
+    // }, [JSON.stringify(shadow_widget)]);
 
     /** 监听容器变化，重新计算width、height、grid */
     useLayoutEffect(() => {
