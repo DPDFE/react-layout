@@ -1,7 +1,7 @@
 const drawGridLines = (
-    container: HTMLCanvasElement,
     width: number,
-    height: number
+    height: number,
+    container: HTMLCanvasElement | null
 ) => {
     if (!container) return;
 

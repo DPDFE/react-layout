@@ -1,4 +1,4 @@
-@value colors: "../../../style/theme.css";
+@value colors: "../../style/theme.css";
 @value light_theme, black_theme, light_theme_border, dark_theme_border from colors;
 /* @value transition_time: none; */
 @value transition_time: all 0.1s linear;
@@ -9,10 +9,10 @@
     overflow: hidden;
 }
 
-.layout_item:hover {
+/* .layout_item:hover {
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px !important;
     transition: transition_time;
-}
+} */
 
 .checked-border {
     /* border: 0px solid transparent !important; */

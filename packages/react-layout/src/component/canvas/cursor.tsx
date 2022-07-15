@@ -12,14 +12,15 @@ const Cursor = (props: CursorProps) => {
             y={props.y}
             scale={props.scale}
             is_draggable={true}
-            use_css_fixed={props.use_css_fixed}
             use_css_transform={props.use_css_transform}
-            onDragStart={props.onDragStart}
-            onDrag={({ x, y }) => {
-                props.onDrag?.({ x, y, cursor: props.cursor });
+            onDragStart={({ e, x, y }) => {
+                props.onDragStart?.({ e, x, y, cursor: props.cursor });
             }}
-            onDragStop={({ x, y }) => {
-                props.onDragStop?.({ x, y, cursor: props.cursor });
+            onDrag={({ e, x, y }) => {
+                props.onDrag?.({ e, x, y, cursor: props.cursor });
+            }}
+            onDragStop={({ e, x, y }) => {
+                props.onDragStop?.({ e, x, y, cursor: props.cursor });
             }}
             bound={props.bound}
             onContextMenu={(e) => {

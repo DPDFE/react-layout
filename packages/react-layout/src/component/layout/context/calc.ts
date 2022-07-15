@@ -4,34 +4,15 @@ import {
     GridType,
     MarginType,
     BoundType,
-    WidgetType
+    WidgetType,
+    Pos
 } from '@/interfaces';
-import React, { RefObject } from 'react';
 
 export const RULER_GAP = 100; // 标尺间隔大小
 export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
 export const WRAPPER_PADDING = 200; // 编辑状态下的边框
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
-
-export function snapToDragBound(
-    pos: BoundType,
-    grid: GridType,
-    type: WidgetType
-) {
-    const { row_height, col_width } = grid;
-
-    if (type === WidgetType.drag) {
-        return pos;
-    }
-
-    return {
-        min_x: pos.min_x * col_width,
-        min_y: pos.min_y * row_height,
-        max_x: pos.max_x * col_width,
-        max_y: pos.max_y * row_height
-    };
-}
 
 export function moveToWidget(target: LayoutItem, to: ItemPos) {
     target.x = to.x;
@@ -51,20 +32,7 @@ export function cloneWidget(w: LayoutItem) {
     };
 }
 
-export function getDropPosition(
-    canvas_ref: RefObject<HTMLElement>,
-    e: React.MouseEvent,
-    scale: number
-) {
-    const current = (canvas_ref as RefObject<HTMLElement>).current!;
-
-    const { left, top } = current.getBoundingClientRect();
-    const x = (e.clientX + current.scrollLeft - left) / scale;
-    const y = (e.clientY + current.scrollTop - top) / scale;
-    return { x, y };
-}
-
-export function collides(item_1: LayoutItem, item_2: LayoutItem): boolean {
+export function collides(item_1: Pos, item_2: Pos): boolean {
     if (item_1.i === item_2.i) return false; // 相同节点
     if (item_1.x + item_1.w <= item_2.x) return false; // 👈
     if (item_1.x >= item_2.x + item_2.w) return false; // 👉
@@ -162,12 +130,22 @@ export function compact(layout: LayoutItem[]) {
         l = compactItem(compare_with, l, sorted);
         compare_with.push(l);
     });
+
+    return compare_with;
 }
 
 export function getAllCollisions(sorted: LayoutItem[], item: LayoutItem) {
     return sorted.filter((l) => collides(l, item));
 }
 
+/**
+ *
+ * @param layout
+ * @param l
+ * @param collision
+ * @param is_user_action
+ * @returns
+ */
 function moveElementAwayFromCollision(
     layout: LayoutItem[],
     l: LayoutItem,
@@ -180,7 +158,8 @@ function moveElementAwayFromCollision(
         w: collision.w,
         h: collision.h,
         i: 'fake_item',
-        type: WidgetType.grid
+        type: WidgetType.grid,
+        layout_id: ''
     };
 
     if (is_user_action) {
@@ -199,6 +178,15 @@ function moveElementAwayFromCollision(
     return moveElement(layout, collision, collision.x, collision.y + 1);
 }
 
+/**
+ * 移动元素
+ * @param layout
+ * @param l
+ * @param x
+ * @param y
+ * @param is_user_action
+ * @returns
+ */
 export function moveElement(
     layout: LayoutItem[],
     l: LayoutItem,
@@ -233,7 +221,12 @@ export function moveElement(
     return layout;
 }
 
-// 生成从0开始的数组
+/**
+ * 生成从0开始的数组
+ * @param count1
+ * @param count2
+ * @returns
+ */
 export const reciprocalNum = (count1: number, count2: number) => {
     const list: any[] = [];
     for (let i = -count1; i <= count2; i++) {
@@ -242,13 +235,23 @@ export const reciprocalNum = (count1: number, count2: number) => {
     return list;
 };
 
-// 获取5的整数倍数值
+/**
+ * 获取5的整数倍数值
+ * @param count
+ * @param approximation
+ * @returns
+ */
 export const fiveMultipleIntergral = (count: number, approximation = 5) => {
     const max = Math.ceil(count / approximation) * approximation;
     const min = Math.floor(count / approximation) * approximation;
     return max - count >= approximation / 2 ? min : max;
 };
 
+/**
+ * 补全padding
+ * @param bound
+ * @returns
+ */
 export function completedPadding(
     bound?: [number, number?, number?, number?]
 ): MarginType {
@@ -292,11 +295,22 @@ export function completedPadding(
     return pos;
 }
 
+/**
+ * 取中间值
+ * @param client
+ * @param calc
+ * @returns
+ */
 export function calcOffset(client: number, calc: number) {
     return client - calc > 0 ? (client - calc) / 2 : 0;
 }
 
-export function removePersonalValue(arr: LayoutItem[]) {
+/**
+ * 格式化输出
+ * @param arr
+ * @returns
+ */
+export function formatOutputValue(arr: LayoutItem[]) {
     return arr.map((item) => {
         delete item.is_dragging;
         delete item.moved;
@@ -304,7 +318,32 @@ export function removePersonalValue(arr: LayoutItem[]) {
     });
 }
 
-export function addPersonalValue(item: LayoutItem) {
+/**
+ * 获取组件实际宽高
+ * 组件信息补全
+ * @param item
+ * @returns
+ */
+export function formatInputValue(item: LayoutItem, parent_layout_id: string) {
+    item.layout_id = parent_layout_id;
+
+    item.type = item.type ?? WidgetType.drag;
+
+    item.is_draggable = item.is_draggable ?? false;
+    item.is_resizable = item.is_resizable ?? false;
+    item.is_droppable = item.is_droppable ?? false;
+
+    item.need_border_draggable_handler =
+        item.need_border_draggable_handler ?? false;
+
+    item.w = Math.max(
+        item.min_w ?? (item.type === WidgetType.drag ? 5 : 1),
+        item.w
+    );
+    item.h = Math.max(
+        item.min_h ?? (item.type === WidgetType.drag ? 5 : 1),
+        item.h
+    );
     item.is_dragging = false;
     item.moved = false;
     return { ...item };

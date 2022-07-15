@@ -3,8 +3,7 @@ import {
     LayoutMode,
     LayoutItemEntry,
     LayoutItemDescriptor,
-    WidgetType,
-    OperatorType
+    WidgetType
 } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, {
@@ -19,13 +18,14 @@ import React, {
     useLayoutEffect
 } from 'react';
 
-import { MIN_DRAG_LENGTH } from '../calc';
-import Draggable, { clamp } from './draggable';
+import { MIN_DRAG_LENGTH } from '../layout/context/calc';
+import Draggable, { clamp, DEFAULT_BOUND } from './draggable';
 import Resizable from './resizable';
 // vite在watch模式下检测style变化需要先将内容引进来才能监听到
 import styles from './styles.module.css';
 import './styles.module.css';
-import { LayoutContext } from '../context';
+import { LayoutContext } from '../layout/context';
+import { CHANGE_OPERATOR } from '../layout/constants';
 import { useScroll } from 'ahooks';
 
 const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
@@ -35,13 +35,15 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
     const [is_parent_layout, setIsParentLayout] = useState<boolean>();
 
     const { col_width, row_height } = props.grid;
-    const [is_ready, setIsReady] = useState(false);
+
+    // useContext 会引发页面渲染
+    const { operator_type, registry, sticky_target_queue } =
+        useContext(LayoutContext);
+
+    const pos = useScroll(props.canvas_viewport_ref.current);
 
     const {
         i,
-        w,
-        h,
-        x,
         type,
         is_dragging,
         need_border_draggable_handler,
@@ -50,110 +52,109 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         offset_y,
         margin_height,
         margin_width,
+        is_sticky,
+        is_resizable,
+        is_draggable,
         min_x,
-        max_x,
         min_y,
-        max_y,
-        is_sticky
+        max_x,
+        max_y
     } = props;
 
-    const {
-        operator_type,
-        registry,
-        sticky_target_queue,
-        sticky_target_idx_queue,
-        sticky_target_queue_mappings
-    } = useContext(LayoutContext);
+    const gridX = (count: number) => {
+        return type === WidgetType.drag || is_dragging
+            ? count
+            : count * col_width;
+    };
+    const gridY = (count: number) => {
+        return type === WidgetType.drag || is_dragging
+            ? count
+            : count * row_height;
+    };
 
-    const pos = useScroll(props.canvas_viewport_ref.current);
-    const sticky_pos = useRef<number>(props.y);
+    const x = gridX(clamp(props.x, min_x, max_x - props.w)) + offset_x;
+    const _y = gridY(clamp(props.y, min_y, max_y - props.h)) + offset_y;
+
+    const w = Math.max(gridX(clamp(props.w, min_x, max_x)) - margin_width, 0);
+    const h = Math.max(gridY(clamp(props.h, min_y, max_y)) - margin_height, 0);
+
+    const sticky_pos = useRef<number>(_y);
 
     if (is_sticky && pos) {
         // 页面滚动到当前元素位置
-        if (pos.top - props.y > 0) {
-            // 是否为当前正在滚动元素
-            if (
-                sticky_target_queue.current.filter((q) => q.id === i).length ===
-                0
-            ) {
+        if (pos.top - _y > 0) {
+            // 曾经被添加过后被挤掉的元素不允许重新添加，滚动到过的元素
+            const target = sticky_target_queue.current.find((q) => q.id === i);
+
+            if (!target) {
+                const replace_targets: string[] = [];
                 // 判断两条线相交
-                const filter = sticky_target_queue.current.filter((q) => {
-                    // 不相交
-                    if (q.max_x < x || q.min_x > x + w) {
-                        return true;
-                    } else {
-                        // 相交
-                        //挤掉上面同位置的元素
-                        if (q.y > props.y) {
-                            return true;
+                sticky_target_queue.current = sticky_target_queue.current
+                    .map((q) => {
+                        // 不相交
+                        if (q.max_x < x || q.min_x > x + w) {
+                            return q;
+                        } else {
+                            // 相交
+                            //当前元素位于sticky元素上方 不操作
+                            if (q.y > _y) {
+                                return q;
+                            }
+                            // 记录当前元素挤掉的元素，当当前元素还原后，被挤掉元素状态也可被还原
+                            if (
+                                !replace_targets.includes(q.id) &&
+                                q.is_sticky
+                            ) {
+                                replace_targets.push(q.id);
+                            }
+                            q.is_sticky = false;
+                            return q;
                         }
-                        // 记录当前元素挤掉的元素，当当前元素还原后，被挤掉元素状态也可被还原
-                        if (!sticky_target_queue_mappings.current[i]) {
-                            sticky_target_queue_mappings.current[i] = [];
-                        }
-                        if (
-                            !sticky_target_queue_mappings.current[i].includes(
-                                q.id
-                            )
-                        ) {
-                            sticky_target_queue_mappings.current[i].push(q.id);
-                        }
-
-                        return false;
-                    }
-                });
-
-                // 曾经被添加过后被挤掉的元素不允许重新添加
-                if (!sticky_target_idx_queue.current.includes(i)) {
-                    sticky_target_queue.current = [
-                        ...filter,
+                    })
+                    .concat([
+                        // 如果页面的grid发生变化，这里计算的值应该会有问题
                         {
                             id: i,
                             max_x: x + w,
                             min_x: x,
-                            y: props.y
+                            y: _y,
+                            is_sticky: true,
+                            replace_targets
                         }
-                    ];
-                }
-
-                // 标记被添加过
-                if (!sticky_target_idx_queue.current.includes(i)) {
-                    sticky_target_idx_queue.current.push(i);
-                }
+                    ]);
             }
         } else {
             // 高度还没有当前元素
             // 还原当前元素状态
-            sticky_target_queue.current = sticky_target_queue.current.filter(
-                (q) => q.id != i
-            );
-            // 还原被当前元素挤掉元素状态
-            sticky_target_idx_queue.current =
-                sticky_target_idx_queue.current.filter(
-                    (q) =>
-                        q != i &&
-                        !sticky_target_queue_mappings.current[i]?.includes(q)
-                );
+            const target = sticky_target_queue.current.find((q) => q.id == i);
 
-            delete sticky_target_queue_mappings.current[i];
+            if (target) {
+                sticky_target_queue.current = sticky_target_queue.current
+                    .map((q) => {
+                        if (target.replace_targets.includes(q.id)) {
+                            q.is_sticky = true;
+                        }
+                        return q;
+                    })
+                    .filter((q) => q.id !== i);
+            }
         }
     }
 
-    // 可以同时置顶一批元素
+    // 可以同时置顶一批元素，当前元素，没有被顶掉
+    // 操作过程中不置顶
     const is_sticky_target = sticky_target_queue.current.find(
-        (q) => q.id === i && is_sticky
+        (q) => q.id === i && q.is_sticky && operator_type.current === undefined
     );
 
-    // 如果是置顶元素，为滚动高度，否则是自身原来高度
+    // 当前置顶的元素，是否处于置顶状态，如果处于置顶状态高度为滚动高度，否则是自身原来高度
     if (is_sticky_target && pos) {
         sticky_pos.current = pos.top;
     } else {
-        sticky_pos.current = props.y;
+        sticky_pos.current = _y;
     }
 
     const y = sticky_pos.current;
-    const is_resizable = y !== props.y ? false : props.is_resizable;
-    const is_draggable = y !== props.y ? false : props.is_draggable;
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -212,17 +213,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     left: 0
                 }}
             ></div>
-            {/* <div
-                key={'left_draggable_handler'}
-                className={`draggable_handler  ${styles.draggable_handler}`}
-                style={{
-                    width: 10,
-                    height: '100%',
-                    minWidth: 10,
-                    top: 0,
-                    right: 0
-                }}
-            ></div> */}
             <div
                 key={'bottom_draggable_handler'}
                 className={`draggable_handler ${styles.draggable_handler}`}
@@ -234,17 +224,6 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     left: 0
                 }}
             ></div>
-            {/* <div
-                key={'right_draggable_handler'}
-                className={`draggable_handler ${styles.draggable_handler}`}
-                style={{
-                    width: 10,
-                    height: '100%',
-                    minWidth: 10,
-                    top: 0,
-                    left: 0
-                }}
-            ></div> */}
         </React.Fragment>
     );
 
@@ -252,18 +231,16 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         const children = [child.props.children];
 
         if (props.mode === LayoutMode.edit) {
-            // 拖拽过程中让所有元素都可以触发move事件
+            // 拖拽过程中让所有元素都可以触发move事件，但是释放了以后还要能选中
             if (
-                (operator_type &&
-                    [
-                        OperatorType.drag,
-                        OperatorType.drop,
-                        OperatorType.resize
-                    ].includes(operator_type)) ||
+                (operator_type.current &&
+                    CHANGE_OPERATOR.includes(operator_type.current) &&
+                    is_parent_layout) ||
                 props.need_mask
             ) {
                 children.push(mask_handler);
             }
+
             // 让drag_handler放置在最上面
             if (need_border_draggable_handler) {
                 children.push(draggable_handler);
@@ -275,17 +252,22 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         operator_type,
         child,
         need_border_draggable_handler,
-        is_parent_layout,
         props.is_checked,
         props.is_placeholder
     ]);
+
+    useLayoutEffect(() => {
+        if (props.is_placeholder) return;
+
+        setIsParentLayout(!!getLayoutItemRef()?.querySelector('#react-layout'));
+    }, []);
 
     const setTransition = () => {
         const transition = 'all 0.1s linear';
 
         if (props.is_placeholder) return transition;
 
-        if (props.is_checked || !is_ready || is_sticky) return 'none';
+        if (props.is_checked || is_sticky_target) return 'none';
 
         return transition;
     };
@@ -296,20 +278,17 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         onMouseDown: () => {
             props.setCurrentChecked?.(i);
         },
-        onDragLeave: (e: React.MouseEvent) => {
-            e.stopPropagation();
-        },
-        onDragEnter: (e: React.MouseEvent) => {
-            e.stopPropagation();
-        },
         onKeyDown: (e: React.KeyboardEvent) => {
             if (type === WidgetType.drag) {
                 const keydown_pos = handleKeyDown(e);
                 if (keydown_pos) {
-                    props.onPositionChange?.({
-                        ...{ x, y, h, w, i, type },
-                        ...keydown_pos
-                    });
+                    props.onPositionChange?.(
+                        {
+                            ...{ x, y, h, w, i, type },
+                            ...keydown_pos
+                        },
+                        e as unknown as MouseEvent
+                    );
                 }
             }
         },
@@ -328,17 +307,15 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         ].join(' ')}`,
         style: {
             border: '1px solid transparent',
-            transition: setTransition(),
             width: w,
             height: h,
             ...child.props.style,
-            pointerEvents:
-                is_dragging || props.is_placeholder ? 'none' : 'auto',
             cursor:
                 props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'
                     : 'inherit',
-            zIndex: is_sticky_target || is_dragging ? 1000 : 'auto'
+            zIndex: is_sticky_target || is_dragging ? 1000 : 'auto',
+            transition: setTransition()
         },
         children: getCurrentChildren()
     });
@@ -364,21 +341,10 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         return `layout_item_${i}`;
     }, []);
 
-    useLayoutEffect(() => {
-        if (props.is_placeholder) return;
-
-        setIsParentLayout(!!getLayoutItemRef()?.querySelector('#react-layout'));
-    }, []);
-
-    useEffect(() => {
-        is_parent_layout !== undefined && setIsReady(true);
-    }, [is_parent_layout]);
-
     const descriptor: LayoutItemDescriptor = useMemo(
         () => ({
             id: i,
             layout_id,
-            is_ready,
             pos: {
                 i,
                 x: x - offset_x,
@@ -386,24 +352,12 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                 w: w + margin_width,
                 h: h + margin_height,
                 type,
-                is_parent_layout,
                 is_resizable,
-                is_draggable
+                is_draggable,
+                layout_id
             }
         }),
-        [
-            i,
-            layout_id,
-            x,
-            y,
-            w,
-            h,
-            type,
-            is_parent_layout,
-            is_resizable,
-            is_draggable,
-            is_ready
-        ]
+        [i, layout_id, x, y, w, h, type, is_resizable, is_draggable]
     );
 
     const getLayoutItemRef = useCallback((): HTMLElement | null => {
@@ -447,39 +401,57 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             <Draggable
                 {...{ x, y, h, w, i }}
                 threshold={5}
-                use_css_transform={!is_parent_layout || is_dragging}
-                use_css_fixed={is_dragging}
+                use_css_transform
                 scale={props.scale}
                 is_draggable={is_draggable}
-                onDragStart={() => {
-                    props.onDragStart?.();
+                onDragStart={({ e, x, y }) => {
+                    props.onDragStart?.(
+                        {
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            w: w + margin_width,
+                            h: h + margin_height,
+                            type,
+                            i
+                        },
+                        e
+                    );
                 }}
                 draggable_handler={
                     need_border_draggable_handler
                         ? '.draggable_handler'
                         : undefined
                 }
-                draggable_cancel_handler={props.draggable_cancel_handler}
-                onDrag={({ x, y }) => {
-                    const item = {
-                        x: x - offset_x,
-                        y: y - offset_y,
-                        w: w + margin_width,
-                        h: h + margin_height,
-                        type,
-                        i
-                    };
-                    props.onDrag?.(item);
+                draggable_cancel_handler={
+                    props.draggable_cancel_handler
+                        ? [props.draggable_cancel_handler]
+                        : []
+                }
+                onDrag={({ e, x, y }) => {
+                    props.onDrag?.(
+                        {
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            w: w + margin_width,
+                            h: h + margin_height,
+                            type,
+                            i
+                        },
+                        e
+                    );
                 }}
-                onDragStop={({ x, y }) => {
-                    props.onDragStop?.({
-                        x: x - offset_x,
-                        y: y - offset_y,
-                        w: w + margin_width,
-                        h: h + margin_height,
-                        type,
-                        i
-                    });
+                onDragStop={({ e, x, y }) => {
+                    props.onDragStop?.(
+                        {
+                            x: x - offset_x,
+                            y: y - offset_y,
+                            w: w + margin_width,
+                            h: h + margin_height,
+                            type,
+                            i
+                        },
+                        e
+                    );
                 }}
             >
                 <Resizable
@@ -494,34 +466,48 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
                     ref={item_ref}
                     {...{ x, y, h, w, i, type }}
                     scale={props.scale}
-                    use_css_transform={!is_parent_layout || is_dragging}
-                    use_css_fixed={is_dragging}
+                    use_css_transform
                     is_resizable={is_resizable}
-                    onResizeStart={() => {
-                        props.onResizeStart?.();
+                    onResizeStart={({ e, x, y, h, w }) => {
+                        props.onResizeStart?.(
+                            {
+                                x: x - offset_x,
+                                y: y - offset_y,
+                                w: w + margin_width,
+                                h: h + margin_height,
+                                type,
+                                i
+                            },
+                            e
+                        );
                     }}
                     cursors={props.cursors}
-                    onResize={({ x, y, h, w }) => {
-                        props.onResize?.({
-                            x: x - offset_x,
-                            y: y - offset_y,
-                            w: w + margin_width,
-                            h: h + margin_height,
-                            type,
-                            i
-                        });
+                    onResize={({ e, x, y, h, w }) => {
+                        props.onResize?.(
+                            {
+                                x: x - offset_x,
+                                y: y - offset_y,
+                                w: w + margin_width,
+                                h: h + margin_height,
+                                type,
+                                i
+                            },
+                            e
+                        );
                     }}
                     {...getMinimumBoundary()}
-                    bound={{ max_x, max_y, min_x, min_y }}
-                    onResizeStop={({ x, y, h, w }) => {
-                        props.onResizeStop?.({
-                            x: x - offset_x,
-                            y: y - offset_y,
-                            w: w + margin_width,
-                            h: h + margin_height,
-                            type,
-                            i
-                        });
+                    onResizeStop={({ e, x, y, h, w }) => {
+                        props.onResizeStop?.(
+                            {
+                                x: x - offset_x,
+                                y: y - offset_y,
+                                w: w + margin_width,
+                                h: h + margin_height,
+                                type,
+                                i
+                            },
+                            e
+                        );
                     }}
                 >
                     {new_child}
@@ -561,8 +547,8 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                // !isEqual(prev[key], next[key]) &&
-                //     console.log(key, prev[key], next[key]);
+                //-- !isEqual(prev[key], next[key]) &&
+                //     console.log(prev['i'], key, prev[key], next[key]);
                 return isEqual(prev[key], next[key]);
             }
         })

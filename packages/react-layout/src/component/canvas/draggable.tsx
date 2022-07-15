@@ -5,7 +5,14 @@ import {
     matchesSelectorAndParentsTo
 } from '@dpdfe/event-utils';
 import classNames from 'classnames';
-import React, { DOMElement, memo, RefObject, useEffect, useState } from 'react';
+import React, {
+    DOMElement,
+    memo,
+    RefObject,
+    useEffect,
+    useRef,
+    useState
+} from 'react';
 
 export const DEFAULT_BOUND = {
     min_y: -Infinity,
@@ -19,9 +26,8 @@ interface Pos {
 }
 
 export enum DragStates {
-    ready = 'ready',
     dragging = 'dragging',
-    draged = 'draged'
+    dragged = 'dragged'
 }
 
 const Draggable = (props: DraggableProps) => {
@@ -33,6 +39,10 @@ const Draggable = (props: DraggableProps) => {
     const [drag_state, setDragState] = useState<DragStates>();
     const [mouse_pos, setMousePos] = useState<Pos>({ x: 0, y: 0 }); // 鼠标点击坐标
     const [start_pos, setStartPos] = useState<Pos>({ x: 0, y: 0 });
+    const [current_pos, setCurrentPos] =
+        useState<{ e: MouseEvent; x: number; y: number }>();
+    const mouse_event_ref = useRef<MouseEvent>();
+    const is_dragging = useRef<Boolean>(false);
 
     /** 获取相对父元素偏移量 */
     const offsetXYFromParent = (e: MouseEvent) => {
@@ -46,6 +56,23 @@ const Draggable = (props: DraggableProps) => {
         return { x, y };
     };
 
+    /**
+     * 间距计算
+     * @param original
+     * @param current
+     * @returns
+     */
+    function isSloppyClickThresholdExceeded(
+        original: Pos,
+        current: Pos
+    ): boolean {
+        const threshold = props.threshold ?? 0;
+        return (
+            Math.abs(current.x - original.x) >= threshold ||
+            Math.abs(current.y - original.y) >= threshold
+        );
+    }
+
     /** 开始 偏移量大于5px 判断为开始拖拽 */
     const handleDragStart = (e: MouseEvent) => {
         removeEvent(document, 'mousemove', handleDrag, { capture: true });
@@ -57,14 +84,27 @@ const Draggable = (props: DraggableProps) => {
         const current = (child.ref as RefObject<HTMLElement>).current;
 
         // 有禁止拖拽元素时阻止拖拽效果
-        if (e.target && props.draggable_cancel_handler) {
-            const is_cancel_match = matchesSelectorAndParentsTo(
-                e.target as Node,
-                props.draggable_cancel_handler,
-                current as Node
-            );
+        if (
+            e.target &&
+            props.draggable_cancel_handler &&
+            props.draggable_cancel_handler.length > 0
+        ) {
+            const is_match_target = props.draggable_cancel_handler
+                .map((target) => {
+                    const is_cancel_match = matchesSelectorAndParentsTo(
+                        e.target as Node,
+                        target,
+                        current as Node
+                    );
 
-            if (is_cancel_match) {
+                    if (is_cancel_match) {
+                        return true;
+                    }
+                    return false;
+                })
+                .some((state) => state === true);
+
+            if (is_match_target) {
                 return;
             }
         }
@@ -82,21 +122,11 @@ const Draggable = (props: DraggableProps) => {
         }
 
         const { x, y } = offsetXYFromParent(e);
-        setDragState(DragStates.ready);
+
         setMousePos({ x, y });
         setStartPos({ x: props.x, y: props.y });
+        setDragState(DragStates.dragging);
     };
-
-    function isSloppyClickThresholdExceeded(
-        original: Pos,
-        current: Pos
-    ): boolean {
-        const threshold = props.threshold ?? 0;
-        return (
-            Math.abs(current.x - original.x) >= threshold ||
-            Math.abs(current.y - original.y) >= threshold
-        );
-    }
 
     /**
      * 拖拽计算逻辑：
@@ -105,65 +135,87 @@ const Draggable = (props: DraggableProps) => {
     const handleDrag = (e: MouseEvent) => {
         const { x, y } = offsetXYFromParent(e);
 
-        if (
-            drag_state === DragStates.ready &&
-            isSloppyClickThresholdExceeded(mouse_pos, {
-                x,
-                y
-            })
-        ) {
-            props.onDragStart?.();
-            setDragState(DragStates.dragging);
-        }
-
         const delta_x = x - mouse_pos.x;
         const delta_y = y - mouse_pos.y;
 
         const { max_x, max_y, min_x, min_y } = formatBound(props.bound);
 
         const pos = {
+            e,
             x: clamp(start_pos.x + delta_x, min_x, max_x),
             y: clamp(start_pos.y + delta_y, min_y, max_y)
         };
-        if (drag_state === DragStates.dragging) {
-            props.onDrag?.(pos);
+
+        setCurrentPos(pos);
+
+        if (
+            drag_state === DragStates.dragging &&
+            isSloppyClickThresholdExceeded(mouse_pos, {
+                x,
+                y
+            })
+        ) {
+            if (!is_dragging.current) {
+                is_dragging.current = true;
+                props.onDragStart?.(pos);
+            } else {
+                props.onDrag?.(pos);
+            }
         }
     };
 
     /** 结束 */
-    const handleDragStop = () => {
-        if (!props.is_draggable) {
-            return;
+    const handleDragStop = (e: MouseEvent) => {
+        is_dragging.current = false;
+        removeDragEvent();
+        if (current_pos) {
+            props.onDragStop?.(current_pos);
         }
 
-        setDragState(
-            drag_state === DragStates.dragging ? DragStates.draged : undefined
-        );
+        setDragState(undefined);
+    };
+
+    /**
+     * mouseup
+     * @param e
+     */
+    const mouseup = (e: MouseEvent) => {
+        mouse_event_ref.current = e;
+        setDragState(DragStates.dragged);
+    };
+
+    const addDragEvent = () => {
+        addEvent(document, 'mousemove', handleDrag, { capture: true });
+        addEvent(document, 'mouseup', mouseup, {
+            capture: true
+        });
+    };
+    const removeDragEvent = () => {
+        removeEvent(document, 'mousemove', handleDrag, { capture: true });
+        removeEvent(document, 'mouseup', mouseup, {
+            capture: true
+        });
     };
 
     useEffect(() => {
         switch (drag_state) {
-            case DragStates.ready:
             case DragStates.dragging:
-                addEvent(document, 'mousemove', handleDrag, { capture: true });
-                addEvent(document, 'mouseup', handleDragStop, {
-                    capture: true
-                });
+                addDragEvent();
                 break;
-            case DragStates.draged:
-                props.onDragStop?.({ x: props.x, y: props.y });
-                setDragState(undefined);
+            case DragStates.dragged:
+                handleDragStop(mouse_event_ref.current!);
                 break;
         }
-        return () => {
-            removeEvent(document, 'mousemove', handleDrag, { capture: true });
-            removeEvent(document, 'mouseup', handleDragStop, { capture: true });
-        };
+        return removeDragEvent;
     }, [drag_state]);
 
+    /**
+     * 设置选择样式
+     * @returns
+     */
     const setUserSelect = () => {
         const user_select: 'none' | 'inherit' =
-            drag_state === DragStates.draged ? 'inherit' : 'none';
+            drag_state === DragStates.dragged ? 'inherit' : 'none';
         return {
             UserSelect: user_select,
             WebkitUserSelect: user_select,
@@ -179,7 +231,7 @@ const Draggable = (props: DraggableProps) => {
         },
         // 右键菜单的时候不触发mouseup,这里处理一下
         onContextMenu: (e) => {
-            handleDragStop();
+            handleDragStop(e as unknown as MouseEvent);
             child.props.onContextMenu?.(e);
         },
         className: classNames(props.className, child.props.className),
@@ -190,7 +242,7 @@ const Draggable = (props: DraggableProps) => {
             ...(props.use_css_transform
                 ? setTransform(props.x, props.y)
                 : setTopLeft(props.x, props.y)),
-            position: props.use_css_fixed ? 'fixed' : 'absolute'
+            position: 'absolute'
         }
     });
 
@@ -201,7 +253,6 @@ Draggable.defaultProps = {
     threshold: 0,
     is_draggable: false,
     use_css_transform: true,
-    use_css_fixed: false,
     scale: 1,
     style: {},
     bound: DEFAULT_BOUND
@@ -212,6 +263,7 @@ export default memo(Draggable);
 export const setTransform = (x: number, y: number) => {
     const translate = `translate(${x}px,${y}px)`;
     return {
+        willChange: 'transform',
         transform: translate,
         WebkitTransform: translate,
         MozTransform: translate,

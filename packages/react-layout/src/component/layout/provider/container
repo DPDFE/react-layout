@@ -1,0 +1,35 @@
+const containerProvider = (width, height) => {
+    /**
+     * 获取视窗高度
+     * @param height
+     * @returns
+     */
+    const getContainerHeight = (height) => {
+        if (height) {
+            return height;
+        }
+    };
+
+    /**
+     * 获取视窗宽度
+     * @param width
+     * @returns
+     */
+    const getContainerWidth = (width) => {
+        if (width) {
+            return width;
+        }
+
+        const node = this.elementRef.current;
+        if (node instanceof HTMLElement && node.offsetWidth) {
+            return node.offsetWidth;
+        }
+    };
+
+    return {
+        height: getContainerHeight(height),
+        width: getContainerWidth(width)
+    };
+};
+
+export default containerProvider;

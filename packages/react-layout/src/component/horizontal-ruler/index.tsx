@@ -1,14 +1,14 @@
-import { DirectionType, HorizontalRulerProps } from "@/interfaces";
+import { DirectionType, HorizontalRulerProps } from '@/interfaces';
 import {
     fiveMultipleIntergral,
     reciprocalNum,
     RULER_GAP,
-    TOP_RULER_LEFT_MARGIN,
-} from "@/component/layout/calc";
-import * as React from "react";
-import { useEffect, useState } from "react";
-import styles from "./styles.module.css";
-import { addEvent, removeEvent } from "@dpdfe/event-utils";
+    TOP_RULER_LEFT_MARGIN
+} from '@/component/layout/context/calc';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
+import styles from './styles.module.css';
+import { addEvent, removeEvent } from '@dpdfe/event-utils';
 
 const HorizontalRuler = (props: HorizontalRulerProps) => {
     const [x_offset, setXOffset] = useState<number[]>([]); // 尺子水平间隔
@@ -20,7 +20,7 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
         canvas_viewport_ref,
         l_offset,
         setRulerHoverPos,
-        addGuideLine,
+        addGuideLine
     } = props;
 
     const viewport_pos = canvas_viewport_ref.current?.getBoundingClientRect();
@@ -62,13 +62,13 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
         calcHorizontalRulerPos();
         addEvent(
             props.canvas_viewport_ref.current,
-            "scroll",
+            'scroll',
             calcHorizontalRulerPos
         );
         return () => {
             removeEvent(
                 props.canvas_viewport_ref.current,
-                "scroll",
+                'scroll',
                 calcHorizontalRulerPos
             );
         };
@@ -80,7 +80,7 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
                 className={styles.horizontal}
                 style={{
                     paddingLeft: ruler_offset_left,
-                    marginLeft: TOP_RULER_LEFT_MARGIN + ruler_align_left,
+                    marginLeft: TOP_RULER_LEFT_MARGIN + ruler_align_left
                 }}
                 onMouseMove={(e) => {
                     setRulerHoverPos({
@@ -90,7 +90,7 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
                             canvas_viewport_ref.current!.scrollLeft -
                             Math.floor(viewport_pos!.x),
                         y: 0,
-                        direction: DirectionType.horizontal,
+                        direction: DirectionType.horizontal
                     });
                 }}
                 onMouseLeave={() => {
@@ -105,7 +105,7 @@ const HorizontalRuler = (props: HorizontalRulerProps) => {
                                 Math.floor(viewport_pos!.x)) /
                             props.scale,
                         y: 0,
-                        direction: DirectionType.horizontal,
+                        direction: DirectionType.horizontal
                     });
                 }}
             >

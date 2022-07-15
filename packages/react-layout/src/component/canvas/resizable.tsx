@@ -23,23 +23,22 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
         CursorType.nw
     ];
 
-    const handleResizeStart = () => {
+    const handleResizeStart = ({ e, x, y, cursor }: CursorPointer) => {
         if (!props.is_resizable) {
             return;
         }
-        props.onResizeStart?.();
+        const pos = cursor_mappings[cursor].calcPositionByCursor({ x, y });
+        props.onResizeStart?.({ ...pos, e });
     };
 
-    const handleResize = ({ x, y, cursor }: CursorPointer) => {
-        props.onResize?.(
-            cursor_mappings[cursor].calcPositionByCursor({ x, y })
-        );
+    const handleResize = ({ e, x, y, cursor }: CursorPointer) => {
+        const pos = cursor_mappings[cursor].calcPositionByCursor({ x, y });
+        props.onResize?.({ ...pos, e });
     };
 
-    const handleResizeStop = ({ x, y, cursor }: CursorPointer) => {
-        props.onResizeStop?.(
-            cursor_mappings[cursor].calcPositionByCursor({ x, y })
-        );
+    const handleResizeStop = ({ e, x, y, cursor }: CursorPointer) => {
+        const pos = cursor_mappings[cursor].calcPositionByCursor({ x, y });
+        props.onResizeStop?.({ ...pos, e });
     };
 
     const cursor_mappings = {
@@ -132,8 +131,8 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                     {
                         x,
                         y,
-                        w: Math.min(props.x - x + props.w, props.x + props.w),
-                        h: Math.min(props.y - y + props.h, props.y + props.h)
+                        w: props.x - x + props.w,
+                        h: props.y - y + props.h
                     },
                     bound
                 );
@@ -153,7 +152,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x: props.x,
                         y: y,
                         w: x - props.x,
-                        h: Math.min(props.y - y + props.h, props.y + props.h)
+                        h: props.y - y + props.h
                     },
                     bound
                 );
@@ -172,7 +171,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                     {
                         x: x,
                         y: props.y,
-                        w: Math.min(props.x - x + props.w, props.x + props.w),
+                        w: props.x - x + props.w,
                         h: y - props.y
                     },
                     bound
@@ -218,7 +217,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
             ...(props.use_css_transform
                 ? setTransform(props.x, props.y)
                 : setTopLeft(props.x, props.y)),
-            position: props.use_css_fixed ? 'fixed' : 'absolute',
+            position: 'absolute',
             width: props.w,
             height: props.h,
             ...child.props.style
@@ -239,7 +238,6 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                             x={cursor_mappings[cur].x}
                             y={cursor_mappings[cur].y}
                             use_css_transform={props.use_css_transform}
-                            use_css_fixed={props.use_css_fixed}
                             onDragStart={handleResizeStart}
                             onDrag={handleResize}
                             onDragStop={handleResizeStop}

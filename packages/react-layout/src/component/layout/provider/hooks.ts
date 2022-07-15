@@ -12,26 +12,19 @@ import {
     useLayoutEffect,
     useMemo,
     useState,
-    useContext,
-    useRef
+    useContext
 } from 'react';
-import {
-    calcOffset,
-    completedPadding,
-    replaceWidget,
-    snapToDragBound,
-    WRAPPER_PADDING
-} from './calc';
+import { calcOffset, completedPadding, WRAPPER_PADDING } from '../context/calc';
 import ResizeObserver from 'resize-observer-polyfill';
-import { LayoutContext } from './context';
-import { clamp, DEFAULT_BOUND } from './canvas/draggable';
+import { LayoutContext } from '../context';
+import { clamp, DEFAULT_BOUND } from '../../canvas/draggable';
 
 export const useLayoutHooks = (
     layout: LayoutItem[],
     props: ReactLayoutProps,
     container_ref: React.RefObject<HTMLDivElement>,
     canvas_viewport_ref: React.RefObject<HTMLDivElement>,
-    shadow_widget_ref: React.RefObject<HTMLDivElement>,
+    target_widget_ref: React.RefObject<HTMLDivElement>,
     shadow_widget?: ItemPos
 ) => {
     const [wrapper_width, setCanvasWrapperWidth] = useState<number>(0); // 画板宽度
@@ -40,15 +33,9 @@ export const useLayoutHooks = (
     const [t_offset, setTopOffset] = useState<number>(0); //垂直偏移量
     const [l_offset, setLeftOffset] = useState<number>(0); //水平偏移量
 
-    const [current_height, setCurrentHeight] = useState<number>(0); //高度;
-
     const [is_window_resize, setWindowResize] = useState<number>(Math.random());
 
-    const { operator_type } = useContext(LayoutContext);
-
-    const canvas_viewport_scroll_top_left = useRef({ top: 0, left: 0 });
-
-    const [is_child_layout, setIsChildLayout] = useState(props.is_child_layout);
+    const { operator_type, moving_droppable } = useContext(LayoutContext);
 
     /**
      * 让阴影定位组件位于可视范围内
@@ -58,28 +45,32 @@ export const useLayoutHooks = (
         const intersectionObserverInstance = new IntersectionObserver(
             (entries) => {
                 entries.map((entry) => {
-                    if (!entry.intersectionRatio) {
-                        shadow_widget_ref.current?.scrollIntoView({
-                            block: 'nearest',
-                            inline: 'nearest'
-                        });
-                    }
+                    target_widget_ref.current?.scrollIntoView({
+                        block: 'nearest',
+                        inline: 'nearest',
+                        behavior: 'smooth'
+                    });
                 });
             },
-            { root: canvas_viewport_ref.current }
+            {
+                root: canvas_viewport_ref.current,
+                threshold: [0].concat(
+                    Array.from(new Array(10).keys()).map((i) => (i + 1) * 0.1)
+                )
+            }
         );
 
         shadow_widget &&
-            shadow_widget_ref.current &&
-            intersectionObserverInstance.observe(shadow_widget_ref.current);
+            target_widget_ref.current &&
+            intersectionObserverInstance.observe(target_widget_ref.current);
         return () => {
             shadow_widget &&
-                shadow_widget_ref.current &&
+                target_widget_ref.current &&
                 intersectionObserverInstance.unobserve(
-                    shadow_widget_ref.current
+                    target_widget_ref.current
                 );
         };
-    }, [JSON.stringify(shadow_widget), is_child_layout]);
+    }, [JSON.stringify(shadow_widget)]);
 
     /** 监听容器变化，重新计算width、height、grid */
     useLayoutEffect(() => {
@@ -103,12 +94,12 @@ export const useLayoutHooks = (
 
     /** 视窗宽度 */
     const client_width = useMemo(() => {
-        return canvas_viewport_ref.current?.clientWidth ?? 0;
-    }, [is_window_resize, operator_type]);
+        return canvas_viewport_ref.current?.offsetWidth ?? 0;
+    }, [is_window_resize]);
 
     /** 视窗高度 */
     const client_height = useMemo(() => {
-        return canvas_viewport_ref.current?.clientHeight ?? 0;
+        return canvas_viewport_ref.current?.offsetHeight ?? 0;
     }, [is_window_resize]);
 
     /** 补全边距 */
@@ -117,36 +108,6 @@ export const useLayoutHooks = (
         [props.container_padding]
     );
 
-    /** 根据类型配置计算边界状态 */
-    const getCurrentBound = (type: WidgetType) => {
-        const bound_strategy = {
-            [WidgetType.drag]: () => {
-                return props.need_drag_bound
-                    ? {
-                          min_x: padding.left,
-                          max_x: current_width - padding.right,
-                          min_y: padding.top,
-                          max_y: current_height
-                              ? current_height - padding.bottom
-                              : Infinity
-                      }
-                    : DEFAULT_BOUND;
-            },
-            [WidgetType.grid]: () => {
-                return props.need_grid_bound
-                    ? {
-                          min_x: 0,
-                          max_x: props.cols,
-                          min_y: 0,
-                          max_y: Infinity
-                      }
-                    : DEFAULT_BOUND;
-            }
-        };
-
-        return bound_strategy[type]();
-    };
-
     /**
      * 画布宽度计算，在栅栏格式下，元素只能在画布内拖动
      */
@@ -154,7 +115,7 @@ export const useLayoutHooks = (
         return props.layout_type === LayoutType.DRAG
             ? (props as DragLayoutProps).width
             : client_width;
-    }, [props.layout_type, client_width]);
+    }, [props.layout_type, client_width, (props as DragLayoutProps).width]);
 
     /**
      * 单元格宽高计算
@@ -162,8 +123,11 @@ export const useLayoutHooks = (
     const grid = useMemo(() => {
         const { item_margin, cols, row_height } = props;
 
-        const sub_left = current_width - Math.max(padding.left, item_margin[1]);
-        const width = sub_left - Math.max(item_margin[1] - padding.right, 0);
+        const offset_left = Math.max(padding.left, item_margin[1]);
+        const offset_top =
+            Math.max(item_margin[1], padding.right) - item_margin[1];
+
+        const width = current_width - offset_top - offset_left;
 
         return {
             col_width: width / cols,
@@ -177,9 +141,90 @@ export const useLayoutHooks = (
         padding
     ]);
 
+    /** 获取元素最大边界 */
+    const { max_left, max_right, max_top, max_bottom } = useMemo(() => {
+        // 元素计算大小
+        let max_left = 0,
+            max_right = 0,
+            max_top = 0,
+            max_bottom = 0;
+
+        const calc_layout =
+            moving_droppable.current?.id === props.layout_id && shadow_widget
+                ? layout.concat({
+                      ...shadow_widget!,
+                      i: '__dragging__',
+                      layout_id: ''
+                  })
+                : layout;
+
+        calc_layout.forEach((l) => {
+            const { x, y, h, w, is_dragging, type } = l;
+
+            const gridX = (count: number) => {
+                return type === WidgetType.drag || is_dragging
+                    ? count
+                    : count * grid.col_width;
+            };
+            const gridY = (count: number) => {
+                return type === WidgetType.drag || is_dragging
+                    ? count
+                    : count * grid.row_height;
+            };
+
+            max_left = Math.min(max_left, gridX(x));
+            max_right = Math.max(max_right, gridX(x + w) + padding.right);
+            max_top = Math.min(max_top, gridY(y));
+            max_bottom = Math.max(max_bottom, gridY(y + h) + padding.bottom);
+        });
+
+        return { max_left, max_right, max_top, max_bottom };
+    }, [
+        layout,
+        shadow_widget,
+        client_height,
+        props.layout_type,
+        (props as DragLayoutProps).height
+    ]);
+
+    const current_height: number = useMemo(() => {
+        return props.layout_type === LayoutType.DRAG
+            ? (props as DragLayoutProps).height
+            : Math.max(max_bottom, client_height);
+    }, [
+        props.layout_type,
+        (props as DragLayoutProps).height,
+        max_bottom,
+        client_height
+    ]);
+
+    /**
+     * 边界范围
+     */
+    const getBoundingSize = {
+        [WidgetType.drag]: props.need_drag_bound
+            ? {
+                  min_x: padding.left,
+                  max_x: current_width - padding.right,
+                  min_y: padding.top,
+                  max_y: current_height
+                      ? current_height - padding.bottom
+                      : Infinity
+              }
+            : DEFAULT_BOUND,
+        [WidgetType.grid]: props.need_grid_bound
+            ? {
+                  min_x: 0,
+                  max_x: props.cols,
+                  min_y: 0,
+                  max_y: Infinity
+              }
+            : DEFAULT_BOUND
+    };
+
     /** 对drop节点做边界计算以后再排序 */
-    const getBoundResult = (item: LayoutItem) => {
-        const { max_x, min_x, max_y, min_y } = getCurrentBound(item.type);
+    const boundControl = (item: LayoutItem) => {
+        const { max_x, min_x, max_y, min_y } = getBoundingSize[item.type];
 
         item.x = clamp(item.x, min_x, max_x - item.w);
         item.y = clamp(item.y, min_y, max_y - item.h);
@@ -199,106 +244,16 @@ export const useLayoutHooks = (
     const snapToGrid = (pos: LayoutItem) => {
         const { row_height, col_width } = grid;
 
-        pos.is_dragging = false;
+        delete pos.is_dragging;
         pos.x = Math.round(pos.x / col_width);
         pos.y = Math.round(pos.y / row_height);
         pos.w = Math.round(pos.w / col_width);
         pos.h = Math.round(pos.h / row_height);
 
-        return getBoundResult(pos);
+        return boundControl(pos);
     };
-
-    const snapToDrag = (l: LayoutItem) => {
-        const { type, is_dragging } = l;
-
-        const { min_x, max_x, min_y, max_y } = is_dragging
-            ? DEFAULT_BOUND
-            : snapToDragBound(getCurrentBound(l.type), grid, type);
-
-        const is_float = type === WidgetType.drag;
-
-        const gridX = (count: number) => {
-            return is_float || is_dragging ? count : count * grid.col_width;
-        };
-        const gridY = (count: number) => {
-            return is_float || is_dragging ? count : count * grid.row_height;
-        };
-
-        const layout_item_strategy = {
-            [WidgetType.drag]: () => {
-                return {
-                    margin_height: 0,
-                    margin_width: 0,
-                    offset_x: 0,
-                    offset_y: 0
-                };
-            },
-            [WidgetType.grid]: () => {
-                return {
-                    margin_height: props.item_margin[0],
-                    margin_width: props.item_margin[1],
-                    offset_x: Math.max(props.item_margin[1], padding.left),
-                    offset_y: Math.max(props.item_margin[0], padding.top)
-                };
-            }
-        };
-
-        const { offset_x, offset_y, margin_height, margin_width } =
-            layout_item_strategy[type]();
-
-        const { top, left } = is_dragging
-            ? canvas_viewport_scroll_top_left.current
-            : { top: 0, left: 0 };
-
-        const w = Math.max(gridX(l.w) - margin_width, 0);
-        const h = Math.max(gridY(l.h) - margin_height, 0);
-
-        const x = clamp(gridX(l.x) + offset_x - left, min_x, max_x - w);
-        const y = clamp(gridY(l.y) + offset_y - top, min_y, max_y - h);
-
-        return {
-            ...l,
-            w,
-            h,
-            x,
-            y,
-            offset_x,
-            offset_y,
-            margin_height,
-            margin_width,
-            min_x,
-            max_x,
-            min_y,
-            max_y
-        };
-    };
-
-    /** 获取元素最大边界 */
-    const { max_left, max_right, max_top, max_bottom } = useMemo(() => {
-        // 元素计算大小
-        let max_left = 0,
-            max_right = 0,
-            max_top = 0,
-            max_bottom = 0;
-
-        for (const [_, value] of Object.entries(
-            replaceWidget(layout, shadow_widget)
-        )) {
-            const { x, y, h, w } = snapToDrag(value);
-
-            max_left = Math.min(max_left, x);
-            max_right = Math.max(max_right, x + w + padding.right);
-            max_top = Math.min(max_top, y);
-            max_bottom = Math.max(max_bottom, y + h + padding.bottom);
-        }
-
-        return { max_left, max_right, max_top, max_bottom };
-    }, [layout]);
 
     const GetCurrentContainerHeight = () => {
-        if (props.layout_type === LayoutType.DRAG && operator_type) {
-            return;
-        }
         if (client_width && client_height) {
             const { layout_type, mode, scale } = props;
 
@@ -315,7 +270,6 @@ export const useLayoutHooks = (
 
                     setCanvasWrapperWidth(current_width);
                     setCanvasWrapperHeight(max_b);
-                    setCurrentHeight(max_b);
                     setTopOffset(t_offset);
                     setLeftOffset(l_offset);
                 },
@@ -362,7 +316,6 @@ export const useLayoutHooks = (
                             client_height
                         );
 
-                        setCurrentHeight((props as DragLayoutProps).height);
                         setCanvasWrapperWidth(wrapper_calc_width);
                         setCanvasWrapperHeight(wrapper_calc_height);
                         setTopOffset(t_offset + Math.abs(max_top) * scale);
@@ -377,7 +330,6 @@ export const useLayoutHooks = (
                         setCanvasWrapperHeight(
                             Math.max(calc_height, client_height)
                         );
-                        setCurrentHeight((props as DragLayoutProps).height);
                         setTopOffset(t_offset);
                         setLeftOffset(l_offset);
                     }
@@ -399,46 +351,10 @@ export const useLayoutHooks = (
         max_right,
         max_top,
         max_bottom,
-        operator_type,
+        operator_type.current,
         client_width,
         client_height
     ]);
-
-    useLayoutEffect(() => {
-        // 如果没有传递参数  内部自己计算
-        props.is_child_layout === undefined &&
-            setIsChildLayout(
-                !!container_ref.current?.parentElement?.closest('.react-layout')
-            );
-    }, []);
-
-    useLayoutEffect(() => {
-        if (!is_child_layout) return;
-        const onScroll = () => {
-            let top = 0;
-            let left = 0;
-            if (is_child_layout) {
-                top = canvas_viewport_ref.current?.scrollTop ?? 0;
-                left = canvas_viewport_ref.current?.scrollLeft ?? 0;
-            }
-            canvas_viewport_scroll_top_left.current.top = top;
-            canvas_viewport_scroll_top_left.current.left = left;
-        };
-
-        canvas_viewport_ref.current?.addEventListener(
-            'scroll',
-            onScroll,
-            false
-        );
-
-        return () => {
-            canvas_viewport_ref.current?.removeEventListener(
-                'scroll',
-                onScroll,
-                false
-            );
-        };
-    }, [canvas_viewport_ref.current]);
 
     return {
         padding,
@@ -450,11 +366,8 @@ export const useLayoutHooks = (
         wrapper_height,
         t_offset,
         l_offset,
-        is_child_layout,
-        canvas_viewport_scroll_top_left,
         snapToGrid,
-        getCurrentBound,
-        getBoundResult,
-        snapToDrag
+        getBoundingSize,
+        boundControl
     };
 };

@@ -1,19 +1,16 @@
-import React, {
-    DOMAttributes,
-    ReactChild,
-    ReactElement,
-    ReactNode,
-    RefObject
-} from 'react';
+import React, { ReactChild, ReactElement, RefObject } from 'react';
 
 export interface StickyTarget {
     id: string;
     max_x: number;
     min_x: number;
     y: number;
+    is_sticky: boolean; // 当前置顶
+    replace_targets: string[]; // 关联元素 A => [B,C] 当前元素替换了的元素，当当前元素还原，替换元素也还原
 }
 
 export enum OperatorType {
+    dropstart = 'dropstart',
     dragstart = 'dragstart',
     drag = 'drag',
     dragover = 'dragover',
@@ -66,6 +63,7 @@ export type CursorPointer = {
     x: number;
     y: number;
     cursor: CursorType;
+    e: MouseEvent;
 };
 
 export type GridType = {
@@ -87,15 +85,16 @@ export type BoundType = {
     min_y: number;
 };
 
-export type ItemPos = {
+export type Pos = {
     i: string;
     x: number;
     y: number;
     h: number;
     w: number;
-    type: WidgetType;
+};
 
-    is_droppable?: boolean; // 可以放入其他元素内部
+export type ItemPos = Pos & {
+    type: WidgetType;
 };
 
 type NodeProps = {
@@ -116,7 +115,6 @@ type LayoutBase = NodeProps & {
     need_grid_lines: boolean;
     need_grid_bound: boolean;
     need_drag_bound: boolean;
-    is_child_layout?: boolean; // 是子布局
     is_droppable?: boolean; //不允许放
 };
 
@@ -200,23 +198,19 @@ export interface GuideLineProps {
 
 /** 单节点属性 */
 export interface LayoutItem extends ItemPos {
+    is_droppable?: boolean; // 可以放入其他元素内部
     min_w?: number;
     min_h?: number;
     is_sticky?: boolean;
     is_draggable?: boolean;
     is_resizable?: boolean;
-    is_child_layout?: boolean; // 子布局的元素
     moved?: boolean;
+    layout_id: string;
     is_dragging?: boolean;
     is_checked?: boolean;
     need_mask?: boolean;
     need_border_draggable_handler?: boolean;
     draggable_cancel_handler?: string;
-}
-
-export interface LayoutItemDimesion extends LayoutItem {
-    layout_id: string;
-    element: HTMLElement | null;
 }
 
 interface EventBaseProps extends NodeProps {
@@ -245,13 +239,13 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem {
     mode: LayoutMode.edit | LayoutMode.view;
     is_placeholder: boolean;
     setCurrentChecked?: (idx: string) => void;
-    onDragStart?: () => void;
-    onDrag?: (item: ItemPos) => void;
-    onDragStop?: (item: ItemPos) => void;
-    onResizeStart?: () => void;
-    onResize?: (item: ItemPos) => void;
-    onResizeStop?: (item: ItemPos) => void;
-    onPositionChange?: (item: ItemPos) => void;
+    onDragStart?: (item: ItemPos, e: MouseEvent) => void;
+    onDrag?: (item: ItemPos, e: MouseEvent) => void;
+    onDragStop?: (item: ItemPos, e: MouseEvent) => void;
+    onResizeStart?: (item: ItemPos, e: MouseEvent) => void;
+    onResize?: (item: ItemPos, e: MouseEvent) => void;
+    onResizeStop?: (item: ItemPos, e: MouseEvent) => void;
+    onPositionChange?: (item: ItemPos, e: MouseEvent) => void;
 }
 
 /** ? 怎么能直接继承 React.HTMLAttributes<HTMLElement> ？？？ */
@@ -265,20 +259,27 @@ export interface DraggableProps extends EventBaseProps {
     bound?: Partial<BoundType>;
     is_draggable?: boolean;
     use_css_transform?: boolean;
-    use_css_fixed?: boolean;
-    draggable_cancel_handler?: string;
+    draggable_cancel_handler?: string[];
     draggable_handler?: string;
-    onDragStart?: () => void;
-    onDrag?: ({ x, y }: { x: number; y: number }) => void;
-    onDragStop?: ({ x, y }: { x: number; y: number }) => void;
+    onDragStart?: ({
+        e,
+        x,
+        y
+    }: {
+        e: MouseEvent;
+        x: number;
+        y: number;
+    }) => void;
+    onDrag?: ({ e, x, y }: { e: MouseEvent; x: number; y: number }) => void;
+    onDragStop?: ({ e, x, y }: { e: MouseEvent; x: number; y: number }) => void;
 }
 
 export interface CursorProps extends Omit<DraggableProps, 'children'> {
     cursor: CursorType;
     use_css_transform?: boolean;
-    use_css_fixed?: boolean;
-    onDrag?: ({ x, y, cursor }: CursorPointer) => void;
-    onDragStop?: ({ x, y, cursor }: CursorPointer) => void;
+    onDragStart?: ({ e, x, y, cursor }: CursorPointer) => void;
+    onDrag?: ({ e, x, y, cursor }: CursorPointer) => void;
+    onDragStop?: ({ e, x, y, cursor }: CursorPointer) => void;
 }
 
 /** resize */
@@ -294,30 +295,45 @@ export interface ResizableProps extends EventBaseProps {
     bound?: BoundType;
     is_resizable?: boolean;
     use_css_transform?: boolean;
-    use_css_fixed?: boolean;
     cursors?: CursorType[];
-    onResizeStart?: () => void;
-    onResize?: ({
+    onResizeStart?: ({
         x,
         y,
         h,
-        w
+        w,
+        e
     }: {
         x: number;
         y: number;
         h: number;
         w: number;
+        e: MouseEvent;
+    }) => void;
+    onResize?: ({
+        x,
+        y,
+        h,
+        w,
+        e
+    }: {
+        x: number;
+        y: number;
+        h: number;
+        w: number;
+        e: MouseEvent;
     }) => void;
     onResizeStop?: ({
         x,
         y,
         h,
-        w
+        w,
+        e
     }: {
         x: number;
         y: number;
         h: number;
         w: number;
+        e: MouseEvent;
     }) => void;
 }
 
@@ -331,33 +347,8 @@ export interface MenuItemProps extends NodeProps {
     onClick?: (e: React.MouseEvent) => void;
 }
 
-export interface LayoutDescriptor {
-    id: string;
-    is_root: boolean;
-    type: LayoutType;
-    mode: LayoutMode;
-}
-
-type LayoutEntryApi = (
-    dragging_item?: LayoutItemEntry
-) => LayoutItem[] | undefined;
-
-export interface LayoutEntry {
-    is_droppable?: boolean;
-    unique_id: string;
-    descriptor: LayoutDescriptor;
-    compactLayoutByDraggingItem: (
-        dragging_item: LayoutItemEntry,
-        is_save: boolean
-    ) => LayoutItem[];
-    handlerDraggingItemOut: LayoutEntryApi;
-    getRef: () => HTMLDivElement | null;
-    getViewPortRef: () => HTMLDivElement | null;
-}
-
 export interface LayoutItemDescriptor {
     id: string;
-    is_ready: boolean;
     layout_id: string;
     pos: LayoutItem;
 }
@@ -373,29 +364,42 @@ export type WidgetLocation = {
     widgets: LayoutItem[];
 };
 
-export type DragStart = {
+export type LayoutResult = {
     type: OperatorType;
     widget_id: string;
     source: WidgetLocation;
-};
-
-export type DragResult = DragStart & {
-    destination?: WidgetLocation;
-};
-
-export type DropResult = DragStart & {
     widget: LayoutItem;
+    destination?: WidgetLocation;
 };
 
 export interface ReactLayoutContextProps {
     getDroppingItem?: () => { h: number; w: number; i: string };
-    onDrop?: (result: DropResult) => LayoutItem;
-    onDragStart?: (start: DragStart) => void;
-    onDrag?: (result: DragResult) => void;
-    onDragStop?: (result: DragResult) => void;
-    onResizeStart?: (start: DragStart) => void;
-    onResize?: (start: DragStart) => void;
-    onResizeStop?: (start: DragStart) => void;
-    onChange?: (result: DragResult) => void;
-    onPositionChange?: (start: DragStart) => void;
+    onDrop?: (result: LayoutResult) => void;
+    onDragStart?: (result: LayoutResult) => void;
+    onDrag?: (result: LayoutResult) => void;
+    onDragStop?: (result: LayoutResult) => void;
+    onResizeStart?: (result: LayoutResult) => void;
+    onResize?: (result: LayoutResult) => void;
+    onResizeStop?: (result: LayoutResult) => void;
+    onChange?: (result: LayoutResult) => void;
+    onPositionChange?: (result: LayoutResult) => void;
+}
+
+export interface Droppable {
+    saveLayout: (layout: LayoutItem[]) => void;
+    id: string;
+    is_droppable?: boolean;
+    getRef: () => HTMLDivElement | null;
+    getViewPortRef: () => HTMLDivElement | null;
+    getFilterLayoutById: (i: string) => LayoutItem[];
+    cleanShadow: (widget?: LayoutItem) => void;
+    addShadow: (
+        widget: LayoutItem,
+        is_save?: boolean
+    ) => {
+        source: WidgetLocation;
+        widget: LayoutItem;
+        destination?: WidgetLocation;
+    };
+    move: (current_widget: LayoutItem, item_pos: ItemPos) => void;
 }
