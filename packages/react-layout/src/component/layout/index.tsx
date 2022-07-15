@@ -806,9 +806,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
                               }
                             : noop
                     }
-                    onDragEnter={() => {
-                        drop_enter_counter.current += 1;
-                    }}
+                    onDragEnter={
+                        props.mode === LayoutMode.edit &&
+                        registry.droppable.getFirstRegister()?.id ===
+                            props.layout_id
+                            ? () => {
+                                  drop_enter_counter.current += 1;
+                              }
+                            : noop
+                    }
                     onDragLeave={
                         props.mode === LayoutMode.edit &&
                         registry.droppable.getFirstRegister()?.id ===
