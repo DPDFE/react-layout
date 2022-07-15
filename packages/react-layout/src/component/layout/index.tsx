@@ -459,13 +459,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 operator_type.current &&
                 DROP_OPERATOR.includes(operator_type.current)
             ) {
-                if (
-                    operator_type.current &&
-                    END_OPERATOR.includes(operator_type.current)
-                ) {
-                    setLayout([shadow].concat(moved_layout));
-                }
-
                 return {
                     source: {
                         layout_id: moving_droppable.current!.id,
