@@ -386,6 +386,7 @@ export interface ReactLayoutContextProps {
 }
 
 export interface Droppable {
+    saveLayout: (layout: LayoutItem[]) => void;
     id: string;
     is_droppable?: boolean;
     getRef: () => HTMLDivElement | null;

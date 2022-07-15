@@ -378,6 +378,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
         [layout, getFilterLayoutById]
     );
 
+    // 保存
+    const saveLayout = useCallback(
+        (layout) => {
+            setLayout(layout);
+        },
+        [setLayout]
+    );
+
     /**
      * 定位
      */
@@ -471,8 +479,24 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     destination: undefined
                 };
             } else {
-                // 不同布局
+                // 结束状态保存一下更新后布局
+                if (
+                    operator_type.current &&
+                    END_OPERATOR.includes(operator_type.current)
+                ) {
+                    setLayout([shadow].concat(moved_layout));
+                    if (start_droppable.current) {
+                        registry.droppable
+                            .getById(start_droppable.current.id)
+                            .saveLayout(
+                                start_droppable.current!.getFilterLayoutById(
+                                    shadow.i
+                                )
+                            );
+                    }
+                }
 
+                // 不同布局
                 return {
                     source: {
                         layout_id: start_droppable.current!.id,
@@ -500,7 +524,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
             cleanShadow,
             getFilterLayoutById,
             addShadow,
-            move
+            move,
+            saveLayout
         }),
         [
             getRef,
@@ -508,7 +533,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
             cleanShadow,
             getFilterLayoutById,
             addShadow,
-            move
+            move,
+            saveLayout
         ]
     );
 
