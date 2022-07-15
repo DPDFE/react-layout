@@ -342,11 +342,17 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const move = useCallback(
         (current_widget: LayoutItem, item_pos: ItemPos) => {
             moveToWidget(current_widget, item_pos);
-            setLayout(
-                layout.map((l) =>
-                    l.i === current_widget.i ? current_widget : l
-                )
-            );
+            // 非结束状态时，保存一下临时状态
+            if (
+                operator_type.current &&
+                !END_OPERATOR.includes(operator_type.current)
+            ) {
+                setLayout(
+                    layout.map((l) =>
+                        l.i === current_widget.i ? current_widget : l
+                    )
+                );
+            }
         },
         [layout]
     );
@@ -436,17 +442,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
             // 最后保存状态的时候不画shadow
             if (
                 operator_type.current &&
-                CHANGE_OPERATOR.includes(operator_type.current)
+                CHANGE_OPERATOR.includes(operator_type.current) &&
+                props.layout_type === LayoutType.GRID
             ) {
                 placeholder.current = shadow;
-            }
-
-            // 结束状态保存一下更新后布局
-            if (
-                operator_type.current &&
-                END_OPERATOR.includes(operator_type.current)
-            ) {
-                setLayout(moved_layout);
             }
 
             // 同一个布局
@@ -455,6 +454,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 operator_type.current &&
                 !DROP_OPERATOR.includes(operator_type.current)
             ) {
+                // 结束状态保存一下更新后布局
+                if (
+                    operator_type.current &&
+                    END_OPERATOR.includes(operator_type.current)
+                ) {
+                    setLayout(moved_layout);
+                }
+
                 return {
                     source: {
                         layout_id: moving_droppable.current!.id,
@@ -465,6 +472,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 };
             } else {
                 // 不同布局
+
                 return {
                     source: {
                         layout_id: start_droppable.current!.id,
