@@ -82,6 +82,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         t_offset,
         l_offset,
         padding,
+        client_width,
         boundControl,
         getBoundingSize,
         snapToGrid
@@ -337,6 +338,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
      */
     const move = useCallback(
         (current_widget: LayoutItem, item_pos: ItemPos) => {
+            if (item_pos.type === WidgetType.grid) {
+                if (item_pos.x < 0) {
+                    item_pos.x = 0;
+                }
+                if (item_pos.x + item_pos.w > client_width) {
+                    item_pos.w = client_width - item_pos.x - padding.right;
+                }
+            }
+
             moveToWidget(current_widget, item_pos);
             // 非结束状态时，保存一下临时状态
             if (

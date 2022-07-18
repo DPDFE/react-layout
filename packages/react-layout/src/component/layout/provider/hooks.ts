@@ -317,10 +317,12 @@ export const useLayoutHooks = (
         max_bottom,
         operator_type.current,
         client_width,
-        client_height
+        client_height,
+        client_width
     ]);
 
     return {
+        client_width,
         padding,
         is_window_resize,
         current_width,

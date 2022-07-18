@@ -37,8 +37,13 @@ const WidgetItem = (props: WidgetItemProps) => {
     const { col_width, row_height } = props.grid;
 
     // useContext 会引发页面渲染
-    const { operator_type, registry, sticky_target_queue } =
-        useContext(LayoutContext);
+    const {
+        operator_type,
+        registry,
+        sticky_target_queue,
+        start_droppable,
+        moving_droppable
+    } = useContext(LayoutContext);
 
     const pos = useScroll(props.canvas_viewport_ref.current);
 
@@ -396,6 +401,16 @@ const WidgetItem = (props: WidgetItemProps) => {
         registry.draggable.update(entry, last);
     }, [entry, registry.draggable]);
 
+    // 移动到视窗
+    const moveToWindow = () => {
+        if (start_droppable.current?.id === moving_droppable.current?.id) {
+            item_ref.current?.scrollIntoView({
+                block: 'nearest',
+                inline: 'nearest'
+            });
+        }
+    };
+
     return (
         <React.Fragment>
             <Draggable
@@ -428,10 +443,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                         : []
                 }
                 onDrag={({ e, x, y }) => {
-                    item_ref.current?.scrollIntoView({
-                        block: 'nearest',
-                        inline: 'nearest'
-                    });
+                    moveToWindow();
                     props.onDrag?.(
                         {
                             x: x - offset_x,
@@ -487,10 +499,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                     }}
                     cursors={props.cursors}
                     onResize={({ e, x, y, h, w }) => {
-                        item_ref.current?.scrollIntoView({
-                            block: 'nearest',
-                            inline: 'nearest'
-                        });
+                        moveToWindow();
                         props.onResize?.(
                             {
                                 x: x - offset_x,
