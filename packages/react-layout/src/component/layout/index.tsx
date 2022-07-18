@@ -343,7 +343,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     item_pos.x = 0;
                 }
                 if (item_pos.x + item_pos.w > client_width) {
-                    item_pos.w = client_width - item_pos.x - padding.right;
+                    item_pos.x = client_width - item_pos.w - padding.right;
                 }
             }
 
