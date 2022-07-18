@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import {
     BrowserRouter,
     Routes,
@@ -246,9 +246,10 @@ function Router() {
     );
 }
 
-ReactDOM.render(
+const container = document.getElementById('root');
+const root = createRoot(container);
+root.render(
     <BrowserRouter>
         <Router />
-    </BrowserRouter>,
-    document.getElementById('root')
+    </BrowserRouter>
 );
