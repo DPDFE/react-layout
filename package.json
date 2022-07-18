@@ -31,7 +31,7 @@
     },
     "devDependencies": {
         "@babel/core": "^7.17.8",
-        "@dpdfe/react-layout": "file:./packages/react-layout",
+        "@dpdfe/react-layout": "link:./packages/react-layout",
         "@storybook/addon-actions": "^6.5.0-alpha.49",
         "@storybook/addon-essentials": "^6.5.0-alpha.49",
         "@storybook/addon-interactions": "^6.5.0-alpha.49",
