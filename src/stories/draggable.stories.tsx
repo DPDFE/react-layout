@@ -3,6 +3,7 @@ import '../index.css';
 
 import { Draggable } from '@dpdfe/react-layout';
 import { draggable_arg_types } from './args/draggable';
+import '@dpdfe/react-layout/dist/index.css';
 import { useRef, useState } from 'react';
 
 export default {
@@ -34,12 +35,12 @@ const Template: ComponentStory<typeof Draggable> = (args) => {
                     console.log('dragStart');
                 }}
                 onDrag={({ x, y }: { x: number; y: number }) => {
-                    // args.onDrag({ x, y });
+                    console.log('onDrag');
                     setX(x);
                     setY(y);
                 }}
                 onDragStop={() => {
-                    console.log('onDrag');
+                    console.log('onDragStop');
                 }}
             >
                 <div

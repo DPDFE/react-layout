@@ -3,6 +3,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react';
 import '../index.css';
 
 import { Resizable } from '@dpdfe/react-layout';
+import '@dpdfe/react-layout/dist/index.css';
 import { resizable_arg_types } from './args/resizable';
 import { useRef, useState } from 'react';
 
@@ -48,6 +49,7 @@ const Template: ComponentStory<typeof Resizable> = (args) => {
                     h: number;
                     w: number;
                 }) => {
+                    console.log('resize');
                     // args.onResize({ x, y, h, w });
                     setX(x);
                     setY(y);

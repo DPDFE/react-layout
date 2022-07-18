@@ -147,7 +147,8 @@ export const draggable_arg_types = {
         description: '开始拖拽',
         table: {
             defaultValue: {
-                summary: 'onDragStart?: () => void;'
+                summary:
+                    'onDragStart?: ({ x, y }: { x: number; y: number }) => void;'
             }
         }
     },

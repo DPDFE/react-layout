@@ -42,7 +42,7 @@ const Draggable = (props: DraggableProps) => {
     const [current_pos, setCurrentPos] =
         useState<{ e: MouseEvent; x: number; y: number }>();
     const mouse_event_ref = useRef<MouseEvent>();
-    const is_dragging = useRef<Boolean>(false);
+    const dragging_ref = useRef<DragStates>();
 
     /** 获取相对父元素偏移量 */
     const offsetXYFromParent = (e: MouseEvent) => {
@@ -125,6 +125,7 @@ const Draggable = (props: DraggableProps) => {
 
         setMousePos({ x, y });
         setStartPos({ x: props.x, y: props.y });
+
         setDragState(DragStates.dragging);
     };
 
@@ -155,10 +156,10 @@ const Draggable = (props: DraggableProps) => {
                 y
             })
         ) {
-            if (!is_dragging.current) {
-                is_dragging.current = true;
+            if (!dragging_ref.current) {
+                dragging_ref.current = DragStates.dragging;
                 props.onDragStart?.(pos);
-            } else {
+            } else if (dragging_ref.current == DragStates.dragging) {
                 props.onDrag?.(pos);
             }
         }
@@ -166,13 +167,12 @@ const Draggable = (props: DraggableProps) => {
 
     /** 结束 */
     const handleDragStop = (e: MouseEvent) => {
-        is_dragging.current = false;
+        dragging_ref.current = DragStates.dragged;
+        setDragState(undefined);
         removeDragEvent();
         if (current_pos) {
             props.onDragStop?.(current_pos);
         }
-
-        setDragState(undefined);
     };
 
     /**
@@ -205,6 +205,8 @@ const Draggable = (props: DraggableProps) => {
             case DragStates.dragged:
                 handleDragStop(mouse_event_ref.current!);
                 break;
+            default:
+                dragging_ref.current = undefined;
         }
         return removeDragEvent;
     }, [drag_state]);

@@ -67,7 +67,7 @@ layout.args = {
     need_grid_lines: true,
     scale: 1,
     style: {
-        backgroundColor: '#fff'
+        backgroundColor: '#a3f6e0'
     }
     // guide_lines: [{ x: 0, y: 0, direction: 'horizontal' }],
     // addGuideLine: ({ x, y, direction }: RulerPointer) => void;

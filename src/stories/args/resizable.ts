@@ -158,7 +158,8 @@ export const resizable_arg_types = {
         description: '开始缩放',
         table: {
             defaultValue: {
-                summary: 'onResizeStart?: () => void;'
+                summary:
+                    'onResizeStart?: ({x, y, h, w }: { x: number; y: number; h: number; w: number;}) => void;'
             }
         }
     },
