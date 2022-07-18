@@ -28,9 +28,9 @@ import { LayoutContext } from '../layout/context';
 import { CHANGE_OPERATOR } from '../layout/constants';
 import { useScroll } from 'ahooks';
 
-const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
+const WidgetItem = (props: WidgetItemProps) => {
     const child = React.Children.only(props.children) as ReactElement;
-    const item_ref = ref ?? useRef<HTMLDivElement>(null);
+    const item_ref = useRef<HTMLDivElement>(null);
 
     const [is_parent_layout, setIsParentLayout] = useState<boolean>();
 
@@ -60,6 +60,38 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
         max_x,
         max_y
     } = props;
+
+    /**
+     * 让拖拽元素定位组件位于可视范围内
+     */
+    useLayoutEffect(() => {
+        /** 判断元素是否消失 */
+        const intersectionObserverInstance = new IntersectionObserver(
+            (entries) => {
+                entries.map((entry) => {
+                    item_ref.current?.scrollIntoView({
+                        block: 'nearest',
+                        inline: 'nearest',
+                        behavior: 'smooth'
+                    });
+                });
+            },
+            {
+                root: props.canvas_viewport_ref.current,
+                threshold: [0].concat(
+                    Array.from(new Array(10).keys()).map((i) => (i + 1) * 0.1)
+                )
+            }
+        );
+
+        is_dragging &&
+            item_ref.current &&
+            intersectionObserverInstance.observe(item_ref.current);
+        return () => {
+            item_ref.current &&
+                intersectionObserverInstance.unobserve(item_ref.current);
+        };
+    }, [is_dragging]);
 
     const gridX = (count: number) => {
         return type === WidgetType.drag || is_dragging
@@ -515,7 +547,7 @@ const WidgetItem = React.forwardRef((props: WidgetItemProps, ref) => {
             </Draggable>
         </React.Fragment>
     );
-});
+};
 
 WidgetItem.defaultProps = {
     scale: 1,

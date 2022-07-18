@@ -58,8 +58,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         getResponders,
         drop_enter_counter,
         drag_item,
-        placeholder,
-        target_widget_ref
+        placeholder
     } = useContext(LayoutContext);
 
     const container_ref = useRef<HTMLDivElement>(null);
@@ -91,7 +90,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         props,
         container_ref,
         canvas_viewport_ref,
-        target_widget_ref,
         placeholder.current
     );
 
@@ -643,11 +641,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     // @ts-ignore
                     layout_id={props.layout_id}
                     key={widget.i}
-                    ref={
-                        checked_index === widget.i
-                            ? target_widget_ref
-                            : undefined
-                    }
                     {...widget}
                     padding={padding}
                     margin={props.item_margin}
