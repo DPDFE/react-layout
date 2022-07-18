@@ -426,13 +426,11 @@ const DefaultLayout = () => {
                     </Select>
                 </div>
                 <ReactLayoutContext
-                    onChange={(result: DragResult) => {
+                    onChange={(result: LayoutResult) => {
                         const { source, destination } = result;
                         destination &&
                             console.log(
-                                JSON.parse(
-                                    JSON.stringify(result.destination.widgets)
-                                ),
+                                JSON.parse(JSON.stringify(destination.widgets)),
                                 'onChange'
                             );
                         handleWidgetsChange(source.layout_id, source.widgets);
