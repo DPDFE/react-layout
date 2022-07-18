@@ -15,7 +15,17 @@ export default {
 } as unknown as ComponentMeta<typeof ReactLayoutContext>;
 
 const Template: ComponentStory<typeof ReactLayoutContext> = (args) => {
-    return <DefaultLayout></DefaultLayout>;
+    return (
+        <div
+            style={{
+                width: '100%',
+                height: '1000px',
+                border: '1px solid'
+            }}
+        >
+            <DefaultLayout></DefaultLayout>
+        </div>
+    );
 };
 
 export const context = Template.bind({});
