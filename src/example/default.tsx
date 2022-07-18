@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Input, Slider } from 'antd';
+import { Button, Input, Select, Slider } from 'antd';
 import {
     ReactLayout,
     LayoutType,
@@ -7,9 +7,7 @@ import {
     DirectionType,
     ItemPos,
     ReactLayoutContext,
-    DragStart,
-    DragResult,
-    DropResult,
+    LayoutResult,
     LayoutMode,
     WidgetType
 } from '@dpdfe/react-layout';
@@ -23,6 +21,7 @@ const DefaultLayout = () => {
     const [width, setWidth] = useState<number | string>(400);
     const [height, setHeight] = useState<number | string>(400);
     const [scale, setScale] = useState<number>(1);
+    const [type, setLayoutType] = useState<LayoutType>(LayoutType.GRID);
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
     const [widgets2, setWidgets2] = useState<LayoutItem[]>([]);
     const [widgets3, setWidgets3] = useState<LayoutItem[]>([]);
@@ -412,6 +411,19 @@ const DefaultLayout = () => {
                         max={2}
                         onChange={setScale}
                     />
+                    <Select
+                        value={type}
+                        onChange={(value) => {
+                            setLayoutType(value);
+                        }}
+                    >
+                        <Select.Option value={LayoutType.DRAG}>
+                            大屏
+                        </Select.Option>
+                        <Select.Option value={LayoutType.GRID}>
+                            PC
+                        </Select.Option>
+                    </Select>
                 </div>
                 <ReactLayoutContext
                     onChange={(result: DragResult) => {
@@ -470,7 +482,7 @@ const DefaultLayout = () => {
                         // need_ruler
                         widgets={widgets}
                         layout_id={'root'}
-                        layout_type={LayoutType.GRID}
+                        layout_type={type}
                         width={width}
                         height={height}
                         row_height={50}
