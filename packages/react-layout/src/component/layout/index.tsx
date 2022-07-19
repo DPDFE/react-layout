@@ -338,7 +338,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
      */
     const move = useCallback(
         (current_widget: LayoutItem, item_pos: ItemPos) => {
-            if (item_pos.type === WidgetType.grid) {
+            if (
+                item_pos.type === WidgetType.grid &&
+                start_droppable.current?.id === moving_droppable.current?.id
+            ) {
                 if (item_pos.x < 0) {
                     item_pos.x = 0;
                 }
