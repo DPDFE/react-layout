@@ -460,7 +460,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
             if (
                 operator_type.current &&
                 CHANGE_OPERATOR.includes(operator_type.current) &&
-                props.layout_type === LayoutType.GRID
+                (props.layout_type === LayoutType.GRID ||
+                    (props.layout_type === LayoutType.DRAG &&
+                        OperatorType.drop === operator_type.current))
             ) {
                 placeholder.current = shadow;
             }
