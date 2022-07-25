@@ -475,7 +475,6 @@ const WidgetItem = (props: WidgetItemProps) => {
                     style={{
                         // mixBlendMode: 'difference',
                         // filter: 'invert(0)',
-                        backgroundColor: '#128ee9',
                         zIndex: is_sticky_target || is_dragging ? 1000 : 'auto'
                         // zIndex: 200
                     }}
