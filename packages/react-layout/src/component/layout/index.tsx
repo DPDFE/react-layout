@@ -42,9 +42,9 @@ import classNames from 'classnames';
 import deepClone from 'lodash/cloneDeep';
 import {
     END_OPERATOR,
-    START_OPERATOR,
     CHANGE_OPERATOR,
-    DROP_OPERATOR
+    DROP_OPERATOR,
+    START_OPERATOR
 } from './constants';
 
 const ReactLayout = (props: ReactLayoutProps) => {
@@ -66,6 +66,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const canvas_wrapper_ref = useRef<HTMLDivElement>(null); // canvas存放的画布，增加边距支持滚动
     const grid_lines_ref = useRef<HTMLCanvasElement>(null); //
     const canvas_ref = useRef<HTMLDivElement>(null);
+    const shadow_ref = useRef<HTMLDivElement>(null); // 阴影dom
 
     const [shadow_pos, setShadowPos] = useState<ItemPos>(); //上一时刻阴影的计算结果
 
@@ -75,14 +76,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const {
         current_width,
-        grid,
+        col_width,
+        row_height,
+        margin_x,
+        margin_y,
         current_height,
         wrapper_width,
         wrapper_height,
         t_offset,
         l_offset,
         padding,
-        client_width,
         boundControl,
         getBoundingSize,
         snapToGrid
@@ -139,18 +142,18 @@ const ReactLayout = (props: ReactLayoutProps) => {
         const current = canvas_ref.current!;
         const { left, top } = current.getBoundingClientRect();
 
-        const responders = getResponders();
-        const drop_item = responders.getDroppingItem?.();
+        const drop_item = getResponders().getDroppingItem?.();
 
         return {
+            is_dropping: true,
             is_droppable: true,
             is_draggable: true,
             is_resizable: true,
             ...drop_item,
             ...(layout_type === LayoutType.GRID
                 ? {
-                      w: grid.col_width * (drop_item?.w ?? 2),
-                      h: grid.row_height * (drop_item?.h ?? 2)
+                      w: drop_item?.w ?? 2,
+                      h: drop_item?.h ?? 2
                   }
                 : {
                       w: drop_item ? drop_item.w : 100,
@@ -182,8 +185,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
         operator_type.current = operator;
 
-        if (START_OPERATOR.includes(operator)) {
+        if ([OperatorType.dragstart].includes(operator)) {
             current_widget.is_dragging = true;
+        }
+        if ([OperatorType.resizestart].includes(operator)) {
+            current_widget.is_resizing = true;
+        }
+
+        if (START_OPERATOR.includes(operator)) {
             setCurrentChecked(current_widget.i);
         }
 
@@ -338,17 +347,17 @@ const ReactLayout = (props: ReactLayoutProps) => {
      */
     const move = useCallback(
         (current_widget: LayoutItem, item_pos: ItemPos) => {
-            if (
-                item_pos.type === WidgetType.grid &&
-                start_droppable.current?.id === moving_droppable.current?.id
-            ) {
-                if (item_pos.x < 0) {
-                    item_pos.x = 0;
-                }
-                if (item_pos.x + item_pos.w > client_width) {
-                    item_pos.x = client_width - item_pos.w - padding.right;
-                }
-            }
+            // if (
+            //     item_pos.type === WidgetType.grid &&
+            //     start_droppable.current?.id === moving_droppable.current?.id
+            // ) {
+            //     if (item_pos.x < 0) {
+            //         item_pos.x = 0;
+            //     }
+            //     if (item_pos.x + item_pos.w > container_width) {
+            //         item_pos.x = container_width - item_pos.w - padding.right;
+            //     }
+            // }
 
             moveToWidget(current_widget, item_pos);
             // 非结束状态时，保存一下临时状态
@@ -540,7 +549,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 }
             }
         },
-        [layout, grid, shadow_pos]
+        [layout, row_height, col_width, shadow_pos]
     );
 
     const entry: Droppable = useMemo(
@@ -589,16 +598,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
      */
     const getMarginSize = {
         [WidgetType.drag]: {
-            margin_height: 0,
-            margin_width: 0,
+            margin_y: 0,
+            margin_x: 0,
             offset_x: 0,
             offset_y: 0
         },
         [WidgetType.grid]: {
-            margin_height: props.item_margin[0],
-            margin_width: props.item_margin[1],
-            offset_x: Math.max(props.item_margin[1], padding.left),
-            offset_y: Math.max(props.item_margin[0], padding.top)
+            margin_y: margin_y,
+            margin_x: margin_x,
+            offset_x: Math.max(margin_x, padding.left),
+            offset_y: Math.max(margin_y, padding.top)
         }
     };
 
@@ -611,22 +620,24 @@ const ReactLayout = (props: ReactLayoutProps) => {
             placeholder.current &&
             moving_droppable.current?.id === props.layout_id && (
                 <WidgetItem
-                    {...getMarginSize[placeholder.current.type]}
-                    {...DEFAULT_BOUND}
                     {...placeholder.current}
                     key='shadow'
                     layout_id={props.layout_id}
-                    padding={padding}
-                    margin={props.item_margin}
-                    is_placeholder={true}
-                    bound={getBoundingSize[placeholder.current.type]}
                     scale={props.scale}
                     mode={LayoutMode.view}
-                    grid={grid}
+                    is_checked={false}
+                    is_placeholder={true}
                     is_resizable={false}
                     is_draggable={false}
-                    is_checked={false}
+                    col_width={col_width}
+                    row_height={row_height}
+                    padding={padding}
+                    margin={props.item_margin}
+                    bound={getBoundingSize[placeholder.current.type]}
                     canvas_viewport_ref={canvas_viewport_ref}
+                    shadow_ref={shadow_ref}
+                    {...getMarginSize[placeholder.current.type]}
+                    {...DEFAULT_BOUND}
                 >
                     <div
                         className={`react-drag-placeholder ${styles.placeholder}`}
@@ -649,27 +660,28 @@ const ReactLayout = (props: ReactLayoutProps) => {
         if (widget) {
             return (
                 <WidgetItem
-                    {...getMarginSize[widget.type]}
-                    {...(widget.is_dragging
-                        ? DEFAULT_BOUND
-                        : getBoundingSize[widget.type])}
+                    {...widget}
+                    key={widget.i}
+                    mode={props.mode}
                     // @ts-ignore
                     layout_id={props.layout_id}
-                    key={widget.i}
-                    {...widget}
+                    col_width={col_width}
+                    row_height={row_height}
+                    scale={props.scale}
                     padding={padding}
                     margin={props.item_margin}
-                    {...child.props}
-                    grid={grid}
-                    mode={props.mode}
-                    children={child}
-                    scale={props.scale}
-                    cursors={(props as EditLayoutProps).cursors}
+                    is_sticky={widget.is_sticky}
                     is_checked={checked_index === widget.i}
                     is_resizable={
                         widget.is_resizable && checked_index === widget.i
                     }
-                    is_sticky={widget.is_sticky}
+                    cursors={(props as EditLayoutProps).cursors}
+                    {...getMarginSize[widget.type]}
+                    {...(widget.is_dragging
+                        ? DEFAULT_BOUND
+                        : getBoundingSize[widget.type])}
+                    {...child.props}
+                    children={child}
                     canvas_viewport_ref={canvas_viewport_ref}
                     setCurrentChecked={
                         props.mode === LayoutMode.edit
@@ -839,7 +851,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             ? (e) => {
                                   e.preventDefault();
                                   const widget = getDropItem(e);
-                                  delete drag_item.current?.is_dragging;
+
+                                  //   delete drag_item.current?.is_dragging;
 
                                   if (!drag_item.current) {
                                       handleResponder(
@@ -898,10 +911,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         className='canvas_wrapper'
                         ref={canvas_wrapper_ref}
                         style={{
-                            width:
-                                props.layout_type === LayoutType.GRID
-                                    ? '100%'
-                                    : wrapper_width,
+                            ...(props.layout_type === LayoutType.DRAG
+                                ? { width: wrapper_width }
+                                : {}),
                             height: wrapper_height
                         }}
                     >
@@ -916,10 +928,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             className={styles.canvas}
                             style={{
                                 ...props.style,
-                                width:
-                                    props.layout_type === LayoutType.GRID
-                                        ? '100%'
-                                        : props.width,
+                                ...(props.layout_type === LayoutType.DRAG
+                                    ? { width: wrapper_width }
+                                    : {}),
                                 height: current_height,
                                 top: t_offset,
                                 left: l_offset,

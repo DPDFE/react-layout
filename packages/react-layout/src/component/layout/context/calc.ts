@@ -1,3 +1,4 @@
+import { clamp } from '@/component/canvas/draggable';
 import {
     LayoutItem,
     ItemPos,
@@ -13,6 +14,82 @@ export const TOP_RULER_LEFT_MARGIN = 15; //顶部标尺左侧间隔
 export const WRAPPER_PADDING = 200; // 编辑状态下的边框
 
 export const MIN_DRAG_LENGTH = 10; // 最小的拖拽效果下的长度
+
+export const calcXYWH = (
+    item: LayoutItem,
+    col_width: number,
+    row_height: number,
+    margin_x: number,
+    margin_y: number,
+    padding: MarginType
+) => {
+    const { type, is_resizing, is_dropping, is_dragging, w, h, x, y } = item;
+    const out: Pos = {
+        x: 0,
+        y: 0,
+        h: 0,
+        w: 0
+    };
+
+    // drag/resizing
+    if (type === WidgetType.drag || is_resizing) {
+        out.w = Math.round(w);
+        out.h = Math.round(h);
+    }
+    // grid
+    else {
+        out.w = gridXY(w, col_width, margin_x);
+        out.h = gridXY(h, row_height, margin_y);
+    }
+
+    // drag/dragging
+    if (type === WidgetType.drag || is_dragging || is_resizing || is_dropping) {
+        out.x = Math.round(x);
+        out.y = Math.round(y);
+    }
+    // grid
+    else {
+        out.x = Math.round((col_width + margin_x) * x + padding.left);
+        out.y = Math.round((row_height + margin_y) * y + padding.top);
+    }
+    return out;
+};
+
+export const gridXY = (
+    grid_number: number,
+    size: number,
+    margin_px: number
+) => {
+    if (!Number.isFinite(grid_number)) return grid_number;
+    return Math.round(
+        size * grid_number + Math.max(0, grid_number - 1) * margin_px
+    );
+};
+
+export const calcXY = (
+    grid_number: number,
+    size: number,
+    margin_px: number,
+    padding_px: number,
+    min_size: number = -Infinity,
+    max_size: number = Infinity
+) => {
+    const result = Math.round((grid_number - padding_px) / (size + margin_px));
+
+    return clamp(result, min_size, max_size);
+};
+
+export const calcWH = (
+    grid_number: number,
+    size: number,
+    margin_px: number,
+    min_size: number = -Infinity,
+    max_size: number = Infinity
+): number => {
+    const result = Math.round((grid_number + margin_px) / (size + margin_px));
+
+    return clamp(result, min_size, max_size);
+};
 
 export function moveToWidget(target: LayoutItem, to: ItemPos) {
     target.x = to.x;
@@ -32,7 +109,7 @@ export function cloneWidget(w: LayoutItem) {
     };
 }
 
-export function collides(item_1: Pos, item_2: Pos): boolean {
+export function collides(item_1: ItemPos, item_2: ItemPos): boolean {
     if (item_1.i === item_2.i) return false; // 相同节点
     if (item_1.x + item_1.w <= item_2.x) return false; // 👈
     if (item_1.x >= item_2.x + item_2.w) return false; // 👉
@@ -345,6 +422,7 @@ export function formatInputValue(item: LayoutItem, parent_layout_id: string) {
         item.h
     );
     item.is_dragging = false;
+    item.is_resizing = false;
     item.moved = false;
     return { ...item };
 }

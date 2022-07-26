@@ -14,7 +14,14 @@ import {
     useState,
     useContext
 } from 'react';
-import { calcOffset, completedPadding, WRAPPER_PADDING } from '../context/calc';
+import {
+    calcOffset,
+    calcWH,
+    calcXY,
+    calcXYWH,
+    completedPadding,
+    WRAPPER_PADDING
+} from '../context/calc';
 import ResizeObserver from 'resize-observer-polyfill';
 import { LayoutContext } from '../context';
 import { clamp, DEFAULT_BOUND } from '../../canvas/draggable';
@@ -36,6 +43,20 @@ export const useLayoutHooks = (
 
     const { operator_type, moving_droppable } = useContext(LayoutContext);
 
+    /** 视窗宽度 */
+    const container_width = canvas_viewport_ref.current?.offsetWidth ?? 10;
+    /** 视窗高度 */
+    const container_height = canvas_viewport_ref.current?.offsetHeight ?? 10;
+
+    /**
+     * 画布宽度计算，在栅栏格式下，元素只能在画布内拖动
+     */
+    const current_width = useMemo(() => {
+        return props.layout_type === LayoutType.DRAG
+            ? (props as DragLayoutProps).width
+            : container_width;
+    }, [props.layout_type, container_width, (props as DragLayoutProps).width]);
+
     /** 监听容器变化，重新计算width、height、grid */
     useLayoutEffect(() => {
         /**
@@ -56,54 +77,26 @@ export const useLayoutHooks = (
         };
     }, [container_ref]);
 
-    /** 视窗宽度 */
-    const client_width = useMemo(() => {
-        return canvas_viewport_ref.current?.offsetWidth ?? 0;
-    }, [is_window_resize]);
-
-    /** 视窗高度 */
-    const client_height = useMemo(() => {
-        return canvas_viewport_ref.current?.offsetHeight ?? 0;
-    }, [is_window_resize]);
-
     /** 补全边距 */
     const padding = useMemo(
         () => completedPadding(props.container_padding),
         [props.container_padding]
     );
 
-    /**
-     * 画布宽度计算，在栅栏格式下，元素只能在画布内拖动
-     */
-    const current_width = useMemo(() => {
-        return props.layout_type === LayoutType.DRAG
-            ? (props as DragLayoutProps).width
-            : client_width;
-    }, [props.layout_type, client_width, (props as DragLayoutProps).width]);
+    /** 单元素水平边距 */
+    const margin_x = props.item_margin[1];
 
-    /**
-     * 单元格宽高计算
-     */
-    const grid = useMemo(() => {
-        const { item_margin, cols, row_height } = props;
+    /** 单元素垂直边距 */
+    const margin_y = props.item_margin[0];
 
-        const offset_left = Math.max(padding.left, item_margin[1]);
-        const offset_top =
-            Math.max(item_margin[1], padding.right) - item_margin[1];
+    /** 单元格宽度 */
+    const col_width =
+        (current_width -
+            (margin_x * (props.cols - 1) + (padding.left + padding.right))) /
+        props.cols;
 
-        const width = current_width - offset_top - offset_left;
-
-        return {
-            col_width: width / cols,
-            row_height
-        };
-    }, [
-        props.item_margin,
-        props.cols,
-        props.row_height,
-        current_width,
-        padding
-    ]);
+    /** 单元格高度 */
+    const row_height = props.row_height;
 
     /** 获取元素最大边界 */
     const { max_left, max_right, max_top, max_bottom } = useMemo(() => {
@@ -117,36 +110,32 @@ export const useLayoutHooks = (
             moving_droppable.current?.id === props.layout_id && shadow_widget
                 ? layout.concat({
                       ...shadow_widget!,
-                      i: '__dragging__',
+                      i: 'placeholder',
                       layout_id: ''
                   })
                 : layout;
 
         calc_layout.forEach((l) => {
-            const { x, y, h, w, is_dragging, type } = l;
+            const out = calcXYWH(
+                l,
+                col_width,
+                row_height,
+                margin_x,
+                margin_y,
+                padding
+            );
 
-            const gridX = (count: number) => {
-                return type === WidgetType.drag || is_dragging
-                    ? count
-                    : count * grid.col_width;
-            };
-            const gridY = (count: number) => {
-                return type === WidgetType.drag || is_dragging
-                    ? count
-                    : count * grid.row_height;
-            };
-
-            max_left = Math.min(max_left, gridX(x));
-            max_right = Math.max(max_right, gridX(x + w) + padding.right);
-            max_top = Math.min(max_top, gridY(y));
-            max_bottom = Math.max(max_bottom, gridY(y + h) + padding.bottom);
+            max_left = Math.min(max_left, out.x);
+            max_right = Math.max(max_right, out.x + out.w + padding.right);
+            max_top = Math.min(max_top, out.y);
+            max_bottom = Math.max(max_bottom, out.y + out.h + padding.bottom);
         });
 
         return { max_left, max_right, max_top, max_bottom };
     }, [
         layout,
         shadow_widget,
-        client_height,
+        container_height,
         props.layout_type,
         (props as DragLayoutProps).height
     ]);
@@ -154,12 +143,12 @@ export const useLayoutHooks = (
     const current_height: number = useMemo(() => {
         return props.layout_type === LayoutType.DRAG
             ? (props as DragLayoutProps).height
-            : Math.max(max_bottom, client_height);
+            : Math.max(max_bottom, container_height);
     }, [
         props.layout_type,
         (props as DragLayoutProps).height,
         max_bottom,
-        client_height
+        container_height
     ]);
 
     /**
@@ -206,31 +195,37 @@ export const useLayoutHooks = (
     };
 
     const snapToGrid = (pos: LayoutItem) => {
-        const { row_height, col_width } = grid;
+        if (pos.is_resizing || pos.is_dropping || pos.is_dragging) {
+            pos.x = calcXY(pos.x, col_width, margin_x, padding.left);
+            pos.y = calcXY(pos.y, row_height, margin_y, padding.top);
+        }
 
+        if (pos.is_resizing) {
+            pos.w = calcWH(pos.w, col_width, margin_x);
+            pos.h = calcWH(pos.h, row_height, margin_y);
+        }
+
+        delete pos.is_dropping;
+        delete pos.is_resizing;
         delete pos.is_dragging;
-        pos.x = Math.round(pos.x / col_width);
-        pos.y = Math.round(pos.y / row_height);
-        pos.w = Math.round(pos.w / col_width);
-        pos.h = Math.round(pos.h / row_height);
 
         return boundControl(pos);
     };
 
     const GetCurrentContainerHeight = () => {
-        if (client_width && client_height) {
+        if (container_width && container_height) {
             const { layout_type, mode, scale } = props;
 
             const height_stragegy = {
                 [LayoutType.GRID]: () => {
                     /** 和视窗比较，找到实际最大边界 */
-                    const max_b = Math.max(max_bottom, client_height);
+                    const max_b = Math.max(max_bottom, container_height);
 
                     const calc_width = current_width * scale;
-                    const calc_height = client_height * scale;
+                    const calc_height = container_height * scale;
 
-                    const l_offset = calcOffset(client_width, calc_width);
-                    const t_offset = calcOffset(client_height, calc_height);
+                    const l_offset = calcOffset(container_width, calc_width);
+                    const t_offset = calcOffset(container_height, calc_height);
 
                     setCanvasWrapperWidth(current_width);
                     setCanvasWrapperHeight(max_b);
@@ -256,13 +251,13 @@ export const useLayoutHooks = (
 
                         const l_offset =
                             calcOffset(
-                                client_width,
+                                container_width,
                                 calc_width + WRAPPER_PADDING
                             ) +
                             WRAPPER_PADDING / 2;
                         const t_offset =
                             calcOffset(
-                                client_height,
+                                container_height,
                                 calc_height + WRAPPER_PADDING
                             ) +
                             WRAPPER_PADDING / 2;
@@ -271,13 +266,13 @@ export const useLayoutHooks = (
                             calc_width > ele_width
                                 ? calc_width + WRAPPER_PADDING
                                 : ele_width + 2 * l_offset,
-                            client_width
+                            container_width
                         );
                         const wrapper_calc_height = Math.max(
                             calc_height > ele_height
                                 ? calc_height + WRAPPER_PADDING
                                 : ele_height + 2 * t_offset,
-                            client_height
+                            container_height
                         );
 
                         setCanvasWrapperWidth(wrapper_calc_width);
@@ -285,14 +280,20 @@ export const useLayoutHooks = (
                         setTopOffset(t_offset + Math.abs(max_top) * scale);
                         setLeftOffset(l_offset + Math.abs(max_left) * scale);
                     } else {
-                        const l_offset = calcOffset(client_width, calc_width);
-                        const t_offset = calcOffset(client_height, calc_height);
+                        const l_offset = calcOffset(
+                            container_width,
+                            calc_width
+                        );
+                        const t_offset = calcOffset(
+                            container_height,
+                            calc_height
+                        );
 
                         setCanvasWrapperWidth(
-                            Math.max(calc_width, client_width)
+                            Math.max(calc_width, container_width)
                         );
                         setCanvasWrapperHeight(
-                            Math.max(calc_height, client_height)
+                            Math.max(calc_height, container_height)
                         );
                         setTopOffset(t_offset);
                         setLeftOffset(l_offset);
@@ -308,25 +309,31 @@ export const useLayoutHooks = (
     useEffect(() => {
         GetCurrentContainerHeight();
     }, [
-        (props as DragLayoutProps).height,
-        (props as DragLayoutProps).width,
+        margin_x,
+        margin_y,
+        col_width,
+        row_height,
         props.scale,
         max_left,
         max_right,
         max_top,
         max_bottom,
         operator_type.current,
-        client_width,
-        client_height,
-        client_width
+        container_width,
+        container_height,
+        (props as DragLayoutProps).height,
+        (props as DragLayoutProps).width
     ]);
 
     return {
-        client_width,
+        margin_x,
+        margin_y,
+        col_width,
+        row_height,
+        container_width,
         padding,
         is_window_resize,
         current_width,
-        grid,
         current_height,
         wrapper_width,
         wrapper_height,

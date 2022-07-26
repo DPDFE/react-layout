@@ -86,7 +86,6 @@ export type BoundType = {
 };
 
 export type Pos = {
-    i: string;
     x: number;
     y: number;
     h: number;
@@ -94,6 +93,7 @@ export type Pos = {
 };
 
 export type ItemPos = Pos & {
+    i: string;
     type: WidgetType;
 };
 
@@ -198,17 +198,19 @@ export interface GuideLineProps {
 
 /** 单节点属性 */
 export interface LayoutItem extends ItemPos {
-    is_droppable?: boolean; // 可以放入其他元素内部
     min_w?: number;
     min_h?: number;
-    is_sticky?: boolean;
-    is_draggable?: boolean;
-    is_resizable?: boolean;
     moved?: boolean;
     layout_id: string;
-    is_dragging?: boolean;
+    is_sticky?: boolean;
     is_checked?: boolean;
+    is_dragging?: boolean;
+    is_dropping?: boolean;
+    is_resizing?: boolean;
     need_mask?: boolean;
+    is_draggable?: boolean;
+    is_resizable?: boolean;
+    is_droppable?: boolean; // 可以放入其他元素内部
     need_border_draggable_handler?: boolean;
     draggable_cancel_handler?: string;
 }
@@ -218,22 +220,22 @@ interface EventBaseProps extends NodeProps {
 }
 
 /** 子元素 */
-export interface WidgetItemProps extends EventBaseProps, LayoutItem {
+export interface WidgetItemProps extends EventBaseProps, LayoutItem, GridType {
     need_mask?: boolean;
     canvas_viewport_ref: RefObject<HTMLDivElement>;
+    shadow_ref: RefObject<HTMLDivElement>;
     cursors?: CursorType[];
     layout_id: string;
     offset_x: number;
     offset_y: number;
-    margin_height: number;
-    margin_width: number;
+    margin_x: number;
+    margin_y: number;
     min_x: number;
     max_x: number;
     min_y: number;
     max_y: number;
     scale: number;
     bound: BoundType;
-    grid: GridType;
     margin: [number, number];
     padding: MarginType;
     mode: LayoutMode.edit | LayoutMode.view;

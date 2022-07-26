@@ -1,4 +1,4 @@
-import { CursorProps, CursorType } from '@/interfaces';
+import { CursorProps } from '@/interfaces';
 import React, { memo, useRef } from 'react';
 import Draggable, { DEFAULT_BOUND } from './draggable';
 import styles from './styles.module.css';
@@ -7,65 +7,6 @@ const Cursor = (props: CursorProps) => {
     const cursor_ref = useRef<HTMLDivElement>(null);
 
     const CURSOR_TRIGGER_TARGET = 20 * (props.scale ?? 1);
-
-    const cursor_mappings = {
-        // 上
-        [CursorType.n]: {
-            style: {
-                marginTop: -CURSOR_TRIGGER_TARGET / 2,
-                marginLeft: -CURSOR_TRIGGER_TARGET / 2
-            }
-        },
-        // 下
-        [CursorType.s]: {
-            style: {
-                marginTop: -CURSOR_TRIGGER_TARGET / 2,
-                marginLeft: -CURSOR_TRIGGER_TARGET / 2
-            }
-        },
-        // 左
-        [CursorType.w]: {
-            style: {
-                marginTop: -CURSOR_TRIGGER_TARGET / 2,
-                marginLeft: -CURSOR_TRIGGER_TARGET / 2
-            }
-        },
-        // 右
-        [CursorType.e]: {
-            style: {
-                marginTop: -CURSOR_TRIGGER_TARGET / 2,
-                marginLeft: -CURSOR_TRIGGER_TARGET / 2
-            }
-        },
-        // 左上
-        [CursorType.nw]: {
-            style: {
-                marginTop: -CURSOR_TRIGGER_TARGET / 2,
-                marginLeft: -CURSOR_TRIGGER_TARGET / 2
-            }
-        },
-        /* 右上 */
-        [CursorType.ne]: {
-            style: {
-                marginTop: -CURSOR_TRIGGER_TARGET / 2,
-                marginLeft: -CURSOR_TRIGGER_TARGET / 2
-            }
-        },
-        /* 左下 */
-        [CursorType.sw]: {
-            style: {
-                marginTop: -CURSOR_TRIGGER_TARGET / 2,
-                marginLeft: -CURSOR_TRIGGER_TARGET / 2
-            }
-        },
-        /* 右下 */
-        [CursorType.se]: {
-            style: {
-                marginTop: -CURSOR_TRIGGER_TARGET / 2,
-                marginLeft: -CURSOR_TRIGGER_TARGET / 2
-            }
-        }
-    };
 
     return (
         <Draggable
@@ -96,18 +37,17 @@ const Cursor = (props: CursorProps) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    cursor: props.cursor,
                     width: CURSOR_TRIGGER_TARGET,
                     height: CURSOR_TRIGGER_TARGET,
-                    cursor: props.cursor,
-                    ...cursor_mappings[props.cursor].style,
+                    marginTop: -CURSOR_TRIGGER_TARGET / 2,
+                    marginLeft: -CURSOR_TRIGGER_TARGET / 2,
                     ...props.style
                 }}
             >
                 <div
                     className={styles['resize-handler']}
                     style={{
-                        marginTop: -3,
-                        marginLeft: -3,
                         backgroundColor: '#128ee9'
                     }}
                 ></div>
