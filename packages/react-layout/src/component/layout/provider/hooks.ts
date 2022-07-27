@@ -98,6 +98,50 @@ export const useLayoutHooks = (
     /** 单元格高度 */
     const row_height = props.row_height;
 
+    /**
+     * 边界范围
+     */
+    const bound = (l: LayoutItem) => {
+        const { type, is_dragging, is_resizing, is_dropping } = l;
+        if (is_dragging || is_resizing || is_dropping) {
+            return DEFAULT_BOUND;
+        }
+        // drag
+        else if (type === WidgetType.drag && props.need_drag_bound) {
+            return {
+                min_x: padding.left,
+                max_x: current_width - padding.right,
+                min_y: padding.top,
+                max_y: (props as DragLayoutProps).height
+                    ? (props as DragLayoutProps).height - padding.bottom
+                    : Infinity
+            };
+        }
+        // grid
+        else if (type === WidgetType.grid && props.need_grid_bound) {
+            return {
+                min_x: 0,
+                max_x: props.cols,
+                min_y: 0,
+                max_y: Infinity
+            };
+        }
+        //
+        return DEFAULT_BOUND;
+    };
+
+    /** 对drop节点做边界计算以后再排序 */
+    const calcBound = (item: LayoutItem) => {
+        const { max_x, min_x, max_y, min_y } = bound(item);
+
+        item.w = clamp(item.w, min_x, max_x);
+        item.h = clamp(item.h, min_y, max_y);
+        item.x = clamp(item.x, min_x, max_x - item.w);
+        item.y = clamp(item.y, min_y, max_y - item.h);
+
+        return item;
+    };
+
     /** 获取元素最大边界 */
     const { max_left, max_right, max_top, max_bottom } = useMemo(() => {
         // 元素计算大小
@@ -122,7 +166,8 @@ export const useLayoutHooks = (
                 row_height,
                 margin_x,
                 margin_y,
-                padding
+                padding,
+                calcBound
             );
 
             max_left = Math.min(max_left, out.x);
@@ -151,56 +196,13 @@ export const useLayoutHooks = (
         container_height
     ]);
 
-    /**
-     * 边界范围
-     */
-    const getBoundingSize = {
-        [WidgetType.drag]: props.need_drag_bound
-            ? {
-                  min_x: padding.left,
-                  max_x: current_width - padding.right,
-                  min_y: padding.top,
-                  max_y: current_height
-                      ? current_height - padding.bottom
-                      : Infinity
-              }
-            : DEFAULT_BOUND,
-        [WidgetType.grid]: props.need_grid_bound
-            ? {
-                  min_x: 0,
-                  max_x: props.cols,
-                  min_y: 0,
-                  max_y: Infinity
-              }
-            : DEFAULT_BOUND
-    };
-
-    /** 对drop节点做边界计算以后再排序 */
-    const boundControl = (item: LayoutItem) => {
-        const { max_x, min_x, max_y, min_y } = getBoundingSize[item.type];
-
-        item.x = clamp(item.x, min_x, max_x - item.w);
-        item.y = clamp(item.y, min_y, max_y - item.h);
-
-        if (item.type === WidgetType.grid) {
-            if (item.w > props.cols) {
-                item.w = props.cols;
-                item.x = 0;
-            } else if (item.w < props.cols && item.x + item.w > props.cols) {
-                item.x = props.cols - item.w;
-            }
-        }
-
-        return item;
-    };
-
     const snapToGrid = (pos: LayoutItem) => {
         if (pos.is_resizing || pos.is_dropping || pos.is_dragging) {
             pos.x = calcXY(pos.x, col_width, margin_x, padding.left);
             pos.y = calcXY(pos.y, row_height, margin_y, padding.top);
         }
 
-        if (pos.is_resizing) {
+        if (pos.is_resizing || pos.is_dragging) {
             pos.w = calcWH(pos.w, col_width, margin_x);
             pos.h = calcWH(pos.h, row_height, margin_y);
         }
@@ -209,7 +211,7 @@ export const useLayoutHooks = (
         delete pos.is_resizing;
         delete pos.is_dragging;
 
-        return boundControl(pos);
+        return calcBound(pos);
     };
 
     const GetCurrentContainerHeight = () => {
@@ -274,7 +276,6 @@ export const useLayoutHooks = (
                                 : ele_height + 2 * t_offset,
                             container_height
                         );
-
                         setCanvasWrapperWidth(wrapper_calc_width);
                         setCanvasWrapperHeight(wrapper_calc_height);
                         setTopOffset(t_offset + Math.abs(max_top) * scale);
@@ -309,6 +310,7 @@ export const useLayoutHooks = (
     useEffect(() => {
         GetCurrentContainerHeight();
     }, [
+        is_window_resize,
         margin_x,
         margin_y,
         col_width,
@@ -340,7 +342,6 @@ export const useLayoutHooks = (
         t_offset,
         l_offset,
         snapToGrid,
-        getBoundingSize,
-        boundControl
+        calcBound
     };
 };

@@ -221,25 +221,19 @@ interface EventBaseProps extends NodeProps {
 
 /** 子元素 */
 export interface WidgetItemProps extends EventBaseProps, LayoutItem, GridType {
+    cols: number;
     need_mask?: boolean;
     canvas_viewport_ref: RefObject<HTMLDivElement>;
     shadow_ref: RefObject<HTMLDivElement>;
     cursors?: CursorType[];
     layout_id: string;
-    offset_x: number;
-    offset_y: number;
     margin_x: number;
     margin_y: number;
-    min_x: number;
-    max_x: number;
-    min_y: number;
-    max_y: number;
     scale: number;
-    bound: BoundType;
-    margin: [number, number];
     padding: MarginType;
     mode: LayoutMode.edit | LayoutMode.view;
     is_placeholder: boolean;
+    calcBound: (item: LayoutItem) => LayoutItem;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: (item: ItemPos, e: MouseEvent) => void;
     onDrag?: (item: ItemPos, e: MouseEvent) => void;

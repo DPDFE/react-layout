@@ -86,8 +86,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         t_offset,
         l_offset,
         padding,
-        boundControl,
-        getBoundingSize,
+        calcBound,
         snapToGrid
     } = useLayoutHooks(
         layout,
@@ -104,12 +103,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
         (e) => {
             if (
                 e.target === canvas_ref.current &&
+                checked_index &&
                 operator_type.current === undefined
             ) {
                 setCurrentChecked(undefined);
             }
         },
-        [operator_type]
+        [operator_type, checked_index]
     );
 
     /**
@@ -119,12 +119,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
         if (props.children) {
             const new_layout = React.Children.toArray(props.children).map(
                 (child: React.ReactElement) => {
-                    return boundControl(
-                        formatInputValue(
-                            child.props['data-drag'] as LayoutItem,
-                            props.layout_id
-                        )
+                    const l = formatInputValue(
+                        child.props['data-drag'] as LayoutItem,
+                        props.layout_id
                     );
+                    return calcBound(l);
                 }
             );
 
@@ -263,35 +262,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
     ) => {
         const draggable_ref = registry.draggable.getById(widget.i)?.getRef();
 
-        const covered_layouts = registry.droppable
-            .getAll()
-            .filter((entry: Droppable) => {
-                const layout_ref = entry.getViewPortRef();
-                if (layout_ref) {
-                    if (!entry.is_droppable) {
-                        return false;
-                    }
-                    // 如果是当前元素的子元素，不支持放置
-                    if (draggable_ref?.contains(layout_ref)) {
-                        return false;
-                    }
-                    const { left, top, width, height } =
-                        layout_ref.getBoundingClientRect();
-
-                    return (
-                        clamp(e.clientX, left, left + width) === e.clientX &&
-                        clamp(e.clientY, top, top + height) === e.clientY
-                    );
-                }
-                return false;
-            });
-
-        // 按照布局渲染的顺序，渲染层级越后的元素层级越高，注册时间越晚
-        const covered_layout =
-            covered_layouts.length > 0
-                ? covered_layouts[covered_layouts.length - 1]
-                : registry.droppable.getFirstRegister();
-
         // 初始布局赋值
         if (!start_droppable.current) {
             start_droppable.current = registry.droppable.getById(
@@ -300,20 +270,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             moving_droppable.current = start_droppable.current;
         }
 
-        // 删除旧布局的影子
-        if (
-            widget.is_droppable &&
-            covered_layout.id !== moving_droppable.current?.id
-        ) {
-            if (moving_droppable.current) {
-                registry.droppable
-                    .getById(moving_droppable.current.id)
-                    .cleanShadow(widget);
-            }
-
-            moving_droppable.current = covered_layout;
-        }
-
+        // resize
         if (
             operator_type.current &&
             [OperatorType.resize, OperatorType.resizeover].includes(
@@ -321,6 +278,52 @@ const ReactLayout = (props: ReactLayoutProps) => {
             )
         ) {
             moving_droppable.current = start_droppable.current;
+        }
+        // drag drop
+        else {
+            const covered_layouts = registry.droppable
+                .getAll()
+                .filter((entry: Droppable) => {
+                    const layout_ref = entry.getViewPortRef();
+                    if (layout_ref) {
+                        if (!entry.is_droppable) {
+                            return false;
+                        }
+                        // 如果是当前元素的子元素，不支持放置
+                        if (draggable_ref?.contains(layout_ref)) {
+                            return false;
+                        }
+                        const { left, top, width, height } =
+                            layout_ref.getBoundingClientRect();
+
+                        return (
+                            clamp(e.clientX, left, left + width) ===
+                                e.clientX &&
+                            clamp(e.clientY, top, top + height) === e.clientY
+                        );
+                    }
+                    return false;
+                });
+
+            // 按照布局渲染的顺序，渲染层级越后的元素层级越高，注册时间越晚
+            const covered_layout =
+                covered_layouts.length > 0
+                    ? covered_layouts[covered_layouts.length - 1]
+                    : registry.droppable.getFirstRegister();
+
+            // 删除旧布局的影子
+            if (
+                widget.is_droppable &&
+                covered_layout.id !== moving_droppable.current?.id
+            ) {
+                if (moving_droppable.current) {
+                    registry.droppable
+                        .getById(moving_droppable.current.id)
+                        .cleanShadow(widget);
+                }
+
+                moving_droppable.current = covered_layout;
+            }
         }
 
         // 移动到位
@@ -347,24 +350,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
      */
     const move = useCallback(
         (current_widget: LayoutItem, item_pos: ItemPos) => {
-            // if (
-            //     item_pos.type === WidgetType.grid &&
-            //     start_droppable.current?.id === moving_droppable.current?.id
-            // ) {
-            //     if (item_pos.x < 0) {
-            //         item_pos.x = 0;
-            //     }
-            //     if (item_pos.x + item_pos.w > container_width) {
-            //         item_pos.x = container_width - item_pos.w - padding.right;
-            //     }
-            // }
-
-            moveToWidget(current_widget, item_pos);
             // 非结束状态时，保存一下临时状态
             if (
                 operator_type.current &&
                 !END_OPERATOR.includes(operator_type.current)
             ) {
+                moveToWidget(current_widget, item_pos);
                 setLayout(
                     layout.map((l) =>
                         l.i === current_widget.i ? current_widget : l
@@ -594,24 +585,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
     }, [current_width, current_height]);
 
     /**
-     * 偏移量
-     */
-    const getMarginSize = {
-        [WidgetType.drag]: {
-            margin_y: 0,
-            margin_x: 0,
-            offset_x: 0,
-            offset_y: 0
-        },
-        [WidgetType.grid]: {
-            margin_y: margin_y,
-            margin_x: margin_x,
-            offset_x: Math.max(margin_x, padding.left),
-            offset_y: Math.max(margin_y, padding.top)
-        }
-    };
-
-    /**
      * shadow dom
      * @returns
      */
@@ -622,6 +595,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 <WidgetItem
                     {...placeholder.current}
                     key='shadow'
+                    cols={props.cols}
+                    calcBound={calcBound}
                     layout_id={props.layout_id}
                     scale={props.scale}
                     mode={LayoutMode.view}
@@ -631,12 +606,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     is_draggable={false}
                     col_width={col_width}
                     row_height={row_height}
+                    margin_x={margin_x}
+                    margin_y={margin_y}
                     padding={padding}
-                    margin={props.item_margin}
-                    bound={getBoundingSize[placeholder.current.type]}
                     canvas_viewport_ref={canvas_viewport_ref}
                     shadow_ref={shadow_ref}
-                    {...getMarginSize[placeholder.current.type]}
                     {...DEFAULT_BOUND}
                 >
                     <div
@@ -661,25 +635,24 @@ const ReactLayout = (props: ReactLayoutProps) => {
             return (
                 <WidgetItem
                     {...widget}
+                    calcBound={calcBound}
                     key={widget.i}
                     mode={props.mode}
+                    cols={props.cols}
                     // @ts-ignore
                     layout_id={props.layout_id}
                     col_width={col_width}
                     row_height={row_height}
+                    margin_x={margin_x}
+                    margin_y={margin_y}
                     scale={props.scale}
                     padding={padding}
-                    margin={props.item_margin}
                     is_sticky={widget.is_sticky}
                     is_checked={checked_index === widget.i}
                     is_resizable={
                         widget.is_resizable && checked_index === widget.i
                     }
                     cursors={(props as EditLayoutProps).cursors}
-                    {...getMarginSize[widget.type]}
-                    {...(widget.is_dragging
-                        ? DEFAULT_BOUND
-                        : getBoundingSize[widget.type])}
                     {...child.props}
                     children={child}
                     canvas_viewport_ref={canvas_viewport_ref}
@@ -821,7 +794,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     className={'canvas_viewport'}
                     style={{
                         overflow: 'auto',
-                        position: 'relative',
+                        // position: 'relative',
                         flex: 1,
                         scrollBehavior: 'smooth'
                     }}
@@ -913,7 +886,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         style={{
                             ...(props.layout_type === LayoutType.DRAG
                                 ? { width: wrapper_width }
-                                : {}),
+                                : { width: '100%', overflow: 'hidden' }),
                             height: wrapper_height
                         }}
                     >
@@ -929,16 +902,18 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             style={{
                                 ...props.style,
                                 ...(props.layout_type === LayoutType.DRAG
-                                    ? { width: wrapper_width }
-                                    : {}),
+                                    ? {
+                                          width: props.width,
+                                          overflow:
+                                              props.mode === LayoutMode.edit
+                                                  ? 'unset'
+                                                  : 'hidden'
+                                      }
+                                    : { width: '100%', overflow: 'hidden' }),
                                 height: current_height,
                                 top: t_offset,
                                 left: l_offset,
                                 position: 'relative',
-                                overflow:
-                                    props.mode === LayoutMode.edit
-                                        ? 'unset'
-                                        : 'hidden',
                                 ...(registry.droppable.getFirstRegister()
                                     ?.id !== props.layout_id
                                     ? {}

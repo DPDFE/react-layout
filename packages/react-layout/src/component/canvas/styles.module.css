@@ -5,8 +5,10 @@
 
 .layout_item {
     position: absolute;
-    outline: none;
+    box-sizing: border-box;
     overflow: hidden;
+    will-change: transform;
+    transition-property: transform;
 }
 
 /* .layout_item:hover {

@@ -5,15 +5,17 @@ import {
     LayoutItem,
     LayoutMode,
     ReactLayoutContext,
-    WidgetType,
-} from "@dpdfe/react-layout";
-import "@dpdfe/react-layout/dist/index.css";
+    WidgetType
+} from '@dpdfe/react-layout';
+import '@dpdfe/react-layout/dist/index.css';
 
 const ResizableGridResponsiveLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
 
     useEffect(() => {
-        setWidgets(generateLayout());
+        const a = generateLayout();
+        console.log(a);
+        setWidgets(a);
     }, []);
 
     function generateLayout() {
@@ -27,7 +29,8 @@ const ResizableGridResponsiveLayout = () => {
                 y: random,
                 is_resizable: true,
                 is_draggable: true,
-                type: WidgetType.grid
+                type: WidgetType.grid,
+                layout_id: '222'
             };
         });
     }

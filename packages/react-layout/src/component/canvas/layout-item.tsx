@@ -1,10 +1,11 @@
+// TODO 会粘住
+
 import {
     WidgetItemProps,
     LayoutMode,
     LayoutItemEntry,
     LayoutItemDescriptor,
-    WidgetType,
-    Pos
+    WidgetType
 } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, {
@@ -20,7 +21,7 @@ import React, {
 } from 'react';
 
 import { calcXYWH, MIN_DRAG_LENGTH } from '../layout/context/calc';
-import Draggable, { clamp, DEFAULT_BOUND } from './draggable';
+import Draggable from './draggable';
 import Resizable from './resizable';
 // vite在watch模式下检测style变化需要先将内容引进来才能监听到
 import styles from './styles.module.css';
@@ -47,12 +48,40 @@ const WidgetItem = (props: WidgetItemProps) => {
     const pos = useScroll(props.canvas_viewport_ref.current);
 
     // 移动到视窗
-    const moveToWindow = () => {
+    const moveToWindow = (e: MouseEvent) => {
         if (start_droppable.current?.id === moving_droppable.current?.id) {
             item_ref.current?.scrollIntoView({
                 block: 'nearest',
                 inline: 'nearest'
             });
+        }
+    };
+
+    // 滚动到顶
+    const scrollToTop = (e: MouseEvent) => {
+        const viewport = props.canvas_viewport_ref.current;
+        if (viewport && e.clientY - viewport.offsetTop < 10) {
+            viewport.scrollTo(0, viewport.scrollTop - viewport.scrollTop / 2);
+        }
+    };
+
+    // 滚动到底
+    const scrollToBottom = (e: MouseEvent) => {
+        const viewport = props.canvas_viewport_ref.current;
+        if (viewport && window.screen.height - e.screenY < 10) {
+            if (
+                viewport.scrollHeight - 10 >
+                viewport.scrollTop + viewport.clientHeight
+            ) {
+                viewport.scrollTo(
+                    0,
+                    viewport.scrollTop +
+                        (viewport.scrollHeight -
+                            viewport.scrollTop -
+                            viewport.clientHeight) /
+                            2
+                );
+            }
         }
     };
 
@@ -62,11 +91,9 @@ const WidgetItem = (props: WidgetItemProps) => {
         is_dragging,
         need_border_draggable_handler,
         layout_id,
-        offset_x,
-        offset_y,
+        margin_x,
         margin_y,
         padding,
-        margin_x,
         is_sticky,
         is_resizable,
         is_draggable,
@@ -76,10 +103,7 @@ const WidgetItem = (props: WidgetItemProps) => {
         h,
         col_width,
         row_height,
-        min_x,
-        min_y,
-        max_x,
-        max_y
+        calcBound
     } = props;
 
     const calcItemPosition = () => {
@@ -89,7 +113,8 @@ const WidgetItem = (props: WidgetItemProps) => {
             row_height,
             margin_x,
             margin_y,
-            padding
+            padding,
+            calcBound
         );
 
         if (is_sticky && pos) {
@@ -170,13 +195,6 @@ const WidgetItem = (props: WidgetItemProps) => {
     const is_sticky_target = sticky_target_queue.current.find(
         (q) => q.id === i && q.is_sticky && operator_type.current === undefined
     );
-
-    // 边界控制
-    // const x = gridX(clamp(props.x, min_x, max_x - props.w)) + offset_x;
-    // const _y = gridY(clamp(props.y, min_y, max_y - props.h)) + offset_y;
-
-    // const w = Math.max(gridX(clamp(props.w, min_x, max_x)) - margin_x, 0);
-    // const h = Math.max(gridY(clamp(props.h, min_y, max_y)) - margin_y, 0);
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -422,6 +440,7 @@ const WidgetItem = (props: WidgetItemProps) => {
 
     return (
         <React.Fragment>
+            {/** drag 拖拽不限制范围，限制阴影范围控制显示 */}
             <Draggable
                 {...out}
                 threshold={5}
@@ -452,13 +471,14 @@ const WidgetItem = (props: WidgetItemProps) => {
                         : []
                 }
                 onDrag={({ e, x, y }) => {
-                    moveToWindow();
+                    scrollToBottom(e);
+                    scrollToTop(e);
                     props.onDrag?.(
                         {
                             x: x,
                             y: y,
-                            w: props.w,
-                            h: props.h,
+                            w: out.w,
+                            h: out.h,
                             type,
                             i
                         },
@@ -470,8 +490,8 @@ const WidgetItem = (props: WidgetItemProps) => {
                         {
                             x: x,
                             y: y,
-                            w: props.w,
-                            h: props.h,
+                            w: out.w,
+                            h: out.h,
                             type,
                             i
                         },
@@ -506,7 +526,8 @@ const WidgetItem = (props: WidgetItemProps) => {
                     }}
                     cursors={props.cursors}
                     onResize={({ e, x, y, h, w }) => {
-                        moveToWindow();
+                        scrollToTop(e);
+                        scrollToBottom(e);
                         props.onResize?.(
                             {
                                 x: x,
@@ -546,8 +567,7 @@ WidgetItem.defaultProps = {
     type: WidgetType.grid,
     is_checked: false,
     is_placeholder: false,
-    style: {},
-    margin: [0, 0] as [number, number]
+    style: {}
 };
 
 export default memo(WidgetItem, compareProps);

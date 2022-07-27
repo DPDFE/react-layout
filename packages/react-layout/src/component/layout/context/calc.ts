@@ -21,9 +21,12 @@ export const calcXYWH = (
     row_height: number,
     margin_x: number,
     margin_y: number,
-    padding: MarginType
+    padding: MarginType,
+    calcBound: (item: LayoutItem) => LayoutItem
 ) => {
-    const { type, is_resizing, is_dropping, is_dragging, w, h, x, y } = item;
+    const { type, is_resizing, is_dropping, is_dragging } = item;
+    const { x, y, w, h } = calcBound(item);
+
     const out: Pos = {
         x: 0,
         y: 0,
@@ -32,7 +35,7 @@ export const calcXYWH = (
     };
 
     // drag/resizing
-    if (type === WidgetType.drag || is_resizing) {
+    if (type === WidgetType.drag || is_resizing || is_dragging) {
         out.w = Math.round(w);
         out.h = Math.round(h);
     }
@@ -52,6 +55,7 @@ export const calcXYWH = (
         out.x = Math.round((col_width + margin_x) * x + padding.left);
         out.y = Math.round((row_height + margin_y) * y + padding.top);
     }
+
     return out;
 };
 
@@ -70,25 +74,17 @@ export const calcXY = (
     grid_number: number,
     size: number,
     margin_px: number,
-    padding_px: number,
-    min_size: number = -Infinity,
-    max_size: number = Infinity
+    padding_px: number
 ) => {
-    const result = Math.round((grid_number - padding_px) / (size + margin_px));
-
-    return clamp(result, min_size, max_size);
+    return Math.round((grid_number - padding_px) / (size + margin_px));
 };
 
 export const calcWH = (
     grid_number: number,
     size: number,
-    margin_px: number,
-    min_size: number = -Infinity,
-    max_size: number = Infinity
+    margin_px: number
 ): number => {
-    const result = Math.round((grid_number + margin_px) / (size + margin_px));
-
-    return clamp(result, min_size, max_size);
+    return Math.round((grid_number + margin_px) / (size + margin_px));
 };
 
 export function moveToWidget(target: LayoutItem, to: ItemPos) {

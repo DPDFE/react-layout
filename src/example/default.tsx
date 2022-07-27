@@ -289,7 +289,7 @@ const DefaultLayout = () => {
                 widgets={widgets3}
                 layout_type={LayoutType.GRID}
                 mode={LayoutMode.edit}
-                container_padding={[10, 10, 10, 10]}
+                container_padding={[15]}
                 row_height={50}
                 cols={8}
                 item_margin={[10, 10]}
@@ -466,6 +466,7 @@ const DefaultLayout = () => {
                     }}
                 >
                     <ReactLayout
+                        need_ruler={true}
                         style={{
                             background: '#fff'
                         }}
@@ -483,12 +484,12 @@ const DefaultLayout = () => {
                         layout_type={type}
                         width={width}
                         height={height}
-                        row_height={50}
+                        row_height={28}
                         cols={8}
                         item_margin={[10, 10]}
-                        container_padding={[15]}
+                        container_padding={[20]}
                         scale={scale}
-                        need_grid_lines={true}
+                        // need_grid_lines={true}
                         need_drag_bound={false}
                         need_grid_bound={true}
                         guide_lines={guide_line}
@@ -584,7 +585,7 @@ const DefaultLayout = () => {
                                                 ? '#9eb3f1'
                                                 : '#cddc39',
                                         border: '1px solid',
-                                        padding: 10,
+
                                         overflow: 'hidden',
                                         display: 'flex',
                                         flexDirection: 'column'
@@ -621,7 +622,7 @@ const DefaultLayout = () => {
                                                         LayoutType.GRID
                                                     }
                                                     mode={LayoutMode.edit}
-                                                    container_padding={[0]}
+                                                    container_padding={[10]}
                                                     row_height={50}
                                                     cols={8}
                                                     item_margin={[10, 10]}
@@ -834,9 +835,6 @@ const DefaultLayout = () => {
                         })}
                     </ReactLayout>
                 </ReactLayoutContext>
-                <div
-                    style={{ height: 30, width: '100%', background: '#607d8b' }}
-                ></div>
             </div>
             <div
                 style={{ height: '100%', width: 30, background: '#607d8b' }}
