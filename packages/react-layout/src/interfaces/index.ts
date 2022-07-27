@@ -223,6 +223,7 @@ interface EventBaseProps extends NodeProps {
 export interface WidgetItemProps extends EventBaseProps, LayoutItem, GridType {
     cols: number;
     need_mask?: boolean;
+    layout_type: LayoutType;
     canvas_viewport_ref: RefObject<HTMLDivElement>;
     shadow_ref: RefObject<HTMLDivElement>;
     cursors?: CursorType[];
