@@ -25,6 +25,7 @@ import {
 import ResizeObserver from 'resize-observer-polyfill';
 import { LayoutContext } from '../context';
 import { clamp, DEFAULT_BOUND } from '../../canvas/draggable';
+import { END_OPERATOR } from '../constants';
 
 export const useLayoutHooks = (
     layout: LayoutItem[],
@@ -218,69 +219,22 @@ export const useLayoutHooks = (
         if (container_width && container_height) {
             const { layout_type, mode, scale } = props;
 
-            const height_stragegy = {
-                [LayoutType.GRID]: () => {
-                    /** 和视窗比较，找到实际最大边界 */
-                    const max_b = Math.max(max_bottom, container_height);
+            // 画布如何定位才能更好的使用呢
+            if (
+                (layout_type === LayoutType.DRAG &&
+                    (!operator_type.current ||
+                        (operator_type.current &&
+                            END_OPERATOR.includes(operator_type.current)))) ||
+                layout_type === LayoutType.GRID
+            ) {
+                const height_stragegy = {
+                    [LayoutType.GRID]: () => {
+                        /** 和视窗比较，找到实际最大边界 */
+                        const max_b = Math.max(max_bottom, container_height);
 
-                    const calc_width = current_width * scale;
-                    const calc_height = container_height * scale;
+                        const calc_width = current_width * scale;
+                        const calc_height = container_height * scale;
 
-                    const l_offset = calcOffset(container_width, calc_width);
-                    const t_offset = calcOffset(container_height, calc_height);
-
-                    setCanvasWrapperWidth(current_width);
-                    setCanvasWrapperHeight(max_b);
-                    setTopOffset(t_offset);
-                    setLeftOffset(l_offset);
-                },
-                [LayoutType.DRAG]: () => {
-                    /** 和视窗比较，找到实际最大边界 */
-                    const max_b = Math.max(
-                        max_bottom,
-                        (props as DragLayoutProps).height
-                    );
-                    const max_r = Math.max(max_right, current_width);
-
-                    const calc_width = current_width * scale;
-                    const calc_height =
-                        (props as DragLayoutProps).height * scale;
-
-                    // 计算水平、垂直偏移量
-                    if (mode === LayoutMode.edit) {
-                        const ele_width = (max_r - max_left) * scale;
-                        const ele_height = (max_b - max_top) * scale;
-
-                        const l_offset =
-                            calcOffset(
-                                container_width,
-                                calc_width + WRAPPER_PADDING
-                            ) +
-                            WRAPPER_PADDING / 2;
-                        const t_offset =
-                            calcOffset(
-                                container_height,
-                                calc_height + WRAPPER_PADDING
-                            ) +
-                            WRAPPER_PADDING / 2;
-
-                        const wrapper_calc_width = Math.max(
-                            calc_width > ele_width
-                                ? calc_width + WRAPPER_PADDING
-                                : ele_width + 2 * l_offset,
-                            container_width
-                        );
-                        const wrapper_calc_height = Math.max(
-                            calc_height > ele_height
-                                ? calc_height + WRAPPER_PADDING
-                                : ele_height + 2 * t_offset,
-                            container_height
-                        );
-                        setCanvasWrapperWidth(wrapper_calc_width);
-                        setCanvasWrapperHeight(wrapper_calc_height);
-                        setTopOffset(t_offset + Math.abs(max_top) * scale);
-                        setLeftOffset(l_offset + Math.abs(max_left) * scale);
-                    } else {
                         const l_offset = calcOffset(
                             container_width,
                             calc_width
@@ -290,19 +244,83 @@ export const useLayoutHooks = (
                             calc_height
                         );
 
-                        setCanvasWrapperWidth(
-                            Math.max(calc_width, container_width)
-                        );
-                        setCanvasWrapperHeight(
-                            Math.max(calc_height, container_height)
-                        );
+                        setCanvasWrapperWidth(current_width);
+                        setCanvasWrapperHeight(max_b);
                         setTopOffset(t_offset);
                         setLeftOffset(l_offset);
-                    }
-                }
-            };
+                    },
+                    [LayoutType.DRAG]: () => {
+                        /** 和视窗比较，找到实际最大边界 */
+                        const max_b = Math.max(
+                            max_bottom,
+                            (props as DragLayoutProps).height
+                        );
+                        const max_r = Math.max(max_right, current_width);
 
-            height_stragegy[layout_type ?? LayoutType.GRID]();
+                        const calc_width = current_width * scale;
+                        const calc_height =
+                            (props as DragLayoutProps).height * scale;
+
+                        // 计算水平、垂直偏移量
+                        if (mode === LayoutMode.edit) {
+                            const ele_width = (max_r - max_left) * scale;
+                            const ele_height = (max_b - max_top) * scale;
+
+                            const l_offset =
+                                calcOffset(
+                                    container_width,
+                                    calc_width + WRAPPER_PADDING
+                                ) +
+                                WRAPPER_PADDING / 2;
+                            const t_offset =
+                                calcOffset(
+                                    container_height,
+                                    calc_height + WRAPPER_PADDING
+                                ) +
+                                WRAPPER_PADDING / 2;
+
+                            const wrapper_calc_width = Math.max(
+                                calc_width > ele_width
+                                    ? calc_width + WRAPPER_PADDING
+                                    : ele_width + 2 * l_offset,
+                                container_width
+                            );
+                            const wrapper_calc_height = Math.max(
+                                calc_height > ele_height
+                                    ? calc_height + WRAPPER_PADDING
+                                    : ele_height + 2 * t_offset,
+                                container_height
+                            );
+                            setCanvasWrapperWidth(wrapper_calc_width);
+                            setCanvasWrapperHeight(wrapper_calc_height);
+                            setTopOffset(t_offset + Math.abs(max_top) * scale);
+                            setLeftOffset(
+                                l_offset + Math.abs(max_left) * scale
+                            );
+                        } else {
+                            const l_offset = calcOffset(
+                                container_width,
+                                calc_width
+                            );
+                            const t_offset = calcOffset(
+                                container_height,
+                                calc_height
+                            );
+
+                            setCanvasWrapperWidth(
+                                Math.max(calc_width, container_width)
+                            );
+                            setCanvasWrapperHeight(
+                                Math.max(calc_height, container_height)
+                            );
+                            setTopOffset(t_offset);
+                            setLeftOffset(l_offset);
+                        }
+                    }
+                };
+
+                height_stragegy[layout_type ?? LayoutType.GRID]();
+            }
         }
     };
 
@@ -310,11 +328,6 @@ export const useLayoutHooks = (
     useEffect(() => {
         GetCurrentContainerHeight();
     }, [
-        is_window_resize,
-        margin_x,
-        margin_y,
-        col_width,
-        row_height,
         props.scale,
         max_left,
         max_right,

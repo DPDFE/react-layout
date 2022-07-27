@@ -473,6 +473,8 @@ const WidgetItem = (props: WidgetItemProps) => {
                 onDrag={({ e, x, y }) => {
                     scrollToBottom(e);
                     scrollToTop(e);
+                    moveToWindow(e);
+
                     props.onDrag?.(
                         {
                             x: x,
@@ -528,6 +530,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                     onResize={({ e, x, y, h, w }) => {
                         scrollToTop(e);
                         scrollToBottom(e);
+                        moveToWindow(e);
                         props.onResize?.(
                             {
                                 x: x,
