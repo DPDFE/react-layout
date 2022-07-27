@@ -956,19 +956,17 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 </div>
             </div>
 
-            {props.mode === LayoutMode.edit &&
-                canvas_viewport_ref.current &&
-                ruler_hover_pos && (
-                    <GuideLine
-                        scale={props.scale}
-                        t_offset={t_offset}
-                        l_offset={l_offset}
-                        guide_lines={props.guide_lines}
-                        canvas_viewport_ref={canvas_viewport_ref}
-                        ruler_hover_pos={ruler_hover_pos}
-                        removeGuideLine={props.removeGuideLine}
-                    ></GuideLine>
-                )}
+            {props.mode === LayoutMode.edit && canvas_viewport_ref.current && (
+                <GuideLine
+                    scale={props.scale}
+                    t_offset={t_offset}
+                    l_offset={l_offset}
+                    guide_lines={props.guide_lines}
+                    canvas_viewport_ref={canvas_viewport_ref}
+                    ruler_hover_pos={ruler_hover_pos}
+                    removeGuideLine={props.removeGuideLine}
+                ></GuideLine>
+            )}
         </div>
     );
 };
