@@ -36,11 +36,10 @@ const Draggable = (props: DraggableProps) => {
         Element
     >;
 
-    const [drag_state, setDragState] = useState<DragStates>();
+    const [drag_state, setDragState] = useState<DragStates>(DragStates.dragged);
     const [mouse_pos, setMousePos] = useState<Pos>({ x: 0, y: 0 }); // 鼠标点击坐标
     const [start_pos, setStartPos] = useState<Pos>({ x: 0, y: 0 });
-    const [current_pos, setCurrentPos] =
-        useState<{ e: MouseEvent; x: number; y: number }>();
+    const current_pos = useRef<{ e: MouseEvent; x: number; y: number }>();
     const mouse_event_ref = useRef<MouseEvent>();
     const dragging_ref = useRef<DragStates>();
 
@@ -75,8 +74,6 @@ const Draggable = (props: DraggableProps) => {
 
     /** 开始 偏移量大于5px 判断为开始拖拽 */
     const handleDragStart = (e: MouseEvent) => {
-        removeEvent(document, 'mousemove', handleDrag, { capture: true });
-
         if (!props.is_draggable) {
             return;
         }
@@ -147,7 +144,7 @@ const Draggable = (props: DraggableProps) => {
             y: clamp(start_pos.y + delta_y, min_y, max_y)
         };
 
-        setCurrentPos(pos);
+        current_pos.current = pos;
 
         if (
             drag_state === DragStates.dragging &&
@@ -156,22 +153,13 @@ const Draggable = (props: DraggableProps) => {
                 y
             })
         ) {
-            if (!dragging_ref.current) {
+            if (dragging_ref.current === DragStates.dragged) {
                 dragging_ref.current = DragStates.dragging;
                 props.onDragStart?.(pos);
-            } else if (dragging_ref.current == DragStates.dragging) {
+            }
+            if (dragging_ref.current == DragStates.dragging) {
                 props.onDrag?.(pos);
             }
-        }
-    };
-
-    /** 结束 */
-    const handleDragStop = (e: MouseEvent) => {
-        dragging_ref.current = DragStates.dragged;
-        setDragState(undefined);
-        removeDragEvent();
-        if (current_pos) {
-            props.onDragStop?.(current_pos);
         }
     };
 
@@ -189,26 +177,32 @@ const Draggable = (props: DraggableProps) => {
         addEvent(document, 'mouseup', mouseup, {
             capture: true
         });
+        addEvent(document, 'contextmenu', mouseup, {
+            capture: true
+        });
     };
     const removeDragEvent = () => {
+        if (current_pos.current) {
+            props.onDragStop?.(current_pos.current);
+        }
+        dragging_ref.current = DragStates.dragged;
+        current_pos.current = undefined;
         removeEvent(document, 'mousemove', handleDrag, { capture: true });
         removeEvent(document, 'mouseup', mouseup, {
+            capture: true
+        });
+        removeEvent(document, 'contextmenu', mouseup, {
             capture: true
         });
     };
 
     useEffect(() => {
-        switch (drag_state) {
-            case DragStates.dragging:
-                addDragEvent();
-                break;
-            case DragStates.dragged:
-                handleDragStop(mouse_event_ref.current!);
-                break;
-            default:
-                dragging_ref.current = undefined;
+        if (drag_state === DragStates.dragging) {
+            addDragEvent();
         }
-        return removeDragEvent;
+        return () => {
+            removeDragEvent();
+        };
     }, [drag_state]);
 
     /**
@@ -230,11 +224,6 @@ const Draggable = (props: DraggableProps) => {
             e.stopPropagation();
             child.props.onMouseDown?.(e);
             handleDragStart(e as unknown as MouseEvent);
-        },
-        // 右键菜单的时候不触发mouseup,这里处理一下
-        onContextMenu: (e) => {
-            handleDragStop(e as unknown as MouseEvent);
-            child.props.onContextMenu?.(e);
         },
         className: classNames(props.className, child.props.className),
         style: {
