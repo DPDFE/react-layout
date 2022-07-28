@@ -1,4 +1,6 @@
 // TODO 会粘住
+// TODO 会有没有高度的情况
+// TODO 拖拽会闪动
 
 import {
     WidgetItemProps,
@@ -453,8 +455,8 @@ const WidgetItem = (props: WidgetItemProps) => {
                         {
                             x: x,
                             y: y,
-                            w: props.w,
-                            h: props.h,
+                            w: out.w,
+                            h: out.h,
                             type,
                             i
                         },
