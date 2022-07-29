@@ -174,9 +174,7 @@ const Draggable = (props: DraggableProps) => {
 
     const addDragEvent = () => {
         addEvent(document, 'mousemove', handleDrag, { capture: true });
-        addEvent(document, 'mouseup', mouseup, {
-            capture: true
-        });
+        addEvent(document, 'mouseup', mouseup, {});
         addEvent(document, 'contextmenu', mouseup, {
             capture: true
         });
