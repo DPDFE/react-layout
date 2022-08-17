@@ -27,7 +27,7 @@ import styles from './styles.module.css';
 import './styles.module.css';
 import { LayoutContext } from '../layout/context';
 import { CHANGE_OPERATOR } from '../layout/constants';
-import { useScroll } from 'ahooks';
+import { useScroll } from './scroll';
 
 const WidgetItem = (props: WidgetItemProps) => {
     const child = React.Children.only(props.children) as ReactElement;
