@@ -380,6 +380,8 @@ export interface ReactLayoutContextProps {
     onResizeStop?: (result: LayoutResult) => void;
     onChange?: (result: LayoutResult) => void;
     onPositionChange?: (result: LayoutResult) => void;
+    onLayoutHeightChange?: (layout_id: string, height: number) => void;
+    onLayoutEntry?: (layout_id: string, entry: Droppable) => void;
 }
 
 export interface Droppable {

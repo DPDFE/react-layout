@@ -566,6 +566,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
         ]
     );
 
+    useEffect(() => {
+        getResponders().onLayoutHeightChange?.(entry.id, current_height);
+    }, [current_height]);
+
     useLayoutEffect(() => {
         registry.droppable.register(entry);
         return () => registry.droppable.unregister(entry);

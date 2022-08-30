@@ -163,7 +163,8 @@ const DefaultLayout = () => {
                 is_draggable: true,
                 type: WidgetType.drag,
                 has_inner_layout: true,
-                is_droppable: true
+                is_droppable: true,
+                draggable_cancel_handler: '.draggable_cancel_handler'
             },
             {
                 x: 0,
@@ -176,7 +177,8 @@ const DefaultLayout = () => {
                 is_draggable: true,
                 type: WidgetType.grid,
                 has_inner_layout: true,
-                is_droppable: true
+                is_droppable: true,
+                draggable_cancel_handler: '.draggable_cancel_handler'
             },
             {
                 x: 0,
@@ -189,7 +191,8 @@ const DefaultLayout = () => {
                 is_draggable: true,
                 type: WidgetType.grid,
                 has_inner_layout: false,
-                is_droppable: true
+                is_droppable: true,
+                draggable_cancel_handler: '.draggable_cancel_handler'
             },
             {
                 x: 5,
@@ -202,7 +205,8 @@ const DefaultLayout = () => {
                 is_draggable: true,
                 type: WidgetType.grid,
                 has_inner_layout: true,
-                is_droppable: true
+                is_droppable: true,
+                draggable_cancel_handler: '.draggable_cancel_handler'
             },
             {
                 x: 0,
@@ -213,7 +217,8 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_droppable: true,
-                type: WidgetType.grid
+                type: WidgetType.grid,
+                draggable_cancel_handler: '.draggable_cancel_handler'
             },
             {
                 x: 0,
@@ -224,7 +229,8 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_droppable: true,
-                type: WidgetType.grid
+                type: WidgetType.grid,
+                draggable_cancel_handler: '.draggable_cancel_handler'
             },
             {
                 x: 0,
@@ -236,7 +242,8 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_droppable: true,
-                type: WidgetType.grid
+                type: WidgetType.grid,
+                draggable_cancel_handler: '.draggable_cancel_handler'
             },
             {
                 x: 0,
@@ -248,7 +255,8 @@ const DefaultLayout = () => {
                 is_resizable: true,
                 is_draggable: true,
                 is_droppable: true,
-                type: WidgetType.grid
+                type: WidgetType.grid,
+                draggable_cancel_handler: '.draggable_cancel_handler'
             }
         ];
         // return Array.from({ length: 3 }).map((_, i) => {
@@ -292,6 +300,7 @@ const DefaultLayout = () => {
                 container_padding={[15]}
                 row_height={50}
                 cols={8}
+                draggable_cancel_handler={'.draggable_cancel_handler'}
                 item_margin={[10, 10]}
                 need_drag_bound={false}
                 need_grid_bound={true}
@@ -596,6 +605,16 @@ const DefaultLayout = () => {
                                             我是第{w.i}个div, x: {w.x}, y: {w.y}
                                             , height: {w.h}, width:
                                             {w.w}
+                                            <div
+                                                className='draggable_cancel_handler'
+                                                style={{
+                                                    backgroundColor: 'red',
+                                                    width: 100,
+                                                    height: 100
+                                                }}
+                                            >
+                                                draggable_cancel_handler
+                                            </div>
                                         </div>
                                     }
                                     {w.i === '3' && widgets3_component()}

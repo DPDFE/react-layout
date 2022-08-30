@@ -172,10 +172,17 @@ const Draggable = (props: DraggableProps) => {
         setDragState(DragStates.dragged);
     };
 
+    const click = (e: MouseEvent) => {
+        mouseup(e);
+    };
+
+    const contextmenu = (e: MouseEvent) => {
+        mouseup(e);
+    };
+
     const addDragEvent = () => {
-        addEvent(document, 'mousemove', handleDrag, {});
-        addEvent(document, 'mouseup', mouseup, {});
-        addEvent(document, 'contextmenu', mouseup, {});
+        addEvent(document, 'mousemove', handleDrag, { capture: true });
+        addEvent(document, 'mouseup', mouseup, { capture: true });
     };
     const removeDragEvent = () => {
         if (current_pos.current) {
@@ -183,16 +190,21 @@ const Draggable = (props: DraggableProps) => {
         }
         dragging_ref.current = DragStates.dragged;
         current_pos.current = undefined;
-        removeEvent(document, 'mousemove', handleDrag, {});
-        removeEvent(document, 'mouseup', mouseup, {});
-        removeEvent(document, 'contextmenu', mouseup, {});
+        removeEvent(document, 'mousemove', handleDrag, { capture: true });
+        removeEvent(document, 'mouseup', mouseup, { capture: true });
     };
 
     useEffect(() => {
+        addEvent(document, 'click', click, { capture: true });
+        addEvent(document, 'contextmenu', contextmenu, { capture: true });
         if (drag_state === DragStates.dragging) {
             addDragEvent();
         }
         return () => {
+            removeEvent(document, 'click', click, { capture: true });
+            removeEvent(document, 'contextmenu', contextmenu, {
+                capture: true
+            });
             removeDragEvent();
         };
     }, [drag_state]);

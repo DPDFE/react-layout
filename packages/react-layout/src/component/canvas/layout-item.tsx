@@ -16,7 +16,8 @@ import React, {
     useMemo,
     useEffect,
     useState,
-    useLayoutEffect
+    useLayoutEffect,
+    DetailedReactHTMLElement
 } from 'react';
 
 import { calcXYWH, MIN_DRAG_LENGTH } from '../layout/context/calc';
@@ -227,11 +228,10 @@ const WidgetItem = (props: WidgetItemProps) => {
     const mask_handler = (
         <div
             key={'mask'}
-            className={`layout-item-mask`}
+            className={`draggable_handler ${styles.draggable_handler} layout-item-mask`}
             style={{
                 width: '100%',
                 height: '100%',
-                position: 'absolute',
                 top: 0,
                 left: 0
             }}
@@ -266,17 +266,18 @@ const WidgetItem = (props: WidgetItemProps) => {
         </React.Fragment>
     );
 
+    const pointer_events_disabled =
+        (operator_type.current &&
+            CHANGE_OPERATOR.includes(operator_type.current) &&
+            is_parent_layout) ||
+        props.need_mask;
+
     const getCurrentChildren = useCallback(() => {
         const children = [child.props.children];
 
         if (props.mode === LayoutMode.edit) {
             // 拖拽过程中让所有元素都可以触发move事件，但是释放了以后还要能选中
-            if (
-                (operator_type.current &&
-                    CHANGE_OPERATOR.includes(operator_type.current) &&
-                    is_parent_layout) ||
-                props.need_mask
-            ) {
+            if (pointer_events_disabled) {
                 children.push(mask_handler);
             }
 
@@ -288,6 +289,7 @@ const WidgetItem = (props: WidgetItemProps) => {
 
         return children;
     }, [
+        pointer_events_disabled,
         operator_type,
         child,
         need_border_draggable_handler,
@@ -356,7 +358,9 @@ const WidgetItem = (props: WidgetItemProps) => {
                     ? 'grab'
                     : 'inherit',
             zIndex: is_sticky_target || is_dragging ? 1000 : 'auto',
-            transition: setTransition()
+            transition: setTransition(),
+            // 处理drag事件在画布中不生效的情况
+            pointerEvents: props.need_mask ? 'none' : 'auto'
         },
         children: getCurrentChildren()
     });
