@@ -344,6 +344,8 @@ const WidgetItem = (props: WidgetItemProps) => {
         className: `${[
             child.props.className,
             styles.layout_item,
+            // 处理drag事件在画布中不生效的情况
+            props.need_mask ? styles.iframe_mask : '',
             props.is_checked && !props.is_placeholder
                 ? styles['checked-border']
                 : ''
@@ -358,9 +360,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                     ? 'grab'
                     : 'inherit',
             zIndex: is_sticky_target || is_dragging ? 1000 : 'auto',
-            transition: setTransition(),
-            // 处理drag事件在画布中不生效的情况
-            pointerEvents: props.need_mask ? 'none' : 'auto'
+            transition: setTransition()
         },
         children: getCurrentChildren()
     });
