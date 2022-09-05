@@ -193,7 +193,7 @@ const WidgetItem = (props: WidgetItemProps) => {
     // 可以同时置顶一批元素，当前元素，没有被顶掉
     // 操作过程中不置顶
     const is_sticky_target = sticky_target_queue.current.find(
-        (q) => q.id === i && q.is_sticky && operator_type.current === undefined
+        (q) => q.id === i && is_sticky && operator_type.current === undefined
     );
 
     /** 和当前选中元素有关 */
