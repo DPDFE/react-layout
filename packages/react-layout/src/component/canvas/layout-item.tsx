@@ -256,7 +256,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                     left: 0
                 }}
             ></div>
-            <div
+            {/* <div
                 key={'bottom_draggable_handler'}
                 className={`draggable_handler ${styles.draggable_handler}`}
                 style={{
@@ -266,7 +266,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                     bottom: 0,
                     left: 0
                 }}
-            ></div>
+            ></div> */}
         </React.Fragment>
     );
 
