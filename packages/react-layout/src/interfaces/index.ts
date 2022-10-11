@@ -207,7 +207,6 @@ export interface LayoutItem extends ItemPos {
     is_dragging?: boolean;
     is_dropping?: boolean;
     is_resizing?: boolean;
-    need_mask?: boolean;
     is_draggable?: boolean;
     is_resizable?: boolean;
     is_droppable?: boolean; // 可以放入其他元素内部
@@ -222,7 +221,6 @@ interface EventBaseProps extends NodeProps {
 /** 子元素 */
 export interface WidgetItemProps extends EventBaseProps, LayoutItem, GridType {
     cols: number;
-    need_mask?: boolean;
     layout_type: LayoutType;
     canvas_viewport_ref: RefObject<HTMLDivElement>;
     shadow_ref: RefObject<HTMLDivElement>;

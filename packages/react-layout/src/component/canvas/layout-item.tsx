@@ -4,7 +4,8 @@ import {
     LayoutItemEntry,
     LayoutItemDescriptor,
     WidgetType,
-    LayoutType
+    LayoutType,
+    StickyTarget
 } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, {
@@ -16,8 +17,7 @@ import React, {
     useMemo,
     useEffect,
     useState,
-    useLayoutEffect,
-    DetailedReactHTMLElement
+    useLayoutEffect
 } from 'react';
 
 import { calcXYWH, MIN_DRAG_LENGTH } from '../layout/context/calc';
@@ -106,6 +106,9 @@ const WidgetItem = (props: WidgetItemProps) => {
         calcBound
     } = props;
 
+    // 拖拽目标
+    let is_sticky_target: StickyTarget | undefined = undefined;
+
     const calcItemPosition = () => {
         const out = calcXYWH(
             props,
@@ -182,6 +185,13 @@ const WidgetItem = (props: WidgetItemProps) => {
             }
         }
 
+        // 可以同时置顶一批元素，当前元素，没有被顶掉
+        // 操作过程中不置顶
+        is_sticky_target = sticky_target_queue.current.find(
+            (q) =>
+                q.id === i && is_sticky && operator_type.current === undefined
+        );
+
         // 当前置顶的元素，是否处于置顶状态，如果处于置顶状态高度为滚动高度，否则是自身原来高度
         if (is_sticky_target && pos) {
             out.y = pos.top;
@@ -189,12 +199,6 @@ const WidgetItem = (props: WidgetItemProps) => {
 
         return out;
     };
-
-    // 可以同时置顶一批元素，当前元素，没有被顶掉
-    // 操作过程中不置顶
-    const is_sticky_target = sticky_target_queue.current.find(
-        (q) => q.id === i && is_sticky && operator_type.current === undefined
-    );
 
     /** 和当前选中元素有关 */
     const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -267,10 +271,8 @@ const WidgetItem = (props: WidgetItemProps) => {
     );
 
     const pointer_events_disabled =
-        (operator_type.current &&
-            CHANGE_OPERATOR.includes(operator_type.current) &&
-            is_parent_layout) ||
-        props.need_mask;
+        operator_type.current &&
+        CHANGE_OPERATOR.includes(operator_type.current);
 
     const getCurrentChildren = useCallback(() => {
         const children = [child.props.children];
@@ -345,7 +347,7 @@ const WidgetItem = (props: WidgetItemProps) => {
             child.props.className,
             styles.layout_item,
             // 处理drag事件在画布中不生效的情况
-            props.need_mask ? styles.iframe_mask : '',
+            pointer_events_disabled ? styles.iframe_mask : '',
             props.is_checked && !props.is_placeholder
                 ? styles['checked-border']
                 : ''
@@ -596,7 +598,8 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                     'onResize',
                     'onResizeStop',
                     'onPositionChange',
-                    'canvas_viewport_ref'
+                    'canvas_viewport_ref',
+                    'calcBound'
                 ].includes(key)
             ) {
                 return true;
