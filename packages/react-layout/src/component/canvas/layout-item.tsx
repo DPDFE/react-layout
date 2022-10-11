@@ -598,8 +598,7 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                     'onResize',
                     'onResizeStop',
                     'onPositionChange',
-                    'canvas_viewport_ref',
-                    'calcBound'
+                    'canvas_viewport_ref'
                 ].includes(key)
             ) {
                 return true;
