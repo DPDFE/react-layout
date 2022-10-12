@@ -23,6 +23,7 @@
     "scripts": {
         "dev": "tsc -w",
         "build": "rm -rf dist && tsc --build",
+        "test": "jest",
         "prepublishOnly": "npm run build"
     },
     "bugs": {

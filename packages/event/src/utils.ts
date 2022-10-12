@@ -1,5 +1,5 @@
 /** 统一处理浏览器兼容性问题 */
-"use strict";
+'use strict';
 
 /** 格式化十进制四舍五入保留小数位 */
 export function fomatFloatNumber(num: number, precision: number) {
@@ -20,9 +20,9 @@ export function addEvent(
     if (el.addEventListener) {
         el.addEventListener(event, handler, options);
     } else if (el.attachEvent) {
-        el.attachEvent("on" + event, handler);
+        el.attachEvent('on' + event, handler);
     } else {
-        el["on" + event] = handler;
+        el['on' + event] = handler;
     }
 }
 
@@ -39,36 +39,36 @@ export function removeEvent(
     if (el.removeEventListener) {
         el.removeEventListener(event, handler, options);
     } else if (el.detachEvent) {
-        el.detachEvent("on" + event, handler);
+        el.detachEvent('on' + event, handler);
     } else {
-        el["on" + event] = null;
+        el['on' + event] = null;
     }
 }
 
 export function isFunction(func: any): boolean {
     return (
-        typeof func === "function" ||
-        Object.prototype.toString.call(func) === "[object Function]"
+        typeof func === 'function' ||
+        Object.prototype.toString.call(func) === '[object Function]'
     );
 }
 
 let matches_selector_func: string | undefined = undefined;
 export function matchesSelector(el: Node, selector: string): boolean {
     const matches_methods = [
-        "matches",
-        "webkitMatchesSelector",
-        "mozMatchesSelector",
-        "msMatchesSelector",
-        "oMatchesSelector",
+        'matches',
+        'webkitMatchesSelector',
+        'mozMatchesSelector',
+        'msMatchesSelector',
+        'oMatchesSelector'
     ];
 
     if (!matches_selector_func) {
         matches_selector_func = matches_methods
             .map((method) => {
                 // @ts-ignore
-                return isFunction(el[method]) ? method : "";
+                return isFunction(el[method]) ? method : '';
             })
-            .find((state) => state != "");
+            .find((state) => state != '');
     }
 
     // @ts-ignore
