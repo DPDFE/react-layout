@@ -45,113 +45,155 @@ import {
 } from "@dpdfe/event-utils";
 ```
 
-#### color
+#### toHex
 ```
-import { toHex } from '../src/color/tohex';
-
 // keyword
-test('red', () => {
-    expect(toHex('red')).toBe('#FF0000');
-});
+toHex('red') // #FF0000
 
 // rgb
-test('rgb(40 42 54)', () => {
-    expect(toHex('rgb(40 42 54)')).toBe('#282a36');
-});
-
-// rgb
-test('rgb(40  42  54)', () => {
-    expect(toHex('rgb(40 42 54)')).toBe('#282a36');
-});
+toHex('rgb(40 42 54)') // #282a36
 
 // rgb / alpha
-test('rgb(40 42 54/0.75)', () => {
-    expect(toHex('rgb(40 42 54/0.75)')).toBe('#282a36bf');
-});
+toHex('rgb(40 42 54/0.75)') // #282a36bf
 
 // rgb / alpha
-test('rgb(40 42 54 /     0.75)', () => {
-    expect(toHex('rgb(40 42 54 /      0.75)')).toBe('#282a36bf');
-});
+toHex('rgb(40 42 54 /      0.75)') // #282a36bf
 
 // rgb / alpha
-test('rgb(40 42 54 / 0.75)', () => {
-    expect(toHex('rgb(40 42 54 / 0.75)')).toBe('#282a36bf');
-});
+toHex('rgb(40 42 54 / 0.75)')  // #282a36bf
 
 // number
-test('65,131,196', () => {
-    expect(toHex(65, 131, 196)).toBe('#4183c4');
-});
+toHex(65, 131, 196) // #4183c4
 
 // alpha
-test('65, 131, 196, 0.2', () => {
-    expect(toHex(65, 131, 196, 0.2)).toBe('#4183c433');
-});
+toHex(65, 131, 196, 0.2) // #4183c433
 
 // alpha percent
-test('40, 42, 54, 75%', () => {
-    expect(toHex(40, 42, 54, '75%')).toBe('#282a36bf');
-});
+toHex(40, 42, 54, '75%') // #282a36bf
 
 // hex
-test('#4183c4', () => {
-    expect(toHex('#4183c4')).toBe('#4183c4');
-});
+toHex('#4183c4') // #4183c4
 
 // hex alpha
-test('#4183c4bf', () => {
-    expect(toHex('#4183c4bf')).toBe('#4183c4bf');
-});
+toHex('#4183c4bf') // #4183c4bf
 
 // rgb
-test('rgb(40, 42, 54)', () => {
-    expect(toHex('rgb(40, 42, 54)')).toBe('#282a36');
-});
+toHex('rgb(40, 42, 54)') // #282a36
 
 // rgb
-test('rgb(40,42,54)', () => {
-    expect(toHex('rgb(40,42,54)')).toBe('#282a36');
-});
+toHex('rgb(40,42,54)') // #282a36
 
 // rgba 75%
-test('rgba(40,42,54,75%)', () => {
-    expect(toHex('rgba(40,42,54,75%)')).toBe('#282a36bf');
-});
+toHex('rgba(40,42,54,75%)') // #282a36bf
 
 // rgba 75%
-test('rgba(40, 42, 54, 75%)', () => {
-    expect(toHex('rgba(40, 42, 54, 75%)')).toBe('#282a36bf');
-});
+toHex('rgba(40, 42, 54, 75%)') // #282a36bf
 
 // rgba 0.75
-test('rgba(40, 42,   54,   .75)', () => {
-    expect(toHex('rgba(40, 42,   54,   .75)')).toBe('#282a36bf');
-});
+toHex('rgba(40, 42,   54,   .75)') // #282a36bf
 
 // rgba 0.75
-test('rgba(40,42,54,.75)', () => {
-    expect(toHex('rgba(40,42,54,.75)')).toBe('#282a36bf');
-});
+toHex('rgba(40,42,54,.75)') // #282a36bf
+
+// rgba 0.75
+toHex('rgba(40,42,54,0.75)') // #282a36bf
 
 // rgba 0
-test('rgba(40, 42, 54, 0)', () => {
-    expect(toHex('rgba(40, 42, 54, 0)')).toBe('#282a3600');
-});
+toHex('rgba(40, 42, 54, 0)') // #282a3600
 
 // rgba 1
-test('rgba(40, 42, 54, 1)', () => {
-    expect(toHex('rgba(40, 42, 54, 1)')).toBe('#282a36ff');
-});
+toHex('rgba(40, 42, 54, 1)') // #282a36ff
 
 // error
-test('rgba(276, 42, 54, 1)', () => {
-    expect(() => toHex('rgba(276, 42, 54, 1)')).toThrow(
-        'Expected three numbers below 256'
-    );
-});
+toHex('rgba(276, 42, 54, 1)') // new Error('Expected three numbers below 256')
+```
+
+#### toRgba
 
 ```
+// keyword
+toRgba('red')) // rgba(255, 0, 0, 1)
+
+// hex
+toRgba('#3c4') // rgba(51, 204, 68, 1)
+
+// hex
+toRgba('#0006') // rgba(0, 0, 0, 0.4)
+
+// hex
+toRgba('#4183c4') // rgba(65, 131, 196, 1)
+
+// hex
+toRgba('#cd2222cc') // rgba(205, 34, 34, 0.8)
+
+// array
+toRgba('#222299', { format: RGBFormatType.Array }) // [34, 34, 153, 1]
+
+// object
+toRgba('#222299', { format: RGBFormatType.Object }) // { alpha: 1, blue: 153, green: 34, red: 34}
+
+// alpha
+toRgba('#222299', { alpha: 1 }) // rgba(34, 34, 153, 1)
+
+// 覆盖alpha
+toRgba('rgb(40 42 54/0.75)', { alpha: 1 }) // rgba(40, 42, 54, 1)
+
+// rgb / alpha
+toRgba('rgb(40 42 54 / 0.75)') // rgba(40, 42, 54, 0.75)
+```
+
+#### isHex
+```
+isHex('#fff') // true
+isHex('#fffff') // false
+```
+
+#### isRgb
+
+#### isRgba
+
+#### getKeywordColor
+
+#### getOpacity
+
+#### darken、lighten
+```
+// darken
+darken('#2196f3') // rgba(20, 137, 230, 1)
+
+// rgb / alpha percent
+darken('#2196f3', { percent: 10 }) // rgba(8, 125, 218, 1)
+
+// rgb / alpha percent
+darken('#2196f3', { percent: 20 }) // rgba(0, 99, 192, 1)
+
+// rgb / alpha percent
+darken('#2196f3', { percent: 50 }) // rgba(0, 23, 116, 1)
+
+// rgb / alpha percent
+darken('#2196f3', { percent: 100 }) // rgba(0, 0, 0, 1)
+
+// lighten
+// rgb / alpha percent
+lighten('#2196f3') // rgba(46, 163, 255, 0.95)
+
+// rgb / alpha percent
+lighten('#2196f3', { percent: 10 }) // rgba(59, 176, 255, 0.9)
+
+// rgb / alpha percent
+lighten('#2196f3', { percent: 20 }) // rgba(84, 201, 255, 0.8)
+
+// rgb / alpha percent
+lighten('#2196f3', { percent: 50 }) // rgba(161, 255, 255, 0.5)
+
+// rgb / alpha percent
+lighten('#2196f3', { percent: 100 }) // rgba(255, 255, 255, 0)
+
+
+//TODO
+// rgb / alpha max min
+```
+
 
 #### fomatFloatNumber
 ```
