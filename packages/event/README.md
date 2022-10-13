@@ -12,7 +12,7 @@
 | LocalStorage | 封装localstorage方法 |
 | EventBus | 订阅发布 |
 | toHex | 转化为hex（支持keyword\rgb\rgba\hex，支持多种空格、分号、斜杠分隔） |
-| toRgba | 转化为rgba（支持object、array、string输出格式）支持透明度覆盖 |
+| toRgba | 转化为rgba（支持object、array、string输出格式） |
 | isHex | 判断是否是hex |
 | isRgb | 判断是否是rgb |
 | isRbga | 判断是否是rgba |
@@ -50,7 +50,7 @@ import {
 // keyword
 toHex('red') // #FF0000
 
-// rgb
+// rgb 空格
 toHex('rgb(40 42 54)') // #282a36
 
 // rgb / alpha
@@ -59,16 +59,16 @@ toHex('rgb(40 42 54/0.75)') // #282a36bf
 // rgb / alpha
 toHex('rgb(40 42 54 /      0.75)') // #282a36bf
 
-// rgb / alpha
+// rgb / alpha 反斜杠
 toHex('rgb(40 42 54 / 0.75)')  // #282a36bf
 
-// number
+// number 分号
 toHex(65, 131, 196) // #4183c4
 
 // alpha
 toHex(65, 131, 196, 0.2) // #4183c433
 
-// alpha percent
+// alpha percent 百分号
 toHex(40, 42, 54, '75%') // #282a36bf
 
 // hex
@@ -89,7 +89,7 @@ toHex('rgba(40,42,54,75%)') // #282a36bf
 // rgba 75%
 toHex('rgba(40, 42, 54, 75%)') // #282a36bf
 
-// rgba 0.75
+// rgba 0.75 小数位
 toHex('rgba(40, 42,   54,   .75)') // #282a36bf
 
 // rgba 0.75
@@ -104,14 +104,14 @@ toHex('rgba(40, 42, 54, 0)') // #282a3600
 // rgba 1
 toHex('rgba(40, 42, 54, 1)') // #282a36ff
 
-// error
+// error 
 toHex('rgba(276, 42, 54, 1)') // new Error('Expected three numbers below 256')
 ```
 
 #### toRgba
 
 ```
-// keyword
+// keyword 关键词
 toRgba('red')) // rgba(255, 0, 0, 1)
 
 // hex
@@ -135,7 +135,7 @@ toRgba('#222299', { format: RGBFormatType.Object }) // { alpha: 1, blue: 153, gr
 // alpha
 toRgba('#222299', { alpha: 1 }) // rgba(34, 34, 153, 1)
 
-// 覆盖alpha
+// 透明度覆盖 alpha
 toRgba('rgb(40 42 54/0.75)', { alpha: 1 }) // rgba(40, 42, 54, 1)
 
 // rgb / alpha
@@ -158,35 +158,35 @@ isHex('#fffff') // false
 
 #### darken、lighten
 ```
-// darken
+// darken 5%
 darken('#2196f3') // rgba(20, 137, 230, 1)
 
-// rgb / alpha percent
+// rgb / alpha percent 10%
 darken('#2196f3', { percent: 10 }) // rgba(8, 125, 218, 1)
 
-// rgb / alpha percent
+// rgb / alpha percent 20%
 darken('#2196f3', { percent: 20 }) // rgba(0, 99, 192, 1)
 
-// rgb / alpha percent
+// rgb / alpha percent 50%
 darken('#2196f3', { percent: 50 }) // rgba(0, 23, 116, 1)
 
-// rgb / alpha percent
+// rgb / alpha percent 100%
 darken('#2196f3', { percent: 100 }) // rgba(0, 0, 0, 1)
 
 // lighten
-// rgb / alpha percent
+// rgb / alpha percent 5%
 lighten('#2196f3') // rgba(46, 163, 255, 0.95)
 
-// rgb / alpha percent
+// rgb / alpha percent 10%
 lighten('#2196f3', { percent: 10 }) // rgba(59, 176, 255, 0.9)
 
-// rgb / alpha percent
+// rgb / alpha percent 20%
 lighten('#2196f3', { percent: 20 }) // rgba(84, 201, 255, 0.8)
 
-// rgb / alpha percent
+// rgb / alpha percent 50%
 lighten('#2196f3', { percent: 50 }) // rgba(161, 255, 255, 0.5)
 
-// rgb / alpha percent
+// rgb / alpha percent 100%
 lighten('#2196f3', { percent: 100 }) // rgba(255, 255, 255, 0)
 
 
