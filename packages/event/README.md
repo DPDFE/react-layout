@@ -11,6 +11,15 @@
 | matchesSelectorAndParentsTo | 找到从开始元素一直找到结束元素是否有目标 class |
 | LocalStorage | 封装localstorage方法 |
 | EventBus | 订阅发布 |
+| toHex | 转化为hex（支持keyword\rbg\rbga\hex，支持多种空格、分号、斜杠分隔） |
+| toRgba | 转化为rbga（支持object、array、string输出格式） |
+| isHex | 判断是否是hex |
+| isRgb | 判断是否是rgb |
+| isRbga | 判断是否是rgba |
+| getKeywordColor | 获取关键词配色，比如red: #FF0000 |
+| getOpacity | 获取透明度，支持transparent |
+| darken、lighten | 线性颜色百分比取值 |
+
 
 ## Usage
 
