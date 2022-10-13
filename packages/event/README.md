@@ -11,7 +11,7 @@
 | matchesSelectorAndParentsTo | 找到从开始元素一直找到结束元素是否有目标 class |
 | LocalStorage | 封装localstorage方法 |
 | EventBus | 订阅发布 |
-| toHex | 转化为hex（支持keyword\rbg\rbga\hex，支持多种空格、分号、斜杠分隔） |
+| toHex | 转化为hex（支持keyword\rgb\rgba\hex，支持多种空格、分号、斜杠分隔） |
 | toRgba | 转化为rgba（支持object、array、string输出格式） |
 | isHex | 判断是否是hex |
 | isRgb | 判断是否是rgb |
