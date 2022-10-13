@@ -7,16 +7,18 @@ import ColorKeywords from './constants';
  */
 export function isHex(color: string): boolean {
     if (typeof color !== 'string') return false;
-    const regex = /^#([A-Fa-f0-9]{3,4}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$/;
+    const regex = new RegExp(
+        '^#([A-Fa-f0-9]{3,4}|[A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$'
+    );
     return regex.test(color);
 }
 
 /**
- * isRbg
+ * isRgb
  * @param color
  * @returns
  */
-export function isRbg(color: string): boolean {
+export function isRgb(color: string): boolean {
     if (typeof color !== 'string') return false;
     color = color.toLowerCase();
 

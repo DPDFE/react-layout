@@ -12,8 +12,9 @@ import LocalStorage from './localstorage';
 import Events from './eventbus';
 
 import { toHex } from './color/tohex';
-import { isHex, getKeywordColor, isRbg, isRgba } from './color/base';
+import { isHex, getKeywordColor, isRgb, isRgba } from './color/base';
 import { darken, getOpacity, lighten } from './color';
+import { toRgba } from './color/torgba';
 
 export {
     Events,
@@ -26,11 +27,12 @@ export {
     matchesSelectorAndParentsTo,
     //color
     toHex,
+    toRgba,
     darken,
     lighten,
     getOpacity,
     isHex,
-    isRbg,
+    isRgb,
     isRgba,
     getKeywordColor
 };
