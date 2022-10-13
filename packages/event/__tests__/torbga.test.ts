@@ -1,4 +1,4 @@
-import { FormatType, toRgba } from '../src/color/torgba';
+import { RGBFormatType, toRgba } from '../src/color/torgba';
 
 // keyword
 test('red', () => {
@@ -27,14 +27,14 @@ test('#cd2222cc', () => {
 
 // array
 test('#222299', () => {
-    expect(toRgba('#222299', { format: FormatType.Array })).toEqual([
+    expect(toRgba('#222299', { format: RGBFormatType.Array })).toEqual([
         34, 34, 153, 1
     ]);
 });
 
 // object
 test('#222299', () => {
-    expect(toRgba('#222299', { format: FormatType.Object })).toEqual({
+    expect(toRgba('#222299', { format: RGBFormatType.Object })).toEqual({
         alpha: 1,
         blue: 153,
         green: 34,

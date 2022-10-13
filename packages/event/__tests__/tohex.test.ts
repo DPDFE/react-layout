@@ -17,12 +17,12 @@ test('rgb(40  42  54)', () => {
 
 // rgb / alpha
 test('rgb(40 42 54/0.75)', () => {
-    expect(toHex('rgb(40 42 54 / 0.75)')).toBe('#282a36bf');
+    expect(toHex('rgb(40 42 54/0.75)')).toBe('#282a36bf');
 });
 
 // rgb / alpha
 test('rgb(40 42 54 /     0.75)', () => {
-    expect(toHex('rgb(40 42 54 / 0.75)')).toBe('#282a36bf');
+    expect(toHex('rgb(40 42 54 /      0.75)')).toBe('#282a36bf');
 });
 
 // rgb / alpha
@@ -31,7 +31,7 @@ test('rgb(40 42 54 / 0.75)', () => {
 });
 
 // number
-test('65, 131, 196', () => {
+test('65,131,196', () => {
     expect(toHex(65, 131, 196)).toBe('#4183c4');
 });
 
@@ -60,9 +60,14 @@ test('rgb(40, 42, 54)', () => {
     expect(toHex('rgb(40, 42, 54)')).toBe('#282a36');
 });
 
-// rgb / alpha percent
-test('rgb(40 42 54 / 75%)', () => {
-    expect(toHex('rgb(40 42 54 / 75%)')).toBe('#282a36bf');
+// rgb
+test('rgb(40,42,54)', () => {
+    expect(toHex('rgb(40,42,54)')).toBe('#282a36');
+});
+
+// rgba 75%
+test('rgba(40,42,54,75%)', () => {
+    expect(toHex('rgba(40,42,54,75%)')).toBe('#282a36bf');
 });
 
 // rgba 75%
@@ -71,8 +76,13 @@ test('rgba(40, 42, 54, 75%)', () => {
 });
 
 // rgba 0.75
-test('rgba(40, 42, 54, .75)', () => {
-    expect(toHex('rgba(40, 42, 54, .75)')).toBe('#282a36bf');
+test('rgba(40, 42,   54,   .75)', () => {
+    expect(toHex('rgba(40, 42,   54,   .75)')).toBe('#282a36bf');
+});
+
+// rgba 0.75
+test('rgba(40,42,54,.75)', () => {
+    expect(toHex('rgba(40,42,54,.75)')).toBe('#282a36bf');
 });
 
 // rgba 0

@@ -30,22 +30,15 @@ export function toHex(
         }
         // rgba/rbg to hex
         else if (red.startsWith('rgb')) {
-            if (red.includes(',')) {
-                [_, red, green, blue, alpha] = red
-                    .replace(/ /g, '')
-                    .match(
-                        /(?<=\()(\d+),(\d+),(\d+),?((?:0?\.\d+)|1|0|\d+)?%?(?=\))/
-                    )
-                    ?.map((color) => (color ? Number(color) : undefined));
-            }
             // rgba / alpha
-            else {
-                [_, red, green, blue, alpha] = red
-                    .match(
-                        /(?<=\()(\d+) *(\d+) *(\d+) *\/* *((?:0?\.\d+)|1|0|\d+)?%?(?=\))/
+            [_, red, green, blue, alpha] = red
+                .toLowerCase()
+                .match(
+                    new RegExp(
+                        '[rgb|rgba]\\((\\d{1,3}),? {0,}(\\d{1,3}),? {0,}(\\d{1,3}) {0,}?,?/? {0,}?(0?.\\d{1,2}|1|0|\\d{1,3})?%?\\)'
                     )
-                    ?.map((color) => (color ? Number(color) : undefined));
-            }
+                )
+                ?.map((color) => (color ? Number(color) : undefined));
         }
     } else {
         // percent

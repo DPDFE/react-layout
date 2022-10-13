@@ -1,6 +1,6 @@
 {
     "name": "@dpdfe/event-utils",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "description": "通用方法",
     "author": "pearone",
     "homepage": "https://github.com/DPDFE/react-layout/tree/main/packages/event",
@@ -24,6 +24,7 @@
         "dev": "tsc -w",
         "build": "rm -rf dist && tsc --build",
         "test": "jest",
+        "test:single": "jest ./__tests__/color.test.ts",
         "prepublishOnly": "npm run build"
     },
     "bugs": {

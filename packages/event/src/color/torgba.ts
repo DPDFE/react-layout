@@ -1,6 +1,6 @@
 import { toHex } from './tohex';
 
-export enum FormatType {
+export enum RGBFormatType {
     Array = 'array',
     Object = 'object',
     Css = 'css'
@@ -13,8 +13,8 @@ export interface RGBA {
     alpha: number;
 }
 
-interface Options {
-    format?: FormatType;
+export interface RGBOptions {
+    format?: RGBFormatType;
     alpha?: number;
 }
 
@@ -24,7 +24,10 @@ interface Options {
  * @param options
  * @description 支持转化keyword、hex多种形式统一化处理生成object、array格式
  */
-export function toRgba(color: string, options: Options = {}) {
+export function toRgba(
+    color: string,
+    options: RGBOptions = { format: RGBFormatType.Css }
+) {
     // hex
     let hex = toHex(color).replace('#', ''),
         alpha = 1;
@@ -64,11 +67,11 @@ export function toRgba(color: string, options: Options = {}) {
 
     alpha = Number(alpha.toFixed(2));
 
-    if (options.format === FormatType.Array) {
+    if (options.format === RGBFormatType.Array) {
         return [red, green, blue, alpha];
     }
 
-    if (options.format === FormatType.Object) {
+    if (options.format === RGBFormatType.Object) {
         return { red, green, blue, alpha };
     }
 
