@@ -47,6 +47,13 @@ test('#222299', () => {
     expect(toRgba('#222299', { alpha: 1 })).toBe('rgba(34, 34, 153, 1)');
 });
 
+// alpha
+test('rgb(40 42 54/0.75)', () => {
+    expect(toRgba('rgb(40 42 54/0.75)', { alpha: 1 })).toBe(
+        'rgba(40, 42, 54, 1)'
+    );
+});
+
 // rgb / alpha
 test('rgb(40 42 54/0.75)', () => {
     expect(toRgba('rgb(40 42 54 / 0.75)')).toBe('rgba(40, 42, 54, 0.75)');

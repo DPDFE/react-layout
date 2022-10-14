@@ -85,6 +85,11 @@ test('rgba(40,42,54,.75)', () => {
     expect(toHex('rgba(40,42,54,.75)')).toBe('#282a36bf');
 });
 
+// rgba 0.75
+test('rgba(40,42,54,0.75)', () => {
+    expect(toHex('rgba(40,42,54,0.75)')).toBe('#282a36bf');
+});
+
 // rgba 0
 test('rgba(40, 42, 54, 0)', () => {
     expect(toHex('rgba(40, 42, 54, 0)')).toBe('#282a3600');

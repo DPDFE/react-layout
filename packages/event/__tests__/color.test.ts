@@ -53,3 +53,10 @@ test('#2196f3', () => {
 test('#2196f3', () => {
     expect(lighten('#2196f3', { percent: 100 })).toBe('rgba(255, 255, 255, 0)');
 });
+
+// max min test error
+// test('#2196f3', () => {
+//     expect(
+//         lighten('#efebeb', { percent: 30, max: '#b75f5f', min: '#efebeb' })
+//     ).toBe('rgba(255, 255, 255, 1)');
+// });
