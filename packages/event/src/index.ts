@@ -13,8 +13,8 @@ import Events from './eventbus';
 
 import { toHex } from './color/tohex';
 import { isHex, getKeywordColor, isRgb, isRgba } from './color/base';
-import { darken, getOpacity, lighten } from './color';
-import { toRgba } from './color/torgba';
+import { darken, lighten } from './color/computed';
+import { toRgba, toRgb, getOpacity, getGrayLevel } from './color/torgba';
 
 export {
     Events,
@@ -26,13 +26,15 @@ export {
     matchesSelector,
     matchesSelectorAndParentsTo,
     //color
+    isHex,
+    isRgb,
+    isRgba,
+    getKeywordColor,
     toHex,
+    toRgb,
     toRgba,
     darken,
     lighten,
     getOpacity,
-    isHex,
-    isRgb,
-    isRgba,
-    getKeywordColor
+    getGrayLevel
 };

@@ -56,7 +56,7 @@ const LocalStorage = (
             const last_item = getStorageItem(key);
             if (last_item !== undefined) {
                 storage[key] = last_item;
-            } else {
+            } else if (storage[key]) {
                 setStorageItem(key, storage[key]);
             }
         });

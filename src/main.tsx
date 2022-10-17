@@ -33,6 +33,7 @@ import { LayoutIcon } from './example/component/icon';
 import Sider from 'antd/lib/layout/Sider';
 import './index.css';
 import React from 'react';
+import Darken from './example/event/color/computed';
 
 function Router() {
     const { SubMenu } = Menu;
@@ -147,6 +148,13 @@ function Router() {
             path: '/',
             icon: 'icon-base',
             element: <DefaultLayout />
+        },
+        {
+            index: 15,
+            name: 'color',
+            path: 'color',
+            icon: 'icon-bg-colors',
+            element: <Darken />
         }
     ];
 
@@ -247,7 +255,7 @@ function Router() {
 }
 
 const container = document.getElementById('root');
-const root = createRoot(container);
+const root = createRoot(container!);
 root.render(
     <BrowserRouter>
         <Router />

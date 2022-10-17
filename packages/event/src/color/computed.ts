@@ -1,5 +1,4 @@
-import { toHex } from './tohex';
-import { RGBFormatType, RGBA, toRgba } from './torgba';
+import { RGBFormatType, toRgb, RGB, toRgba } from './torgba';
 
 export interface ColorLineOptions {
     percent: number;
@@ -23,7 +22,7 @@ export function darken(
         percent: 5
     }
 ) {
-    return getColorByPercent(color, { ...options, direction: Direction.Lower });
+    return brightness(color, { ...options, direction: Direction.Lower });
 }
 
 /**
@@ -36,28 +35,28 @@ export function lighten(
         percent: 5
     }
 ) {
-    return getColorByPercent(color, { ...options, direction: Direction.Upper });
+    return brightness(color, { ...options, direction: Direction.Upper });
 }
 
 /**
- * 更新颜色
+ * 修改颜色亮度
  * @param color
  * @param options
  */
-function getColorByPercent(
+function brightness(
     color: string,
     options: ColorLineOptions & { direction: Direction } = {
         percent: 5,
         direction: Direction.Upper
     }
 ) {
-    const current = toRgba(color, { format: RGBFormatType.Object }) as RGBA;
-    const max = toRgba(options.max ?? '#00000000', {
+    const current = toRgba(color, { format: RGBFormatType.Object }) as RGB;
+    const max = toRgba(options.max ?? '#000000', {
         format: RGBFormatType.Object
-    }) as RGBA;
-    const min = toRgba(options.min ?? '#FFFFFFFF', {
+    }) as RGB;
+    const min = toRgba(options.min ?? '#FFFFFF', {
         format: RGBFormatType.Object
-    }) as RGBA;
+    }) as RGB;
 
     const direction = options.direction === Direction.Upper ? -1 : 1;
 
@@ -77,22 +76,31 @@ function getColorByPercent(
             ((max.green - min.green) / 100) * options.percent * direction
     );
 
-    const alpha =
-        current.alpha -
-        ((max.alpha - min.alpha) / 100) * options.percent * direction;
-
-    return `rgba(${clamp(red)}, ${clamp(green)}, ${clamp(blue)}, ${clamp(
-        alpha,
-        0,
-        1
-    )})`;
+    return `rgb(${clamp(red)}, ${clamp(green)}, ${clamp(blue)})`;
 }
 
-/**
- * 获取颜色透明度
- * @param color
- */
-export function getOpacity(color: string) {
-    return (toRgba(toHex(color), { format: RGBFormatType.Object }) as RGBA)
-        .alpha;
+export function rgbaToHsla([R, G, B, A]: number[]) {
+    R /= 255;
+    G /= 255;
+    B /= 255;
+    const max = Math.max(R, G, B);
+    const min = Math.min(R, G, B);
+    const range = max - min;
+    let V = max;
+    let S = V === 0 ? 0 : range / V;
+    let H = 0;
+    if (R === V) H = (60 * (G - B)) / range;
+    if (G === V) H = 120 + (60 * (B - R)) / range;
+    if (B === V) H = 240 + (60 * (R - G)) / range;
+
+    if (range === 0) H = 0;
+    if (H < 0) H += 360;
+    H = (H / 2) * (256 / 180);
+    S *= 255;
+    V *= 255;
+    return [H, S, V, A];
 }
+
+//TODO: 增加反色、增加区间增加颜色百分比、调节亮度
+
+// white \ black
