@@ -4,7 +4,8 @@ import {
     getGrayLevel,
     lighten,
     toHsl,
-    toRgb
+    toRgb,
+    range
 } from '@dpdfe/event-utils';
 import { RGB, RGBFormatType } from '@dpdfe/event-utils/dist/color/torgba';
 
@@ -295,6 +296,126 @@ function Darken() {
 
     return (
         <div style={{ height: '100%', width: '100%', overflow: 'auto' }}>
+            <p style={{ margin: 20, fontWeight: 600 }}>range HSL</p>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    flexWrap: 'wrap'
+                }}
+            >
+                {range(['rgb(205, 99, 201)', 'rgb(33, 126, 74)'], 10).map(
+                    (c) => {
+                        return (
+                            <div
+                                key={c}
+                                style={{
+                                    marginLeft: 20,
+                                    marginBottom: 20,
+                                    display: 'flex',
+                                    justifyContent: 'flex-start',
+                                    flexWrap: 'wrap'
+                                }}
+                            >
+                                <div
+                                    style={{
+                                        backgroundColor: c,
+                                        width: 30,
+                                        height: 30
+                                    }}
+                                ></div>
+                            </div>
+                        );
+                    }
+                )}
+            </div>
+
+            <p style={{ margin: 20, fontWeight: 600 }}>range RGB</p>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    flexWrap: 'wrap'
+                }}
+            >
+                {[
+                    -100, -90, -80, -70, -60, -50, -40, -30, -20, -10, 0, 10,
+                    20, 30, 40, 50, 60, 70, 80, 90, 100
+                ].map((percent) => {
+                    return (
+                        <div
+                            key={percent}
+                            style={{
+                                marginLeft: 20,
+                                marginBottom: 20,
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    backgroundColor: darken(
+                                        'rgb(205, 99, 201)',
+
+                                        {
+                                            percent,
+                                            max: 'rgb(205, 99, 201)',
+                                            min: 'rgb(33, 126, 74)'
+                                        }
+                                    ),
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                        </div>
+                    );
+                })}
+            </div>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    flexWrap: 'wrap'
+                }}
+            >
+                {[
+                    -100, -90, -80, -70, -60, -50, -40, -30, -20, -10, 0, 10,
+                    20, 30, 40, 50, 60, 70, 80, 90, 100
+                ].map((percent) => {
+                    return (
+                        <div
+                            key={percent}
+                            style={{
+                                marginLeft: 20,
+                                marginBottom: 20,
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap',
+                                flexDirection: 'column'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    backgroundColor: darken(
+                                        'rgb(205, 99, 201)',
+
+                                        {
+                                            percent
+                                        }
+                                    ),
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                            <pre style={{ fontSize: 12, marginTop: 5 }}>
+                                {percent}
+                            </pre>
+                        </div>
+                    );
+                })}
+            </div>
+
             <p style={{ margin: 20, fontWeight: 600 }}>brightness</p>
             <div
                 style={{
@@ -318,7 +439,7 @@ function Darken() {
                             <div
                                 style={{
                                     backgroundColor: darken(c, {
-                                        percent: 5
+                                        percent: 20
                                     }),
                                     width: 30,
                                     height: 30
@@ -334,7 +455,7 @@ function Darken() {
                             <div
                                 style={{
                                     backgroundColor: lighten(c, {
-                                        percent: 5
+                                        percent: 20
                                     }),
                                     width: 30,
                                     height: 30

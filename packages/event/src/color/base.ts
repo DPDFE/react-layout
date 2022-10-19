@@ -69,3 +69,14 @@ export function getKeywordColor(color: string): string | undefined {
     const hex = ColorKeywords[color as keyof typeof ColorKeywords];
     return hex ? hex : undefined;
 }
+
+/**
+ * color clamp
+ * @param data
+ * @param min
+ * @param max
+ * @returns
+ */
+export const clamp = (data: number, min: number = 0, max: number = 255) => {
+    return Math.min(Math.max(data, min), max);
+};

@@ -1,14 +1,10 @@
-import { RGBFormatType, RGB, toRgba } from './torgba';
+import { clamp } from './base';
+import { RGBFormatType, RGB, toRgb } from './torgba';
 
 export interface ColorLineOptions {
     percent: number;
     max?: string; // 最大的颜色
     min?: string; // 最小的颜色
-}
-
-export enum Direction {
-    Upper = 'upper',
-    Lower = 'lower'
 }
 
 /**
@@ -22,7 +18,7 @@ export function darken(
         percent: 5
     }
 ) {
-    return brightness(color, { ...options, direction: Direction.Lower });
+    return brightness(color, { ...options });
 }
 
 /**
@@ -35,7 +31,7 @@ export function lighten(
         percent: 5
     }
 ) {
-    return brightness(color, { ...options, direction: Direction.Upper });
+    return brightness(color, { ...options, percent: -options.percent });
 }
 
 /**
@@ -45,36 +41,47 @@ export function lighten(
  */
 function brightness(
     color: string,
-    options: ColorLineOptions & { direction: Direction } = {
-        percent: 5,
-        direction: Direction.Upper
+    options: ColorLineOptions = {
+        percent: 5
     }
 ) {
-    const current = toRgba(color, { format: RGBFormatType.Object }) as RGB;
-    const max = toRgba(options.max ?? '#000000', {
+    const current = toRgb(color, { format: RGBFormatType.Object }) as RGB;
+    const max = toRgb(options.max ?? '#000000', {
         format: RGBFormatType.Object
     }) as RGB;
-    const min = toRgba(options.min ?? '#FFFFFF', {
+    const min = toRgb(options.min ?? '#FFFFFF', {
         format: RGBFormatType.Object
     }) as RGB;
 
-    const direction = options.direction === Direction.Upper ? -1 : 1;
-
-    const clamp = (data: number, min: number = 0, max: number = 255) => {
-        return Math.min(Math.max(data, min), max);
-    };
+    const target = options.percent > 0 ? max : min;
 
     const red = Math.round(
-        current.red + ((max.red - min.red) / 100) * options.percent * direction
+        current.red +
+            ((target.red - current.red) / 100) * Math.abs(options.percent)
     );
     const blue = Math.round(
         current.blue +
-            ((max.blue - min.blue) / 100) * options.percent * direction
+            ((target.blue - current.blue) / 100) * Math.abs(options.percent)
     );
     const green = Math.round(
         current.green +
-            ((max.green - min.green) / 100) * options.percent * direction
+            ((target.green - current.green) / 100) * Math.abs(options.percent)
     );
 
     return `rgb(${clamp(red)}, ${clamp(green)}, ${clamp(blue)})`;
+}
+
+/**
+ * 颜色区间
+ * https://www.yuelili.com/color-how-to-generate-a-nice-gradient/
+ * @param min 最小颜色
+ * @param max 最大颜色
+ * @param total 总数量
+ * @returns
+ */
+export function range(gradient: string[], total: number = 2) {
+    if (gradient.length <= total) {
+        return gradient;
+    }
+    return gradient;
 }

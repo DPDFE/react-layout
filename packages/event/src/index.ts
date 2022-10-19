@@ -20,7 +20,7 @@ import {
     isHsl,
     isHsla
 } from './color/base';
-import { darken, lighten } from './color/computed';
+import { darken, lighten, range } from './color/computed';
 import { toRgba, toRgb, getOpacity, getGrayLevel } from './color/torgba';
 import { toHsl } from './color/tohsl';
 
@@ -46,6 +46,7 @@ export {
     toHsl,
     darken,
     lighten,
+    range,
     getOpacity,
     getGrayLevel
 };
