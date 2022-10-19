@@ -5,9 +5,9 @@ import {
     lighten,
     toHsl,
     toRgb,
-    range
+    range,
+    isBrightness
 } from '@dpdfe/event-utils';
-import { getGrayLevelByHsl, HSLA } from '@dpdfe/event-utils/dist/color/tohsl';
 import {
     getLuminance,
     RGB,
@@ -309,30 +309,95 @@ function Darken() {
                     flexWrap: 'wrap'
                 }}
             >
-                {range(['rgb(205, 99, 201)', 'rgb(33, 126, 74)'], 10).map(
-                    (c) => {
-                        return (
+                {[
+                    -100, -90, -80, -70, -60, -50, -40, -30, -20, -10, 0, 10,
+                    20, 30, 40, 50, 60, 70, 80, 90, 100
+                ].map((percent) => {
+                    return (
+                        <div
+                            key={percent}
+                            style={{
+                                marginLeft: 20,
+                                marginBottom: 20,
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap'
+                            }}
+                        >
                             <div
-                                key={c}
                                 style={{
-                                    marginLeft: 20,
-                                    marginBottom: 20,
-                                    display: 'flex',
-                                    justifyContent: 'flex-start',
-                                    flexWrap: 'wrap'
+                                    backgroundColor: isBrightness(
+                                        'rgb(205, 99, 201)',
+
+                                        {
+                                            percent,
+                                            is_full: true,
+                                            max: 'rgb(205, 99, 201)',
+                                            min: 'rgb(33, 126, 74)'
+                                        }
+                                    ),
+                                    width: 30,
+                                    height: 30
                                 }}
-                            >
-                                <div
-                                    style={{
-                                        backgroundColor: c,
-                                        width: 30,
-                                        height: 30
-                                    }}
-                                ></div>
-                            </div>
-                        );
-                    }
-                )}
+                            ></div>
+                            {/* <pre style={{ fontSize: 12, marginTop: 5 }}>
+                                {isBrightness(
+                                    'rgb(205, 99, 201)',
+
+                                    {
+                                        percent,
+                                        max: 'rgb(205, 99, 201)',
+                                        min: 'rgb(33, 126, 74)'
+                                    }
+                                )}
+                            </pre> */}
+                        </div>
+                    );
+                })}
+            </div>
+
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    flexWrap: 'wrap'
+                }}
+            >
+                {[
+                    -100, -90, -80, -70, -60, -50, -40, -30, -20, -10, 0, 10,
+                    20, 30, 40, 50, 60, 70, 80, 90, 100
+                ].map((percent) => {
+                    return (
+                        <div
+                            key={percent}
+                            style={{
+                                marginLeft: 20,
+                                marginBottom: 20,
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap',
+                                flexDirection: 'column'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    backgroundColor: isBrightness(
+                                        'rgb(205, 99, 201)',
+
+                                        {
+                                            percent
+                                        }
+                                    ),
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                            <pre style={{ fontSize: 12, marginTop: 5 }}>
+                                {percent}
+                            </pre>
+                        </div>
+                    );
+                })}
             </div>
 
             <p style={{ margin: 20, fontWeight: 600 }}>range RGB</p>
@@ -421,7 +486,57 @@ function Darken() {
                 })}
             </div>
 
-            <p style={{ margin: 20, fontWeight: 600 }}>brightness</p>
+            <p style={{ margin: 20, fontWeight: 600 }}>brightness hsl</p>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    flexWrap: 'wrap'
+                }}
+            >
+                {colors.map((c) => {
+                    return (
+                        <div
+                            key={c}
+                            style={{
+                                marginLeft: 20,
+                                marginBottom: 20,
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    backgroundColor: isBrightness(c, {
+                                        percent: 20
+                                    }),
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                            <div
+                                style={{
+                                    backgroundColor: c,
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                            <div
+                                style={{
+                                    backgroundColor: isBrightness(c, {
+                                        percent: -20
+                                    }),
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            <p style={{ margin: 20, fontWeight: 600 }}>brightness rgb</p>
             <div
                 style={{
                     display: 'flex',
@@ -450,6 +565,7 @@ function Darken() {
                                     height: 30
                                 }}
                             ></div>
+
                             <div
                                 style={{
                                     backgroundColor: c,
@@ -457,6 +573,7 @@ function Darken() {
                                     height: 30
                                 }}
                             ></div>
+
                             <div
                                 style={{
                                     backgroundColor: lighten(c, {
@@ -533,14 +650,7 @@ function Darken() {
                         ),
                         2
                     );
-                    //   const gray = fomatFloatNumber(
-                    //       getGrayLevelByHsl(
-                    //           toHsl(color, {
-                    //               format: RGBFormatType.Object
-                    //           }) as HSLA
-                    //       ),
-                    //       2
-                    //   );
+
                     return (
                         <div
                             key={color}

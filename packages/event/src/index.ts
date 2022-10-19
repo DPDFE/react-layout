@@ -20,7 +20,13 @@ import {
     isHsl,
     isHsla
 } from './color/base';
-import { darken, lighten, range } from './color/computed';
+import {
+    brightness,
+    isBrightness,
+    darken,
+    lighten,
+    range
+} from './color/computed';
 import {
     toRgba,
     toRgb,
@@ -28,7 +34,7 @@ import {
     getGrayLevel,
     getLuminance
 } from './color/torgba';
-import { getGrayLevelByHsl, toHsl } from './color/tohsl';
+import { toHsl } from './color/tohsl';
 
 export {
     Events,
@@ -52,9 +58,11 @@ export {
     toHsl,
     darken,
     lighten,
+    isBrightness,
     range,
     getOpacity,
     getLuminance,
     getGrayLevel,
-    getGrayLevelByHsl
+    // 内部方法
+    brightness
 };

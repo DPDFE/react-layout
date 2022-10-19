@@ -81,19 +81,3 @@ function rgbToHsl(r: number, g: number, b: number) {
 
     return { h, s, l };
 }
-
-/**
- * 亮度计算
- * https://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
- * @param color
- * @returns
- */
-export function getGrayLevelByHsl({
-    hue,
-    saturation,
-    lightness,
-    alpha
-}: HSLA): number {
-    return lightness;
-    // return (0.299 * hue + 0.587 * saturation + 0.114 * lightness) / 255;
-}
