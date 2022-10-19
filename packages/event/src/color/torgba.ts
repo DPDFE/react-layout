@@ -155,3 +155,23 @@ export function toRgb(
 export function getGrayLevel({ red, green, blue }: RGB): number {
     return (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
 }
+
+/**
+ * Formula: http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
+ * @returns
+ */
+export function getLuminance({ red, green, blue }: RGB): number {
+    red /= 255;
+    green /= 255;
+    blue /= 255;
+
+    const getGray = (color: number) => {
+        return color < 0.03928
+            ? color / 12.92
+            : Math.pow((color + 0.055) / 1.055, 2.4);
+    };
+
+    return (
+        0.2126 * getGray(red) + 0.7152 * getGray(green) + 0.0722 * getGray(blue)
+    );
+}

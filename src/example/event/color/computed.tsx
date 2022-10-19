@@ -7,7 +7,12 @@ import {
     toRgb,
     range
 } from '@dpdfe/event-utils';
-import { RGB, RGBFormatType } from '@dpdfe/event-utils/dist/color/torgba';
+import { getGrayLevelByHsl, HSLA } from '@dpdfe/event-utils/dist/color/tohsl';
+import {
+    getLuminance,
+    RGB,
+    RGBFormatType
+} from '@dpdfe/event-utils/dist/color/torgba';
 
 function Darken() {
     const colors: string[] = [
@@ -519,9 +524,80 @@ function Darken() {
                 }}
             >
                 {rgb_colors.map((c) => {
-                    const color = c.replace('0.9', '0.9');
+                    const color = c.replace('0.9', '1');
                     const gray = fomatFloatNumber(
                         getGrayLevel(
+                            toRgb(color, {
+                                format: RGBFormatType.Object
+                            }) as RGB
+                        ),
+                        2
+                    );
+                    //   const gray = fomatFloatNumber(
+                    //       getGrayLevelByHsl(
+                    //           toHsl(color, {
+                    //               format: RGBFormatType.Object
+                    //           }) as HSLA
+                    //       ),
+                    //       2
+                    //   );
+                    return (
+                        <div
+                            key={color}
+                            style={{
+                                marginLeft: 20,
+                                marginBottom: 20,
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    backgroundColor: color,
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                            <div
+                                style={{
+                                    backgroundColor: toRgb(color) as string,
+                                    width: 30,
+                                    height: 30
+                                }}
+                            >
+                                <span
+                                    style={{
+                                        color: gray > 0.5 ? 'black' : 'white',
+                                        fontSize: 12,
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    文字
+                                </span>
+                                <pre style={{ fontSize: 12, marginTop: 5 }}>
+                                    {gray}
+                                </pre>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            <p style={{ margin: 20, fontWeight: 600 }}>
+                [gray] rgba to luminance
+            </p>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    flexWrap: 'wrap'
+                }}
+            >
+                {rgb_colors.map((c) => {
+                    const color = c.replace('0.9', '1');
+                    const gray = fomatFloatNumber(
+                        getLuminance(
                             toRgb(color, {
                                 format: RGBFormatType.Object
                             }) as RGB
@@ -555,7 +631,7 @@ function Darken() {
                             >
                                 <span
                                     style={{
-                                        color: gray > 0.5 ? 'black' : 'white',
+                                        color: gray > 0.45 ? 'black' : 'white',
                                         fontSize: 12,
                                         fontWeight: 'bold'
                                     }}
