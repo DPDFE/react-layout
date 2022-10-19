@@ -1,4 +1,4 @@
-import { getOpacity } from '../src/color';
+import { getOpacity } from '../src/color/torgba';
 
 // keyword
 test('red', () => {

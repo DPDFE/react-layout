@@ -1,4 +1,4 @@
-import { RGBFormatType, toRgb, RGB, toRgba } from './torgba';
+import { RGBFormatType, RGB, toRgba } from './torgba';
 
 export interface ColorLineOptions {
     percent: number;
@@ -78,29 +78,3 @@ function brightness(
 
     return `rgb(${clamp(red)}, ${clamp(green)}, ${clamp(blue)})`;
 }
-
-export function rgbaToHsla([R, G, B, A]: number[]) {
-    R /= 255;
-    G /= 255;
-    B /= 255;
-    const max = Math.max(R, G, B);
-    const min = Math.min(R, G, B);
-    const range = max - min;
-    let V = max;
-    let S = V === 0 ? 0 : range / V;
-    let H = 0;
-    if (R === V) H = (60 * (G - B)) / range;
-    if (G === V) H = 120 + (60 * (B - R)) / range;
-    if (B === V) H = 240 + (60 * (R - G)) / range;
-
-    if (range === 0) H = 0;
-    if (H < 0) H += 360;
-    H = (H / 2) * (256 / 180);
-    S *= 255;
-    V *= 255;
-    return [H, S, V, A];
-}
-
-//TODO: 增加反色、增加区间增加颜色百分比、调节亮度
-
-// white \ black

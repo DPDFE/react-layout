@@ -99,22 +99,31 @@ export function getOpacity(color: string) {
         .alpha;
 }
 
+//优化点：颜色上有差异
 /**
  * 合成数字颜色处理 https://keithp.com/~keithp/porterduff/p253-porter.pdf
- *
  * Alpha 合成或混合 https://en.wikipedia.org/wiki/Alpha_compositing#Alpha_blending
+ * rgba to rgb http://marcodiiga.github.io/rgba-to-rgb-conversion
  */
 export function toRgb(
     color: string,
-    options: RGBOptions = { format: RGBFormatType.Css, backgroundColor: '#fff' }
+    options: RGBOptions = {
+        format: RGBFormatType.Css,
+        backgroundColor: 'rgb(255,255,255)'
+    }
 ) {
     const source = toRgba(color, { format: RGBFormatType.Object }) as RGBA;
 
-    const background = toRgba(options.backgroundColor ?? '#ffffff', {
-        format: RGBFormatType.Object
-    }) as RGBA;
-
-    console.log(source, background);
+    const background = toRgba(
+        options.backgroundColor
+            ? isRgb(options.backgroundColor)
+                ? options.backgroundColor
+                : (toRgb(options.backgroundColor) as string)
+            : 'rgb(255,255,255)',
+        {
+            format: RGBFormatType.Object
+        }
+    ) as RGBA;
 
     const red = (1 - source.alpha) * background.red + source.alpha * source.red;
     const green =
@@ -137,13 +146,12 @@ export function toRgb(
 }
 
 /**
- * 灰度级别
+ * 人眼友好的灰度级别计算
+ * 灰度计算方案 https://github.com/aooy/blog/issues/4
+ *
  * @param color
  * @returns
  */
-export function getGrayLevel(color: string) {
-    const { red, green, blue } = toRgb(color, {
-        format: RGBFormatType.Object
-    }) as RGB;
+export function getGrayLevel({ red, green, blue }: RGB): number {
     return (0.299 * red + 0.587 * green + 0.114 * blue) / 255;
 }

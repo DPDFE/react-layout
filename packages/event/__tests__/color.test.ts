@@ -1,4 +1,4 @@
-import { darken, lighten } from '../src/color';
+import { darken, lighten } from '../src/color/computed';
 
 // darken
 // rgb / alpha percent

@@ -38,6 +38,30 @@ export function isRgba(color: string): boolean {
 }
 
 /**
+ * isHsl
+ * @param color
+ * @returns
+ */
+export function isHsl(color: string): boolean {
+    if (typeof color !== 'string') return false;
+    color = color.toLowerCase();
+
+    return /^(hsl)/.test(color);
+}
+
+/**
+ * isHsl
+ * @param color
+ * @returns
+ */
+export function isHsla(color: string): boolean {
+    if (typeof color !== 'string') return false;
+    color = color.toLowerCase();
+
+    return /^(hsla)/.test(color);
+}
+
+/**
  * 获取关键词颜色
  * @param color
  */

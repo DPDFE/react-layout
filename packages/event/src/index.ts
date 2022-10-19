@@ -12,9 +12,17 @@ import LocalStorage from './localstorage';
 import Events from './eventbus';
 
 import { toHex } from './color/tohex';
-import { isHex, getKeywordColor, isRgb, isRgba } from './color/base';
+import {
+    isHex,
+    getKeywordColor,
+    isRgb,
+    isRgba,
+    isHsl,
+    isHsla
+} from './color/base';
 import { darken, lighten } from './color/computed';
 import { toRgba, toRgb, getOpacity, getGrayLevel } from './color/torgba';
+import { toHsl } from './color/tohsl';
 
 export {
     Events,
@@ -29,10 +37,13 @@ export {
     isHex,
     isRgb,
     isRgba,
+    isHsl,
+    isHsla,
     getKeywordColor,
     toHex,
     toRgb,
     toRgba,
+    toHsl,
     darken,
     lighten,
     getOpacity,
