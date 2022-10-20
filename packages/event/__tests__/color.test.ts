@@ -3,55 +3,55 @@ import { darken, lighten } from '../src/color/computed';
 // darken
 // rgb / alpha percent
 test('#2196f3', () => {
-    expect(darken('#2196f3')).toBe('rgba(20, 137, 230, 1)');
+    expect(darken('#2196f3')).toBe('rgb(31.35, 142.5, 230.85)');
 });
 
 // rgb / alpha percent
 test('#2196f3', () => {
-    expect(darken('#2196f3', { percent: 10 })).toBe('rgba(8, 125, 218, 1)');
+    expect(darken('#2196f3', { percent: 10 })).toBe('rgb(29.7, 135, 218.7)');
 });
 
 // rgb / alpha percent
 test('#2196f3', () => {
-    expect(darken('#2196f3', { percent: 20 })).toBe('rgba(0, 99, 192, 1)');
+    expect(darken('#2196f3', { percent: 20 })).toBe('rgb(26.4, 120, 194.4)');
 });
 
 // rgb / alpha percent
 test('#2196f3', () => {
-    expect(darken('#2196f3', { percent: 50 })).toBe('rgba(0, 23, 116, 1)');
-});
-
-// rgb / alpha percent
-test('#2196f3', () => {
-    expect(darken('#2196f3', { percent: 100 })).toBe('rgba(0, 0, 0, 1)');
-});
-
-// lighten
-// rgb / alpha percent
-test('#2196f3', () => {
-    expect(lighten('#2196f3')).toBe('rgba(46, 163, 255, 0.95)');
-});
-
-// rgb / alpha percent
-test('#2196f3', () => {
-    expect(lighten('#2196f3', { percent: 10 })).toBe('rgba(59, 176, 255, 0.9)');
-});
-
-// rgb / alpha percent
-test('#2196f3', () => {
-    expect(lighten('#2196f3', { percent: 20 })).toBe('rgba(84, 201, 255, 0.8)');
-});
-
-// rgb / alpha percent
-test('#2196f3', () => {
-    expect(lighten('#2196f3', { percent: 50 })).toBe(
-        'rgba(161, 255, 255, 0.5)'
+    expect(darken('#2196f3', { percent: 50 })).toBe(
+        'rgb(16.5, 75, 121.49999999999999)'
     );
 });
 
 // rgb / alpha percent
 test('#2196f3', () => {
-    expect(lighten('#2196f3', { percent: 100 })).toBe('rgba(255, 255, 255, 0)');
+    expect(darken('#2196f3', { percent: 100 })).toBe('rgb(0, 0, 0)');
+});
+
+// lighten
+// rgb / alpha percent
+test('#2196f3', () => {
+    expect(lighten('#2196f3')).toBe('rgb(44.1, 155.25, 243.6)');
+});
+
+// rgb / alpha percent
+test('#2196f3', () => {
+    expect(lighten('#2196f3', { percent: 10 })).toBe('rgb(55.2, 160.5, 244.2)');
+});
+
+// rgb / alpha percent
+test('#2196f3', () => {
+    expect(lighten('#2196f3', { percent: 20 })).toBe('rgb(77.4, 171, 245.4)');
+});
+
+// rgb / alpha percent
+test('#2196f3', () => {
+    expect(lighten('#2196f3', { percent: 50 })).toBe('rgb(144, 202.5, 249)');
+});
+
+// rgb / alpha percent
+test('#2196f3', () => {
+    expect(lighten('#2196f3', { percent: 100 })).toBe('rgb(255, 255, 255)');
 });
 
 // max min test error

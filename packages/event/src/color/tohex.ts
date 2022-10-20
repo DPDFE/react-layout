@@ -30,15 +30,29 @@ export function toHex(
         }
         // rgba/rbg to hex
         else if (red.startsWith('rgb')) {
-            // rgba / alpha
-            [_, red, green, blue, alpha] = red
-                .toLowerCase()
-                .match(
-                    new RegExp(
-                        '[rgb|rgba]\\((\\d{1,3}),? {0,}(\\d{1,3}),? {0,}(\\d{1,3}) {0,}?,?/? {0,}?(0?.\\d{1,2}|1|0|\\d{1,3})?%?\\)'
+            try {
+                // rgba / alpha
+                [_, red, green, blue, alpha] = red
+                    .toLowerCase()
+                    .match(
+                        new RegExp(
+                            '[rgb|rgba]\\((\\d{1,3}),? {0,}(\\d{1,3}),? {0,}(\\d{1,3}) {0,}?,?/? {0,}?(0?.\\d{1,2}|1|0|\\d{1,3})?%?\\)'
+                        )
+                        // new RegExp(
+                        //     '[rgb|rgba]\\((\\d*.?\\d*)[ *,? *](\\d*.?\\d*)[ *,? *](\\d*.?\\d*)[ *[,|/]? *]?(0?.\\d{1,2}|1|0|\\d{1,3})?%?\\)'
+                        // )
                     )
-                )
-                ?.map((color) => (color ? Number(color) : undefined));
+                    ?.map((color) => (color ? Number(color) : undefined));
+            } catch (e) {
+                throw new Error(
+                    'toHex ' +
+                        (red ?? '') +
+                        (green ?? '') +
+                        (blue ?? '') +
+                        (alpha ?? '') +
+                        ' error'
+                );
+            }
         }
     } else {
         // percent
@@ -53,7 +67,14 @@ export function toHex(
         green > 255 ||
         blue > 255
     ) {
-        throw new Error('Expected three numbers below 256');
+        throw new Error(
+            '' +
+                (red ?? '') +
+                (green ?? '') +
+                (blue ?? '') +
+                (alpha ?? '') +
+                'Expected three numbers below 256'
+        );
     }
 
     if (typeof alpha === 'number') {

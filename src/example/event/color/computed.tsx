@@ -16,6 +16,7 @@ import {
 
 function Darken() {
     const colors: string[] = [
+        '#426105',
         'rgb(22, 24, 25)',
         '#f0f8ff',
         '#faebd7',
@@ -301,6 +302,47 @@ function Darken() {
 
     return (
         <div style={{ height: '100%', width: '100%', overflow: 'auto' }}>
+            <p style={{ margin: 20, fontWeight: 600 }}>range recommended</p>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    flexWrap: 'wrap'
+                }}
+            >
+                {range(
+                    [
+                        'rgb(205, 99, 201)',
+                        'rgb(33, 126, 74)',
+                        'rgb(255, 78, 13)'
+                    ],
+                    {
+                        total: 10
+                    }
+                ).map((c) => {
+                    return (
+                        <div
+                            key={c}
+                            style={{
+                                marginLeft: 20,
+                                marginBottom: 20,
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    backgroundColor: c,
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                        </div>
+                    );
+                })}
+            </div>
+
             <p style={{ margin: 20, fontWeight: 600 }}>range HSL</p>
             <div
                 style={{
@@ -587,50 +629,6 @@ function Darken() {
                     );
                 })}
             </div>
-            <p style={{ margin: 20, fontWeight: 600 }}>toHsl</p>
-            <div>
-                {colors.map((c) => {
-                    return (
-                        <div
-                            key={c}
-                            style={{
-                                marginLeft: 20,
-                                marginBottom: 20,
-                                display: 'flex',
-                                justifyContent: 'flex-start',
-                                flexWrap: 'wrap'
-                            }}
-                        >
-                            <div style={{ display: 'flex' }}>
-                                <div
-                                    style={{
-                                        backgroundColor: c,
-                                        width: 30,
-                                        height: 30
-                                    }}
-                                ></div>
-                                <div
-                                    style={{
-                                        backgroundColor: toHsl(c) as string,
-                                        width: 30,
-                                        height: 30
-                                    }}
-                                ></div>
-                            </div>
-
-                            <pre
-                                style={{
-                                    fontSize: 12,
-                                    lineHeight: '30px',
-                                    marginLeft: 10
-                                }}
-                            >
-                                {toHsl(c)}
-                            </pre>
-                        </div>
-                    );
-                })}
-            </div>
 
             <p style={{ margin: 20, fontWeight: 600 }}>[gray] rgba to rgb</p>
             <div
@@ -752,6 +750,51 @@ function Darken() {
                                     {gray}
                                 </pre>
                             </div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            <p style={{ margin: 20, fontWeight: 600 }}>toHsl</p>
+            <div>
+                {colors.map((c) => {
+                    return (
+                        <div
+                            key={c}
+                            style={{
+                                marginLeft: 20,
+                                marginBottom: 20,
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap'
+                            }}
+                        >
+                            <div style={{ display: 'flex' }}>
+                                <div
+                                    style={{
+                                        backgroundColor: c,
+                                        width: 30,
+                                        height: 30
+                                    }}
+                                ></div>
+                                <div
+                                    style={{
+                                        backgroundColor: toHsl(c) as string,
+                                        width: 30,
+                                        height: 30
+                                    }}
+                                ></div>
+                            </div>
+
+                            <pre
+                                style={{
+                                    fontSize: 12,
+                                    lineHeight: '30px',
+                                    marginLeft: 10
+                                }}
+                            >
+                                {toHsl(c)}
+                            </pre>
                         </div>
                     );
                 })}
