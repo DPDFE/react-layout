@@ -24,7 +24,7 @@
         "dev": "tsc -w",
         "build": "rm -rf dist && tsc --build",
         "test": "jest",
-        "test:single": "jest ./__tests__/color.test.ts",
+        "test:single": "jest ./__tests__/tohex.test.ts",
         "prepublishOnly": "npm run build"
     },
     "bugs": {

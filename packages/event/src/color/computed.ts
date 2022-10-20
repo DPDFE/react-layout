@@ -179,11 +179,11 @@ export function range(
 
         console.log(color);
 
-        // const key = getLuminance(
-        //     toRgb(color, { format: RGBFormatType.Object }) as RGB
-        // );
-        // console.log(key);
-        // color_lut[key] = color;
+        const key = getLuminance(
+            toRgb(color, { format: RGBFormatType.Object }) as RGB
+        );
+        console.log(key);
+        color_lut[key] = color;
 
         getMaxColorDiff(color_lut, total - 1);
     };

@@ -12,7 +12,7 @@ test('rgb(40 42 54)', () => {
 
 // rgb
 test('rgb(40  42  54)', () => {
-    expect(toHex('rgb(40 42 54)')).toBe('#282a36');
+    expect(toHex('rgb(40  42  54)')).toBe('#282a36');
 });
 
 // rgb / alpha
@@ -37,11 +37,11 @@ test('65,131,196', () => {
 
 // number
 test('rgb(.5,.5,.5)', () => {
-    expect(toHex('rgb(.5,.5,.5)')).toBe('#4183c4');
+    expect(toHex('rgb(.5,.5,.5)')).toBe('#010101');
 });
 
 test('rgb(119, 112.5, 137.5)', () => {
-    expect(toHex('rgb(119, 112.5, 137.5)')).toBe('#4183c4');
+    expect(toHex('rgb(119, 112.5, 137.5)')).toBe('#77718a');
 });
 
 // alpha
@@ -67,6 +67,10 @@ test('#4183c4bf', () => {
 // rgb
 test('rgb(40, 42, 54)', () => {
     expect(toHex('rgb(40, 42, 54)')).toBe('#282a36');
+});
+
+test('rgb(24 144 255)', () => {
+    expect(toHex('rgb(24 144 255)')).toBe('#1890ff');
 });
 
 // rgb

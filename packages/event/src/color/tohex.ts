@@ -31,18 +31,20 @@ export function toHex(
         // rgba/rbg to hex
         else if (red.startsWith('rgb')) {
             try {
-                // rgba / alpha
-                [_, red, green, blue, alpha] = red
+                const data = red
                     .toLowerCase()
-                    .match(
-                        new RegExp(
-                            '[rgb|rgba]\\((\\d{1,3}),? {0,}(\\d{1,3}),? {0,}(\\d{1,3}) {0,}?,?/? {0,}?(0?.\\d{1,2}|1|0|\\d{1,3})?%?\\)'
-                        )
-                        // new RegExp(
-                        //     '[rgb|rgba]\\((\\d*.?\\d*)[ *,? *](\\d*.?\\d*)[ *,? *](\\d*.?\\d*)[ *[,|/]? *]?(0?.\\d{1,2}|1|0|\\d{1,3})?%?\\)'
-                        // )
-                    )
-                    ?.map((color) => (color ? Number(color) : undefined));
+                    .match(new RegExp('[rgb|rgba]\\((.*)\\)'));
+
+                [
+                    // rgba / alpha
+                    red,
+                    green,
+                    blue,
+                    alpha
+                ] = data![1]
+                    .split(/,|\/|%| /)
+                    .filter((r) => ![' ', '/', ',', '%', ''].includes(r))
+                    .map((color) => (color ? Number(color) : NaN));
             } catch (e) {
                 throw new Error(
                     'toHex ' +
@@ -67,14 +69,7 @@ export function toHex(
         green > 255 ||
         blue > 255
     ) {
-        throw new Error(
-            '' +
-                (red ?? '') +
-                (green ?? '') +
-                (blue ?? '') +
-                (alpha ?? '') +
-                'Expected three numbers below 256'
-        );
+        throw new Error('Expected three numbers below 256');
     }
 
     if (typeof alpha === 'number') {
@@ -95,7 +90,14 @@ export function toHex(
 
     return (
         '#' +
-        (blue | (green << 8) | (red << 16) | (1 << 24)).toString(16).slice(1) +
+        (
+            Math.round(blue) |
+            (Math.round(green) << 8) |
+            (Math.round(red) << 16) |
+            (1 << 24)
+        )
+            .toString(16)
+            .slice(1) +
         alpha
     );
 }
