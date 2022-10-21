@@ -1,5 +1,15 @@
 import { isHex, getKeywordColor } from './base';
 
+// 重载方法定义
+export function toHex(red: string): string;
+export function toHex(red: number, green: number, blue: number): string;
+export function toHex(
+    red: number,
+    green: number,
+    blue: number,
+    alpha: number
+): string;
+
 /**
  * 转化 Hex
  * @description 支持转化keyword、rgb、rgba、hex多种形式统一化处理

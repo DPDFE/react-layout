@@ -30,6 +30,20 @@ export interface RGBOptions {
     backgroundColor?: string;
 }
 
+// 重载方法定义
+export function toRgba(
+    color: string,
+    options?: { format: RGBFormatType.Css }
+): string;
+export function toRgba(
+    color: string,
+    options: { format: RGBFormatType.Object }
+): RGBA;
+export function toRgba(
+    color: string,
+    options: { format: RGBFormatType.Array }
+): [number, number, number, number];
+
 /**
  *
  * @param color
@@ -90,14 +104,19 @@ export function toRgba(
     return `rgba(${red}, ${green}, ${blue}, ${alpha})` as string;
 }
 
-/**
- * 获取颜色透明度
- * @param color
- */
-export function getOpacity(color: string) {
-    return (toRgba(toHex(color), { format: RGBFormatType.Object }) as RGBA)
-        .alpha;
-}
+// 重载方法定义
+export function toRgb(
+    color: string,
+    options?: { format: RGBFormatType.Css; backgroundColor?: string }
+): string;
+export function toRgb(
+    color: string,
+    options: { format: RGBFormatType.Object; backgroundColor?: string }
+): RGB;
+export function toRgb(
+    color: string,
+    options: { format: RGBFormatType.Array; backgroundColor?: string }
+): [number, number, number];
 
 //优化点：颜色上有差异
 /**
@@ -112,7 +131,7 @@ export function toRgb(
         backgroundColor: 'rgb(255,255,255)'
     }
 ) {
-    const source = toRgba(color, { format: RGBFormatType.Object }) as RGBA;
+    const source = toRgba(color, { format: RGBFormatType.Object });
 
     const background = toRgba(
         options.backgroundColor
@@ -123,13 +142,8 @@ export function toRgb(
         {
             format: RGBFormatType.Object
         }
-    ) as RGBA;
-
-    const red = (1 - source.alpha) * background.red + source.alpha * source.red;
-    const green =
-        (1 - source.alpha) * background.green + source.alpha * source.green;
-    const blue =
-        (1 - source.alpha) * background.blue + source.alpha * source.blue;
+    );
+    const { red, green, blue } = colorMerge(source, background);
 
     if (options.format === RGBFormatType.Array) {
         return [red, green, blue] as [number, number, number];
@@ -146,6 +160,29 @@ export function toRgb(
 }
 
 /**
+ * 颜色拟合
+ * @param source RGBA
+ * @param background RGBA
+ */
+export function colorMerge(source: RGBA, background: RGBA) {
+    const red = (1 - source.alpha) * background.red + source.alpha * source.red;
+    const green =
+        (1 - source.alpha) * background.green + source.alpha * source.green;
+    const blue =
+        (1 - source.alpha) * background.blue + source.alpha * source.blue;
+    return { red, green, blue };
+}
+
+/**
+ * 获取颜色透明度
+ * @param color
+ */
+export function getOpacity(color: string) {
+    return (toRgba(toHex(color), { format: RGBFormatType.Object }) as RGBA)
+        .alpha;
+}
+
+/**
  * 人眼友好的灰度级别计算
  * 灰度计算方案 https://github.com/aooy/blog/issues/4
  *
@@ -157,6 +194,7 @@ export function getGrayLevel({ red, green, blue }: RGB): number {
 }
 
 /**
+ * 获取亮度计算
  * Formula: http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
  * @returns
  */

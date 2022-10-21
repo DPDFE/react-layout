@@ -314,10 +314,11 @@ function Darken() {
                     [
                         'rgb(205, 99, 201)',
                         'rgb(33, 126, 74)',
-                        'rgb(255, 78, 13)'
+                        'rgb(255, 78, 13)',
+                        'rgb(61, 176, 247)'
                     ],
                     {
-                        total: 10
+                        total: 20
                     }
                 ).map((c) => {
                     return (
@@ -639,7 +640,7 @@ function Darken() {
                 }}
             >
                 {rgb_colors.map((c) => {
-                    const color = c.replace('0.9', '1');
+                    const color = c.replace('0.9', '0.8');
                     const gray = fomatFloatNumber(
                         getGrayLevel(
                             toRgb(color, {

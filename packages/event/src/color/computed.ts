@@ -87,13 +87,13 @@ export function isBrightness(
         is_full: true
     }
 ) {
-    const current = toHsl(color, { format: RGBFormatType.Object }) as HSLA;
+    const current = toHsl(color, { format: RGBFormatType.Object });
     const max = toHsl(options.max ?? '#000000', {
         format: RGBFormatType.Object
-    }) as HSLA;
+    });
     const min = toHsl(options.min ?? '#FFFFFF', {
         format: RGBFormatType.Object
-    }) as HSLA;
+    });
 
     const target = options.percent > 0 ? max : min;
 
@@ -143,18 +143,21 @@ export function range(
         );
         color_lut[key] = c;
     }
-
-    const color_sort = Object.keys(color_lut).sort();
+    console.log(color_lut);
 
     // 获取最大颜色差
     const getMaxColorDiff = (
-        color_lut: { [key: number]: string },
+        color_lut: { [key: string]: string },
         total: number
     ) => {
         if (total === 0) {
             return;
         }
         const color_diff_lut = {} as { [key: number]: string[] };
+        console.log(color_lut);
+        const color_sort = Object.keys(color_lut).sort();
+        console.log(color_sort);
+
         let i = 0;
         while (i < color_sort.length - 1) {
             const index =
@@ -162,6 +165,7 @@ export function range(
             color_diff_lut[index] = [color_sort[i + 1], color_sort[i]];
             i++;
         }
+        console.log(color_diff_lut);
 
         const [min, max] = color_diff_lut[
             Math.max(
@@ -171,20 +175,19 @@ export function range(
             )
         ] as unknown as [number, number];
 
+        // 中间值
         const color = brightness(color_lut[min], {
             percent: 50,
             max: color_lut[max],
             min: color_lut[min]
         });
 
-        console.log(color);
-
         const key = getLuminance(
             toRgb(color, { format: RGBFormatType.Object }) as RGB
         );
-        console.log(key);
-        color_lut[key] = color;
+        console.log(color, total);
 
+        color_lut[key] = color;
         getMaxColorDiff(color_lut, total - 1);
     };
 
@@ -193,8 +196,19 @@ export function range(
     } else {
         const distance = options.total - gradient.length;
         getMaxColorDiff(color_lut, distance);
+        console.log(
+            Object.keys(color_lut)
+                .sort()
+                .map((c) => {
+                    return color_lut[c as unknown as number];
+                })
+        );
+        return Object.keys(color_lut)
+            .sort()
+            .map((c) => {
+                return color_lut[c as unknown as number];
+            });
     }
-    return gradient;
 }
 
 /**

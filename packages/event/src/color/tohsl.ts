@@ -8,6 +8,20 @@ export interface HSLA {
     alpha: number;
 }
 
+// 重载方法定义
+export function toHsl(
+    color: string,
+    options?: { format: RGBFormatType.Css }
+): string;
+export function toHsl(
+    color: string,
+    options: { format: RGBFormatType.Object }
+): HSLA;
+export function toHsl(
+    color: string,
+    options: { format: RGBFormatType.Array }
+): [number, number, number, number];
+
 /**
  * rgba\rgb\hex\keyword转化为hsl
  * https://en.wikipedia.org/wiki/HSL_and_HSV
@@ -25,14 +39,14 @@ export function toHsl(
     const { h, s, l } = rgbToHsl(red, green, blue);
 
     if (options.format === RGBFormatType.Array) {
-        return [h, s, l, alpha] as [number, number, number, number];
+        return [h, s, l, alpha];
     } else if (options.format === RGBFormatType.Object) {
         return {
             hue: h,
             saturation: s,
             lightness: l,
             alpha
-        } as HSLA;
+        };
     } else {
         return `hsla(${fomatFloatNumber(h * 360, 2)}, ${fomatFloatNumber(
             s * 100,
