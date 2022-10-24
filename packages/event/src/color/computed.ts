@@ -1,7 +1,7 @@
 import { fomatFloatNumber } from '../utils';
 import { clamp } from './base';
 import { HSLA, toHsl } from './tohsl';
-import { RGBFormatType, RGB, toRgb, getLuminance } from './torgba';
+import { RGBFormatType, RGB, toRgb, getLuminance, _toRgba } from './torgba';
 
 export interface ColorLineOptions {
     percent: number;
@@ -80,7 +80,7 @@ export function brightness(
  * @param options
  * @returns
  */
-export function isBrightness(
+export function luminance(
     color: string,
     options: ColorLineOptions & { is_full?: boolean } = {
         percent: 5,
@@ -127,6 +127,7 @@ export function isBrightness(
  * 颜色区间
  * 推荐色
  * https://www.yuelili.com/color-how-to-generate-a-nice-gradient/
+ * https://en.wikipedia.org/wiki/Color_difference
  * @param min 最小颜色
  * @param max 最大颜色
  * @param total 总数量
@@ -137,13 +138,17 @@ export function range(
     options: { total: number } = { total: 2 }
 ) {
     const color_lut = {} as { [key: number]: string };
+    const white = toRgb('#FFFFFF', { format: RGBFormatType.Object });
     for (let c of gradient) {
-        const key = getLuminance(
-            toRgb(c, { format: RGBFormatType.Object }) as RGB
+        const key = colorDiff(
+            _toRgba(c, {
+                backgroundColor: '#ffffff',
+                format: RGBFormatType.Object
+            }),
+            white
         );
         color_lut[key] = c;
     }
-    console.log(color_lut);
 
     // 获取最大颜色差
     const getMaxColorDiff = (
@@ -154,9 +159,7 @@ export function range(
             return;
         }
         const color_diff_lut = {} as { [key: number]: string[] };
-        console.log(color_lut);
         const color_sort = Object.keys(color_lut).sort();
-        console.log(color_sort);
 
         let i = 0;
         while (i < color_sort.length - 1) {
@@ -165,7 +168,6 @@ export function range(
             color_diff_lut[index] = [color_sort[i + 1], color_sort[i]];
             i++;
         }
-        console.log(color_diff_lut);
 
         const [min, max] = color_diff_lut[
             Math.max(
@@ -176,18 +178,21 @@ export function range(
         ] as unknown as [number, number];
 
         // 中间值
-        const color = brightness(color_lut[min], {
+        const color = luminance(color_lut[min], {
             percent: 50,
+            is_full: true,
             max: color_lut[max],
             min: color_lut[min]
         });
 
-        const key = getLuminance(
-            toRgb(color, { format: RGBFormatType.Object }) as RGB
+        const key = colorDiff(
+            _toRgba(color, {
+                backgroundColor: '#ffffff',
+                format: RGBFormatType.Object
+            }),
+            white
         );
-        console.log(color, total);
-
-        color_lut[key] = color;
+        color_lut[key] = _toRgba(color);
         getMaxColorDiff(color_lut, total - 1);
     };
 
@@ -196,13 +201,6 @@ export function range(
     } else {
         const distance = options.total - gradient.length;
         getMaxColorDiff(color_lut, distance);
-        console.log(
-            Object.keys(color_lut)
-                .sort()
-                .map((c) => {
-                    return color_lut[c as unknown as number];
-                })
-        );
         return Object.keys(color_lut)
             .sort()
             .map((c) => {
@@ -216,9 +214,38 @@ export function range(
  * https://www.compuphase.com/cmetric.htm
  */
 export function colorDiff($1: RGB, $0: RGB) {
+    const { red: r1, green: g1, blue: b1 } = $1,
+        { red: r2, green: g2, blue: b2 } = $0,
+        drp2 = Math.pow(r1 - r2, 2),
+        dgp2 = Math.pow(g1 - g2, 2),
+        dbp2 = Math.pow(b1 - b2, 2),
+        t = (r1 + r2) / 2;
+
     return Math.sqrt(
-        Math.pow($1.red - $0.red, 2) +
-            Math.pow($1.green - $0.green, 2) +
-            Math.pow($1.blue - $0.blue, 2)
+        2 * drp2 + 4 * dgp2 + 3 * dbp2 + (t * (drp2 - dbp2)) / 256
     );
+}
+
+/**
+ * lab计算色差
+ * @param lab_a
+ * @param lab_b
+ * @returns
+ */
+export function colorDiffDeltaE(lab_a: number[], lab_b: number[]) {
+    var deltaL = lab_a[0] - lab_b[0];
+    var deltaA = lab_a[1] - lab_b[1];
+    var deltaB = lab_a[2] - lab_b[2];
+    var c1 = Math.sqrt(lab_a[1] * lab_a[1] + lab_a[2] * lab_a[2]);
+    var c2 = Math.sqrt(lab_b[1] * lab_b[1] + lab_b[2] * lab_b[2]);
+    var deltaC = c1 - c2;
+    var deltaH = deltaA * deltaA + deltaB * deltaB - deltaC * deltaC;
+    deltaH = deltaH < 0 ? 0 : Math.sqrt(deltaH);
+    var sc = 1.0 + 0.045 * c1;
+    var sh = 1.0 + 0.015 * c1;
+    var l = deltaL / 1.0;
+    var c = deltaC / sc;
+    var h = deltaH / sh;
+    var i = l * l + c * c + h * h;
+    return i < 0 ? 0 : Math.sqrt(i);
 }

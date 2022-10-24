@@ -6,10 +6,11 @@ import {
     toHsl,
     toRgb,
     range,
-    isBrightness
+    luminance
 } from '@dpdfe/event-utils';
 import {
     getLuminance,
+    _toRgba,
     RGB,
     RGBFormatType
 } from '@dpdfe/event-utils/dist/color/torgba';
@@ -302,6 +303,52 @@ function Darken() {
 
     return (
         <div style={{ height: '100%', width: '100%', overflow: 'auto' }}>
+            <p style={{ margin: 20, fontWeight: 600 }}>canvas color</p>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    flexWrap: 'wrap'
+                }}
+            >
+                {range(
+                    [
+                        'rgb(205, 99, 201)',
+                        'rgb(33, 126, 74)',
+                        'rgb(255, 78, 13)',
+                        'rgb(61, 176, 247)'
+                    ],
+                    {
+                        total: 20
+                    }
+                ).map((c: string) => {
+                    const { red, green, blue, alpha } = _toRgba(c, {
+                        backgroundColor: '#ffffff',
+                        format: RGBFormatType.Object
+                    });
+                    return (
+                        <div
+                            key={c}
+                            style={{
+                                marginLeft: 20,
+                                marginBottom: 20,
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    backgroundColor: `rgba(${red}, ${green}, ${blue}, ${alpha})`,
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                        </div>
+                    );
+                })}
+            </div>
+
             <p style={{ margin: 20, fontWeight: 600 }}>range recommended</p>
             <div
                 style={{
@@ -320,7 +367,7 @@ function Darken() {
                     {
                         total: 20
                     }
-                ).map((c) => {
+                ).map((c: string) => {
                     return (
                         <div
                             key={c}
@@ -369,7 +416,7 @@ function Darken() {
                         >
                             <div
                                 style={{
-                                    backgroundColor: isBrightness(
+                                    backgroundColor: luminance(
                                         'rgb(205, 99, 201)',
 
                                         {
@@ -384,7 +431,7 @@ function Darken() {
                                 }}
                             ></div>
                             {/* <pre style={{ fontSize: 12, marginTop: 5 }}>
-                                {isBrightness(
+                                {luminance(
                                     'rgb(205, 99, 201)',
 
                                     {
@@ -424,7 +471,7 @@ function Darken() {
                         >
                             <div
                                 style={{
-                                    backgroundColor: isBrightness(
+                                    backgroundColor: luminance(
                                         'rgb(205, 99, 201)',
 
                                         {
@@ -551,7 +598,7 @@ function Darken() {
                         >
                             <div
                                 style={{
-                                    backgroundColor: isBrightness(c, {
+                                    backgroundColor: luminance(c, {
                                         percent: 20
                                     }),
                                     width: 30,
@@ -567,7 +614,7 @@ function Darken() {
                             ></div>
                             <div
                                 style={{
-                                    backgroundColor: isBrightness(c, {
+                                    backgroundColor: luminance(c, {
                                         percent: -20
                                     }),
                                     width: 30,
@@ -631,6 +678,61 @@ function Darken() {
                 })}
             </div>
 
+            <p style={{ margin: 20, fontWeight: 600 }}>
+                [gray] rgba to rgb by canvas
+            </p>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    flexWrap: 'wrap'
+                }}
+            >
+                {rgb_colors.map((c) => {
+                    const color = c.replace('0.9', '0.9');
+                    const gray = fomatFloatNumber(
+                        getGrayLevel(
+                            toRgb(color, {
+                                format: RGBFormatType.Object
+                            }) as RGB
+                        ),
+                        2
+                    );
+                    const { red, green, blue, alpha } = _toRgba(c, {
+                        backgroundColor: '#ffffff',
+                        format: RGBFormatType.Object
+                    });
+
+                    return (
+                        <div
+                            key={color}
+                            style={{
+                                marginLeft: 20,
+                                marginBottom: 20,
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    backgroundColor: color,
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                            <div
+                                style={{
+                                    backgroundColor: `rgb(${red}, ${green}, ${blue})`,
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                        </div>
+                    );
+                })}
+            </div>
+
             <p style={{ margin: 20, fontWeight: 600 }}>[gray] rgba to rgb</p>
             <div
                 style={{
@@ -640,7 +742,7 @@ function Darken() {
                 }}
             >
                 {rgb_colors.map((c) => {
-                    const color = c.replace('0.9', '0.8');
+                    const color = c.replace('0.9', '0.9');
                     const gray = fomatFloatNumber(
                         getGrayLevel(
                             toRgb(color, {

@@ -25,6 +25,7 @@
         "@storybook/addon-storysource": "^6.4.19",
         "@testing-library/react": "^12.1.4",
         "antd": "^4.19.2",
+        "fast-average-color": "^9.1.1",
         "react": "^18.1.0",
         "react-dom": "^18.1.0",
         "storybook-addon-code-preview": "^0.0.9"

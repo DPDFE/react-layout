@@ -7,7 +7,7 @@ export function toHex(
     red: number,
     green: number,
     blue: number,
-    alpha: number
+    alpha: number | string
 ): string;
 
 /**

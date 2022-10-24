@@ -11,30 +11,35 @@ import LocalStorage from './localstorage';
 
 import Events from './eventbus';
 
-import { toHex } from './color/tohex';
 import {
     isHex,
-    getKeywordColor,
     isRgb,
     isRgba,
     isHsl,
-    isHsla
+    isHsla,
+    getKeywordColor
 } from './color/base';
-import {
-    brightness,
-    isBrightness,
-    darken,
-    lighten,
-    range
-} from './color/computed';
+
+import { toHex } from './color/tohex';
+
+import { toHsl } from './color/tohsl';
+
 import {
     toRgba,
     toRgb,
     getOpacity,
     getGrayLevel,
-    getLuminance
+    getLuminance,
+    _toRgba
 } from './color/torgba';
-import { toHsl } from './color/tohsl';
+
+import {
+    brightness,
+    luminance,
+    darken,
+    lighten,
+    range
+} from './color/computed';
 
 export {
     Events,
@@ -54,15 +59,15 @@ export {
     getKeywordColor,
     toHex,
     toRgb,
+    _toRgba,
     toRgba,
     toHsl,
     darken,
     lighten,
-    isBrightness,
+    brightness,
+    luminance,
     range,
     getOpacity,
     getLuminance,
-    getGrayLevel,
-    // 内部方法
-    brightness
+    getGrayLevel
 };

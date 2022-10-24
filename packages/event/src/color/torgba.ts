@@ -1,3 +1,4 @@
+import { fomatFloatNumber } from '../utils';
 import { isRgb } from './base';
 import { toHex } from './tohex';
 
@@ -33,15 +34,15 @@ export interface RGBOptions {
 // 重载方法定义
 export function toRgba(
     color: string,
-    options?: { format: RGBFormatType.Css }
+    options?: { format?: RGBFormatType.Css; alpha?: number }
 ): string;
 export function toRgba(
     color: string,
-    options: { format: RGBFormatType.Object }
+    options?: { format: RGBFormatType.Object; alpha?: number }
 ): RGBA;
 export function toRgba(
     color: string,
-    options: { format: RGBFormatType.Array }
+    options?: { format: RGBFormatType.Array; alpha?: number }
 ): [number, number, number, number];
 
 /**
@@ -107,7 +108,7 @@ export function toRgba(
 // 重载方法定义
 export function toRgb(
     color: string,
-    options?: { format: RGBFormatType.Css; backgroundColor?: string }
+    options?: { format?: RGBFormatType.Css; backgroundColor?: string }
 ): string;
 export function toRgb(
     color: string,
@@ -157,6 +158,50 @@ export function toRgb(
         } as RGB;
     }
     return `rgb(${red}, ${green}, ${blue})`;
+}
+
+export function _toRgba(
+    source: string,
+    options?: { format?: RGBFormatType.Css; backgroundColor?: string }
+): string;
+
+export function _toRgba(
+    source: string,
+    options: { format: RGBFormatType.Object; backgroundColor?: string }
+): RGBA;
+
+export function _toRgba(
+    source: string,
+    options: { format: RGBFormatType.Array; backgroundColor?: string }
+): [number, number, number, number];
+
+/**
+ * 创建canvas获取颜色
+ * @param source 前景色
+ * @param background 背景色
+ */
+export function _toRgba(
+    source: string,
+    options: RGBOptions = { format: RGBFormatType.Css }
+) {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.height = 1;
+
+    options.backgroundColor &&
+        ((ctx!.fillStyle = options.backgroundColor),
+        ctx!.fillRect(0, 0, canvas.width, canvas.height));
+    ctx!.fillStyle = source;
+    ctx!.fillRect(0, 0, canvas.width, canvas.height);
+    const [r, g, b, _a] = ctx!.getImageData(0, 0, 1, 1).data;
+    const a = fomatFloatNumber(_a / 255, 2);
+
+    if (options.format == RGBFormatType.Css) {
+        return `rgba(${r}, ${g}, ${b}, ${a})`;
+    } else if (options.format == RGBFormatType.Object) {
+        return { red: r, green: g, blue: b, alpha: a };
+    }
+    return [r, g, b, a];
 }
 
 /**
