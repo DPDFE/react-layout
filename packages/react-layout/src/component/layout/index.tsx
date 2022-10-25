@@ -11,35 +11,29 @@ import React, {
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
 import WidgetItem from '../canvas/layout-item';
-import {
-    compact,
-    moveElement,
-    cloneWidget,
-    moveToWidget,
-    formatInputValue
-} from './context/calc';
+import { cloneWidget, moveToWidget, LayoutItemStandard } from './context/calc';
 import styles from './styles.module.css';
 import {
     LayoutMode,
     ItemPos,
-    LayoutItem,
     LayoutType,
     OperatorType,
     RulerPointer,
     ReactLayoutProps,
     WidgetType,
     EditLayoutProps,
-    Droppable
+    Droppable,
+    LayoutItem
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
 import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
 import { useLayoutHooks } from './provider/hooks';
-import isEqual from 'lodash.isequal';
+import { isEqual, cloneDeep } from 'lodash';
 import { LayoutContext } from './context';
 import drawGridLines from './grid-lines';
 import classNames from 'classnames';
-import deepClone from 'lodash/cloneDeep';
+
 import {
     END_OPERATOR,
     CHANGE_OPERATOR,
@@ -78,16 +72,18 @@ const ReactLayout = (props: ReactLayoutProps) => {
         current_width,
         col_width,
         row_height,
-        margin_x,
-        margin_y,
         current_height,
         wrapper_width,
         wrapper_height,
+        margin_y,
         t_offset,
         l_offset,
         padding,
-        calcBound,
-        snapToGrid
+        toXWpx,
+        toYHpx,
+        compact,
+        snapToGrid,
+        moveElement
     } = useLayoutHooks(
         layout,
         props,
@@ -116,21 +112,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
      * 根据children信息生成layout
      */
     useEffect(() => {
-        if (props.children) {
-            const new_layout = React.Children.toArray(props.children).map(
-                (child: React.ReactElement) => {
-                    const l = formatInputValue(
-                        child.props['data-drag'] as LayoutItem,
-                        props.layout_id
-                    );
-                    return calcBound(l);
-                }
-            );
+        if (props.widgets) {
+            const new_layout = props.widgets.map((w) => {
+                return LayoutItemStandard(w, props.layout_id, toYHpx);
+            });
 
+            console.log(new_layout);
             compact(new_layout);
-            setLayout(deepClone(new_layout));
+            setLayout(new_layout);
         }
-    }, [props.children]);
+    }, [props.widgets]);
 
     /**
      * 获取drop元素
@@ -270,12 +261,14 @@ const ReactLayout = (props: ReactLayoutProps) => {
             moving_droppable.current = start_droppable.current;
         }
 
-        // resize
+        // resize + change
         if (
             operator_type.current &&
-            [OperatorType.resize, OperatorType.resizeover].includes(
-                operator_type.current
-            )
+            [
+                OperatorType.resize,
+                OperatorType.resizeover,
+                OperatorType.changeover
+            ].includes(operator_type.current)
         ) {
             moving_droppable.current = start_droppable.current;
         }
@@ -353,8 +346,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
             // 非结束状态时，保存一下临时状态
             if (
                 operator_type.current &&
-                !END_OPERATOR.includes(operator_type.current)
+                ![
+                    OperatorType.dropover,
+                    OperatorType.dragover,
+                    OperatorType.resizeover
+                ].includes(operator_type.current)
             ) {
+                console.log(item_pos);
                 moveToWidget(current_widget, item_pos);
                 setLayout(
                     layout.map((l) =>
@@ -601,7 +599,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     layout_type={props.layout_type}
                     key='shadow'
                     cols={props.cols}
-                    calcBound={calcBound}
+                    toXWpx={toXWpx}
                     layout_id={props.layout_id}
                     scale={props.scale}
                     mode={LayoutMode.view}
@@ -611,8 +609,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     is_draggable={false}
                     col_width={col_width}
                     row_height={row_height}
-                    margin_x={margin_x}
-                    margin_y={margin_y}
                     padding={padding}
                     canvas_viewport_ref={canvas_viewport_ref}
                     shadow_ref={shadow_ref}
@@ -640,7 +636,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             return (
                 <WidgetItem
                     {...widget}
-                    calcBound={calcBound}
+                    toXWpx={toXWpx}
                     key={widget.i}
                     mode={props.mode}
                     cols={props.cols}
@@ -649,8 +645,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     layout_id={props.layout_id}
                     col_width={col_width}
                     row_height={row_height}
-                    margin_x={margin_x}
-                    margin_y={margin_y}
                     scale={props.scale}
                     padding={padding}
                     is_sticky={widget.is_sticky}
@@ -733,6 +727,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             );
                         }
                     }}
+                    changeWidgetHeight={(height) => {
+                        widget.h = height + margin_y;
+                        widget.inner_h = height;
+
+                        compact(layout);
+                        setLayout(cloneDeep(layout));
+                    }}
                 />
             );
         } else {
@@ -806,52 +807,52 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     }}
                     /** 阻止了onDragOver以后，onDrop事件才生效 */
                     /** 只有根节点注册监听释放事件，计算位置按照根节点相对位置计算 */
-                    onDrop={
-                        props.mode === LayoutMode.edit &&
-                        props.is_droppable &&
-                        registry.droppable.getFirstRegister()?.id ===
-                            props.layout_id
-                            ? (e) => {
-                                  drop_enter_counter.current = 0;
-                                  handleResponder(
-                                      e,
-                                      OperatorType.dropover,
-                                      getDropItem(e)
-                                  );
-                                  drag_item.current = undefined;
-                              }
-                            : noop
-                    }
-                    onDragOver={
-                        props.mode === LayoutMode.edit &&
-                        props.is_droppable &&
-                        registry.droppable.getFirstRegister()?.id ===
-                            props.layout_id
-                            ? (e) => {
-                                  e.preventDefault();
-                                  const widget = getDropItem(e);
+                    // onDrop={
+                    //     props.mode === LayoutMode.edit &&
+                    //     props.is_droppable &&
+                    //     registry.droppable.getFirstRegister()?.id ===
+                    //         props.layout_id
+                    //         ? (e) => {
+                    //               drop_enter_counter.current = 0;
+                    //               handleResponder(
+                    //                   e,
+                    //                   OperatorType.dropover,
+                    //                   getDropItem(e)
+                    //               );
+                    //               drag_item.current = undefined;
+                    //           }
+                    //         : noop
+                    // }
+                    // onDragOver={
+                    //     props.mode === LayoutMode.edit &&
+                    //     props.is_droppable &&
+                    //     registry.droppable.getFirstRegister()?.id ===
+                    //         props.layout_id
+                    //         ? (e) => {
+                    //               e.preventDefault();
+                    //               const widget = getDropItem(e);
 
-                                  //   delete drag_item.current?.is_dragging;
+                    //               //   delete drag_item.current?.is_dragging;
 
-                                  if (!drag_item.current) {
-                                      handleResponder(
-                                          e,
-                                          OperatorType.dragstart,
-                                          widget
-                                      );
-                                  }
-                                  if (!isEqual(drag_item.current, widget)) {
-                                      //  不要开火太多次
-                                      handleResponder(
-                                          e,
-                                          OperatorType.drop,
-                                          widget
-                                      );
-                                  }
-                                  drag_item.current = widget;
-                              }
-                            : noop
-                    }
+                    //               if (!drag_item.current) {
+                    //                   handleResponder(
+                    //                       e,
+                    //                       OperatorType.dragstart,
+                    //                       widget
+                    //                   );
+                    //               }
+                    //               if (!isEqual(drag_item.current, widget)) {
+                    //                   //  不要开火太多次
+                    //                   handleResponder(
+                    //                       e,
+                    //                       OperatorType.drop,
+                    //                       widget
+                    //                   );
+                    //               }
+                    //               drag_item.current = widget;
+                    //           }
+                    //         : noop
+                    // }
                     onDragEnter={
                         props.mode === LayoutMode.edit &&
                         registry.droppable.getFirstRegister()?.id ===
@@ -986,7 +987,7 @@ ReactLayout.defaultProps = {
     height: 400,
     row_height: 20,
     container_padding: [0] as [number],
-    item_margin: [0, 0],
+    item_margin: [0, 0] as [number, number],
     mode: LayoutMode.view,
     need_ruler: false,
     guide_lines: [],

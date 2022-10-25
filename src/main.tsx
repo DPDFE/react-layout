@@ -34,6 +34,7 @@ import Sider from 'antd/lib/layout/Sider';
 import './index.css';
 import React from 'react';
 import Darken from './example/event/color/computed';
+import Flex from './example/component/flex/flex';
 
 function Router() {
     const { SubMenu } = Menu;
@@ -155,6 +156,13 @@ function Router() {
             path: 'color',
             icon: 'icon-bg-colors',
             element: <Darken />
+        },
+        {
+            index: 16,
+            name: 'flex',
+            path: 'flex',
+            icon: 'icon-shuffle',
+            element: <Flex />
         }
     ];
 
