@@ -23,7 +23,6 @@ import {
     gridXY,
     WRAPPER_PADDING
 } from '../context/calc';
-import ResizeObserver from 'resize-observer-polyfill';
 import { LayoutContext } from '../context';
 import { clamp, DEFAULT_BOUND } from '../../canvas/draggable';
 import { END_OPERATOR } from '../constants';
@@ -131,7 +130,61 @@ export const useLayoutHooks = (
     };
 
     /**
-     * 只更XW变换成px
+     * 只更新YH变换为col
+     * @param item
+     */
+    const toXWcol = (item: LayoutItem) => {
+        // (operator_type.current &&
+        //         CHANGE_OPERATOR.includes(operator_type.current)
+
+        const { is_flex, is_resizing, is_dropping, is_dragging } = item;
+
+        if (is_flex || is_resizing || is_dropping || is_dragging) {
+            item.x = calcXY(item.x, col_width, margin_x, padding.left);
+        }
+
+        if (is_resizing || is_dragging) {
+            item.w = calcWH(item.w, col_width, margin_x);
+        }
+
+        return calcBound(item);
+    };
+
+    /**
+     * 只更新YH变换为col
+     * @param item
+     */
+    const toYHcol = (item: LayoutItem) => {
+        const { is_resizing, is_dropping, is_dragging } = item;
+
+        if (is_resizing || is_dropping || is_dragging) {
+            item.y = calcXY(item.y, row_height, margin_y, padding.top);
+        }
+
+        if (is_resizing || is_dragging) {
+            item.h = calcWH(item.h, row_height, margin_y);
+        }
+
+        return calcBound(item);
+    };
+
+    /**
+     * 定位转xywh
+     * @param item
+     */
+    const toXYWHcol = (item: LayoutItem) => {
+        item = toXWcol(item);
+        item = toYHcol(item);
+
+        delete item.is_dropping;
+        delete item.is_resizing;
+        delete item.is_dragging;
+
+        return item;
+    };
+
+    /**
+     * 只更新XW变换成px
      */
     const toXWpx = (item: LayoutItem) => {
         const { type, is_resizing, is_dropping, is_dragging } = item;
@@ -208,18 +261,6 @@ export const useLayoutHooks = (
         return out;
     };
 
-    /**
-     * 定位转xywh
-     * @param item
-     * @returns
-     */
-    const toXYWHpx = (item: LayoutItem) => {
-        const { x, w } = toXWpx(item);
-        const { y, h, inner_h } = toYHpx(item);
-
-        return { x, w, y, h, inner_h };
-    };
-
     /** 获取元素最大边界 */
     const { max_left, max_right, max_top, max_bottom } = useMemo(() => {
         // 元素计算大小
@@ -237,9 +278,7 @@ export const useLayoutHooks = (
                   })
                 : layout;
 
-        calc_layout.forEach((l) => {
-            const out = toXYWHpx(l);
-
+        calc_layout.forEach((out) => {
             max_left = Math.min(max_left, out.x);
             max_right = Math.max(max_right, out.x + out.w + padding.right);
             max_top = Math.min(max_top, out.y);
@@ -268,33 +307,6 @@ export const useLayoutHooks = (
         max_bottom,
         container_height
     ]);
-
-    /**
-     * 转化到grid
-     * @param pos
-     * @returns
-     */
-    const snapToGrid = (pos: LayoutItem) => {
-        if (pos.is_resizing || pos.is_dropping || pos.is_dragging) {
-            pos.x = calcXY(pos.x, col_width, margin_x, padding.left);
-            pos.y = calcXY(pos.y, row_height, margin_y, padding.top);
-        } else if (pos.is_flex) {
-            pos.x = calcXY(pos.x, col_width, margin_x, padding.left);
-        }
-
-        if (pos.is_resizing || pos.is_dragging) {
-            pos.w = calcWH(pos.w, col_width, margin_x);
-            pos.h = calcWH(pos.h, row_height, margin_y);
-        } else if (pos.is_flex) {
-            pos.w = calcWH(pos.w, col_width, margin_x);
-        }
-
-        delete pos.is_dropping;
-        delete pos.is_resizing;
-        delete pos.is_dragging;
-
-        return calcBound(pos);
-    };
 
     /**
      * 获取当前容器wrapper高度
@@ -656,8 +668,10 @@ export const useLayoutHooks = (
         l_offset,
         toXWpx,
         toYHpx,
+        toYHcol,
+        toXWcol,
+        toXYWHcol,
         compact,
-        snapToGrid,
         calcBound,
         moveElement
     };

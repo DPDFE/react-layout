@@ -309,7 +309,7 @@ export interface CursorProps extends Omit<DraggableProps, 'children'> {
 }
 
 /** resize */
-export interface ResizableProps extends EventBaseProps, Pos {
+export interface ResizableProps extends EventBaseProps, Omit<Pos, 'inner_h'> {
     min_h?: number;
     min_w?: number;
     scale?: number;
@@ -318,10 +318,10 @@ export interface ResizableProps extends EventBaseProps, Pos {
     use_css_transform?: boolean;
     cursors?: CursorType[];
     onMouseDown?: (e: React.MouseEvent<Element, MouseEvent>) => void;
-    onResizeStart?: (data: Pos & { e: MouseEvent }) => void;
-    onResize?: (data: Pos & { e: MouseEvent }) => void;
+    onResizeStart?: (data: Omit<Pos, 'inner_h'> & { e: MouseEvent }) => void;
+    onResize?: (data: Omit<Pos, 'inner_h'> & { e: MouseEvent }) => void;
     onResizeStop?: (
-        data: Pos & {
+        data: Omit<Pos, 'inner_h'> & {
             e: MouseEvent;
         }
     ) => void;

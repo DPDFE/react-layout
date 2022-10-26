@@ -308,6 +308,7 @@ const WidgetItem = (props: WidgetItemProps) => {
         if (
             item_ref.current?.offsetHeight &&
             props.is_flex &&
+            !props.is_placeholder &&
             item_ref.current?.offsetHeight !== out.h
         ) {
             out.h = item_ref.current?.offsetHeight;
@@ -353,7 +354,11 @@ const WidgetItem = (props: WidgetItemProps) => {
         style: {
             border: '1px solid transparent',
             width: out.w,
-            height: props.is_flex ? 'unset' : props.inner_h,
+            // 拷贝到shadow上的内部高度无法撑开,使用拷贝计算值
+            height:
+                props.is_flex && !props.is_placeholder
+                    ? 'unset'
+                    : props.inner_h,
             ...child.props.style,
             cursor:
                 props.is_draggable && !props.need_border_draggable_handler
@@ -532,17 +537,18 @@ const WidgetItem = (props: WidgetItemProps) => {
                     }}
                     ref={item_ref}
                     {...out}
+                    h={out.inner_h}
                     scale={props.scale}
                     use_css_transform
                     is_resizable={is_resizable}
-                    onResizeStart={({ e, x, y, h, inner_h, w }) => {
+                    onResizeStart={({ e, x, y, h, w }) => {
                         props.onResizeStart?.(
                             {
                                 x,
                                 y,
                                 w,
                                 h,
-                                inner_h,
+                                inner_h: h,
                                 type,
                                 i
                             },
@@ -550,7 +556,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                         );
                     }}
                     cursors={props.cursors}
-                    onResize={({ e, x, y, w, h, inner_h }) => {
+                    onResize={({ e, x, y, w, h }) => {
                         scrollToTop(e);
                         scrollToBottom(e);
                         if (props.layout_type === LayoutType.DRAG) {
@@ -562,7 +568,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                                 y,
                                 w,
                                 h,
-                                inner_h,
+                                inner_h: h,
                                 type,
                                 i
                             },
@@ -570,14 +576,14 @@ const WidgetItem = (props: WidgetItemProps) => {
                         );
                     }}
                     {...getMinimumBoundary()}
-                    onResizeStop={({ e, x, y, w, h, inner_h }) => {
+                    onResizeStop={({ e, x, y, w, h }) => {
                         props.onResizeStop?.(
                             {
                                 x,
                                 y,
                                 w,
                                 h,
-                                inner_h,
+                                inner_h: h,
                                 type,
                                 i
                             },

@@ -11,7 +11,13 @@ import React, {
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
 import WidgetItem from '../canvas/layout-item';
-import { cloneWidget, moveToWidget, LayoutItemStandard } from './context/calc';
+import {
+    cloneWidget,
+    moveToWidget,
+    LayoutItemStandard,
+    calcXY,
+    calcWH
+} from './context/calc';
 import styles from './styles.module.css';
 import {
     LayoutMode,
@@ -75,14 +81,17 @@ const ReactLayout = (props: ReactLayoutProps) => {
         current_height,
         wrapper_width,
         wrapper_height,
+        margin_x,
         margin_y,
         t_offset,
         l_offset,
         padding,
         toXWpx,
         toYHpx,
+        toYHcol,
+        toXWcol,
         compact,
-        snapToGrid,
+        calcBound,
         moveElement
     } = useLayoutHooks(
         layout,
@@ -109,7 +118,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     );
 
     /**
-     * 根据children信息生成layout
+     * 根据widgets信息生成layout
      */
     useEffect(() => {
         if (props.widgets) {
@@ -117,7 +126,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 return LayoutItemStandard(w, props.layout_id, toYHpx);
             });
 
-            console.log(new_layout);
             compact(new_layout);
             setLayout(new_layout);
         }
@@ -143,11 +151,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
             ...(layout_type === LayoutType.GRID
                 ? {
                       w: drop_item?.w ?? 2,
-                      h: drop_item?.h ?? 2
+                      h: drop_item?.h ?? 2,
+                      inner_h: drop_item?.h ?? 2
                   }
                 : {
                       w: drop_item ? drop_item.w : 100,
-                      h: drop_item ? drop_item.h : 100
+                      h: drop_item ? drop_item.h : 100,
+                      inner_h: drop_item ? drop_item?.h : 100
                   }),
             i: drop_item ? drop_item.i : '__dropping_item__',
             x: (e.clientX + current.scrollLeft - left) / scale,
@@ -352,7 +362,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     OperatorType.resizeover
                 ].includes(operator_type.current)
             ) {
-                console.log(item_pos);
                 moveToWidget(current_widget, item_pos);
                 setLayout(
                     layout.map((l) =>
@@ -399,6 +408,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
     const addShadow = useCallback(
         (current_widget: LayoutItem) => {
             const shadow = cloneWidget(current_widget);
+
             const filter_layout = getFilterLayoutById(current_widget.i);
 
             const compact_with_mappings = {};
@@ -425,7 +435,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     }
                 }
 
-                snapToGrid(shadow);
+                // x grid | y px
+                toYHcol(shadow);
                 setShadowPos(cloneWidget(shadow));
 
                 const moved_layout =
@@ -473,7 +484,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 return {
                     source: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: [shadow].concat(moved_layout)
+                        widgets: [shadow].concat(moved_layout).map((item) => {
+                            return toYHcol(item);
+                        })
                     },
                     widget: shadow,
                     destination: undefined
@@ -497,7 +510,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     return {
                         source: {
                             layout_id: moving_droppable.current!.id,
-                            widgets: moved_layout
+                            widgets: moved_layout.map((item) => {
+                                return toYHcol(item);
+                            })
                         },
                         widget: shadow,
                         destination: undefined
@@ -508,14 +523,20 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         operator_type.current &&
                         END_OPERATOR.includes(operator_type.current)
                     ) {
-                        setLayout([shadow].concat(moved_layout));
+                        setLayout(
+                            [shadow].concat(moved_layout).map((item) => {
+                                return toYHcol(item);
+                            })
+                        );
                         if (start_droppable.current) {
                             registry.droppable
                                 .getById(start_droppable.current.id)
                                 .saveLayout(
-                                    start_droppable.current!.getFilterLayoutById(
-                                        shadow.i
-                                    )
+                                    start_droppable
+                                        .current!.getFilterLayoutById(shadow.i)
+                                        .map((item) => {
+                                            return toYHcol(item);
+                                        })
                                 );
                         }
                     }
@@ -524,15 +545,20 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     return {
                         source: {
                             layout_id: start_droppable.current!.id,
-                            widgets:
-                                start_droppable.current!.getFilterLayoutById(
-                                    shadow.i
-                                )
+                            widgets: start_droppable
+                                .current!.getFilterLayoutById(shadow.i)
+                                .map((item) => {
+                                    return toYHcol(item);
+                                })
                         },
                         widget: shadow,
                         destination: {
                             layout_id: moving_droppable.current!.id,
-                            widgets: [shadow].concat(moved_layout)
+                            widgets: [shadow]
+                                .concat(moved_layout)
+                                .map((item) => {
+                                    return toYHcol(item);
+                                })
                         }
                     };
                 }
@@ -650,7 +676,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     is_sticky={widget.is_sticky}
                     is_checked={checked_index === widget.i}
                     is_resizable={
-                        widget.is_resizable && checked_index === widget.i
+                        widget.is_resizable &&
+                        checked_index === widget.i &&
+                        !widget.is_flex
                     }
                     cursors={(props as EditLayoutProps).cursors}
                     {...child.props}
@@ -731,6 +759,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         widget.h = height + margin_y;
                         widget.inner_h = height;
 
+                        console.log('changeWidgetHeight');
                         compact(layout);
                         setLayout(cloneDeep(layout));
                     }}
@@ -807,52 +836,52 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     }}
                     /** 阻止了onDragOver以后，onDrop事件才生效 */
                     /** 只有根节点注册监听释放事件，计算位置按照根节点相对位置计算 */
-                    // onDrop={
-                    //     props.mode === LayoutMode.edit &&
-                    //     props.is_droppable &&
-                    //     registry.droppable.getFirstRegister()?.id ===
-                    //         props.layout_id
-                    //         ? (e) => {
-                    //               drop_enter_counter.current = 0;
-                    //               handleResponder(
-                    //                   e,
-                    //                   OperatorType.dropover,
-                    //                   getDropItem(e)
-                    //               );
-                    //               drag_item.current = undefined;
-                    //           }
-                    //         : noop
-                    // }
-                    // onDragOver={
-                    //     props.mode === LayoutMode.edit &&
-                    //     props.is_droppable &&
-                    //     registry.droppable.getFirstRegister()?.id ===
-                    //         props.layout_id
-                    //         ? (e) => {
-                    //               e.preventDefault();
-                    //               const widget = getDropItem(e);
+                    onDrop={
+                        props.mode === LayoutMode.edit &&
+                        props.is_droppable &&
+                        registry.droppable.getFirstRegister()?.id ===
+                            props.layout_id
+                            ? (e) => {
+                                  drop_enter_counter.current = 0;
+                                  handleResponder(
+                                      e,
+                                      OperatorType.dropover,
+                                      getDropItem(e)
+                                  );
+                                  drag_item.current = undefined;
+                              }
+                            : noop
+                    }
+                    onDragOver={
+                        props.mode === LayoutMode.edit &&
+                        props.is_droppable &&
+                        registry.droppable.getFirstRegister()?.id ===
+                            props.layout_id
+                            ? (e) => {
+                                  e.preventDefault();
+                                  const widget = getDropItem(e);
 
-                    //               //   delete drag_item.current?.is_dragging;
+                                  delete drag_item.current?.is_dragging;
 
-                    //               if (!drag_item.current) {
-                    //                   handleResponder(
-                    //                       e,
-                    //                       OperatorType.dragstart,
-                    //                       widget
-                    //                   );
-                    //               }
-                    //               if (!isEqual(drag_item.current, widget)) {
-                    //                   //  不要开火太多次
-                    //                   handleResponder(
-                    //                       e,
-                    //                       OperatorType.drop,
-                    //                       widget
-                    //                   );
-                    //               }
-                    //               drag_item.current = widget;
-                    //           }
-                    //         : noop
-                    // }
+                                  if (!drag_item.current) {
+                                      handleResponder(
+                                          e,
+                                          OperatorType.dragstart,
+                                          widget
+                                      );
+                                  }
+                                  if (!isEqual(drag_item.current, widget)) {
+                                      //  不要开火太多次
+                                      handleResponder(
+                                          e,
+                                          OperatorType.drop,
+                                          widget
+                                      );
+                                  }
+                                  drag_item.current = widget;
+                              }
+                            : noop
+                    }
                     onDragEnter={
                         props.mode === LayoutMode.edit &&
                         registry.droppable.getFirstRegister()?.id ===

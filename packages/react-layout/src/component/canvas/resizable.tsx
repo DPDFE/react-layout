@@ -56,11 +56,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x: props.x,
                         y,
                         w: props.w,
-                        h: Math.min(props.y - y + props.h, props.y + props.h),
-                        inner_h: Math.min(
-                            props.y - y + props.h,
-                            props.y + props.h
-                        )
+                        h: Math.min(props.y - y + props.h, props.y + props.h)
                     },
                     bound
                 );
@@ -69,7 +65,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
         // 下
         [CursorType.s]: {
             x: props.x + props.w / 2,
-            y: props.y + props.inner_h,
+            y: props.y + props.h,
             bound: {
                 min_y: props.y + min_h
             },
@@ -79,8 +75,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x: props.x,
                         y: props.y,
                         w: props.w,
-                        h: y - props.y,
-                        inner_h: y - props.y
+                        h: y - props.y
                     },
                     bound
                 );
@@ -89,7 +84,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
         // 左
         [CursorType.w]: {
             x: props.x,
-            y: props.y + props.inner_h / 2,
+            y: props.y + props.h / 2,
             bound: {
                 max_x: props.x + props.w - min_w
             },
@@ -99,8 +94,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x,
                         y: props.y,
                         w: Math.min(props.x - x + props.w, props.x + props.w),
-                        h: props.h,
-                        inner_h: props.h
+                        h: props.h
                     },
                     bound
                 );
@@ -109,7 +103,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
         // 右
         [CursorType.e]: {
             x: props.x + props.w,
-            y: props.y + props.inner_h / 2,
+            y: props.y + props.h / 2,
             bound: {
                 min_x: props.x + props.w - min_w
             },
@@ -119,8 +113,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x: props.x,
                         y: props.y,
                         w: x - props.x,
-                        h: props.h,
-                        inner_h: props.h
+                        h: props.h
                     },
                     bound
                 );
@@ -140,8 +133,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x,
                         y,
                         w: props.x - x + props.w,
-                        h: props.y - y + props.h,
-                        inner_h: props.y - y + props.h
+                        h: props.y - y + props.h
                     },
                     bound
                 );
@@ -161,8 +153,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x: props.x,
                         y: y,
                         w: x - props.x,
-                        h: props.y - y + props.h,
-                        inner_h: props.y - y + props.inner_h
+                        h: props.y - y + props.h
                     },
                     bound
                 );
@@ -171,7 +162,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
         /* 左下 */
         [CursorType.sw]: {
             x: props.x,
-            y: props.y + props.inner_h,
+            y: props.y + props.h,
             bound: {
                 max_x: props.x + props.w - min_w,
                 min_y: props.y + min_h
@@ -182,8 +173,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x: x,
                         y: props.y,
                         w: props.x - x + props.w,
-                        h: y - props.y,
-                        inner_h: y - props.y
+                        h: y - props.y
                     },
                     bound
                 );
@@ -192,7 +182,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
         /* 右下 */
         [CursorType.se]: {
             x: props.x + props.w,
-            y: props.y + props.inner_h,
+            y: props.y + props.h,
             bound: {
                 min_x: props.x + min_w,
                 min_y: props.y + min_h
@@ -203,8 +193,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                         x: props.x,
                         y: props.y,
                         w: x - props.x,
-                        h: y - props.y,
-                        inner_h: y - props.y
+                        h: y - props.y
                     },
                     bound
                 );
@@ -231,7 +220,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
                 : setTopLeft(props.x, props.y)),
             position: 'absolute',
             width: props.w,
-            height: props.inner_h,
+            height: props.h,
             ...child.props.style
         }
     });
