@@ -100,7 +100,13 @@ function Flex() {
     }, []);
 
     return (
-        <ReactLayoutContext>
+        <ReactLayoutContext
+            onChange={(result: LayoutResult) => {
+                console.log(result);
+                const { source, destination } = result;
+                setWidgets(source.widgets);
+            }}
+        >
             <ReactLayout
                 style={{
                     background: '#fff'

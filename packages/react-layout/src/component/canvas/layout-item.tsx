@@ -91,6 +91,7 @@ const WidgetItem = (props: WidgetItemProps) => {
         is_sticky,
         is_resizable,
         is_draggable,
+        padding,
         x,
         y,
         w,
@@ -98,7 +99,6 @@ const WidgetItem = (props: WidgetItemProps) => {
         inner_h,
         col_width,
         row_height,
-        padding,
         toXWpx
     } = props;
 
@@ -107,7 +107,6 @@ const WidgetItem = (props: WidgetItemProps) => {
 
     const calcItemPosition = () => {
         const out = toXWpx(props);
-        out.y = out.y + padding.top;
 
         if (is_sticky && pos) {
             // 页面滚动到当前元素位置
@@ -354,7 +353,7 @@ const WidgetItem = (props: WidgetItemProps) => {
         style: {
             border: '1px solid transparent',
             width: out.w,
-            // 拷贝到shadow上的内部高度无法撑开,使用拷贝计算值
+            // 拷贝到shadow上的内部高度无法撑开,使用拷贝元素的计算值
             height:
                 props.is_flex && !props.is_placeholder
                     ? 'unset'
@@ -547,7 +546,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                                 x,
                                 y,
                                 w,
-                                h,
+                                h: h + props.margin_y,
                                 inner_h: h,
                                 type,
                                 i
@@ -567,7 +566,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                                 x,
                                 y,
                                 w,
-                                h,
+                                h: h + props.margin_y,
                                 inner_h: h,
                                 type,
                                 i
@@ -582,7 +581,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                                 x,
                                 y,
                                 w,
-                                h,
+                                h: h + props.margin_y,
                                 inner_h: h,
                                 type,
                                 i

@@ -11,13 +11,7 @@ import React, {
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
 import WidgetItem from '../canvas/layout-item';
-import {
-    cloneWidget,
-    moveToWidget,
-    LayoutItemStandard,
-    calcXY,
-    calcWH
-} from './context/calc';
+import { cloneWidget, moveToWidget, LayoutItemStandard } from './context/calc';
 import styles from './styles.module.css';
 import {
     LayoutMode,
@@ -72,6 +66,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
 
+    // layout 内的y,inner_h，h都是px值
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
     const {
@@ -91,7 +86,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         toYHcol,
         toXWcol,
         compact,
-        calcBound,
         moveElement
     } = useLayoutHooks(
         layout,
@@ -244,7 +238,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
     };
 
     const getFilterLayoutById = useCallback(
-        (i) => {
+        (i, is_px?: boolean) => {
+            if (is_px) {
+                return copyObject(
+                    layout!.filter((l) => {
+                        return l.i !== i;
+                    })
+                ).map((item) => {
+                    return toYHcol(item);
+                });
+            }
             return layout!.filter((l) => {
                 return l.i !== i;
             });
@@ -286,7 +289,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         else {
             const covered_layouts = registry.droppable
                 .getAll()
-                .filter((entry: Droppable) => {
+                .filter((entry) => {
                     const layout_ref = entry.getViewPortRef();
                     if (layout_ref) {
                         if (!entry.is_droppable) {
@@ -317,6 +320,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             // 删除旧布局的影子
             if (
                 widget.is_droppable &&
+                covered_layout &&
                 covered_layout.id !== moving_droppable.current?.id
             ) {
                 if (moving_droppable.current) {
@@ -342,10 +346,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const getRef = useCallback(() => canvas_ref.current, [canvas_ref.current]);
 
-    const getViewPortRef = useCallback(
-        () => canvas_viewport_ref.current,
-        [canvas_viewport_ref.current]
-    );
+    const getViewPortRef = useCallback(() => {
+        return canvas_viewport_ref.current;
+    }, [canvas_viewport_ref.current]);
+
+    const getCanvasWrapperRef = useCallback(() => {
+        return canvas_wrapper_ref.current;
+    }, [canvas_wrapper_ref.current]);
 
     /**
      * 移动
@@ -420,14 +427,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     /**
                      * 画布元素相对于实际画布[0,0]进行坐标变换，不针对视窗变化处理
                      */
-                    const moving_pos = (
-                        moving_droppable.current?.getViewPortRef()
-                            ?.firstChild as HTMLElement
-                    ).getBoundingClientRect();
-                    const start_pos = (
-                        start_droppable.current?.getViewPortRef()
-                            ?.firstChild as HTMLElement
-                    ).getBoundingClientRect();
+                    const moving_pos = moving_droppable.current
+                        ?.getCanvasWrapperRef()
+                        ?.getBoundingClientRect();
+                    const start_pos = start_droppable.current
+                        ?.getCanvasWrapperRef()
+                        ?.getBoundingClientRect();
 
                     if (start_pos && moving_pos) {
                         shadow.x -= moving_pos.left - start_pos.left;
@@ -435,11 +440,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     }
                 }
 
-                // x grid | y px
-                toYHcol(shadow);
-                setShadowPos(cloneWidget(shadow));
+                // 因为原始其他元素的定位使用的是x col， y px，
+                // 所以将计算的定位，转化为：x grid | y px
+                toXWcol(shadow);
 
-                const moved_layout =
+                const compact_layout =
                     shadow_pos &&
                     shadow_pos.x == shadow.x &&
                     shadow_pos.y == shadow.y
@@ -452,7 +457,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                               true
                           );
 
-                const compact_with = compact([shadow].concat(moved_layout));
+                setShadowPos(shadow);
+
+                const compact_with = compact([shadow].concat(compact_layout));
 
                 compact_with.map((c) => {
                     compact_with_mappings[c.i] = copyObject(c);
@@ -484,11 +491,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 return {
                     source: {
                         layout_id: moving_droppable.current!.id,
-                        widgets: [shadow].concat(moved_layout).map((item) => {
-                            return toYHcol(item);
-                        })
+                        widgets: copyObject([shadow].concat(moved_layout)).map(
+                            (item) => {
+                                return toYHcol(item);
+                            }
+                        )
                     },
-                    widget: shadow,
+                    widget: copyObject(shadow),
                     destination: undefined
                 };
                 // 拖拽和缩放
@@ -510,11 +519,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     return {
                         source: {
                             layout_id: moving_droppable.current!.id,
-                            widgets: moved_layout.map((item) => {
+                            widgets: copyObject(moved_layout).map((item) => {
                                 return toYHcol(item);
                             })
                         },
-                        widget: shadow,
+                        widget: toYHcol(copyObject(shadow)),
                         destination: undefined
                     };
                 } else {
@@ -523,20 +532,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         operator_type.current &&
                         END_OPERATOR.includes(operator_type.current)
                     ) {
-                        setLayout(
-                            [shadow].concat(moved_layout).map((item) => {
-                                return toYHcol(item);
-                            })
-                        );
+                        setLayout([shadow].concat(moved_layout));
+
                         if (start_droppable.current) {
                             registry.droppable
                                 .getById(start_droppable.current.id)
                                 .saveLayout(
-                                    start_droppable
-                                        .current!.getFilterLayoutById(shadow.i)
-                                        .map((item) => {
-                                            return toYHcol(item);
-                                        })
+                                    start_droppable.current!.getFilterLayoutById(
+                                        shadow.i
+                                    )
                                 );
                         }
                     }
@@ -545,20 +549,20 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     return {
                         source: {
                             layout_id: start_droppable.current!.id,
-                            widgets: start_droppable
-                                .current!.getFilterLayoutById(shadow.i)
-                                .map((item) => {
-                                    return toYHcol(item);
-                                })
+                            widgets:
+                                start_droppable.current!.getFilterLayoutById(
+                                    shadow.i,
+                                    true
+                                )
                         },
-                        widget: shadow,
+                        widget: toYHcol(copyObject(shadow)),
                         destination: {
                             layout_id: moving_droppable.current!.id,
-                            widgets: [shadow]
-                                .concat(moved_layout)
-                                .map((item) => {
-                                    return toYHcol(item);
-                                })
+                            widgets: copyObject(
+                                [shadow].concat(moved_layout)
+                            ).map((item) => {
+                                return toYHcol(item);
+                            })
                         }
                     };
                 }
@@ -573,6 +577,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             is_droppable: props.is_droppable,
             getRef,
             getViewPortRef,
+            getCanvasWrapperRef,
             cleanShadow,
             getFilterLayoutById,
             addShadow,
@@ -582,6 +587,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         [
             getRef,
             getViewPortRef,
+            getCanvasWrapperRef,
             cleanShadow,
             getFilterLayoutById,
             addShadow,
@@ -626,6 +632,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     key='shadow'
                     cols={props.cols}
                     toXWpx={toXWpx}
+                    margin_y={margin_y}
                     layout_id={props.layout_id}
                     scale={props.scale}
                     mode={LayoutMode.view}
@@ -673,6 +680,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     row_height={row_height}
                     scale={props.scale}
                     padding={padding}
+                    margin_y={margin_y}
                     is_sticky={widget.is_sticky}
                     is_checked={checked_index === widget.i}
                     is_resizable={
@@ -759,7 +767,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         widget.h = height + margin_y;
                         widget.inner_h = height;
 
-                        console.log('changeWidgetHeight');
                         compact(layout);
                         setLayout(cloneDeep(layout));
                     }}
@@ -843,11 +850,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             props.layout_id
                             ? (e) => {
                                   drop_enter_counter.current = 0;
-                                  handleResponder(
-                                      e,
-                                      OperatorType.dropover,
-                                      getDropItem(e)
-                                  );
+                                  const item = getDropItem(e);
+
+                                  handleResponder(e, OperatorType.dropover, {
+                                      ...item,
+                                      ...toYHpx(item)
+                                  });
                                   drag_item.current = undefined;
                               }
                             : noop
@@ -859,7 +867,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             props.layout_id
                             ? (e) => {
                                   e.preventDefault();
-                                  const widget = getDropItem(e);
+                                  const item = getDropItem(e);
+
+                                  const widget = {
+                                      ...item,
+                                      ...toYHpx(item)
+                                  };
 
                                   delete drag_item.current?.is_dragging;
 

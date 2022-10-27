@@ -238,6 +238,7 @@ export interface CompactItem extends ItemPos {
 
 /** 单节点属性 */
 export interface LayoutItem extends CompactItem {
+    pxed?: boolean; // 像素化处理状态
     moved?: boolean; // 被标记
     inner_h: number; // 内部高度
     layout_id: string; // 父布局ID
@@ -260,6 +261,7 @@ export interface WidgetItemProps
     layout_id: string;
     scale: number;
     padding: MarginScheme;
+    margin_y: number;
     mode: LayoutMode.edit | LayoutMode.view;
     is_placeholder: boolean;
     toXWpx: (item: LayoutItem) => Pos;
@@ -383,7 +385,10 @@ export interface Droppable {
     is_droppable?: boolean;
     getRef: () => HTMLDivElement | null;
     getViewPortRef: () => HTMLDivElement | null;
-    getFilterLayoutById: (i: string) => LayoutItem[];
+    getCanvasWrapperRef: () => HTMLDivElement | null;
+    // is_px 会跨越闭包取到当前计算layout上的props参数，
+    // 所以要将转化px逻辑封装在register里
+    getFilterLayoutById: (i: string, is_px?: boolean) => LayoutItem[];
     cleanShadow: (widget?: LayoutItem) => void;
     addShadow: (
         widget: LayoutItem,

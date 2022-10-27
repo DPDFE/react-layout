@@ -8,13 +8,7 @@ import {
     WidgetType,
     Pos
 } from '@/interfaces';
-import {
-    useEffect,
-    useLayoutEffect,
-    useMemo,
-    useState,
-    useContext
-} from 'react';
+import { useEffect, useMemo, useState, useContext } from 'react';
 import {
     calcOffset,
     calcWH,
@@ -134,9 +128,6 @@ export const useLayoutHooks = (
      * @param item
      */
     const toXWcol = (item: LayoutItem) => {
-        // (operator_type.current &&
-        //         CHANGE_OPERATOR.includes(operator_type.current)
-
         const { is_flex, is_resizing, is_dropping, is_dragging } = item;
 
         if (is_flex || is_resizing || is_dropping || is_dragging) {
@@ -147,6 +138,10 @@ export const useLayoutHooks = (
             item.w = calcWH(item.w, col_width, margin_x);
         }
 
+        delete item.is_dragging;
+        delete item.is_resizing;
+        delete item.is_dropping;
+
         return calcBound(item);
     };
 
@@ -155,32 +150,20 @@ export const useLayoutHooks = (
      * @param item
      */
     const toYHcol = (item: LayoutItem) => {
-        const { is_resizing, is_dropping, is_dragging } = item;
+        const { is_flex } = item;
 
-        if (is_resizing || is_dropping || is_dragging) {
+        if (item.type === WidgetType.grid && !is_flex) {
             item.y = calcXY(item.y, row_height, margin_y, padding.top);
+            item.h = Math.round(item.h / (row_height + margin_y));
+            item.inner_h = item.h;
         }
 
-        if (is_resizing || is_dragging) {
-            item.h = calcWH(item.h, row_height, margin_y);
-        }
+        delete item.moved;
+        delete item.is_dragging;
+        delete item.is_resizing;
+        delete item.is_dropping;
 
         return calcBound(item);
-    };
-
-    /**
-     * 定位转xywh
-     * @param item
-     */
-    const toXYWHcol = (item: LayoutItem) => {
-        item = toXWcol(item);
-        item = toYHcol(item);
-
-        delete item.is_dropping;
-        delete item.is_resizing;
-        delete item.is_dragging;
-
-        return item;
     };
 
     /**
@@ -198,7 +181,7 @@ export const useLayoutHooks = (
             inner_h: item.inner_h
         };
 
-        // drag/resizing
+        // drag/resizing/dragging
         if (type === WidgetType.drag || is_resizing || is_dragging) {
             out.w = Math.round(w);
         }
@@ -207,7 +190,7 @@ export const useLayoutHooks = (
             out.w = gridXY(w, col_width, margin_x);
         }
 
-        // drag/dragging
+        // drag/dragging/resizing/dropping
         if (
             type === WidgetType.drag ||
             is_dragging ||
@@ -239,7 +222,7 @@ export const useLayoutHooks = (
             inner_h: item.inner_h
         };
 
-        // drag/dragging/is_flex
+        // drag/dragging/resizing/dropping/is_flex
         if (
             type === WidgetType.drag ||
             is_dragging ||
@@ -247,15 +230,26 @@ export const useLayoutHooks = (
             is_dropping ||
             is_flex
         ) {
+            if (is_flex) {
+                out.y = Math.round(y + padding.top);
+            }
+
+            out.y = Math.round(y);
+        }
+        // grid
+        else {
+            out.y = Math.round((row_height + margin_y) * y + padding.top);
+        }
+
+        // drag/dragging/resizing/dropping/is_flex
+        if (type === WidgetType.drag || is_dragging || is_resizing || is_flex) {
             out.h = Math.round(h);
             out.inner_h = Math.round(h);
-            out.y = Math.round(y);
         }
         // grid
         else {
             out.h = Math.round((row_height + margin_y) * h);
             out.inner_h = gridXY(h, row_height, margin_y);
-            out.y = Math.round((row_height + margin_y) * y);
         }
 
         return out;
@@ -282,7 +276,10 @@ export const useLayoutHooks = (
             max_left = Math.min(max_left, out.x);
             max_right = Math.max(max_right, out.x + out.w + padding.right);
             max_top = Math.min(max_top, out.y);
-            max_bottom = Math.max(max_bottom, out.y + out.h + padding.bottom);
+            max_bottom = Math.max(
+                max_bottom,
+                out.y + out.inner_h + padding.bottom
+            );
         });
 
         return { max_left, max_right, max_top, max_bottom };
@@ -326,7 +323,8 @@ export const useLayoutHooks = (
                 const height_stragegy = {
                     [LayoutType.GRID]: () => {
                         /** 和视窗比较，找到实际最大边界 */
-                        const max_b = Math.max(max_bottom, container_height);
+                        // const max_b = Math.max(max_bottom, container_height);
+                        const max_b = max_bottom;
 
                         const calc_width = current_width * scale;
                         const calc_height = container_height * scale;
@@ -543,7 +541,9 @@ export const useLayoutHooks = (
             resolveCompactionCollision(sorted, l, collides.y + collides.h);
         }
 
-        l.y = Math.max(l.y, 0);
+        // 最小y不能小于padding top，因为flex类型的容器，无法控制距离顶部的最小高度
+        // 所以在这里统一处理
+        l.y = Math.max(l.y, padding.top);
         l.x = Math.max(l.x, 0);
         return l;
     }
@@ -670,7 +670,7 @@ export const useLayoutHooks = (
         toYHpx,
         toYHcol,
         toXWcol,
-        toXYWHcol,
+
         compact,
         calcBound,
         moveElement

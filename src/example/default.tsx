@@ -305,31 +305,31 @@ const DefaultLayout = () => {
                 need_drag_bound={false}
                 need_grid_bound={true}
                 is_nested_layout={true}
-                // onDrop={(layout: LayoutItem[], item: ItemPos) => {
-                //     const drop_element = JSON.parse(
-                //         JSON.stringify({
-                //             ...item,
-                //             i: Math.random(),
-                //             is_resizable: true,
-                //             is_draggable: true
-                //         })
-                //     );
+                onDrop={(layout: LayoutItem[], item: ItemPos) => {
+                    const drop_element = JSON.parse(
+                        JSON.stringify({
+                            ...item,
+                            i: Math.random(),
+                            is_resizable: true,
+                            is_draggable: true
+                        })
+                    );
 
-                //     drop_element.i ||
-                //         (drop_element.i =
-                //             '1-' +
-                //             widgets3.length.toString() +
-                //             '-' +
-                //             Math.random());
+                    drop_element.i ||
+                        (drop_element.i =
+                            '1-' +
+                            widgets3.length.toString() +
+                            '-' +
+                            Math.random());
 
-                //     // const new_widgets = layout.concat([drop_element]);
-                //     const new_widgets = layout;
+                    // const new_widgets = layout.concat([drop_element]);
+                    const new_widgets = layout;
 
-                //     setWidgets3(new_widgets);
-                //     console.log('add widgets3');
+                    setWidgets3(new_widgets);
+                    console.log('add widgets3');
 
-                //     return drop_element;
-                // }}
+                    return drop_element;
+                }}
             >
                 {widgets3.map((w) => {
                     return (
@@ -436,6 +436,7 @@ const DefaultLayout = () => {
                 </div>
                 <ReactLayoutContext
                     onChange={(result: LayoutResult) => {
+                        console.log(result);
                         const { source, destination } = result;
                         destination &&
                             console.log(
@@ -443,7 +444,6 @@ const DefaultLayout = () => {
                                 'onChange'
                             );
                         handleWidgetsChange(source.layout_id, source.widgets);
-
                         destination &&
                             handleWidgetsChange(
                                 destination.layout_id,
