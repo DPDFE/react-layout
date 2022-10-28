@@ -175,7 +175,6 @@ export function LayoutItemStandard(
     item.is_draggable = item.is_draggable ?? false;
     item.is_resizable = item.is_resizable ?? false;
     item.is_droppable = item.is_droppable ?? false;
-    item.is_dropping = item.is_dropping ?? false;
     item.is_flex = item.is_flex ?? false;
     item.need_border_draggable_handler =
         item.need_border_draggable_handler ?? false;
@@ -191,6 +190,7 @@ export function LayoutItemStandard(
     item.moved = false;
     item.is_dragging = false;
     item.is_resizing = false;
+    item.is_dropping = false;
 
     const out = toYHpx(item);
 
