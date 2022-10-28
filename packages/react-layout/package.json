@@ -2,9 +2,9 @@
     "name": "@dpdfe/react-layout",
     "description": "react layout",
     "author": "pearone stefan-hui",
-    "version": "0.0.67",
+    "version": "0.0.68",
     "online_version": "1.0.1",
-    "dev_version": "0.0.67",
+    "dev_version": "0.0.68",
     "license": "MIT",
     "homepage": "https://github.com/DPDFE/react-layout/tree/main/packages/react-layout",
     "repository": {
@@ -39,7 +39,7 @@
         "pub": "npm publish"
     },
     "dependencies": {
-        "@dpdfe/event-utils": "^0.0.7",
+        "@dpdfe/event-utils": "^0.0.11",
         "@types/lodash.isequal": "^4.5.5",
         "@types/resize-observer-browser": "^0.1.7",
         "classnames": "^2.3.1",

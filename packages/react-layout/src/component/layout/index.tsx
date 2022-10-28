@@ -328,9 +328,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         .getById(moving_droppable.current.id)
                         .cleanShadow(widget);
                 }
-
-                moving_droppable.current = covered_layout;
             }
+            moving_droppable.current = covered_layout;
         }
 
         // 移动到位
@@ -340,7 +339,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
         // 计算定位
         return registry.droppable
-            .getById(moving_droppable.current!.id)
+            .getById(moving_droppable.current.id)
             .addShadow(widget);
     };
 
@@ -684,9 +683,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     is_sticky={widget.is_sticky}
                     is_checked={checked_index === widget.i}
                     is_resizable={
-                        widget.is_resizable &&
-                        checked_index === widget.i &&
-                        !widget.is_flex
+                        widget.is_resizable && checked_index === widget.i
                     }
                     cursors={(props as EditLayoutProps).cursors}
                     {...child.props}

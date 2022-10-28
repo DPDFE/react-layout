@@ -5,7 +5,8 @@ import {
     LayoutItemDescriptor,
     WidgetType,
     LayoutType,
-    StickyTarget
+    StickyTarget,
+    CursorType
 } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, {
@@ -91,7 +92,6 @@ const WidgetItem = (props: WidgetItemProps) => {
         is_sticky,
         is_resizable,
         is_draggable,
-        padding,
         x,
         y,
         w,
@@ -544,9 +544,9 @@ const WidgetItem = (props: WidgetItemProps) => {
                         props.onResizeStart?.(
                             {
                                 x,
-                                y,
                                 w,
-                                h: h + props.margin_y,
+                                y: props.is_flex ? out.y : y,
+                                h: props.is_flex ? out.h : h + props.margin_y,
                                 inner_h: h,
                                 type,
                                 i
@@ -554,7 +554,11 @@ const WidgetItem = (props: WidgetItemProps) => {
                             e
                         );
                     }}
-                    cursors={props.cursors}
+                    cursors={
+                        props.is_flex
+                            ? [CursorType.e, CursorType.w]
+                            : props.cursors
+                    }
                     onResize={({ e, x, y, w, h }) => {
                         scrollToTop(e);
                         scrollToBottom(e);
@@ -564,9 +568,9 @@ const WidgetItem = (props: WidgetItemProps) => {
                         props.onResize?.(
                             {
                                 x,
-                                y,
                                 w,
-                                h: h + props.margin_y,
+                                y: props.is_flex ? out.y : y,
+                                h: props.is_flex ? out.h : h + props.margin_y,
                                 inner_h: h,
                                 type,
                                 i
@@ -579,9 +583,9 @@ const WidgetItem = (props: WidgetItemProps) => {
                         props.onResizeStop?.(
                             {
                                 x,
-                                y,
                                 w,
-                                h: h + props.margin_y,
+                                y: props.is_flex ? out.y : y,
+                                h: props.is_flex ? out.h : h + props.margin_y,
                                 inner_h: h,
                                 type,
                                 i
