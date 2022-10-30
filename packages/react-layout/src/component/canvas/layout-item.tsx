@@ -310,6 +310,7 @@ const WidgetItem = (props: WidgetItemProps) => {
             !props.is_placeholder &&
             item_ref.current?.offsetHeight !== out.h
         ) {
+            console.log(item_ref.current.offsetHeight, out.h);
             out.h = item_ref.current?.offsetHeight;
             props.changeWidgetHeight?.(out.h);
         }
@@ -396,6 +397,8 @@ const WidgetItem = (props: WidgetItemProps) => {
                 min_h: (props.min_h ?? 2) * row_height
             }
         };
+
+        console.log(i, type, bound_strategy[type]);
         return bound_strategy[type];
     };
 
