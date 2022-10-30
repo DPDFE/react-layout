@@ -1,19 +1,37 @@
-import { genAutoId, genAutoIdString } from '../src/autoindex';
+import { genAutoId, genAutoIdString, genAutoIdInit } from '../src/autoindex';
 
 test('vfcnmjrv0f', () => {
     const target = genAutoIdString();
     expect(typeof target).toBe('string');
 });
 
-test('genAutoId', () => {
-    expect(genAutoId({ start: 1 })).toBe(1);
-    expect(genAutoId({ start: 1 })).toBe(2);
-    expect(genAutoId({ start: 1 })).toBe(3);
-    expect(genAutoId({ start: 1 })).toBe(4);
+genAutoIdInit({ start: 1 });
+genAutoIdInit({ key: '1' });
+
+test('genAutoId start 1', () => {
+    expect(genAutoId()).toBe(1);
+    expect(genAutoId()).toBe(2);
+    expect(genAutoId()).toBe(3);
+    expect(genAutoId()).toBe(4);
 });
 
-test('genAutoId', () => {
-    let target: number = genAutoId({ is_next: true });
+test('分组1', () => {
+    let target: number = genAutoId('1');
+    console.log(target);
+
+    target++;
+    expect(genAutoId('1')).toBe(target);
+    target++;
+    expect(genAutoId('1')).toBe(target);
+    target++;
+    expect(genAutoId('1')).toBe(target);
+    target++;
+    expect(genAutoId('1')).toBe(target);
+});
+
+test('分组default', () => {
+    let target: number = genAutoId();
+    console.log(target);
 
     target++;
     expect(genAutoId()).toBe(target);

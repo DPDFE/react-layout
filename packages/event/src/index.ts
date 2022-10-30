@@ -40,7 +40,7 @@ import {
     lighten,
     range
 } from './color/computed';
-import { genAutoId, genAutoIdString } from './autoindex';
+import { genAutoId, genAutoIdInit, genAutoIdString } from './autoindex';
 
 export {
     Events,
@@ -72,6 +72,7 @@ export {
     getLuminance,
     getGrayLevel,
     // autoindext
+    genAutoIdInit,
     genAutoId,
     genAutoIdString
 };
