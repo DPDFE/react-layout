@@ -1,5 +1,5 @@
 import {
-    BoundType,
+    BoundScheme,
     CursorPointer,
     CursorType,
     ResizableProps
@@ -15,6 +15,7 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
 
     const min_h = props.min_h ?? 0;
     const min_w = props.min_w ?? 0;
+
     const bound = props.bound ?? DEFAULT_BOUND;
     const cursors = props.cursors ?? [
         CursorType.se,
@@ -260,7 +261,7 @@ interface Position {
 
 export function calcBoundPositions<T extends Position>(
     pos: T,
-    bound: BoundType
+    bound: BoundScheme
 ): T {
     if (bound) {
         const { max_x, max_y, min_x, min_y } = bound;

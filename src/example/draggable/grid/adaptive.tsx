@@ -127,6 +127,7 @@ const DraggableGridResponsiveLayout = () => {
     const handleWidgetsChange = (id: string, widgets: LayoutItem[]) => {
         switch (id) {
             case 'root':
+                console.log(widgets);
                 setWidgets(widgets);
                 break;
         }
@@ -216,7 +217,7 @@ const DraggableGridResponsiveLayout = () => {
                 style={{ background: '#fff' }}
                 layout_type={LayoutType.GRID}
                 mode={LayoutMode.edit}
-                container_padding={[5]}
+                container_padding={[10]}
                 item_margin={[10, 10]}
                 onDragStart={() => {
                     console.log('onDragStart');

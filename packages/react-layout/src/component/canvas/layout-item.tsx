@@ -5,7 +5,8 @@ import {
     LayoutItemDescriptor,
     WidgetType,
     LayoutType,
-    StickyTarget
+    StickyTarget,
+    CursorType
 } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, {
@@ -15,12 +16,9 @@ import React, {
     useRef,
     useCallback,
     useMemo,
-    useEffect,
-    useState,
-    useLayoutEffect
+    useEffect
 } from 'react';
 
-import { calcXYWH, MIN_DRAG_LENGTH } from '../layout/context/calc';
 import Draggable from './draggable';
 import Resizable from './resizable';
 // vite在watch模式下检测style变化需要先将内容引进来才能监听到
@@ -29,12 +27,12 @@ import './styles.module.css';
 import { LayoutContext } from '../layout/context';
 import { CHANGE_OPERATOR } from '../layout/constants';
 import { useScroll } from './scroll';
+import { resizeObserver } from '../layout/provider/resize-observer';
+import { getDragMinBound } from './constants';
 
 const WidgetItem = (props: WidgetItemProps) => {
     const child = React.Children.only(props.children) as ReactElement;
     const item_ref = useRef<HTMLDivElement>(null);
-
-    const [is_parent_layout, setIsParentLayout] = useState<boolean>();
 
     // useContext 会引发页面渲染
     const {
@@ -91,9 +89,6 @@ const WidgetItem = (props: WidgetItemProps) => {
         is_dragging,
         need_border_draggable_handler,
         layout_id,
-        margin_x,
-        margin_y,
-        padding,
         is_sticky,
         is_resizable,
         is_draggable,
@@ -101,24 +96,17 @@ const WidgetItem = (props: WidgetItemProps) => {
         y,
         w,
         h,
+        inner_h,
         col_width,
         row_height,
-        calcBound
+        toXWpx
     } = props;
 
     // 拖拽目标
     let is_sticky_target: StickyTarget | undefined = undefined;
 
     const calcItemPosition = () => {
-        const out = calcXYWH(
-            props,
-            col_width,
-            row_height,
-            margin_x,
-            margin_y,
-            padding,
-            calcBound
-        );
+        const out = toXWpx(props);
 
         if (is_sticky && pos) {
             // 页面滚动到当前元素位置
@@ -155,6 +143,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                         })
                         .concat([
                             // 如果页面的grid发生变化，这里计算的值应该会有问题
+                            // 所以使用百分比值，不用像素值
                             {
                                 id: i,
                                 max_x: x + w,
@@ -207,22 +196,22 @@ const WidgetItem = (props: WidgetItemProps) => {
         switch (e.keyCode) {
             case 37: // ArrowLeft
                 return {
-                    x: x - keycode_step
+                    x: out.x - keycode_step
                 };
 
             case 38: // ArrowUp
                 return {
-                    y: y - keycode_step
+                    y: out.y - keycode_step
                 };
 
             case 39: // ArrowRight
                 return {
-                    x: x + keycode_step
+                    x: out.x + keycode_step
                 };
 
             case 40: // ArrowDown
                 return {
-                    y: y + keycode_step
+                    y: out.y + keycode_step
                 };
         }
         return undefined;
@@ -299,12 +288,6 @@ const WidgetItem = (props: WidgetItemProps) => {
         props.is_placeholder
     ]);
 
-    useLayoutEffect(() => {
-        if (props.is_placeholder) return;
-
-        setIsParentLayout(!!getLayoutItemRef()?.querySelector('#react-layout'));
-    }, []);
-
     const setTransition = () => {
         const transition = 'all 0.1s linear';
 
@@ -316,6 +299,22 @@ const WidgetItem = (props: WidgetItemProps) => {
     };
 
     const out = calcItemPosition();
+
+    /**
+     * 支持容器高度自适应
+     */
+    resizeObserver(item_ref, () => {
+        if (
+            item_ref.current?.offsetHeight &&
+            props.is_flex &&
+            !props.is_placeholder &&
+            item_ref.current?.offsetHeight !== out.h
+        ) {
+            console.log(item_ref.current.offsetHeight, out.h);
+            out.h = item_ref.current?.offsetHeight;
+            props.changeWidgetHeight?.(out.h);
+        }
+    });
 
     const new_child = React.cloneElement(child, {
         key: i,
@@ -329,7 +328,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                 if (keydown_pos) {
                     props.onPositionChange?.(
                         {
-                            ...{ x, y, h, w, i, type },
+                            ...{ x, y, h, w, inner_h, i, type },
                             ...keydown_pos
                         },
                         e as unknown as MouseEvent
@@ -355,7 +354,11 @@ const WidgetItem = (props: WidgetItemProps) => {
         style: {
             border: '1px solid transparent',
             width: out.w,
-            height: out.h,
+            // 拷贝到shadow上的内部高度无法撑开,使用拷贝元素的计算值
+            height:
+                props.is_flex && !props.is_placeholder
+                    ? 'unset'
+                    : props.inner_h,
             ...child.props.style,
             cursor:
                 props.is_draggable && !props.need_border_draggable_handler
@@ -371,16 +374,31 @@ const WidgetItem = (props: WidgetItemProps) => {
      * 获取模块最小范围
      */
     const getMinimumBoundary = () => {
+        let minDragNumberX = 10,
+            minDragNumberY = 10;
+
+        if (type === WidgetType.drag) {
+            const { min_x, min_y } = getDragMinBound(
+                item_ref,
+                minDragNumberX,
+                minDragNumberY
+            );
+            minDragNumberX = min_x;
+            minDragNumberY = min_y;
+        }
+
         const bound_strategy = {
             [WidgetType.drag]: {
-                min_w: props.min_w ?? MIN_DRAG_LENGTH,
-                min_h: props.min_h ?? MIN_DRAG_LENGTH
+                min_w: props.min_w ?? minDragNumberX,
+                min_h: props.min_h ?? minDragNumberY
             },
             [WidgetType.grid]: {
-                min_w: (props.min_w ?? 1) * col_width,
-                min_h: (props.min_h ?? 1) * row_height
+                min_w: (props.min_w ?? 2) * col_width,
+                min_h: (props.min_h ?? 2) * row_height
             }
         };
+
+        console.log(i, type, bound_strategy[type]);
         return bound_strategy[type];
     };
 
@@ -398,13 +416,14 @@ const WidgetItem = (props: WidgetItemProps) => {
                 y,
                 w,
                 h,
+                inner_h,
                 type,
                 is_resizable,
                 is_draggable,
                 layout_id
             }
         }),
-        [i, layout_id, x, y, w, h, type, is_resizable, is_draggable]
+        [i, layout_id, x, y, w, h, inner_h, type, is_resizable, is_draggable]
     );
 
     const getLayoutItemRef = useCallback((): HTMLElement | null => {
@@ -459,6 +478,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                             y: y,
                             w: out.w,
                             h: out.h,
+                            inner_h: out.inner_h,
                             type,
                             i
                         },
@@ -488,6 +508,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                             y: y,
                             w: out.w,
                             h: out.h,
+                            inner_h: out.inner_h,
                             type,
                             i
                         },
@@ -501,6 +522,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                             y: y,
                             w: out.w,
                             h: out.h,
+                            inner_h: out.inner_h,
                             type,
                             i
                         },
@@ -517,24 +539,30 @@ const WidgetItem = (props: WidgetItemProps) => {
                     }}
                     ref={item_ref}
                     {...out}
+                    h={out.inner_h}
                     scale={props.scale}
                     use_css_transform
                     is_resizable={is_resizable}
                     onResizeStart={({ e, x, y, h, w }) => {
                         props.onResizeStart?.(
                             {
-                                x: x,
-                                y: y,
-                                w: w,
-                                h: h,
+                                x,
+                                w,
+                                y: props.is_flex ? out.y : y,
+                                h: props.is_flex ? out.h : h + props.margin_y,
+                                inner_h: h,
                                 type,
                                 i
                             },
                             e
                         );
                     }}
-                    cursors={props.cursors}
-                    onResize={({ e, x, y, h, w }) => {
+                    cursors={
+                        props.is_flex
+                            ? [CursorType.e, CursorType.w]
+                            : props.cursors
+                    }
+                    onResize={({ e, x, y, w, h }) => {
                         scrollToTop(e);
                         scrollToBottom(e);
                         if (props.layout_type === LayoutType.DRAG) {
@@ -542,10 +570,11 @@ const WidgetItem = (props: WidgetItemProps) => {
                         }
                         props.onResize?.(
                             {
-                                x: x,
-                                y: y,
-                                w: w,
-                                h: h,
+                                x,
+                                w,
+                                y: props.is_flex ? out.y : y,
+                                h: props.is_flex ? out.h : h + props.margin_y,
+                                inner_h: h,
                                 type,
                                 i
                             },
@@ -553,13 +582,14 @@ const WidgetItem = (props: WidgetItemProps) => {
                         );
                     }}
                     {...getMinimumBoundary()}
-                    onResizeStop={({ e, x, y, h, w }) => {
+                    onResizeStop={({ e, x, y, w, h }) => {
                         props.onResizeStop?.(
                             {
-                                x: x,
-                                y: y,
-                                w: w,
-                                h: h,
+                                x,
+                                w,
+                                y: props.is_flex ? out.y : y,
+                                h: props.is_flex ? out.h : h + props.margin_y,
+                                inner_h: h,
                                 type,
                                 i
                             },

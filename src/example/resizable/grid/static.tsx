@@ -5,9 +5,9 @@ import {
     LayoutItem,
     LayoutMode,
     ReactLayoutContext,
-    WidgetType,
-} from "@dpdfe/react-layout";
-import "@dpdfe/react-layout/dist/index.css";
+    WidgetType
+} from '@dpdfe/react-layout';
+import '@dpdfe/react-layout/dist/index.css';
 
 const ResizableGridStaticLayout = () => {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
@@ -36,7 +36,7 @@ const ResizableGridStaticLayout = () => {
         <ReactLayoutContext>
             <ReactLayout
                 widgets={widgets}
-                style={{ background: '#fff' }}
+                style={{ background: '#ddd' }}
                 need_ruler
                 height={600}
                 width={600}

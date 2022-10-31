@@ -5,27 +5,22 @@ import {
     LayoutType,
     LayoutMode,
     ReactLayoutProps,
-    WidgetType
+    WidgetType,
+    Pos
 } from '@/interfaces';
-import {
-    useEffect,
-    useLayoutEffect,
-    useMemo,
-    useState,
-    useContext
-} from 'react';
+import { useEffect, useMemo, useState, useContext } from 'react';
 import {
     calcOffset,
     calcWH,
     calcXY,
-    calcXYWH,
     completedPadding,
+    gridXY,
     WRAPPER_PADDING
 } from '../context/calc';
-import ResizeObserver from 'resize-observer-polyfill';
 import { LayoutContext } from '../context';
 import { clamp, DEFAULT_BOUND } from '../../canvas/draggable';
 import { END_OPERATOR } from '../constants';
+import { resizeObserver } from './resize-observer';
 
 export const useLayoutHooks = (
     layout: LayoutItem[],
@@ -58,25 +53,10 @@ export const useLayoutHooks = (
             : container_width;
     }, [props.layout_type, container_width, (props as DragLayoutProps).width]);
 
-    /** 监听容器变化，重新计算width、height、grid */
-    useLayoutEffect(() => {
-        /**
-         * 缩放容器触发器
-         */
-        const resizeObserverInstance = new ResizeObserver(() => {
-            setWindowResize(Math.random());
-        });
-
-        if (container_ref.current) {
-            resizeObserverInstance.observe(container_ref.current);
-        }
-        return () => {
-            if (container_ref.current) {
-                resizeObserverInstance.unobserve(container_ref.current);
-                resizeObserverInstance.disconnect();
-            }
-        };
-    }, [container_ref]);
+    // 监听页面变换
+    resizeObserver(container_ref, () => {
+        setWindowResize(Math.random());
+    });
 
     /** 补全边距 */
     const padding = useMemo(
@@ -143,6 +123,138 @@ export const useLayoutHooks = (
         return item;
     };
 
+    /**
+     * 只更新YH变换为col
+     * @param item
+     */
+    const toXWcol = (item: LayoutItem) => {
+        const { is_flex, is_resizing, is_dropping, is_dragging } = item;
+
+        if (is_flex || is_resizing || is_dropping || is_dragging) {
+            item.x = calcXY(item.x, col_width, margin_x, padding.left);
+        }
+
+        if (is_resizing || is_dragging) {
+            item.w = calcWH(item.w, col_width, margin_x);
+        }
+
+        delete item.is_dragging;
+        delete item.is_resizing;
+        delete item.is_dropping;
+
+        return calcBound(item);
+    };
+
+    /**
+     * 只更新YH变换为col
+     * @param item
+     */
+    const toYHcol = (item: LayoutItem) => {
+        const { is_flex } = item;
+
+        if (item.type === WidgetType.grid && !is_flex) {
+            item.y = calcXY(item.y, row_height, margin_y, padding.top);
+            item.h = Math.round(item.h / (row_height + margin_y));
+            item.inner_h = item.h;
+        }
+
+        delete item.moved;
+        delete item.is_dragging;
+        delete item.is_resizing;
+        delete item.is_dropping;
+
+        return calcBound(item);
+    };
+
+    /**
+     * 只更新XW变换成px
+     */
+    const toXWpx = (item: LayoutItem) => {
+        const { type, is_resizing, is_dropping, is_dragging } = item;
+        const { x, y, w, h } = calcBound(item);
+
+        const out: Pos = {
+            x: 0,
+            w: 0,
+            y,
+            h,
+            inner_h: item.inner_h
+        };
+
+        // drag/resizing/dragging
+        if (type === WidgetType.drag || is_resizing || is_dragging) {
+            out.w = Math.round(w);
+        }
+        // grid/is_flex
+        else {
+            out.w = gridXY(w, col_width, margin_x);
+        }
+
+        // drag/dragging/resizing/dropping
+        if (
+            type === WidgetType.drag ||
+            is_dragging ||
+            is_resizing ||
+            is_dropping
+        ) {
+            out.x = Math.round(x);
+        }
+        // grid/is_flex
+        else {
+            out.x = Math.round((col_width + margin_x) * x + padding.left);
+        }
+
+        return out;
+    };
+
+    /**
+     * 只更新YH变换成px
+     */
+    const toYHpx = (item: LayoutItem) => {
+        const { type, is_resizing, is_dropping, is_dragging, is_flex } = item;
+        const { x, y, w, h } = calcBound(item);
+
+        const out: Pos = {
+            x,
+            w,
+            y: 0,
+            h: 0,
+            inner_h: item.inner_h
+        };
+
+        // drag/dragging/resizing/dropping/is_flex
+        if (
+            type === WidgetType.drag ||
+            is_dragging ||
+            is_resizing ||
+            is_dropping ||
+            is_flex
+        ) {
+            if (is_flex) {
+                out.y = Math.round(y + padding.top);
+            }
+
+            out.y = Math.round(y);
+        }
+        // grid
+        else {
+            out.y = Math.round((row_height + margin_y) * y + padding.top);
+        }
+
+        // drag/dragging/resizing/dropping/is_flex
+        if (type === WidgetType.drag || is_dragging || is_resizing || is_flex) {
+            out.h = Math.round(h);
+            out.inner_h = Math.round(h);
+        }
+        // grid
+        else {
+            out.h = Math.round((row_height + margin_y) * h);
+            out.inner_h = gridXY(h, row_height, margin_y);
+        }
+
+        return out;
+    };
+
     /** 获取元素最大边界 */
     const { max_left, max_right, max_top, max_bottom } = useMemo(() => {
         // 元素计算大小
@@ -160,21 +272,14 @@ export const useLayoutHooks = (
                   })
                 : layout;
 
-        calc_layout.forEach((l) => {
-            const out = calcXYWH(
-                l,
-                col_width,
-                row_height,
-                margin_x,
-                margin_y,
-                padding,
-                calcBound
-            );
-
+        calc_layout.forEach((out) => {
             max_left = Math.min(max_left, out.x);
             max_right = Math.max(max_right, out.x + out.w + padding.right);
             max_top = Math.min(max_top, out.y);
-            max_bottom = Math.max(max_bottom, out.y + out.h + padding.bottom);
+            max_bottom = Math.max(
+                max_bottom,
+                out.y + out.inner_h + padding.bottom
+            );
         });
 
         return { max_left, max_right, max_top, max_bottom };
@@ -186,6 +291,9 @@ export const useLayoutHooks = (
         (props as DragLayoutProps).height
     ]);
 
+    /**
+     * 画布高度
+     */
     const current_height: number = useMemo(() => {
         return props.layout_type === LayoutType.DRAG
             ? (props as DragLayoutProps).height
@@ -197,24 +305,9 @@ export const useLayoutHooks = (
         container_height
     ]);
 
-    const snapToGrid = (pos: LayoutItem) => {
-        if (pos.is_resizing || pos.is_dropping || pos.is_dragging) {
-            pos.x = calcXY(pos.x, col_width, margin_x, padding.left);
-            pos.y = calcXY(pos.y, row_height, margin_y, padding.top);
-        }
-
-        if (pos.is_resizing || pos.is_dragging) {
-            pos.w = calcWH(pos.w, col_width, margin_x);
-            pos.h = calcWH(pos.h, row_height, margin_y);
-        }
-
-        delete pos.is_dropping;
-        delete pos.is_resizing;
-        delete pos.is_dragging;
-
-        return calcBound(pos);
-    };
-
+    /**
+     * 获取当前容器wrapper高度
+     */
     const GetCurrentContainerHeight = () => {
         if (container_width && container_height) {
             const { layout_type, mode, scale } = props;
@@ -230,7 +323,8 @@ export const useLayoutHooks = (
                 const height_stragegy = {
                     [LayoutType.GRID]: () => {
                         /** 和视窗比较，找到实际最大边界 */
-                        const max_b = Math.max(max_bottom, container_height);
+                        // const max_b = Math.max(max_bottom, container_height);
+                        const max_b = max_bottom;
 
                         const calc_width = current_width * scale;
                         const calc_height = container_height * scale;
@@ -324,6 +418,224 @@ export const useLayoutHooks = (
         }
     };
 
+    /** 碰撞 */
+    function collides(item_1: ItemPos, item_2: ItemPos): boolean {
+        if (item_1.i === item_2.i) return false; // 相同节点
+        if (item_1.x + item_1.w <= item_2.x) return false; // 👈
+        if (item_1.x >= item_2.x + item_2.w) return false; // 👉
+        if (item_1.y + item_1.h <= item_2.y) return false; // 👆
+        if (item_1.y >= item_2.y + item_2.h) return false; // 👇
+        return true;
+    }
+
+    /** 检测碰撞 */
+    function getFirstCollision(layout: LayoutItem[], item: LayoutItem) {
+        return layout.find((l) => {
+            return collides(l, item);
+        });
+    }
+
+    /** 最大边界 */
+    function bottom(layout: LayoutItem[]) {
+        let max = 0;
+        layout.forEach((item) => {
+            const out = toYHpx(item);
+
+            max = Math.max(max, out.y + out.h);
+        });
+        return max;
+    }
+
+    /**
+     * 碰撞排序
+     * @param layout
+     * @returns
+     */
+    const compact = (layout: LayoutItem[]) => {
+        const compare_with: LayoutItem[] = [];
+        const sorted = sortGridLayoutItems(layout);
+
+        sorted.map((l) => {
+            l.moved = false;
+            l = LayoutItem(compare_with, l, sorted);
+            compare_with.push(l);
+        });
+
+        return compare_with;
+    };
+
+    /**
+     * 过滤grid类型
+     * @param layout
+     * @returns
+     */
+    function sortGridLayoutItems(layout: LayoutItem[]) {
+        return layout
+            .filter((l) => {
+                return l.type === WidgetType.grid;
+            })
+            .sort((a, b) => {
+                if (a.y > b.y || (a.y === b.y && a.x > b.x)) {
+                    return 1;
+                } else if (a.y === b.y && a.x === b.x) {
+                    return 0;
+                }
+                return -1;
+            });
+    }
+
+    /**
+     * 解决碰撞
+     * @param layout
+     * @param item
+     * @param move_to
+     */
+    function resolveCompactionCollision(
+        layout: LayoutItem[],
+        item: LayoutItem,
+        move_to: number
+    ) {
+        item.y += 1;
+        const idx = layout
+            .map((layoutItem) => {
+                return layoutItem.i;
+            })
+            .indexOf(item.i);
+
+        for (let i = idx + 1; i < layout.length; i++) {
+            const l = layout[i];
+            if (l.y > item.y + item.h) {
+                break;
+            }
+            if (collides(item, l)) {
+                resolveCompactionCollision(layout, l, move_to + item.h);
+            }
+        }
+        item.y = move_to;
+    }
+
+    /**
+     * 计算单个元素定位
+     * @param compare_with
+     * @param l
+     * @param sorted
+     * @returns
+     */
+    function LayoutItem(
+        compare_with: LayoutItem[],
+        l: LayoutItem,
+        sorted: LayoutItem[]
+    ) {
+        l.y = Math.min(bottom(compare_with), l.y);
+
+        while (l.y > 0) {
+            if (getFirstCollision(compare_with, l)) {
+                break;
+            } else {
+                l.y -= 1;
+            }
+        }
+
+        let collides;
+        while ((collides = getFirstCollision(compare_with, l))) {
+            resolveCompactionCollision(sorted, l, collides.y + collides.h);
+        }
+
+        // 最小y不能小于padding top，因为flex类型的容器，无法控制距离顶部的最小高度
+        // 所以在这里统一处理
+        l.y = Math.max(l.y, padding.top);
+        l.x = Math.max(l.x, 0);
+        return l;
+    }
+
+    function getAllCollisions(sorted: LayoutItem[], item: LayoutItem) {
+        return sorted.filter((l) => collides(l, item));
+    }
+
+    /**
+     * 挪走
+     * @param layout
+     * @param l
+     * @param collision
+     * @param is_user_action
+     * @returns
+     */
+    function moveElementAwayFromCollision(
+        layout: LayoutItem[],
+        l: LayoutItem,
+        collision: LayoutItem,
+        is_user_action: boolean = false
+    ) {
+        const fake_item: LayoutItem = {
+            x: collision.x,
+            y: Math.max(l.y - collision.h, 0),
+            w: collision.w,
+            h: collision.h,
+            i: 'fake_item',
+            inner_h: collision.inner_h,
+            type: WidgetType.grid,
+            layout_id: ''
+        };
+
+        if (is_user_action) {
+            is_user_action = false;
+            const _collision = getFirstCollision(layout, fake_item);
+            if (!_collision) {
+                return moveElement(
+                    layout,
+                    collision,
+                    collision.x,
+                    fake_item.y,
+                    is_user_action
+                );
+            }
+        }
+        return moveElement(layout, collision, collision.x, collision.y + 1);
+    }
+
+    /**
+     * 移动元素
+     * @param layout
+     * @param l
+     * @param x
+     * @param y
+     * @param is_user_action
+     * @returns
+     */
+    function moveElement(
+        layout: LayoutItem[],
+        l: LayoutItem,
+        x: number,
+        y: number,
+        is_user_action: boolean = false
+    ) {
+        const old_y = l.y;
+        l.x = x;
+        l.y = y;
+        l.moved = true;
+
+        let sorted = sortGridLayoutItems(layout);
+        if (old_y > l.y) sorted = sorted.reverse();
+
+        const collisions = getAllCollisions(sorted, l);
+
+        for (let i = 0, len = collisions.length; i < len; i++) {
+            const collision = collisions[i];
+
+            if (collision.moved) {
+                continue;
+            }
+
+            layout = moveElementAwayFromCollision(
+                sorted,
+                l,
+                collision,
+                is_user_action
+            );
+        }
+        return layout;
+    }
+
     /** resize计算新的画布高度、元素容器大小和偏移量 */
     useEffect(() => {
         GetCurrentContainerHeight();
@@ -354,7 +666,13 @@ export const useLayoutHooks = (
         wrapper_height,
         t_offset,
         l_offset,
-        snapToGrid,
-        calcBound
+        toXWpx,
+        toYHpx,
+        toYHcol,
+        toXWcol,
+
+        compact,
+        calcBound,
+        moveElement
     };
 };

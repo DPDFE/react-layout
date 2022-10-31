@@ -1,4 +1,4 @@
-import { BoundType, DraggableProps } from '@/interfaces';
+import { BoundScheme, DraggableProps } from '@/interfaces';
 import {
     addEvent,
     removeEvent,
@@ -276,7 +276,7 @@ export function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
 }
 
-export function formatBound(bound?: Partial<BoundType>): BoundType {
+export function formatBound(bound?: Partial<BoundScheme>): BoundScheme {
     if (bound) {
         return {
             max_x: bound.max_x == undefined ? Infinity : bound.max_x,

@@ -1,14 +1,16 @@
 import React, { ReactChild, ReactElement, RefObject } from 'react';
 
+// sticky
 export interface StickyTarget {
     id: string;
+    y: number;
     max_x: number;
     min_x: number;
-    y: number;
     is_sticky: boolean; // 当前置顶
     replace_targets: string[]; // 关联元素 A => [B,C] 当前元素替换了的元素，当当前元素还原，替换元素也还原
 }
 
+// operator
 export enum OperatorType {
     dropstart = 'dropstart',
     dragstart = 'dragstart',
@@ -22,21 +24,25 @@ export enum OperatorType {
     changeover = 'changeover'
 }
 
-export enum WidgetType {
-    drag = 'drag',
-    grid = 'grid'
-}
-
+// 画布模式
 export enum LayoutMode {
     edit = 'edit',
     view = 'view'
 }
 
+// 组件容器类型
+export enum WidgetType {
+    drag = 'drag',
+    grid = 'grid'
+}
+
+// 画布类型
 export enum LayoutType {
     DRAG = 'drag',
     GRID = 'grid'
 }
 
+// cursor
 export enum CursorType {
     nw = 'nw-resize',
     ne = 'ne-resize',
@@ -48,37 +54,43 @@ export enum CursorType {
     w = 'w-resize'
 }
 
+//
+export type CursorPointer = {
+    x: number;
+    y: number;
+    e: MouseEvent;
+    cursor: CursorType;
+};
+
+// 方向
 export enum DirectionType {
     horizontal = 'horizontal',
     vertical = 'vertical'
 }
 
+//
 export type RulerPointer = {
     x: number;
     y: number;
     direction: DirectionType;
 };
 
-export type CursorPointer = {
-    x: number;
-    y: number;
-    cursor: CursorType;
-    e: MouseEvent;
-};
-
-export type GridType = {
+// grid
+export type GridScheme = {
     col_width: number;
     row_height: number;
 };
 
-export type MarginType = {
+// margin
+export type MarginScheme = {
     top: number;
     left: number;
     right: number;
     bottom: number;
 };
 
-export type BoundType = {
+// bound
+export type BoundScheme = {
     max_x: number;
     max_y: number;
     min_x: number;
@@ -90,6 +102,7 @@ export type Pos = {
     y: number;
     h: number;
     w: number;
+    inner_h: number;
 };
 
 export type ItemPos = Pos & {
@@ -103,21 +116,24 @@ type NodeProps = {
     style?: React.CSSProperties;
 };
 
+// 基础配置
 type LayoutBase = NodeProps & {
-    children: ReactElement[];
-    layout_id: string;
-    scale: number;
-    cols: number;
-    row_height: number;
-    container_padding: [number, number?, number?, number?];
-    item_margin: [number, number];
-    need_ruler: boolean;
-    need_grid_lines: boolean;
-    need_grid_bound: boolean;
-    need_drag_bound: boolean;
-    is_droppable?: boolean; //不允许放
+    cols: number; // 一行几列
+    scale: number; // 缩放
+    layout_id: string; // ID
+    row_height: number; // 行高
+    need_ruler: boolean; // 需要标尺
+    is_droppable?: boolean; // 画布上允许放置
+    need_grid_lines: boolean; // 需要标线
+    need_grid_bound: boolean; // 需要grid边界
+    need_drag_bound: boolean; // 需要drag边界
+    item_margin: [number, number]; // 元素margin
+    widgets: LayoutItem[]; // 元素列表
+    children: ReactElement[]; // 子元素
+    container_padding: [number, number?, number?, number?]; // 画布padding
 };
 
+// drag view
 export type DragLayout = LayoutBase & {
     layout_type: LayoutType.DRAG;
     width: number;
@@ -125,6 +141,7 @@ export type DragLayout = LayoutBase & {
     mode: LayoutMode.view;
 };
 
+// drag edit
 export type DragEditLayout = LayoutBase &
     GuideLine & {
         layout_type: LayoutType.DRAG;
@@ -134,13 +151,16 @@ export type DragEditLayout = LayoutBase &
         cursors?: CursorType[];
     };
 
+// drag
 export type DragLayoutProps = DragLayout | DragEditLayout;
 
+// grid view
 export type GridLayout = LayoutBase & {
     layout_type: LayoutType.GRID;
     mode: LayoutMode.view;
 };
 
+// grid edit
 export type GridEditLayout = LayoutBase &
     GuideLine & {
         layout_type: LayoutType.GRID;
@@ -148,8 +168,10 @@ export type GridEditLayout = LayoutBase &
         cursors?: CursorType[];
     };
 
+// grid
 export type GridLayoutProps = GridLayout | GridEditLayout;
 
+// edit
 export type EditLayoutProps = DragEditLayout | GridEditLayout;
 
 /** 画板props */
@@ -159,6 +181,7 @@ export type ReactLayoutProps =
     | DragEditLayout
     | GridEditLayout;
 
+// guide line
 type GuideLine = {
     guide_lines?: RulerPointer[];
     addGuideLine?: ({ x, y, direction }: RulerPointer) => void;
@@ -196,22 +219,29 @@ export interface GuideLineProps {
     removeGuideLine?: ({ x, y, direction }: RulerPointer) => void;
 }
 
+// 容器基础配置
+export interface CompactItem extends ItemPos {
+    min_w?: number; //最小宽度
+    min_h?: number; // 最小高度
+    is_flex?: boolean; // 垂直方向flex
+    is_sticky?: boolean; // 置顶
+    is_checked?: boolean; // 被选中
+    is_dragging?: boolean; // 正在拖拽
+    is_dropping?: boolean; // 正在放置
+    is_resizing?: boolean; // 正在缩放
+    is_draggable?: boolean; // 可拖拽
+    is_resizable?: boolean; // 可缩放
+    is_droppable?: boolean; // 可放到其他画布中
+    need_border_draggable_handler?: boolean; // 需要拖拽bar
+    draggable_cancel_handler?: string; // 禁止拖拽class
+}
+
 /** 单节点属性 */
-export interface LayoutItem extends ItemPos {
-    min_w?: number;
-    min_h?: number;
-    moved?: boolean;
-    layout_id: string;
-    is_sticky?: boolean;
-    is_checked?: boolean;
-    is_dragging?: boolean;
-    is_dropping?: boolean;
-    is_resizing?: boolean;
-    is_draggable?: boolean;
-    is_resizable?: boolean;
-    is_droppable?: boolean; // 可以放入其他元素内部
-    need_border_draggable_handler?: boolean;
-    draggable_cancel_handler?: string;
+export interface LayoutItem extends CompactItem {
+    pxed?: boolean; // 像素化处理状态
+    moved?: boolean; // 被标记
+    inner_h: number; // 内部高度
+    layout_id: string; // 父布局ID
 }
 
 interface EventBaseProps extends NodeProps {
@@ -219,20 +249,22 @@ interface EventBaseProps extends NodeProps {
 }
 
 /** 子元素 */
-export interface WidgetItemProps extends EventBaseProps, LayoutItem, GridType {
+export interface WidgetItemProps
+    extends EventBaseProps,
+        LayoutItem,
+        GridScheme {
     cols: number;
     layout_type: LayoutType;
     canvas_viewport_ref: RefObject<HTMLDivElement>;
     shadow_ref: RefObject<HTMLDivElement>;
     cursors?: CursorType[];
     layout_id: string;
-    margin_x: number;
-    margin_y: number;
     scale: number;
-    padding: MarginType;
+    padding: MarginScheme;
+    margin_y: number;
     mode: LayoutMode.edit | LayoutMode.view;
     is_placeholder: boolean;
-    calcBound: (item: LayoutItem) => LayoutItem;
+    toXWpx: (item: LayoutItem) => Pos;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: (item: ItemPos, e: MouseEvent) => void;
     onDrag?: (item: ItemPos, e: MouseEvent) => void;
@@ -241,21 +273,22 @@ export interface WidgetItemProps extends EventBaseProps, LayoutItem, GridType {
     onResize?: (item: ItemPos, e: MouseEvent) => void;
     onResizeStop?: (item: ItemPos, e: MouseEvent) => void;
     onPositionChange?: (item: ItemPos, e: MouseEvent) => void;
+    changeWidgetHeight?: (height: number) => void;
 }
 
 /** ? 怎么能直接继承 React.HTMLAttributes<HTMLElement> ？？？ */
 /** drag */
 export interface DraggableProps extends EventBaseProps {
-    onContextMenu?: (e: React.MouseEvent<Element, MouseEvent>) => void;
     threshold?: number;
     x: number;
     y: number;
     scale?: number;
-    bound?: Partial<BoundType>;
+    bound?: Partial<BoundScheme>;
     is_draggable?: boolean;
     use_css_transform?: boolean;
     draggable_cancel_handler?: string[];
     draggable_handler?: string;
+    onContextMenu?: (e: React.MouseEvent<Element, MouseEvent>) => void;
     onDragStart?: ({
         e,
         x,
@@ -278,58 +311,22 @@ export interface CursorProps extends Omit<DraggableProps, 'children'> {
 }
 
 /** resize */
-export interface ResizableProps extends EventBaseProps {
-    onMouseDown?: (e: React.MouseEvent<Element, MouseEvent>) => void;
-    x: number;
-    y: number;
-    h: number;
-    w: number;
-    scale?: number;
+export interface ResizableProps extends EventBaseProps, Omit<Pos, 'inner_h'> {
     min_h?: number;
     min_w?: number;
-    bound?: BoundType;
+    scale?: number;
+    bound?: BoundScheme;
     is_resizable?: boolean;
     use_css_transform?: boolean;
     cursors?: CursorType[];
-    onResizeStart?: ({
-        x,
-        y,
-        h,
-        w,
-        e
-    }: {
-        x: number;
-        y: number;
-        h: number;
-        w: number;
-        e: MouseEvent;
-    }) => void;
-    onResize?: ({
-        x,
-        y,
-        h,
-        w,
-        e
-    }: {
-        x: number;
-        y: number;
-        h: number;
-        w: number;
-        e: MouseEvent;
-    }) => void;
-    onResizeStop?: ({
-        x,
-        y,
-        h,
-        w,
-        e
-    }: {
-        x: number;
-        y: number;
-        h: number;
-        w: number;
-        e: MouseEvent;
-    }) => void;
+    onMouseDown?: (e: React.MouseEvent<Element, MouseEvent>) => void;
+    onResizeStart?: (data: Omit<Pos, 'inner_h'> & { e: MouseEvent }) => void;
+    onResize?: (data: Omit<Pos, 'inner_h'> & { e: MouseEvent }) => void;
+    onResizeStop?: (
+        data: Omit<Pos, 'inner_h'> & {
+            e: MouseEvent;
+        }
+    ) => void;
 }
 
 export interface MenuProps extends NodeProps {
@@ -388,7 +385,10 @@ export interface Droppable {
     is_droppable?: boolean;
     getRef: () => HTMLDivElement | null;
     getViewPortRef: () => HTMLDivElement | null;
-    getFilterLayoutById: (i: string) => LayoutItem[];
+    getCanvasWrapperRef: () => HTMLDivElement | null;
+    // is_px 会跨越闭包取到当前计算layout上的props参数，
+    // 所以要将转化px逻辑封装在register里
+    getFilterLayoutById: (i: string, is_px?: boolean) => LayoutItem[];
     cleanShadow: (widget?: LayoutItem) => void;
     addShadow: (
         widget: LayoutItem,
