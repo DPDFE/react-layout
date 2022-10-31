@@ -10,15 +10,27 @@
 | matchesSelector | 判断当前元素是否是目标 class |
 | matchesSelectorAndParentsTo | 找到从开始元素一直找到结束元素是否有目标 class |
 | LocalStorage | 封装localstorage方法 |
-| EventBus | 订阅发布 |
-| toHex | 转化为hex（支持keyword\rgb\rgba\hex，支持多种空格、分号、斜杠分隔） |
-| toRgba | 转化为rgba（支持object、array、string输出格式） |
+| Events | 订阅发布 |
+| genAutoIdInit、genAutoId | 自增涨触发器 |
+| genAutoIdString | 获取一个永不重复的字符串 |
+
+| 颜色 | 作用 |
+| --- | --- |
 | isHex | 判断是否是hex |
 | isRgb | 判断是否是rgb |
 | isRbga | 判断是否是rgba |
+| isHsl | 判断是否是hsl |
+| isHsla | 判断是否是hsla |
+| toHex | 转化为hex（支持keyword\rgb\rgba\hex，支持多种空格、分号、斜杠分隔） |
+| toRgba | 转化为rgba（支持object、array、string输出格式） |
+| toHsl | 转化为Hsla（支持object、array、string输出格式） |
+| toRgb\toRgbaByCanvas | 转化为rgb（支持object、array、string输出格式），支持颜色融合 |
 | getKeywordColor | 获取关键词配色，比如red: #FF0000 |
-| getOpacity | 获取透明度，支持transparent |
+| range | 颜色色阶推荐 |
 | darken、lighten | 线性颜色百分比取值 |
+| getOpacity | 获取透明度，支持transparent |
+| getLuminance | 亮度 |
+| getGrayLevel | 灰度 |
 
 
 ## Usage
@@ -188,12 +200,13 @@ lighten('#2196f3', { percent: 50 }) // rgba(161, 255, 255, 0.5)
 
 // rgb / alpha percent 100%
 lighten('#2196f3', { percent: 100 }) // rgba(255, 255, 255, 0)
-
-
-//TODO
-// rgb / alpha max min
 ```
 
+#### 更多颜色使用方法参考exampe、test测试用例
+
+#### [example](https://github.com/DPDFE/react-layout/blob/main/src/example/event/color/computed.tsx)
+
+#### [test](https://github.com/DPDFE/react-layout/tree/main/packages/event/__tests__)
 
 #### fomatFloatNumber
 ```
@@ -248,3 +261,29 @@ EventBus.listeners('aaa')
 // 设置事件最大注册数量
 EventBus.setMaxListeners(4)
 ```
+
+#### AutoId
+```
+// 注册自增涨配置信息、不注册回全局新增默认default队列参数
+// key 队列名
+// start 迭代初始值
+// step 增长步长
+genAutoIdInit({ start: 1 });
+
+// 默认分组
+genAutoId() // 1
+genAutoId() // 2
+genAutoId() // 3
+genAutoId() // 4
+
+// 分组queue
+genAutoId('queue') // 随机值 + 1
+genAutoId('queue') // 随机值 + 2
+genAutoId('queue') // 随机值 + 3
+genAutoId('queue') // 随机值 + 4
+
+// 随机字符串
+genAutoIdString() // vfcnmjrv0f
+```
+
+
