@@ -5,12 +5,12 @@ import {
     lighten,
     toHsl,
     toRgb,
-    range,
-    luminance
+    range
 } from '@dpdfe/event-utils';
+import { ColorUseType } from '@dpdfe/event-utils/dist/color/computed';
 import {
     getLuminance,
-    _toRgba,
+    toRgbaByCanvas,
     RGB,
     RGBFormatType
 } from '@dpdfe/event-utils/dist/color/torgba';
@@ -303,7 +303,7 @@ function Darken() {
 
     return (
         <div style={{ height: '100%', width: '100%', overflow: 'auto' }}>
-            <p style={{ margin: 20, fontWeight: 600 }}>canvas color</p>
+            <p style={{ margin: 20, fontWeight: 600 }}>range recommended</p>
             <div
                 style={{
                     display: 'flex',
@@ -311,18 +311,13 @@ function Darken() {
                     flexWrap: 'wrap'
                 }}
             >
-                {range(
-                    [
-                        'rgb(205, 99, 201)',
-                        'rgb(33, 126, 74)',
-                        'rgb(255, 78, 13)',
-                        'rgb(61, 176, 247)'
-                    ],
-                    {
-                        total: 20
-                    }
-                ).map((c: string) => {
-                    const { red, green, blue, alpha } = _toRgba(c, {
+                {[
+                    'rgb(205, 99, 201)',
+                    'rgb(33, 126, 74)',
+                    'rgb(255, 78, 13)',
+                    'rgb(61, 176, 247)'
+                ].map((c: string) => {
+                    const { red, green, blue, alpha } = toRgbaByCanvas(c, {
                         backgroundColor: '#ffffff',
                         format: RGBFormatType.Object
                     });
@@ -349,7 +344,54 @@ function Darken() {
                 })}
             </div>
 
-            <p style={{ margin: 20, fontWeight: 600 }}>range recommended</p>
+            <p style={{ margin: 20, fontWeight: 600 }}>range hsl color</p>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    flexWrap: 'wrap'
+                }}
+            >
+                {range(
+                    [
+                        'rgb(205, 99, 201)',
+                        'rgb(33, 126, 74)',
+                        'rgb(255, 78, 13)',
+                        'rgb(61, 176, 247)'
+                    ],
+                    {
+                        total: 20,
+                        use: ColorUseType.Hsl
+                    }
+                ).map((c: string) => {
+                    const { red, green, blue, alpha } = toRgbaByCanvas(c, {
+                        backgroundColor: '#ffffff',
+                        format: RGBFormatType.Object
+                    });
+                    return (
+                        <div
+                            key={c}
+                            style={{
+                                marginLeft: 20,
+                                marginBottom: 20,
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    backgroundColor: `rgba(${red}, ${green}, ${blue}, ${alpha})`,
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                        </div>
+                    );
+                })}
+            </div>
+
+            <p style={{ margin: 20, fontWeight: 600 }}>range rgb color</p>
             <div
                 style={{
                     display: 'flex',
@@ -368,6 +410,10 @@ function Darken() {
                         total: 20
                     }
                 ).map((c: string) => {
+                    const { red, green, blue, alpha } = toRgbaByCanvas(c, {
+                        backgroundColor: '#ffffff',
+                        format: RGBFormatType.Object
+                    });
                     return (
                         <div
                             key={c}
@@ -381,7 +427,7 @@ function Darken() {
                         >
                             <div
                                 style={{
-                                    backgroundColor: c,
+                                    backgroundColor: `rgba(${red}, ${green}, ${blue}, ${alpha})`,
                                     width: 30,
                                     height: 30
                                 }}
@@ -416,11 +462,12 @@ function Darken() {
                         >
                             <div
                                 style={{
-                                    backgroundColor: luminance(
+                                    backgroundColor: darken(
                                         'rgb(205, 99, 201)',
 
                                         {
                                             percent,
+                                            use: ColorUseType.Hsl,
                                             is_full: true,
                                             max: 'rgb(205, 99, 201)',
                                             min: 'rgb(33, 126, 74)'
@@ -430,17 +477,6 @@ function Darken() {
                                     height: 30
                                 }}
                             ></div>
-                            {/* <pre style={{ fontSize: 12, marginTop: 5 }}>
-                                {luminance(
-                                    'rgb(205, 99, 201)',
-
-                                    {
-                                        percent,
-                                        max: 'rgb(205, 99, 201)',
-                                        min: 'rgb(33, 126, 74)'
-                                    }
-                                )}
-                            </pre> */}
                         </div>
                     );
                 })}
@@ -471,11 +507,12 @@ function Darken() {
                         >
                             <div
                                 style={{
-                                    backgroundColor: luminance(
+                                    backgroundColor: darken(
                                         'rgb(205, 99, 201)',
 
                                         {
-                                            percent
+                                            percent,
+                                            use: ColorUseType.Hsl
                                         }
                                     ),
                                     width: 30,
@@ -598,8 +635,9 @@ function Darken() {
                         >
                             <div
                                 style={{
-                                    backgroundColor: luminance(c, {
-                                        percent: 20
+                                    backgroundColor: darken(c, {
+                                        percent: 20,
+                                        use: ColorUseType.Hsl
                                     }),
                                     width: 30,
                                     height: 30
@@ -614,8 +652,9 @@ function Darken() {
                             ></div>
                             <div
                                 style={{
-                                    backgroundColor: luminance(c, {
-                                        percent: -20
+                                    backgroundColor: lighten(c, {
+                                        percent: 20,
+                                        use: ColorUseType.Hsl
                                     }),
                                     width: 30,
                                     height: 30
@@ -698,7 +737,7 @@ function Darken() {
                         ),
                         2
                     );
-                    const { red, green, blue, alpha } = _toRgba(c, {
+                    const { red, green, blue, alpha } = toRgbaByCanvas(c, {
                         backgroundColor: '#ffffff',
                         format: RGBFormatType.Object
                     });

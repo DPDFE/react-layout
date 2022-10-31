@@ -160,17 +160,17 @@ export function toRgb(
     return `rgb(${red}, ${green}, ${blue})`;
 }
 
-export function _toRgba(
+export function toRgbaByCanvas(
     source: string,
     options?: { format?: RGBFormatType.Css; backgroundColor?: string }
 ): string;
 
-export function _toRgba(
+export function toRgbaByCanvas(
     source: string,
     options: { format: RGBFormatType.Object; backgroundColor?: string }
 ): RGBA;
 
-export function _toRgba(
+export function toRgbaByCanvas(
     source: string,
     options: { format: RGBFormatType.Array; backgroundColor?: string }
 ): [number, number, number, number];
@@ -180,7 +180,7 @@ export function _toRgba(
  * @param source 前景色
  * @param background 背景色
  */
-export function _toRgba(
+export function toRgbaByCanvas(
     source: string,
     options: RGBOptions = { format: RGBFormatType.Css }
 ) {

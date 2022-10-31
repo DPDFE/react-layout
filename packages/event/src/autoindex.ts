@@ -67,14 +67,8 @@ export const genAutoIdInit = (
  * @returns
  */
 export function genAutoId(key: string = 'default') {
-    if (key === 'default') {
-        genAutoIdInit();
-    }
-
     if (!global_target_func_lut[key]) {
-        throw new Error(
-            '没有可迭代的内容，请先调用genAutoIdInit方法初始化迭代器参数'
-        );
+        genAutoIdInit({ key });
     }
 
     return global_target_func_lut[key]?.next().value as number;

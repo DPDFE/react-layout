@@ -30,16 +30,10 @@ import {
     getOpacity,
     getGrayLevel,
     getLuminance,
-    _toRgba
+    toRgbaByCanvas
 } from './color/torgba';
 
-import {
-    brightness,
-    luminance,
-    darken,
-    lighten,
-    range
-} from './color/computed';
+import { darken, lighten, range } from './color/computed';
 import { genAutoId, genAutoIdInit, genAutoIdString } from './autoindex';
 
 export {
@@ -60,13 +54,11 @@ export {
     getKeywordColor,
     toHex,
     toRgb,
-    _toRgba,
+    toRgbaByCanvas,
     toRgba,
     toHsl,
     darken,
     lighten,
-    brightness,
-    luminance,
     range,
     getOpacity,
     getLuminance,
