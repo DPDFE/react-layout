@@ -144,6 +144,7 @@ export function toRgb(
             format: RGBFormatType.Object
         }
     );
+
     const { red, green, blue } = colorMerge(source, background);
 
     if (options.format === RGBFormatType.Array) {
@@ -178,7 +179,7 @@ export function toRgbaByCanvas(
 /**
  * 创建canvas获取颜色
  * @param source 前景色
- * @param background 背景色
+ * @param options 配置
  */
 export function toRgbaByCanvas(
     source: string,
@@ -191,6 +192,7 @@ export function toRgbaByCanvas(
     options.backgroundColor &&
         ((ctx!.fillStyle = options.backgroundColor),
         ctx!.fillRect(0, 0, canvas.width, canvas.height));
+
     ctx!.fillStyle = source;
     ctx!.fillRect(0, 0, canvas.width, canvas.height);
     const [r, g, b, _a] = ctx!.getImageData(0, 0, 1, 1).data;

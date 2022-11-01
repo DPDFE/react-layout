@@ -12,7 +12,8 @@ import {
     getLuminance,
     toRgbaByCanvas,
     RGB,
-    RGBFormatType
+    RGBFormatType,
+    toRgba
 } from '@dpdfe/event-utils/dist/color/torgba';
 
 function Darken() {
@@ -303,6 +304,63 @@ function Darken() {
 
     return (
         <div style={{ height: '100%', width: '100%', overflow: 'auto' }}>
+            <p style={{ margin: 20, fontWeight: 600 }}>merge color</p>
+            <div
+                style={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    flexWrap: 'wrap'
+                }}
+            >
+                {[
+                    'rgb(205, 99, 201)',
+                    'rgb(33, 126, 74)',
+                    'rgb(255, 78, 13)',
+                    'rgb(61, 176, 247)'
+                ].map((c: string) => {
+                    const merge_color = 'rgb(0, 0, 0)';
+
+                    const color = toRgb(toRgba(c, { alpha: 0.5 }), {
+                        format: RGBFormatType.Css,
+                        backgroundColor: toRgba(merge_color, { alpha: 0.5 })
+                    });
+                    return (
+                        <div
+                            key={c}
+                            style={{
+                                marginLeft: 20,
+                                marginBottom: 20,
+                                display: 'flex',
+                                justifyContent: 'flex-start',
+                                flexWrap: 'wrap'
+                            }}
+                        >
+                            <div
+                                style={{
+                                    backgroundColor: c,
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                            <div
+                                style={{
+                                    backgroundColor: merge_color,
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                            <div
+                                style={{
+                                    backgroundColor: color,
+                                    width: 30,
+                                    height: 30
+                                }}
+                            ></div>
+                        </div>
+                    );
+                })}
+            </div>
+
             <p style={{ margin: 20, fontWeight: 600 }}>range recommended</p>
             <div
                 style={{
