@@ -398,7 +398,6 @@ const WidgetItem = (props: WidgetItemProps) => {
             }
         };
 
-        console.log(i, type, bound_strategy[type]);
         return bound_strategy[type];
     };
 

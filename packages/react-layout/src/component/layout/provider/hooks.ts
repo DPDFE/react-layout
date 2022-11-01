@@ -323,8 +323,8 @@ export const useLayoutHooks = (
                 const height_stragegy = {
                     [LayoutType.GRID]: () => {
                         /** 和视窗比较，找到实际最大边界 */
-                        // const max_b = Math.max(max_bottom, container_height);
-                        const max_b = max_bottom;
+                        const max_b = Math.max(max_bottom, container_height);
+                        // const max_b = max_bottom;
 
                         const calc_width = current_width * scale;
                         const calc_height = container_height * scale;
