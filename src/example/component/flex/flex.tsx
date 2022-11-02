@@ -22,20 +22,20 @@ function Flex() {
 
     function generateLayout() {
         return [
-            {
-                i: '1',
-                w: 8,
-                h: 2,
-                x: 0,
-                y: 0,
-                type: WidgetType.grid,
-                is_resizable: true,
-                is_draggable: true,
-                is_flex: false,
-                layout_id: 'widgets',
-                is_nested: false,
-                is_droppable: true
-            },
+            // {
+            //     i: '1',
+            //     w: 8,
+            //     h: 2,
+            //     x: 0,
+            //     y: 0,
+            //     type: WidgetType.grid,
+            //     is_resizable: true,
+            //     is_draggable: true,
+            //     is_flex: false,
+            //     layout_id: 'widgets',
+            //     is_nested: false,
+            //     is_droppable: true
+            // },
             // {
             //     i: '2',
             //     w: 8,
@@ -65,18 +65,38 @@ function Flex() {
             //     is_droppable: true
             // },
             {
-                i: '4',
-                w: 8,
-                h: 2,
+                i: '3',
+                w: 3,
+                h: 87,
                 x: 0,
-                y: 0,
-                type: WidgetType.grid,
+                y: 15,
+                min_w: 1,
+                type: 'grid',
                 is_resizable: true,
                 is_draggable: true,
                 is_flex: true,
                 layout_id: 'widgets',
                 is_nested: false,
-                is_droppable: true
+                is_droppable: true,
+                need_border_draggable_handler: false,
+                inner_h: 77
+            },
+            {
+                i: '4',
+                w: 3,
+                h: 87,
+                x: 0,
+                y: 15,
+                min_w: 1,
+                type: 'grid',
+                is_resizable: true,
+                is_draggable: true,
+                is_flex: true,
+                layout_id: 'widgets',
+                is_nested: false,
+                is_droppable: true,
+                need_border_draggable_handler: false,
+                inner_h: 77
             },
             {
                 i: '5',
@@ -147,7 +167,7 @@ function Flex() {
                                 <div
                                     style={{
                                         background: '#096dd9',
-                                        height: 200
+                                        height: 30
                                     }}
                                 ></div>
                             </div>
@@ -155,29 +175,6 @@ function Flex() {
                     );
                 })}
             </ReactLayout>
-
-            <div style={{ width: '100%' }}>
-                {widgets.map((w) => (
-                    <div
-                        key={w.i}
-                        data-drag={w}
-                        style={{
-                            height: '100%',
-                            width: '100%',
-                            border: '1px solid',
-                            background: '#cddc39'
-                        }}
-                    >
-                        <span>{w.i}</span>
-                        <div
-                            style={{
-                                background: '#096dd9',
-                                height: 200
-                            }}
-                        ></div>
-                    </div>
-                ))}
-            </div>
         </ReactLayoutContext>
     );
 }

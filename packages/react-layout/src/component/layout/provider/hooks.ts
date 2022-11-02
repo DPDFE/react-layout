@@ -6,7 +6,8 @@ import {
     LayoutMode,
     ReactLayoutProps,
     WidgetType,
-    Pos
+    Pos,
+    Droppable
 } from '@/interfaces';
 import { useEffect, useMemo, useState, useContext } from 'react';
 import {
@@ -212,7 +213,7 @@ export const useLayoutHooks = (
      */
     const toYHpx = (item: LayoutItem) => {
         const { type, is_resizing, is_dropping, is_dragging, is_flex } = item;
-        const { x, y, w, h } = calcBound(item);
+        const { x, y, w, h, inner_h } = calcBound(item);
 
         const out: Pos = {
             x,
@@ -244,7 +245,7 @@ export const useLayoutHooks = (
         // drag/dragging/resizing/dropping/is_flex
         if (type === WidgetType.drag || is_dragging || is_resizing || is_flex) {
             out.h = Math.round(h);
-            out.inner_h = Math.round(h);
+            out.inner_h = Math.round(inner_h ?? h);
         }
         // grid
         else {

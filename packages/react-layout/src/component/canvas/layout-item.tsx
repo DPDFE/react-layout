@@ -16,7 +16,8 @@ import React, {
     useRef,
     useCallback,
     useMemo,
-    useEffect
+    useEffect,
+    useLayoutEffect
 } from 'react';
 
 import Draggable from './draggable';
@@ -302,19 +303,26 @@ const WidgetItem = (props: WidgetItemProps) => {
 
     /**
      * 支持容器高度自适应
+     * 1.处理init情况
+     * 2.只响应其他缩放事件，手动缩放不响应
+     * 如果inner_h和渲染高度不一致，就用渲染高度为基准进行重绘
      */
-    resizeObserver(item_ref, () => {
+    useEffect(() => {
         if (
             item_ref.current?.offsetHeight &&
             props.is_flex &&
             !props.is_placeholder &&
-            item_ref.current?.offsetHeight !== out.h
+            item_ref.current?.offsetHeight !== out.inner_h
         ) {
-            console.log(item_ref.current.offsetHeight, out.h);
-            out.h = item_ref.current?.offsetHeight;
-            props.changeWidgetHeight?.(out.h);
+            const { min_h } = getMinimumBoundary();
+
+            out.h =
+                Math.max(item_ref.current?.offsetHeight, min_h) +
+                props.margin_y;
+            out.inner_h = item_ref.current?.offsetHeight;
+            props.changeWidgetHeight?.(out);
         }
-    });
+    }, [item_ref.current?.offsetHeight]);
 
     const new_child = React.cloneElement(child, {
         key: i,
@@ -465,7 +473,8 @@ const WidgetItem = (props: WidgetItemProps) => {
         <React.Fragment>
             {/** drag 拖拽不限制范围，限制阴影范围控制显示 */}
             <Draggable
-                {...out}
+                x={out.x}
+                y={out.y}
                 threshold={5}
                 use_css_transform
                 scale={props.scale}
@@ -537,7 +546,9 @@ const WidgetItem = (props: WidgetItemProps) => {
                         zIndex: is_sticky_target || is_dragging ? 1000 : 'auto'
                     }}
                     ref={item_ref}
-                    {...out}
+                    x={out.x}
+                    y={out.y}
+                    w={out.w}
                     h={out.inner_h}
                     scale={props.scale}
                     use_css_transform
@@ -547,9 +558,14 @@ const WidgetItem = (props: WidgetItemProps) => {
                             {
                                 x,
                                 w,
-                                y: props.is_flex ? out.y : y,
-                                h: props.is_flex ? out.h : h + props.margin_y,
-                                inner_h: h,
+                                y,
+                                h:
+                                    (props.is_flex
+                                        ? item_ref.current!.offsetHeight
+                                        : h) + props.margin_y,
+                                inner_h: props.is_flex
+                                    ? item_ref.current!.offsetHeight
+                                    : h,
                                 type,
                                 i
                             },
@@ -567,13 +583,34 @@ const WidgetItem = (props: WidgetItemProps) => {
                         if (props.layout_type === LayoutType.DRAG) {
                             moveToWindow(e);
                         }
+
+                        console.log('resize', {
+                            x,
+                            w,
+                            y,
+                            h:
+                                (props.is_flex
+                                    ? item_ref.current!.offsetHeight
+                                    : h) + props.margin_y,
+                            inner_h: props.is_flex
+                                ? item_ref.current!.offsetHeight
+                                : h,
+                            type,
+                            i
+                        });
+
                         props.onResize?.(
                             {
                                 x,
                                 w,
-                                y: props.is_flex ? out.y : y,
-                                h: props.is_flex ? out.h : h + props.margin_y,
-                                inner_h: h,
+                                y,
+                                h:
+                                    (props.is_flex
+                                        ? item_ref.current!.offsetHeight
+                                        : h) + props.margin_y,
+                                inner_h: props.is_flex
+                                    ? item_ref.current!.offsetHeight
+                                    : h,
                                 type,
                                 i
                             },
@@ -586,9 +623,14 @@ const WidgetItem = (props: WidgetItemProps) => {
                             {
                                 x,
                                 w,
-                                y: props.is_flex ? out.y : y,
-                                h: props.is_flex ? out.h : h + props.margin_y,
-                                inner_h: h,
+                                y,
+                                h:
+                                    (props.is_flex
+                                        ? item_ref.current!.offsetHeight
+                                        : h) + props.margin_y,
+                                inner_h: props.is_flex
+                                    ? item_ref.current!.offsetHeight
+                                    : h,
                                 type,
                                 i
                             },

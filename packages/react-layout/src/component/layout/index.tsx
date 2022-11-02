@@ -11,7 +11,12 @@ import React, {
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
 import WidgetItem from '../canvas/layout-item';
-import { cloneWidget, moveToWidget, LayoutItemStandard } from './context/calc';
+import {
+    cloneWidget,
+    moveToWidget,
+    LayoutItemStandard,
+    replaceWidget
+} from './context/calc';
 import styles from './styles.module.css';
 import {
     LayoutMode,
@@ -23,13 +28,14 @@ import {
     WidgetType,
     EditLayoutProps,
     Droppable,
-    LayoutItem
+    LayoutItem,
+    Pos
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
 import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
 import { useLayoutHooks } from './provider/hooks';
-import { isEqual, cloneDeep } from 'lodash';
+import { isEqual } from 'lodash';
 import { LayoutContext } from './context';
 import drawGridLines from './grid-lines';
 import classNames from 'classnames';
@@ -76,8 +82,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
         current_height,
         wrapper_width,
         wrapper_height,
-        margin_x,
         margin_y,
+        margin_x,
         t_offset,
         l_offset,
         padding,
@@ -86,7 +92,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
         toYHcol,
         toXWcol,
         compact,
-        moveElement
+        moveElement,
+        is_window_resize
     } = useLayoutHooks(
         layout,
         props,
@@ -120,6 +127,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 return LayoutItemStandard(w, props.layout_id, toYHpx);
             });
 
+            console.log('init', new_layout);
             compact(new_layout);
             setLayout(new_layout);
         }
@@ -231,6 +239,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 registry.droppable
                     .getById(moving_droppable.current.id)
                     .cleanShadow(current_widget);
+
+            setTimeout(() => {
+                operator_type.current = undefined;
+            }, 0);
 
             start_droppable.current = undefined;
             moving_droppable.current = undefined;
@@ -369,11 +381,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 ].includes(operator_type.current)
             ) {
                 moveToWidget(current_widget, item_pos);
-                setLayout(
-                    layout.map((l) =>
-                        l.i === current_widget.i ? current_widget : l
-                    )
-                );
+                setLayout(replaceWidget(layout, current_widget));
             }
         },
         [layout]
@@ -605,15 +613,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
     }, [registry, entry]);
 
     useEffect(() => {
-        if (
-            operator_type.current &&
-            END_OPERATOR.includes(operator_type.current)
-        ) {
-            operator_type.current = undefined;
-        }
-    }, [operator_type.current]);
-
-    useEffect(() => {
         drawGridLines(current_width, current_height, grid_lines_ref.current);
     }, [current_width, current_height]);
 
@@ -627,11 +626,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
             moving_droppable.current?.id === props.layout_id && (
                 <WidgetItem
                     {...placeholder.current}
+                    is_window_resize={is_window_resize}
                     layout_type={props.layout_type}
                     key='shadow'
                     cols={props.cols}
                     toXWpx={toXWpx}
                     margin_y={margin_y}
+                    margin_x={margin_x}
                     layout_id={props.layout_id}
                     scale={props.scale}
                     mode={LayoutMode.view}
@@ -668,6 +669,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             return (
                 <WidgetItem
                     {...widget}
+                    is_window_resize={is_window_resize}
                     toXWpx={toXWpx}
                     key={widget.i}
                     mode={props.mode}
@@ -680,6 +682,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     scale={props.scale}
                     padding={padding}
                     margin_y={margin_y}
+                    margin_x={margin_x}
                     is_sticky={widget.is_sticky}
                     is_checked={checked_index === widget.i}
                     is_resizable={
@@ -760,12 +763,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             );
                         }
                     }}
-                    changeWidgetHeight={(height) => {
-                        widget.h = height + margin_y;
-                        widget.inner_h = height;
-
-                        compact(layout);
-                        setLayout(cloneDeep(layout));
+                    changeWidgetHeight={(item: Pos) => {
+                        moveToWidget(widget, item);
+                        widget.is_resizing = true;
+                        toXWcol(widget);
+                        compact(replaceWidget(layout, widget));
+                        setLayout(copyObject(layout));
                     }}
                 />
             );

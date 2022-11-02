@@ -262,8 +262,10 @@ export interface WidgetItemProps
     scale: number;
     padding: MarginScheme;
     margin_y: number;
+    margin_x: number;
     mode: LayoutMode.edit | LayoutMode.view;
     is_placeholder: boolean;
+    is_window_resize: number;
     toXWpx: (item: LayoutItem) => Pos;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: (item: ItemPos, e: MouseEvent) => void;
@@ -273,7 +275,7 @@ export interface WidgetItemProps
     onResize?: (item: ItemPos, e: MouseEvent) => void;
     onResizeStop?: (item: ItemPos, e: MouseEvent) => void;
     onPositionChange?: (item: ItemPos, e: MouseEvent) => void;
-    changeWidgetHeight?: (height: number) => void;
+    changeWidgetHeight?: (pos: Pos) => void;
 }
 
 /** ? 怎么能直接继承 React.HTMLAttributes<HTMLElement> ？？？ */
