@@ -265,7 +265,6 @@ export interface WidgetItemProps
     margin_x: number;
     mode: LayoutMode.edit | LayoutMode.view;
     is_placeholder: boolean;
-    is_window_resize: number;
     toXWpx: (item: LayoutItem) => Pos;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: (item: ItemPos, e: MouseEvent) => void;

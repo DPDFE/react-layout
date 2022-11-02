@@ -92,8 +92,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         toYHcol,
         toXWcol,
         compact,
-        moveElement,
-        is_window_resize
+        moveElement
     } = useLayoutHooks(
         layout,
         props,
@@ -626,7 +625,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
             moving_droppable.current?.id === props.layout_id && (
                 <WidgetItem
                     {...placeholder.current}
-                    is_window_resize={is_window_resize}
                     layout_type={props.layout_type}
                     key='shadow'
                     cols={props.cols}
@@ -669,7 +667,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
             return (
                 <WidgetItem
                     {...widget}
-                    is_window_resize={is_window_resize}
                     toXWpx={toXWpx}
                     key={widget.i}
                     mode={props.mode}
@@ -767,7 +764,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         moveToWidget(widget, item);
                         widget.is_resizing = true;
                         toXWcol(widget);
-                        compact(replaceWidget(layout, widget));
+                        compact(layout);
                         setLayout(copyObject(layout));
                     }}
                 />

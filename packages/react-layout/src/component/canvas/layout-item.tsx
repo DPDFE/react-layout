@@ -6,7 +6,8 @@ import {
     WidgetType,
     LayoutType,
     StickyTarget,
-    CursorType
+    CursorType,
+    OperatorType
 } from '@/interfaces';
 import isEqual from 'lodash.isequal';
 import React, {
@@ -28,7 +29,6 @@ import './styles.module.css';
 import { LayoutContext } from '../layout/context';
 import { CHANGE_OPERATOR } from '../layout/constants';
 import { useScroll } from './scroll';
-import { resizeObserver } from '../layout/provider/resize-observer';
 import { getDragMinBound } from './constants';
 
 const WidgetItem = (props: WidgetItemProps) => {
@@ -303,26 +303,30 @@ const WidgetItem = (props: WidgetItemProps) => {
 
     /**
      * 支持容器高度自适应
+     * 高度通知修改在事件处理完成的下一个周期
      * 1.处理init情况
      * 2.只响应其他缩放事件，手动缩放不响应
      * 如果inner_h和渲染高度不一致，就用渲染高度为基准进行重绘
      */
     useEffect(() => {
-        if (
-            item_ref.current?.offsetHeight &&
-            props.is_flex &&
-            !props.is_placeholder &&
-            item_ref.current?.offsetHeight !== out.inner_h
-        ) {
-            const { min_h } = getMinimumBoundary();
+        setTimeout(() => {
+            if (
+                item_ref.current?.offsetHeight &&
+                props.is_flex &&
+                !props.is_placeholder &&
+                operator_type.current !== OperatorType.resize &&
+                item_ref.current?.offsetHeight !== out.inner_h
+            ) {
+                const { min_h } = getMinimumBoundary();
 
-            out.h =
-                Math.max(item_ref.current?.offsetHeight, min_h) +
-                props.margin_y;
-            out.inner_h = item_ref.current?.offsetHeight;
-            props.changeWidgetHeight?.(out);
-        }
-    }, [item_ref.current?.offsetHeight]);
+                out.h =
+                    Math.max(item_ref.current?.offsetHeight, min_h) +
+                    props.margin_y;
+                out.inner_h = item_ref.current?.offsetHeight;
+                props.changeWidgetHeight?.(out);
+            }
+        }, 100);
+    }, [item_ref.current?.offsetHeight, item_ref.current?.offsetWidth]);
 
     const new_child = React.cloneElement(child, {
         key: i,
@@ -584,21 +588,6 @@ const WidgetItem = (props: WidgetItemProps) => {
                             moveToWindow(e);
                         }
 
-                        console.log('resize', {
-                            x,
-                            w,
-                            y,
-                            h:
-                                (props.is_flex
-                                    ? item_ref.current!.offsetHeight
-                                    : h) + props.margin_y,
-                            inner_h: props.is_flex
-                                ? item_ref.current!.offsetHeight
-                                : h,
-                            type,
-                            i
-                        });
-
                         props.onResize?.(
                             {
                                 x,
@@ -619,6 +608,21 @@ const WidgetItem = (props: WidgetItemProps) => {
                     }}
                     {...getMinimumBoundary()}
                     onResizeStop={({ e, x, y, w, h }) => {
+                        console.log('resizeover', {
+                            x,
+                            w,
+                            y,
+                            h:
+                                (props.is_flex
+                                    ? item_ref.current!.offsetHeight
+                                    : h) + props.margin_y,
+                            inner_h: props.is_flex
+                                ? item_ref.current!.offsetHeight
+                                : h,
+                            type,
+                            i
+                        });
+
                         props.onResizeStop?.(
                             {
                                 x,
