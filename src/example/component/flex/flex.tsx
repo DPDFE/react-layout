@@ -19,6 +19,7 @@ import React, { useEffect, useState } from 'react';
 
 function Flex() {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
+    const [show_label, setShowLabel] = useState<boolean>(false);
 
     function generateLayout() {
         return [
@@ -117,6 +118,10 @@ function Flex() {
 
     useEffect(() => {
         setWidgets(generateLayout());
+
+        setTimeout(() => {
+            setShowLabel(true);
+        }, 3000);
     }, []);
 
     return (
@@ -161,6 +166,7 @@ function Flex() {
                                         color: 'red'
                                     }}
                                 ></span>
+                                {show_label && <p>我是一行新字</p>}
                                 我是第{w.i}
                                 个div, x: {w.x}, y: {w.y}, height: {w.h}, width:
                                 {w.w}

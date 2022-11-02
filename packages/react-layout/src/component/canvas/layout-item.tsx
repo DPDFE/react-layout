@@ -18,7 +18,8 @@ import React, {
     useCallback,
     useMemo,
     useEffect,
-    useLayoutEffect
+    useLayoutEffect,
+    useState
 } from 'react';
 
 import Draggable from './draggable';
@@ -30,10 +31,14 @@ import { LayoutContext } from '../layout/context';
 import { CHANGE_OPERATOR } from '../layout/constants';
 import { useScroll } from './scroll';
 import { getDragMinBound } from './constants';
+import { resizeObserver } from '../layout/provider/resize-observer';
 
 const WidgetItem = (props: WidgetItemProps) => {
     const child = React.Children.only(props.children) as ReactElement;
     const item_ref = useRef<HTMLDivElement>(null);
+
+    // 高度变化
+    const [is_item_resize, setItemResize] = useState<number>(Math.random());
 
     // useContext 会引发页面渲染
     const {
@@ -301,6 +306,11 @@ const WidgetItem = (props: WidgetItemProps) => {
 
     const out = calcItemPosition();
 
+    // 监听页面变换
+    resizeObserver(item_ref, () => {
+        setItemResize(Math.random());
+    });
+
     /**
      * 支持容器高度自适应
      * 高度通知修改在事件处理完成的下一个周期
@@ -309,24 +319,22 @@ const WidgetItem = (props: WidgetItemProps) => {
      * 如果inner_h和渲染高度不一致，就用渲染高度为基准进行重绘
      */
     useEffect(() => {
-        setTimeout(() => {
-            if (
-                item_ref.current?.offsetHeight &&
-                props.is_flex &&
-                !props.is_placeholder &&
-                operator_type.current !== OperatorType.resize &&
-                item_ref.current?.offsetHeight !== out.inner_h
-            ) {
-                const { min_h } = getMinimumBoundary();
+        if (
+            item_ref.current?.offsetHeight &&
+            props.is_flex &&
+            !props.is_placeholder &&
+            operator_type.current !== OperatorType.resize &&
+            item_ref.current?.offsetHeight !== out.inner_h
+        ) {
+            const { min_h } = getMinimumBoundary();
 
-                out.h =
-                    Math.max(item_ref.current?.offsetHeight, min_h) +
-                    props.margin_y;
-                out.inner_h = item_ref.current?.offsetHeight;
-                props.changeWidgetHeight?.(out);
-            }
-        }, 100);
-    }, [item_ref.current?.offsetHeight, item_ref.current?.offsetWidth]);
+            out.h =
+                Math.max(item_ref.current?.offsetHeight, min_h) +
+                props.margin_y;
+            out.inner_h = item_ref.current?.offsetHeight;
+            props.changeWidgetHeight?.(out);
+        }
+    }, [is_item_resize]);
 
     const new_child = React.cloneElement(child, {
         key: i,
