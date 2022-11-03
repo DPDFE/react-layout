@@ -293,6 +293,15 @@ export const useLayoutHooks = (
     ]);
 
     /**
+     * 实际高度
+     */
+    const real_height = useMemo(() => {
+        return props.layout_type === LayoutType.DRAG
+            ? (props as DragLayoutProps).height
+            : max_bottom;
+    }, [props.layout_type, (props as DragLayoutProps).height, max_bottom]);
+
+    /**
      * 画布高度
      */
     const current_height: number = useMemo(() => {
@@ -662,6 +671,7 @@ export const useLayoutHooks = (
         padding,
         is_window_resize,
         current_width,
+        real_height,
         current_height,
         wrapper_width,
         wrapper_height,
