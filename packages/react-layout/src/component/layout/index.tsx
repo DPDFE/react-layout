@@ -81,6 +81,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
         row_height,
         current_height,
         wrapper_width,
+        real_height,
         wrapper_height,
         margin_y,
         margin_x,
@@ -603,8 +604,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
     );
 
     useEffect(() => {
-        getResponders().onLayoutHeightChange?.(entry.id, current_height);
-    }, [current_height]);
+        console.log('real_height', real_height);
+        getResponders().onLayoutHeightChange?.(entry.id, real_height);
+    }, [real_height]);
 
     useLayoutEffect(() => {
         registry.droppable.register(entry);
