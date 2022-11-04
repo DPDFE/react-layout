@@ -331,10 +331,12 @@ const WidgetItem = (props: WidgetItemProps) => {
             out.h =
                 Math.max(item_ref.current?.offsetHeight, min_h) +
                 props.margin_y;
+
             out.inner_h = item_ref.current?.offsetHeight;
+
             props.changeWidgetHeight?.(out);
         }
-    }, [is_item_resize]);
+    }, [is_item_resize, props.init_rerender]);
 
     const new_child = React.cloneElement(child, {
         key: i,

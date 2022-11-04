@@ -6,6 +6,7 @@ import {
     ReactLayoutContext,
     WidgetType
 } from '@dpdfe/react-layout';
+import { Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 // 目标，如果没有高度就获取子元素渲染完成以后的高度配置到h上
@@ -23,95 +24,62 @@ function Flex() {
 
     function generateLayout() {
         return [
-            // {
-            //     i: '1',
-            //     w: 8,
-            //     h: 2,
-            //     x: 0,
-            //     y: 0,
-            //     type: WidgetType.grid,
-            //     is_resizable: true,
-            //     is_draggable: true,
-            //     is_flex: false,
-            //     layout_id: 'widgets',
-            //     is_nested: false,
-            //     is_droppable: true
-            // },
-            // {
-            //     i: '2',
-            //     w: 8,
-            //     h: 2,
-            //     x: 0,
-            //     y: 0,
-            //     type: WidgetType.grid,
-            //     is_resizable: true,
-            //     is_draggable: true,
-            //     is_flex: true,
-            //     layout_id: 'widgets',
-            //     is_nested: false,
-            //     is_droppable: true
-            // },
-            // {
-            //     i: '3',
-            //     w: 8,
-            //     h: 2,
-            //     x: 0,
-            //     y: 0,
-            //     type: WidgetType.grid,
-            //     is_resizable: true,
-            //     is_draggable: true,
-            //     is_flex: true,
-            //     layout_id: 'widgets',
-            //     is_nested: false,
-            //     is_droppable: true
-            // },
             {
-                i: '3',
-                w: 3,
-                h: 87,
-                x: 0,
-                y: 15,
-                min_w: 1,
-                type: 'grid',
-                is_resizable: true,
-                is_draggable: true,
-                is_flex: true,
-                layout_id: 'widgets',
-                is_nested: false,
-                is_droppable: true,
-                need_border_draggable_handler: false,
-                inner_h: 77
-            },
-            {
-                i: '4',
-                w: 3,
-                h: 87,
-                x: 0,
-                y: 15,
-                min_w: 1,
-                type: 'grid',
-                is_resizable: true,
-                is_draggable: true,
-                is_flex: true,
-                layout_id: 'widgets',
-                is_nested: false,
-                is_droppable: true,
-                need_border_draggable_handler: false,
-                inner_h: 77
-            },
-            {
-                i: '5',
-                w: 8,
-                h: 2,
+                w: 30,
+                h: 1,
                 x: 0,
                 y: 0,
-                type: WidgetType.grid,
-                is_resizable: true,
-                is_draggable: true,
-                is_flex: false,
-                layout_id: 'widgets',
-                is_nested: false,
-                is_droppable: true
+                is_flex: true,
+                i: '0',
+                chart_id: 10086,
+                component_type: 'form_number',
+                min_h: 2,
+                min_w: 2,
+                type: 'grid',
+                refresh: 1
+            },
+
+            {
+                w: 30,
+                h: 1,
+                x: 0,
+                y: 15,
+                is_flex: true,
+                i: '10088',
+                chart_id: 10088,
+                component_type: 'form_text',
+                min_h: 2,
+                min_w: 2,
+                type: 'grid',
+                refresh: 1
+            },
+            {
+                w: 30,
+                h: 1,
+                x: 0,
+                y: 20,
+                is_flex: true,
+                i: '10089',
+                chart_id: 10089,
+                component_type: 'form_text',
+                min_h: 2,
+                min_w: 2,
+                type: 'grid',
+                refresh: 1
+            },
+            {
+                w: 30,
+                h: 1,
+                x: 0,
+                y: 25,
+                is_flex: true,
+                i: '10090',
+                chart_id: 10087,
+                component_type: 'form_btn',
+                min_h: 2,
+                min_w: 2,
+                type: 'grid',
+                refresh: 1
             }
         ];
     }
@@ -125,63 +93,80 @@ function Flex() {
     }, []);
 
     return (
-        <ReactLayoutContext
-            onChange={(result: LayoutResult) => {
-                console.log(result);
-                const { source, destination } = result;
-                setWidgets(source.widgets);
-            }}
-        >
-            <ReactLayout
-                style={{
-                    background: '#fff'
+        <>
+            <Button type='primary' style={{ marginRight: 10 }} draggable={true}>
+                拖拽添加
+            </Button>
+            <ReactLayoutContext
+                onChange={(result: LayoutResult) => {
+                    console.log(result);
+                    const { source, destination } = result;
+                    setWidgets(source.widgets);
                 }}
-                layout_id={'widgets'}
-                widgets={widgets}
-                layout_type={LayoutType.GRID}
-                mode={LayoutMode.edit}
-                container_padding={[15]}
-                row_height={10}
-                cols={8}
-                draggable_cancel_handler={'.draggable_cancel_handler'}
-                item_margin={[10, 10]}
-                is_droppable={true}
-                need_drag_bound={false}
-                need_grid_bound={true}
-                is_nested_layout={true}
             >
-                {widgets.map((w) => {
-                    return (
-                        <div
-                            key={w.i}
-                            data-drag={w}
-                            style={{
-                                border: '1px solid',
-                                background: '#cddc39'
-                            }}
-                        >
-                            <div className='test'>
-                                <span
-                                    style={{
-                                        color: 'red'
-                                    }}
-                                ></span>
-                                {show_label && <p>我是一行新字</p>}
-                                我是第{w.i}
-                                个div, x: {w.x}, y: {w.y}, height: {w.h}, width:
-                                {w.w}
-                                <div
-                                    style={{
-                                        background: '#096dd9',
-                                        height: 30
-                                    }}
-                                ></div>
+                <ReactLayout
+                    style={{
+                        background: '#fff'
+                    }}
+                    layout_id={'widgets'}
+                    widgets={widgets}
+                    layout_type={LayoutType.GRID}
+                    mode={LayoutMode.edit}
+                    container_padding={[15]}
+                    row_height={10}
+                    cols={8}
+                    draggable_cancel_handler={'.draggable_cancel_handler'}
+                    item_margin={[10, 10]}
+                    is_droppable={true}
+                    need_drag_bound={false}
+                    need_grid_bound={true}
+                    is_nested_layout={true}
+                >
+                    {widgets.map((w) => {
+                        return (
+                            <div
+                                key={w.i}
+                                data-drag={w}
+                                style={{
+                                    border: '1px solid',
+                                    background: '#cddc39'
+                                }}
+                            >
+                                <div className='test'>
+                                    <span
+                                        style={{
+                                            color: 'red'
+                                        }}
+                                    ></span>
+                                    {show_label && <p>我是一行新字</p>}
+                                    我是第{w.i}
+                                    个div, x: {w.x}, y: {w.y}, height: {w.h},
+                                    width:
+                                    {w.w}
+                                    <button
+                                        onClick={() => {
+                                            setWidgets(
+                                                widgets.filter(
+                                                    (_w) => _w.i !== w.i
+                                                )
+                                            );
+                                        }}
+                                    >
+                                        删除
+                                    </button>
+                                    <div
+                                        style={{
+                                            background: '#096dd9',
+                                            height: 30
+                                        }}
+                                    ></div>
+                                </div>
                             </div>
-                        </div>
-                    );
-                })}
-            </ReactLayout>
-        </ReactLayoutContext>
+                        );
+                    })}
+                </ReactLayout>
+            </ReactLayoutContext>
+        </>
     );
 }
 

@@ -75,6 +75,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
     // layout 内的y,inner_h，h都是px值
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
+    // 处理初始化情况获取flex类型高度
+    const [init_rerender, setInitRerender] = useState<number>(Math.random());
+
     const {
         current_width,
         col_width,
@@ -127,8 +130,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 return LayoutItemStandard(w, props.layout_id, toYHpx);
             });
 
-            console.log('init', new_layout);
             compact(new_layout);
+            setInitRerender(Math.random());
+            console.log('new_layout', new_layout);
             setLayout(new_layout);
         }
     }, [props.widgets]);
@@ -604,7 +608,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
     );
 
     useEffect(() => {
-        console.log('real_height', real_height);
         getResponders().onLayoutHeightChange?.(entry.id, real_height);
     }, [real_height]);
 
@@ -636,6 +639,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     layout_id={props.layout_id}
                     scale={props.scale}
                     mode={LayoutMode.view}
+                    init_rerender={init_rerender}
                     is_checked={false}
                     is_placeholder={true}
                     is_resizable={false}
@@ -682,6 +686,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     padding={padding}
                     margin_y={margin_y}
                     margin_x={margin_x}
+                    init_rerender={init_rerender}
                     is_sticky={widget.is_sticky}
                     is_checked={checked_index === widget.i}
                     is_resizable={
@@ -767,6 +772,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         widget.is_resizing = true;
                         toXWcol(widget);
                         compact(layout);
+                        console.log('changeWidgetHeight', layout);
                         setLayout(copyObject(layout));
                     }}
                 />
