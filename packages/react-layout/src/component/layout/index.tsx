@@ -132,7 +132,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
             compact(new_layout);
             setInitRerender(Math.random());
-            console.log('new_layout', new_layout);
             setLayout(new_layout);
         }
     }, [props.widgets]);
@@ -508,7 +507,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             }
                         )
                     },
-                    widget: copyObject(shadow),
+                    widget: toYHcol(copyObject(shadow)),
                     destination: undefined
                 };
                 // 拖拽和缩放

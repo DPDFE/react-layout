@@ -618,21 +618,6 @@ const WidgetItem = (props: WidgetItemProps) => {
                     }}
                     {...getMinimumBoundary()}
                     onResizeStop={({ e, x, y, w, h }) => {
-                        console.log('resizeover', {
-                            x,
-                            w,
-                            y,
-                            h:
-                                (props.is_flex
-                                    ? item_ref.current!.offsetHeight
-                                    : h) + props.margin_y,
-                            inner_h: props.is_flex
-                                ? item_ref.current!.offsetHeight
-                                : h,
-                            type,
-                            i
-                        });
-
                         props.onResizeStop?.(
                             {
                                 x,

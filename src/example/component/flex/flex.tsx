@@ -33,8 +33,8 @@ function Flex() {
                 i: '0',
                 chart_id: 10086,
                 component_type: 'form_number',
-                min_h: 2,
-                min_w: 2,
+                min_h: 5,
+                min_w: 8,
                 type: 'grid',
                 refresh: 1
             },
