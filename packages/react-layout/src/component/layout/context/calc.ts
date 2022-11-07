@@ -41,7 +41,7 @@ export const calcWH = (
     return Math.round((grid_number + margin_px) / (size + margin_px));
 };
 
-export function moveToWidget(target: LayoutItem, to: ItemPos) {
+export function moveToWidget(target: LayoutItem, to: Pos) {
     target.x = to.x;
     target.y = to.y;
     target.w = to.w;

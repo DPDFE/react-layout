@@ -26,5 +26,5 @@ export function resizeObserver(
                 resizeObserverInstance.disconnect();
             }
         };
-    }, [ref]);
+    }, []);
 }

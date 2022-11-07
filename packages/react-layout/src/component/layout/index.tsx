@@ -11,7 +11,12 @@ import React, {
 import VerticalRuler from '../vertical-ruler';
 import HorizontalRuler from '../horizontal-ruler';
 import WidgetItem from '../canvas/layout-item';
-import { cloneWidget, moveToWidget, LayoutItemStandard } from './context/calc';
+import {
+    cloneWidget,
+    moveToWidget,
+    LayoutItemStandard,
+    replaceWidget
+} from './context/calc';
 import styles from './styles.module.css';
 import {
     LayoutMode,
@@ -23,13 +28,14 @@ import {
     WidgetType,
     EditLayoutProps,
     Droppable,
-    LayoutItem
+    LayoutItem,
+    Pos
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
 import { clamp, DEFAULT_BOUND } from '../canvas/draggable';
 import { useLayoutHooks } from './provider/hooks';
-import { isEqual, cloneDeep } from 'lodash';
+import { isEqual } from 'lodash';
 import { LayoutContext } from './context';
 import drawGridLines from './grid-lines';
 import classNames from 'classnames';
@@ -69,15 +75,19 @@ const ReactLayout = (props: ReactLayoutProps) => {
     // layout 内的y,inner_h，h都是px值
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
 
+    // 处理初始化情况获取flex类型高度
+    const [init_rerender, setInitRerender] = useState<number>(Math.random());
+
     const {
         current_width,
         col_width,
         row_height,
         current_height,
         wrapper_width,
+        real_height,
         wrapper_height,
-        margin_x,
         margin_y,
+        margin_x,
         t_offset,
         l_offset,
         padding,
@@ -121,6 +131,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             });
 
             compact(new_layout);
+            setInitRerender(Math.random());
             setLayout(new_layout);
         }
     }, [props.widgets]);
@@ -231,6 +242,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 registry.droppable
                     .getById(moving_droppable.current.id)
                     .cleanShadow(current_widget);
+
+            setTimeout(() => {
+                operator_type.current = undefined;
+            }, 0);
 
             start_droppable.current = undefined;
             moving_droppable.current = undefined;
@@ -369,11 +384,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 ].includes(operator_type.current)
             ) {
                 moveToWidget(current_widget, item_pos);
-                setLayout(
-                    layout.map((l) =>
-                        l.i === current_widget.i ? current_widget : l
-                    )
-                );
+                setLayout(replaceWidget(layout, current_widget));
             }
         },
         [layout]
@@ -496,7 +507,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             }
                         )
                     },
-                    widget: copyObject(shadow),
+                    widget: toYHcol(copyObject(shadow)),
                     destination: undefined
                 };
                 // 拖拽和缩放
@@ -596,22 +607,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
     );
 
     useEffect(() => {
-        getResponders().onLayoutHeightChange?.(entry.id, current_height);
-    }, [current_height]);
+        getResponders().onLayoutHeightChange?.(entry.id, real_height);
+    }, [real_height]);
 
     useLayoutEffect(() => {
         registry.droppable.register(entry);
         return () => registry.droppable.unregister(entry);
     }, [registry, entry]);
-
-    useEffect(() => {
-        if (
-            operator_type.current &&
-            END_OPERATOR.includes(operator_type.current)
-        ) {
-            operator_type.current = undefined;
-        }
-    }, [operator_type.current]);
 
     useEffect(() => {
         drawGridLines(current_width, current_height, grid_lines_ref.current);
@@ -632,9 +634,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     cols={props.cols}
                     toXWpx={toXWpx}
                     margin_y={margin_y}
+                    margin_x={margin_x}
                     layout_id={props.layout_id}
                     scale={props.scale}
                     mode={LayoutMode.view}
+                    init_rerender={init_rerender}
                     is_checked={false}
                     is_placeholder={true}
                     is_resizable={false}
@@ -680,6 +684,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     scale={props.scale}
                     padding={padding}
                     margin_y={margin_y}
+                    margin_x={margin_x}
+                    init_rerender={init_rerender}
                     is_sticky={widget.is_sticky}
                     is_checked={checked_index === widget.i}
                     is_resizable={
@@ -760,12 +766,13 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             );
                         }
                     }}
-                    changeWidgetHeight={(height) => {
-                        widget.h = height + margin_y;
-                        widget.inner_h = height;
-
+                    changeWidgetHeight={(item: Pos) => {
+                        moveToWidget(widget, item);
+                        widget.is_resizing = true;
+                        toXWcol(widget);
                         compact(layout);
-                        setLayout(cloneDeep(layout));
+                        console.log('changeWidgetHeight', layout);
+                        setLayout(copyObject(layout));
                     }}
                 />
             );

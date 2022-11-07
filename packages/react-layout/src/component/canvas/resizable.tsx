@@ -88,12 +88,12 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
             bound: {
                 max_x: props.x + props.w - min_w
             },
-            calcPositionByCursor: ({ x, y }: { x: number; y: number }) => {
+            calcPositionByCursor: ({ x }: { x: number; y: number }) => {
                 return calcBoundPositions(
                     {
                         x,
                         y: props.y,
-                        w: Math.min(props.x - x + props.w, props.x + props.w),
+                        w: props.x - x + props.w,
                         h: props.h
                     },
                     bound
@@ -105,9 +105,9 @@ const Resizable = React.forwardRef((props: ResizableProps, ref) => {
             x: props.x + props.w,
             y: props.y + props.h / 2,
             bound: {
-                min_x: props.x + props.w - min_w
+                min_x: props.x + min_w
             },
-            calcPositionByCursor: ({ x, y }: { x: number; y: number }) => {
+            calcPositionByCursor: ({ x }: { x: number; y: number }) => {
                 return calcBoundPositions(
                     {
                         x: props.x,
