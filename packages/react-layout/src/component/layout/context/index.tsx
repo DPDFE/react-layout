@@ -49,7 +49,6 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             onResizeStop,
             getDroppingItem,
             onPositionChange,
-            onLayoutEntry,
             onLayoutHeightChange
         } = props;
         return {
@@ -63,7 +62,6 @@ export const useLayoutContext = (props: ReactLayoutContextProps) => {
             onChange,
             getDroppingItem,
             onPositionChange,
-            onLayoutEntry,
             onLayoutHeightChange
         };
     }, [props]);

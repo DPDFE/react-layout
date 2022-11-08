@@ -962,7 +962,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                                   ? 'unset'
                                                   : 'hidden'
                                       }
-                                    : { width: '100%', overflow: 'hidden' }),
+                                    : { width: '100%', overflow: 'visible' }),
                                 height: current_height,
                                 top: t_offset,
                                 left: l_offset,
@@ -1029,8 +1029,8 @@ ReactLayout.displayName = 'ReactLayout';
 ReactLayout.defaultProps = {
     scale: 1,
     cols: 10,
-    width: 400,
-    height: 400,
+    width: undefined,
+    height: undefined,
     row_height: 20,
     container_padding: [0] as [number],
     item_margin: [0, 0] as [number, number],

@@ -118,6 +118,7 @@ type NodeProps = {
 
 // 基础配置
 type LayoutBase = NodeProps & {
+    width: number; // 宽度
     cols: number; // 一行几列
     scale: number; // 缩放
     layout_id: string; // ID
@@ -136,7 +137,6 @@ type LayoutBase = NodeProps & {
 // drag view
 export type DragLayout = LayoutBase & {
     layout_type: LayoutType.DRAG;
-    width: number;
     height: number;
     mode: LayoutMode.view;
 };
@@ -145,7 +145,6 @@ export type DragLayout = LayoutBase & {
 export type DragEditLayout = LayoutBase &
     GuideLine & {
         layout_type: LayoutType.DRAG;
-        width: number;
         height: number;
         mode: LayoutMode.edit;
         cursors?: CursorType[];
@@ -238,7 +237,6 @@ export interface CompactItem extends ItemPos {
 
 /** 单节点属性 */
 export interface LayoutItem extends CompactItem {
-    pxed?: boolean; // 像素化处理状态
     moved?: boolean; // 被标记
     inner_h: number; // 内部高度
     layout_id: string; // 父布局ID
@@ -378,7 +376,6 @@ export interface ReactLayoutContextProps {
     onChange?: (result: LayoutResult) => void;
     onPositionChange?: (result: LayoutResult) => void;
     onLayoutHeightChange?: (layout_id: string, height: number) => void;
-    onLayoutEntry?: (layout_id: string, entry: Droppable) => void;
 }
 
 export interface Droppable {

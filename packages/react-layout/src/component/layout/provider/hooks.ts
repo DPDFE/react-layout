@@ -6,8 +6,7 @@ import {
     LayoutMode,
     ReactLayoutProps,
     WidgetType,
-    Pos,
-    Droppable
+    Pos
 } from '@/interfaces';
 import { useEffect, useMemo, useState, useContext } from 'react';
 import {
@@ -51,6 +50,8 @@ export const useLayoutHooks = (
     const current_width = useMemo(() => {
         return props.layout_type === LayoutType.DRAG
             ? (props as DragLayoutProps).width
+            : props.width
+            ? Math.min(container_width, props.width)
             : container_width;
     }, [props.layout_type, container_width, (props as DragLayoutProps).width]);
 

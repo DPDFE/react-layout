@@ -491,7 +491,7 @@ const DefaultLayout = () => {
                         widgets={widgets}
                         layout_id={'root'}
                         layout_type={type}
-                        width={width}
+                        // width={width}
                         height={height}
                         row_height={28}
                         cols={8}

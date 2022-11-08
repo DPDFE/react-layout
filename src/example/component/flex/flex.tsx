@@ -33,6 +33,8 @@ function Flex() {
                 i: '0',
                 chart_id: 10086,
                 component_type: 'form_number',
+                is_draggable: true,
+                is_resizable: true,
                 min_h: 5,
                 min_w: 8,
                 type: 'grid',
@@ -48,6 +50,8 @@ function Flex() {
                 i: '10088',
                 chart_id: 10088,
                 component_type: 'form_text',
+                is_draggable: true,
+                is_resizable: true,
                 min_h: 2,
                 min_w: 2,
                 type: 'grid',
@@ -62,6 +66,8 @@ function Flex() {
                 i: '10089',
                 chart_id: 10089,
                 component_type: 'form_text',
+                is_draggable: true,
+                is_resizable: true,
                 min_h: 2,
                 min_w: 2,
                 type: 'grid',
@@ -76,6 +82,8 @@ function Flex() {
                 i: '10090',
                 chart_id: 10087,
                 component_type: 'form_btn',
+                is_draggable: true,
+                is_resizable: true,
                 min_h: 2,
                 min_w: 2,
                 type: 'grid',
@@ -91,6 +99,10 @@ function Flex() {
             setShowLabel(true);
         }, 3000);
     }, []);
+
+    useEffect(() => {
+        console.log(widgets);
+    }, [widgets]);
 
     return (
         <>
@@ -117,6 +129,7 @@ function Flex() {
                     cols={8}
                     draggable_cancel_handler={'.draggable_cancel_handler'}
                     item_margin={[10, 10]}
+                    width={800}
                     is_droppable={true}
                     need_drag_bound={false}
                     need_grid_bound={true}
