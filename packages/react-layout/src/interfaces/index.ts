@@ -264,7 +264,7 @@ export interface WidgetItemProps
     mode: LayoutMode.edit | LayoutMode.view;
     is_placeholder: boolean;
     init_rerender: number;
-    toXWpx: (item: LayoutItem) => Pos;
+    toXWpx: (item: LayoutItem) => LayoutItem;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: (item: ItemPos, e: MouseEvent) => void;
     onDrag?: (item: ItemPos, e: MouseEvent) => void;
@@ -398,4 +398,8 @@ export interface Droppable {
         destination?: WidgetLocation;
     };
     move: (current_widget: LayoutItem, item_pos: ItemPos) => void;
+    toXWpx: (item: LayoutItem) => LayoutItem;
+    toYHpx: (item: LayoutItem) => LayoutItem;
+    toYHcol: (item: LayoutItem) => LayoutItem;
+    toXWcol: (item: LayoutItem) => LayoutItem;
 }

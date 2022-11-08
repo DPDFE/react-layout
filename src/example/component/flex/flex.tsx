@@ -7,7 +7,7 @@ import {
     WidgetType
 } from '@dpdfe/react-layout';
 import { Button } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 // 目标，如果没有高度就获取子元素渲染完成以后的高度配置到h上
 /**
@@ -99,10 +99,6 @@ function Flex() {
             setShowLabel(true);
         }, 3000);
     }, []);
-
-    useEffect(() => {
-        console.log(widgets);
-    }, [widgets]);
 
     return (
         <>

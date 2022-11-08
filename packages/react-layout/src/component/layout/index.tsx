@@ -129,7 +129,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
             const new_layout = props.widgets.map((w) => {
                 return LayoutItemStandard(w, props.layout_id, toYHpx);
             });
-
             compact(new_layout);
             setInitRerender(Math.random());
             setLayout(new_layout);
@@ -253,8 +252,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
     };
 
     const getFilterLayoutById = useCallback(
-        (i, is_px?: boolean) => {
-            if (is_px) {
+        (i, is_col?: boolean) => {
+            if (is_col) {
                 return copyObject(
                     layout!.filter((l) => {
                         return l.i !== i;
@@ -592,7 +591,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
             getFilterLayoutById,
             addShadow,
             move,
-            saveLayout
+            saveLayout,
+            toXWpx,
+            toYHpx,
+            toYHcol,
+            toXWcol
         }),
         [
             getRef,
@@ -602,7 +605,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
             getFilterLayoutById,
             addShadow,
             move,
-            saveLayout
+            saveLayout,
+            toXWpx,
+            toYHpx,
+            toYHcol,
+            toXWcol
         ]
     );
 
@@ -771,7 +778,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         widget.is_resizing = true;
                         toXWcol(widget);
                         compact(layout);
-                        console.log('changeWidgetHeight', layout);
+                        // console.log('changeWidgetHeight', layout);
                         setLayout(copyObject(layout));
                     }}
                 />
@@ -856,10 +863,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                   drop_enter_counter.current = 0;
                                   const item = getDropItem(e);
 
-                                  handleResponder(e, OperatorType.dropover, {
-                                      ...item,
-                                      ...toYHpx(item)
-                                  });
+                                  handleResponder(
+                                      e,
+                                      OperatorType.dropover,
+                                      toYHpx(item)
+                                  );
                                   drag_item.current = undefined;
                               }
                             : noop
@@ -873,11 +881,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                   e.preventDefault();
                                   const item = getDropItem(e);
 
-                                  const widget = {
-                                      ...item,
-                                      ...toYHpx(item)
-                                  };
-
+                                  const widget = toYHpx(item);
                                   delete drag_item.current?.is_dragging;
 
                                   if (!drag_item.current) {

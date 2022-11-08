@@ -171,7 +171,7 @@ export const useLayoutHooks = (
     /**
      * 只更新XW变换成px
      */
-    const toXWpx = (item: LayoutItem) => {
+    const toXWpx = (item: LayoutItem): LayoutItem => {
         const { type, is_resizing, is_dropping, is_dragging } = item;
         const { x, y, w, h } = calcBound(item);
 
@@ -206,13 +206,13 @@ export const useLayoutHooks = (
             out.x = Math.round((col_width + margin_x) * x + padding.left);
         }
 
-        return out;
+        return { ...item, ...out };
     };
 
     /**
      * 只更新YH变换成px
      */
-    const toYHpx = (item: LayoutItem) => {
+    const toYHpx = (item: LayoutItem): LayoutItem => {
         const { type, is_resizing, is_dropping, is_dragging, is_flex } = item;
         const { x, y, w, h, inner_h } = calcBound(item);
 
@@ -254,7 +254,7 @@ export const useLayoutHooks = (
             out.inner_h = gridXY(h, row_height, margin_y);
         }
 
-        return out;
+        return { ...item, ...out };
     };
 
     /** 获取元素最大边界 */

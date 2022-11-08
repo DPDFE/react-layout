@@ -166,7 +166,7 @@ export function formatOutputValue(arr: LayoutItem[]) {
 export function LayoutItemStandard(
     data: LayoutItem,
     parent_layout_id: string,
-    toYHpx: (item: LayoutItem) => Pos
+    toYHpx: (item: LayoutItem) => LayoutItem
 ) {
     const item = { ...data } as LayoutItem;
 
