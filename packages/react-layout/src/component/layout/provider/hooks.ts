@@ -39,10 +39,22 @@ export const useLayoutHooks = (
 
     const { operator_type, moving_droppable } = useContext(LayoutContext);
 
+    /** 视窗高度 */
+    // const container_height = canvas_viewport_ref.current?.offsetHeight ?? 10;
+    const [container_height, setContainerHeight] = useState<number>(
+        canvas_viewport_ref.current?.offsetHeight ?? 10
+    );
+
+    useEffect(() => {
+        /** 在操作过程中，画布视窗有时候会跟随元素增长，阻止这种计算 */
+        if (operator_type.current === undefined) {
+            console.log(canvas_viewport_ref.current?.offsetHeight ?? 10);
+            setContainerHeight(canvas_viewport_ref.current?.offsetHeight ?? 10);
+        }
+    }, [canvas_viewport_ref.current?.offsetHeight, layout]);
+
     /** 视窗宽度 */
     const container_width = canvas_viewport_ref.current?.offsetWidth ?? 10;
-    /** 视窗高度 */
-    const container_height = canvas_viewport_ref.current?.offsetHeight ?? 10;
 
     /**
      * 画布宽度计算，在栅栏格式下，元素只能在画布内拖动
