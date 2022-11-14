@@ -21,7 +21,7 @@ import React, { useContext, useEffect, useState } from 'react';
 function Flex() {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
     const [show_label, setShowLabel] = useState<boolean>(false);
-    const [width, setWidth] = useState<number | string>(800);
+    const [width, setWidth] = useState<number | undefined>(undefined);
 
     function generateLayout() {
         return [

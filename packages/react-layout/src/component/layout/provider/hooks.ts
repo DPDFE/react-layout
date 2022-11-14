@@ -40,21 +40,16 @@ export const useLayoutHooks = (
     const { operator_type, moving_droppable } = useContext(LayoutContext);
 
     /** 视窗高度 */
-    // const container_height = canvas_viewport_ref.current?.offsetHeight ?? 10;
-    const [container_height, setContainerHeight] = useState<number>(
-        canvas_viewport_ref.current?.offsetHeight ?? 10
-    );
-
-    useEffect(() => {
-        /** 在操作过程中，画布视窗有时候会跟随元素增长，阻止这种计算 */
-        if (operator_type.current === undefined) {
-            console.log(canvas_viewport_ref.current?.offsetHeight ?? 10);
-            setContainerHeight(canvas_viewport_ref.current?.offsetHeight ?? 10);
-        }
-    }, [canvas_viewport_ref.current?.offsetHeight, layout]);
+    const container_height = canvas_viewport_ref.current?.offsetHeight ?? 10;
 
     /** 视窗宽度 */
     const container_width = canvas_viewport_ref.current?.offsetWidth ?? 10;
+
+    /** 补全边距 */
+    const padding = useMemo(
+        () => completedPadding(props.container_padding),
+        [props.container_padding]
+    );
 
     /**
      * 画布宽度计算，在栅栏格式下，元素只能在画布内拖动
@@ -63,7 +58,7 @@ export const useLayoutHooks = (
         return props.layout_type === LayoutType.DRAG
             ? (props as DragLayoutProps).width
             : props.width
-            ? Math.min(container_width, props.width)
+            ? props.width
             : container_width;
     }, [props.layout_type, container_width, (props as DragLayoutProps).width]);
 
@@ -71,12 +66,6 @@ export const useLayoutHooks = (
     resizeObserver(container_ref, () => {
         setWindowResize(Math.random());
     });
-
-    /** 补全边距 */
-    const padding = useMemo(
-        () => completedPadding(props.container_padding),
-        [props.container_padding]
-    );
 
     /** 单元素水平边距 */
     const margin_x = props.item_margin[1];

@@ -941,9 +941,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         className='canvas_wrapper'
                         ref={canvas_wrapper_ref}
                         style={{
-                            ...(props.layout_type === LayoutType.DRAG
-                                ? { width: wrapper_width }
-                                : { width: '100%', overflow: 'hidden' }),
+                            width: wrapper_width,
                             height: wrapper_height
                         }}
                     >
@@ -958,15 +956,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             className={styles.canvas}
                             style={{
                                 ...props.style,
-                                ...(props.layout_type === LayoutType.DRAG
-                                    ? {
-                                          width: props.width,
-                                          overflow:
-                                              props.mode === LayoutMode.edit
-                                                  ? 'unset'
-                                                  : 'hidden'
-                                      }
-                                    : { width: '100%', overflow: 'visible' }),
+                                width: props.width ?? '100%',
                                 height: current_height,
                                 top: t_offset,
                                 left: l_offset,
