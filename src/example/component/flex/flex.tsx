@@ -6,7 +6,7 @@ import {
     ReactLayoutContext,
     WidgetType
 } from '@dpdfe/react-layout';
-import { Button } from 'antd';
+import { Button, Input } from 'antd';
 import React, { useContext, useEffect, useState } from 'react';
 
 // 目标，如果没有高度就获取子元素渲染完成以后的高度配置到h上
@@ -21,6 +21,7 @@ import React, { useContext, useEffect, useState } from 'react';
 function Flex() {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
     const [show_label, setShowLabel] = useState<boolean>(false);
+    const [width, setWidth] = useState<number | string>(800);
 
     function generateLayout() {
         return [
@@ -105,6 +106,14 @@ function Flex() {
             <Button type='primary' style={{ marginRight: 10 }} draggable={true}>
                 拖拽添加
             </Button>
+            <span>宽度(px)：</span>
+            <Input
+                value={width}
+                style={{ marginRight: 10, width: 150 }}
+                onChange={(e) => {
+                    setWidth(parseInt(e.target.value));
+                }}
+            ></Input>
             <ReactLayoutContext
                 onChange={(result: LayoutResult) => {
                     console.log(result);
@@ -125,7 +134,7 @@ function Flex() {
                     cols={8}
                     draggable_cancel_handler={'.draggable_cancel_handler'}
                     item_margin={[10, 10]}
-                    width={800}
+                    width={width}
                     is_droppable={true}
                     need_drag_bound={false}
                     need_grid_bound={true}
