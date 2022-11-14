@@ -848,7 +848,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     className={'canvas_viewport'}
                     style={{
                         overflow: 'auto',
-                        // position: 'relative',
+                        position: 'relative',
                         flex: 1,
                         scrollBehavior: 'smooth'
                     }}
@@ -941,8 +941,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         className='canvas_wrapper'
                         ref={canvas_wrapper_ref}
                         style={{
-                            width: wrapper_width,
-                            height: wrapper_height
+                            ...(props.layout_type === LayoutType.DRAG
+                                ? {
+                                      width: wrapper_width,
+                                      height: wrapper_height
+                                  }
+                                : { height: '100%' })
                         }}
                     >
                         {/* 实际画布区域 */}
