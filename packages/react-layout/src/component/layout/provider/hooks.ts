@@ -69,7 +69,7 @@ export const useLayoutHooks = (
         return props.layout_type === LayoutType.DRAG
             ? (props as DragLayoutProps).width
             : props.width
-            ? props.width
+            ? Math.min(container_width, props.width)
             : container_width;
     }, [props.layout_type, container_width, (props as DragLayoutProps).width]);
 
@@ -320,6 +320,8 @@ export const useLayoutHooks = (
     const current_height: number = useMemo(() => {
         return props.layout_type === LayoutType.DRAG
             ? (props as DragLayoutProps).height
+            : props.use_max_bottom
+            ? max_bottom
             : Math.max(max_bottom, container_height);
     }, [props.layout_type, (props as DragLayoutProps).height, max_bottom]);
 

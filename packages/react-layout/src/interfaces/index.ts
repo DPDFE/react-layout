@@ -128,6 +128,7 @@ type LayoutBase = NodeProps & {
     need_grid_lines: boolean; // 需要标线
     need_grid_bound: boolean; // 需要grid边界
     need_drag_bound: boolean; // 需要drag边界
+    use_max_bottom?: boolean; // 需要用元素的最大高度显示计算
     item_margin: [number, number]; // 元素margin
     widgets: LayoutItem[]; // 元素列表
     children: ReactElement[]; // 子元素

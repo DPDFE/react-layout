@@ -960,7 +960,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             className={styles.canvas}
                             style={{
                                 ...props.style,
-                                width: props.width ?? '100%',
+                                width: current_width,
                                 height: current_height,
                                 top: t_offset,
                                 left: l_offset,
