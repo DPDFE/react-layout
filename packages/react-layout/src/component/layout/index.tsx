@@ -847,9 +847,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     ref={canvas_viewport_ref}
                     className={'canvas_viewport'}
                     style={{
-                        overflow: 'auto',
-                        position: 'relative',
                         flex: 1,
+                        overflowX: 'hidden',
+                        overflowY: props.use_max_bottom ? 'hidden' : 'auto',
+                        position: 'relative',
                         scrollBehavior: 'smooth'
                     }}
                     /** 阻止了onDragOver以后，onDrop事件才生效 */

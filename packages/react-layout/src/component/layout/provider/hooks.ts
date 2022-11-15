@@ -71,7 +71,12 @@ export const useLayoutHooks = (
             : props.width
             ? Math.min(container_width, props.width)
             : container_width;
-    }, [props.layout_type, container_width, (props as DragLayoutProps).width]);
+    }, [
+        props.layout_type,
+        is_window_resize,
+        container_width,
+        (props as DragLayoutProps).width
+    ]);
 
     // 监听页面变换
     resizeObserver(container_ref, () => {
