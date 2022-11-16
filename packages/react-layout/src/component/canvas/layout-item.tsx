@@ -18,7 +18,6 @@ import React, {
     useCallback,
     useMemo,
     useEffect,
-    useLayoutEffect,
     useState
 } from 'react';
 
@@ -38,6 +37,8 @@ const WidgetItem = (props: WidgetItemProps) => {
     const item_ref = useRef<HTMLDivElement>(null);
 
     // 高度变化
+    const [is_init, setInit] = useState<boolean>(false);
+    const [is_init_resize, setInitResize] = useState<boolean>(false);
     const [is_item_resize, setItemResize] = useState<number>(Math.random());
 
     // useContext 会引发页面渲染
@@ -105,6 +106,7 @@ const WidgetItem = (props: WidgetItemProps) => {
         inner_h,
         col_width,
         row_height,
+        is_flex,
         toXWpx
     } = props;
 
@@ -312,19 +314,15 @@ const WidgetItem = (props: WidgetItemProps) => {
     });
 
     /**
-     * 支持容器高度自适应
-     * 高度通知修改在事件处理完成的下一个周期
-     * 1.处理init情况
-     * 2.只响应其他缩放事件，手动缩放不响应
-     * 如果inner_h和渲染高度不一致，就用渲染高度为基准进行重绘
+     * 只要是flex的元素，就用flex的高度画画
      */
     useEffect(() => {
         if (
+            is_init &&
             item_ref.current?.offsetHeight &&
             props.is_flex &&
             !props.is_placeholder &&
-            operator_type.current !== OperatorType.resize &&
-            item_ref.current?.offsetHeight !== out.inner_h
+            operator_type.current !== OperatorType.resize
         ) {
             const { min_h } = getMinimumBoundary();
 
@@ -334,9 +332,16 @@ const WidgetItem = (props: WidgetItemProps) => {
 
             out.inner_h = item_ref.current?.offsetHeight;
 
+            setInitResize(true);
+
             props.changeWidgetHeight?.(out);
         }
-    }, [is_item_resize, props.init_rerender]);
+    }, [is_item_resize, is_init]);
+
+    useEffect(() => {
+        setInitResize(false);
+        setInit(true);
+    }, []);
 
     const new_child = React.cloneElement(child, {
         key: i,
@@ -437,14 +442,29 @@ const WidgetItem = (props: WidgetItemProps) => {
                 y,
                 w,
                 h,
+                is_flex,
                 inner_h,
                 type,
                 is_resizable,
                 is_draggable,
-                layout_id
+                layout_id,
+                is_init_resize
             }
         }),
-        [i, layout_id, x, y, w, h, inner_h, type, is_resizable, is_draggable]
+        [
+            i,
+            layout_id,
+            x,
+            y,
+            w,
+            h,
+            is_flex,
+            inner_h,
+            type,
+            is_resizable,
+            is_draggable,
+            is_init_resize
+        ]
     );
 
     const getLayoutItemRef = useCallback((): HTMLElement | null => {

@@ -264,7 +264,6 @@ export interface WidgetItemProps
     margin_x: number;
     mode: LayoutMode.edit | LayoutMode.view;
     is_placeholder: boolean;
-    init_rerender: number;
     toXWpx: (item: LayoutItem) => LayoutItem;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: (item: ItemPos, e: MouseEvent) => void;
@@ -343,7 +342,9 @@ export interface MenuItemProps extends NodeProps {
 export interface LayoutItemDescriptor {
     id: string;
     layout_id: string;
-    pos: LayoutItem;
+    pos: LayoutItem & {
+        is_init_resize: boolean;
+    };
 }
 
 export interface LayoutItemEntry {

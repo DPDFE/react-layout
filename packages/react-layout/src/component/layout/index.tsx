@@ -72,11 +72,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
     const [ruler_hover_pos, setRulerHoverPos] = useState<RulerPointer>(); //尺子hover坐标
 
+    // 高度更新
+    const [height_change_item, setHeightChangeItem] = useState<LayoutItem>();
+
     // layout 内的y,inner_h，h都是px值
     const [layout, setLayout] = useState<LayoutItem[]>([]); // 真实定位位置
-
-    // 处理初始化情况获取flex类型高度
-    const [init_rerender, setInitRerender] = useState<number>(Math.random());
 
     const {
         current_width,
@@ -127,11 +127,28 @@ const ReactLayout = (props: ReactLayoutProps) => {
     useEffect(() => {
         if (props.widgets) {
             const new_layout = props.widgets.map((w) => {
-                return LayoutItemStandard(w, props.layout_id, toYHpx);
+                const item = LayoutItemStandard(
+                    { ...w },
+                    props.layout_id,
+                    toYHpx
+                );
+
+                // 因为高度是动态变化的，is_flex把上次的高度还原回去
+                const draggable = registry.draggable.getById(w.i);
+                const inner_h = draggable?.descriptor.pos.inner_h;
+                const h = draggable?.descriptor.pos.h;
+
+                if (item.is_flex && inner_h && h) {
+                    item.inner_h = inner_h;
+                    item.h = h;
+                }
+                return item;
             });
-            compact(new_layout);
-            setInitRerender(Math.random());
-            setLayout(new_layout);
+
+            if (!isEqual(new_layout, layout)) {
+                compact(new_layout);
+                setLayout(new_layout);
+            }
         }
     }, [props.widgets]);
 
@@ -626,6 +643,26 @@ const ReactLayout = (props: ReactLayoutProps) => {
         drawGridLines(current_width, current_height, grid_lines_ref.current);
     }, [current_width, current_height]);
 
+    /** 全量更新完成后修正坐标 */
+    useEffect(() => {
+        const draggables = registry.draggable
+            .getByLayoutId(props.layout_id)
+            .filter((d) => {
+                return d.descriptor.pos.is_flex;
+            });
+
+        const is_all_ready = draggables
+            .map((d) => {
+                return d.descriptor.pos.is_init_resize;
+            })
+            .every((state) => state === true);
+
+        if (is_all_ready && height_change_item) {
+            compact(layout);
+            setLayout(copyObject(layout));
+        }
+    }, [height_change_item]);
+
     /**
      * shadow dom
      * @returns
@@ -645,7 +682,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     layout_id={props.layout_id}
                     scale={props.scale}
                     mode={LayoutMode.view}
-                    init_rerender={init_rerender}
                     is_checked={false}
                     is_placeholder={true}
                     is_resizable={false}
@@ -692,7 +728,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     padding={padding}
                     margin_y={margin_y}
                     margin_x={margin_x}
-                    init_rerender={init_rerender}
                     is_sticky={widget.is_sticky}
                     is_checked={checked_index === widget.i}
                     is_resizable={
@@ -777,9 +812,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         moveToWidget(widget, item);
                         widget.is_resizing = true;
                         toXWcol(widget);
-                        compact(layout);
-                        // console.log('changeWidgetHeight', layout);
-                        setLayout(copyObject(layout));
+                        setHeightChangeItem(widget);
                     }}
                 />
             );

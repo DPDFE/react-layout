@@ -17,6 +17,12 @@ export default function createRegistry() {
         return entries.draggables[id] || null;
     }
 
+    function getDraggableByLayoutId(layout_id: string): LayoutItemEntry[] {
+        return Object.values(entries.draggables).filter(
+            (entry) => entry.descriptor.layout_id === layout_id
+        );
+    }
+
     function registerDraggable(entry: LayoutItemEntry) {
         entries.draggables[entry.descriptor.id] = entry;
     }
@@ -67,6 +73,7 @@ export default function createRegistry() {
             },
             unregister: unregisterDraggable,
             getById: getDraggableById,
+            getByLayoutId: getDraggableByLayoutId,
             exists: (id: string): boolean => Boolean(getDraggableById(id))
         },
         droppable: {
