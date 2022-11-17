@@ -881,7 +881,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     className={'canvas_viewport'}
                     style={{
                         flex: 1,
-                        overflowX: 'hidden',
+                        overflowX:
+                            props.layout_type === LayoutType.DRAG
+                                ? 'auto'
+                                : 'hidden',
                         overflowY: props.use_max_bottom ? 'hidden' : 'auto',
                         position: 'relative',
                         scrollBehavior: 'smooth'
