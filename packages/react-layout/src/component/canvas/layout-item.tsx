@@ -346,7 +346,8 @@ const WidgetItem = (props: WidgetItemProps) => {
     const new_child = React.cloneElement(child, {
         key: i,
         tabIndex: i,
-        onMouseDown: () => {
+        onClick: (e: React.MouseEvent) => {
+            e.stopPropagation();
             props.setCurrentChecked?.(i);
         },
         onKeyDown: (e: React.KeyboardEvent) => {

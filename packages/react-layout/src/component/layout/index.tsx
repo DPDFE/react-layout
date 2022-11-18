@@ -204,6 +204,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
         e.preventDefault();
         e.stopPropagation();
 
+        if (START_OPERATOR.includes(operator)) {
+            setCurrentChecked(current_widget.i);
+        }
+
         operator_type.current = operator;
 
         if ([OperatorType.dragstart].includes(operator)) {
@@ -211,10 +215,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         }
         if ([OperatorType.resizestart].includes(operator)) {
             current_widget.is_resizing = true;
-        }
-
-        if (START_OPERATOR.includes(operator)) {
-            setCurrentChecked(current_widget.i);
         }
 
         const data = {
@@ -751,15 +751,10 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         );
                     }}
                     onDrag={(item, e) => {
-                        if (checked_index === widget.i) {
-                            handleResponder(e, OperatorType.drag, widget, item);
-                        }
+                        handleResponder(e, OperatorType.drag, widget, item);
                     }}
                     onDragStop={(item, e) => {
-                        if (
-                            checked_index === widget.i &&
-                            operator_type.current === OperatorType.drag
-                        ) {
+                        if (operator_type.current === OperatorType.drag) {
                             handleResponder(
                                 e,
                                 OperatorType.dragover,
