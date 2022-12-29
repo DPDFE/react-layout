@@ -351,7 +351,7 @@ const WidgetItem = (props: WidgetItemProps) => {
             props.setCurrentChecked?.(i);
         },
         onKeyDown: (e: React.KeyboardEvent) => {
-            if (type === WidgetType.drag) {
+            if (type === WidgetType.drag && props.need_position_change) {
                 const keydown_pos = handleKeyDown(e);
                 if (keydown_pos) {
                     props.onPositionChange?.(

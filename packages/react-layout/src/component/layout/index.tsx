@@ -877,10 +877,16 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     style={{
                         flex: 1,
                         overflowX:
-                            props.layout_type === LayoutType.DRAG
+                            props.layout_type === LayoutType.DRAG &&
+                            props.mode === LayoutMode.edit
                                 ? 'auto'
                                 : 'hidden',
-                        overflowY: props.use_max_bottom ? 'hidden' : 'auto',
+                        overflowY:
+                            props.use_max_bottom ||
+                            (props.layout_type === LayoutType.DRAG &&
+                                props.mode === LayoutMode.view)
+                                ? 'hidden'
+                                : 'auto',
                         position: 'relative',
                         scrollBehavior: 'smooth'
                     }}

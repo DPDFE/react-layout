@@ -232,6 +232,7 @@ export interface CompactItem extends ItemPos {
     is_draggable?: boolean; // 可拖拽
     is_resizable?: boolean; // 可缩放
     is_droppable?: boolean; // 可放到其他画布中
+    need_position_change?: boolean; // 需要键盘事件修改元素位置
     need_border_draggable_handler?: boolean; // 需要拖拽bar
     draggable_cancel_handler?: string; // 禁止拖拽class
 }
