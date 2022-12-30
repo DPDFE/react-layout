@@ -281,7 +281,7 @@ const WidgetItem = (props: WidgetItemProps) => {
             }
 
             // 让drag_handler放置在最上面
-            if (need_border_draggable_handler) {
+            if (is_draggable && need_border_draggable_handler) {
                 children.push(draggable_handler);
             }
         }
