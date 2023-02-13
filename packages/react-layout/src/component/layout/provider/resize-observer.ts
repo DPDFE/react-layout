@@ -14,7 +14,7 @@ export function resizeObserver(
          * 缩放容器触发器
          */
         const resizeObserverInstance = new ResizeObserver(() => {
-            func();
+            requestAnimationFrame(func);
         });
 
         if (ref.current) {
