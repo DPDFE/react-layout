@@ -65,7 +65,8 @@ const WidgetItem = (props: WidgetItemProps) => {
     // 滚动到顶
     const scrollToTop = (e: MouseEvent) => {
         const viewport = props.canvas_viewport_ref.current;
-        if (viewport && e.clientY - viewport.offsetTop < 10) {
+
+        if (viewport && e.clientY < 100 && viewport.scrollTop > 10) {
             viewport.scrollTo(0, viewport.scrollTop - viewport.scrollTop / 2);
         }
     };
@@ -73,20 +74,20 @@ const WidgetItem = (props: WidgetItemProps) => {
     // 滚动到底
     const scrollToBottom = (e: MouseEvent) => {
         const viewport = props.canvas_viewport_ref.current;
-        if (viewport && window.screen.height - e.screenY < 10) {
-            if (
-                viewport.scrollHeight - 10 >
-                viewport.scrollTop + viewport.clientHeight
-            ) {
-                viewport.scrollTo(
-                    0,
-                    viewport.scrollTop +
-                        (viewport.scrollHeight -
-                            viewport.scrollTop -
-                            viewport.clientHeight) /
-                            2
-                );
-            }
+
+        if (
+            viewport &&
+            e.clientY - viewport.offsetHeight < 50 &&
+            e.clientY > viewport.offsetHeight
+        ) {
+            viewport.scrollTo(
+                0,
+                viewport.scrollTop +
+                    (viewport.scrollHeight -
+                        viewport.scrollTop -
+                        viewport.clientHeight) /
+                        2
+            );
         }
     };
 
@@ -689,12 +690,14 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                     'onResize',
                     'onResizeStop',
                     'onPositionChange',
-                    'canvas_viewport_ref'
+                    'canvas_viewport_ref',
+                    'changeWidgetHeight',
+                    'toXWpx'
                 ].includes(key)
             ) {
                 return true;
             } else {
-                //-- !isEqual(prev[key], next[key]) &&
+                // !isEqual(prev[key], next[key]) &&
                 //     console.log(prev['i'], key, prev[key], next[key]);
                 return isEqual(prev[key], next[key]);
             }
