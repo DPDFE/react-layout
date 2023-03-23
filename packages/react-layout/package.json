@@ -2,9 +2,9 @@
     "name": "@dpdfe/react-layout",
     "description": "react layout",
     "author": "pearone stefan-hui",
-    "version": "2.0.23",
+    "version": "2.0.24",
     "online_version": "1.0.1",
-    "dev_version": "2.0.23",
+    "dev_version": "2.0.24",
     "license": "MIT",
     "homepage": "https://github.com/DPDFE/react-layout/tree/main/packages/react-layout",
     "repository": {

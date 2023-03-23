@@ -690,14 +690,12 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                     'onResize',
                     'onResizeStop',
                     'onPositionChange',
-                    'canvas_viewport_ref',
-                    'changeWidgetHeight',
-                    'toXWpx'
+                    'canvas_viewport_ref'
                 ].includes(key)
             ) {
                 return true;
             } else {
-                // !isEqual(prev[key], next[key]) &&
+                //-- !isEqual(prev[key], next[key]) &&
                 //     console.log(prev['i'], key, prev[key], next[key]);
                 return isEqual(prev[key], next[key]);
             }
