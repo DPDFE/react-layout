@@ -690,9 +690,9 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                     'onResize',
                     'onResizeStop',
                     'onPositionChange',
-                    'canvas_viewport_ref',
-                    'changeWidgetHeight',
-                    'toXWpx'
+                    'canvas_viewport_ref'
+                    // 'changeWidgetHeight',
+                    // 'toXWpx'
                 ].includes(key)
             ) {
                 return true;
