@@ -43,6 +43,7 @@ export default function createRegistry() {
 
     function registerDroppable(entry: Droppable) {
         entries.droppables[entry.id] = entry;
+        // 创建时候保存序列的数组不会在销毁的时候销毁掉，后置层级只会增加不会销毁
         if (!entries.droppable_sequence.includes(entry.id)) {
             entries.droppable_sequence.push(entry.id);
         }
@@ -81,11 +82,16 @@ export default function createRegistry() {
             unregister: unregisterDroppable,
             getById: getDroppableById,
             getAll: () => {
-                return entries.droppable_sequence.map((seq) => {
-                    return entries.droppables[seq];
-                });
+                return entries.droppable_sequence
+                    .map((seq) => {
+                        return entries.droppables[seq];
+                    })
+                    .filter((i) => {
+                        return i !== undefined;
+                    });
             },
             getFirstRegister: () => {
+                /** root 根位置一定存在 */
                 return entries.droppables[entries.droppable_sequence[0]];
             },
             exists: (id: string): boolean => Boolean(getDroppableById(id))
