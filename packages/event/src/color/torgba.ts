@@ -1,4 +1,4 @@
-import { fomatFloatNumber } from '../utils';
+import { formatFloatNumber } from '../utils';
 import { isRgb } from './base';
 import { toHex } from './tohex';
 
@@ -196,7 +196,7 @@ export function toRgbaByCanvas(
     ctx!.fillStyle = source;
     ctx!.fillRect(0, 0, canvas.width, canvas.height);
     const [r, g, b, _a] = ctx!.getImageData(0, 0, 1, 1).data;
-    const a = fomatFloatNumber(_a / 255, 2);
+    const a = formatFloatNumber(_a / 255, 2);
 
     if (options.format == RGBFormatType.Css) {
         return `rgba(${r}, ${g}, ${b}, ${a})`;

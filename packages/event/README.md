@@ -5,7 +5,7 @@
 ## Feature
 | 方法 | 作用 |
 | --- | --- |
-| fomatFloatNumber | 格式化十进制四舍五入保留小数位 |
+| formatFloatNumber | 格式化十进制四舍五入保留小数位 |
 | addEvent、removeEvent | 兼容浏览器的 event 事件绑定 |
 | matchesSelector | 判断当前元素是否是目标 class |
 | matchesSelectorAndParentsTo | 找到从开始元素一直找到结束元素是否有目标 class |
@@ -38,7 +38,7 @@
 ```
 import {
     LocalStorage,
-    fomatFloatNumber,
+    formatFloatNumber,
     addEvent,
     removeEvent,
     isFunction,
@@ -116,7 +116,7 @@ toHex('rgba(40, 42, 54, 0)') // #282a3600
 // rgba 1
 toHex('rgba(40, 42, 54, 1)') // #282a36ff
 
-// error 
+// error
 toHex('rgba(276, 42, 54, 1)') // new Error('Expected three numbers below 256')
 ```
 
@@ -208,10 +208,10 @@ lighten('#2196f3', { percent: 100 }) // rgba(255, 255, 255, 0)
 
 #### [test](https://github.com/DPDFE/react-layout/tree/main/packages/event/__tests__)
 
-#### fomatFloatNumber
+#### formatFloatNumber
 ```
-fomatFloatNumber(3.3234234234, 2)  //3.32
-fomatFloatNumber(3, 2) // 3
+formatFloatNumber(3.3234234234, 2)  //3.32
+formatFloatNumber(3, 2) // 3
 ```
 
 #### LocalStorage

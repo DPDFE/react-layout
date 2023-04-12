@@ -1,4 +1,4 @@
-import { fomatFloatNumber } from '../utils';
+import { formatFloatNumber } from '../utils';
 import { clamp, sortColors } from './base';
 import { toHsl } from './tohsl';
 import { RGBFormatType, RGB, toRgb, toRgbaByCanvas } from './torgba';
@@ -147,10 +147,10 @@ function changeBrightnessByHSL(
         current.alpha +
         ((target.alpha - current.alpha) / 100) * Math.abs(options.percent);
 
-    return `hsla(${fomatFloatNumber(hue * 360, 2)}, ${fomatFloatNumber(
+    return `hsla(${formatFloatNumber(hue * 360, 2)}, ${formatFloatNumber(
         saturation * 100,
         2
-    )}%, ${fomatFloatNumber(lightness * 100, 2)}%, ${alpha})`;
+    )}%, ${formatFloatNumber(lightness * 100, 2)}%, ${alpha})`;
 }
 
 /**

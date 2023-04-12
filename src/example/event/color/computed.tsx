@@ -1,6 +1,6 @@
 import {
     darken,
-    fomatFloatNumber,
+    formatFloatNumber,
     getGrayLevel,
     lighten,
     toHsl,
@@ -787,7 +787,7 @@ function Darken() {
             >
                 {rgb_colors.map((c) => {
                     const color = c.replace('0.9', '0.9');
-                    const gray = fomatFloatNumber(
+                    const gray = formatFloatNumber(
                         getGrayLevel(
                             toRgb(color, {
                                 format: RGBFormatType.Object
@@ -840,7 +840,7 @@ function Darken() {
             >
                 {rgb_colors.map((c) => {
                     const color = c.replace('0.9', '0.9');
-                    const gray = fomatFloatNumber(
+                    const gray = formatFloatNumber(
                         getGrayLevel(
                             toRgb(color, {
                                 format: RGBFormatType.Object
@@ -904,7 +904,7 @@ function Darken() {
             >
                 {rgb_colors.map((c) => {
                     const color = c.replace('0.9', '1');
-                    const gray = fomatFloatNumber(
+                    const gray = formatFloatNumber(
                         getLuminance(
                             toRgb(color, {
                                 format: RGBFormatType.Object

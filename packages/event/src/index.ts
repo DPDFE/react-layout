@@ -1,5 +1,5 @@
-import {
-    fomatFloatNumber,
+export {
+    formatFloatNumber,
     addEvent,
     removeEvent,
     isFunction,
@@ -7,11 +7,11 @@ import {
     matchesSelectorAndParentsTo
 } from './utils';
 
-import LocalStorage from './localstorage';
+export { default as LocalStorage } from './localstorage';
 
-import Events from './eventbus';
+export { default as Events } from './eventbus';
 
-import {
+export {
     isHex,
     isRgb,
     isRgba,
@@ -20,11 +20,11 @@ import {
     getKeywordColor
 } from './color/base';
 
-import { toHex } from './color/tohex';
+export { toHex } from './color/tohex';
 
-import { toHsl } from './color/tohsl';
+export { toHsl } from './color/tohsl';
 
-import {
+export {
     toRgba,
     toRgb,
     getOpacity,
@@ -33,38 +33,8 @@ import {
     toRgbaByCanvas
 } from './color/torgba';
 
-import { darken, lighten, range } from './color/computed';
-import { genAutoId, genAutoIdInit, genAutoIdString } from './autoindex';
+export { darken, lighten, range } from './color/computed';
+export { genAutoId, genAutoIdInit, genAutoIdString } from './autoindex';
 
-export {
-    Events,
-    LocalStorage,
-    fomatFloatNumber,
-    addEvent,
-    removeEvent,
-    isFunction,
-    matchesSelector,
-    matchesSelectorAndParentsTo,
-    //color
-    isHex,
-    isRgb,
-    isRgba,
-    isHsl,
-    isHsla,
-    getKeywordColor,
-    toHex,
-    toRgb,
-    toRgbaByCanvas,
-    toRgba,
-    toHsl,
-    darken,
-    lighten,
-    range,
-    getOpacity,
-    getLuminance,
-    getGrayLevel,
-    // autoindext
-    genAutoIdInit,
-    genAutoId,
-    genAutoIdString
-};
+//color
+// autoindext

@@ -1,5 +1,5 @@
 import { DirectionType, GuideLineProps, RulerPointer } from '@/interfaces';
-import { addEvent, fomatFloatNumber, removeEvent } from '@dpdfe/event-utils';
+import { addEvent, formatFloatNumber, removeEvent } from '@dpdfe/event-utils';
 import React, { memo, useEffect, useState } from 'react';
 import Menus, { MenuItem } from '../menus';
 import styles from './styles.module.css';
@@ -141,7 +141,7 @@ const GuideLine = (props: GuideLineProps) => {
             switch (ruler_hover_pos.direction) {
                 case DirectionType.horizontal:
                     return HorizontalLine(
-                        fomatFloatNumber(ruler_hover_pos.x / props.scale, 2),
+                        formatFloatNumber(ruler_hover_pos.x / props.scale, 2),
                         ruler_hover_pos.x,
                         {},
                         { zIndex: 1 }
@@ -149,7 +149,7 @@ const GuideLine = (props: GuideLineProps) => {
 
                 case DirectionType.vertical:
                     return VerticalLine(
-                        fomatFloatNumber(ruler_hover_pos.y / props.scale, 2),
+                        formatFloatNumber(ruler_hover_pos.y / props.scale, 2),
                         ruler_hover_pos.y,
                         {},
                         { zIndex: 1 }
@@ -167,7 +167,7 @@ const GuideLine = (props: GuideLineProps) => {
                 case DirectionType.horizontal:
                     const x = line.x * props.scale;
                     return HorizontalLine(
-                        fomatFloatNumber(line.x, 2),
+                        formatFloatNumber(line.x, 2),
                         x,
                         {
                             key: `${line.direction}-${line.x}-${line.y}`,
@@ -194,7 +194,7 @@ const GuideLine = (props: GuideLineProps) => {
                 case DirectionType.vertical:
                     const y = line.y * props.scale;
                     return VerticalLine(
-                        fomatFloatNumber(line.y, 2),
+                        formatFloatNumber(line.y, 2),
                         y,
                         {
                             key: `${line.direction}-${line.x}-${line.y}`,

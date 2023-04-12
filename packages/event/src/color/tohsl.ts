@@ -1,4 +1,4 @@
-import { fomatFloatNumber } from '../utils';
+import { formatFloatNumber } from '../utils';
 import { RGBA, RGBFormatType, toRgba } from './torgba';
 
 export interface HSLA {
@@ -48,10 +48,10 @@ export function toHsl(
             alpha
         };
     } else {
-        return `hsla(${fomatFloatNumber(h * 360, 2)}, ${fomatFloatNumber(
+        return `hsla(${formatFloatNumber(h * 360, 2)}, ${formatFloatNumber(
             s * 100,
             2
-        )}%, ${fomatFloatNumber(l * 100, 2)}%, ${alpha})`;
+        )}%, ${formatFloatNumber(l * 100, 2)}%, ${alpha})`;
     }
 }
 
