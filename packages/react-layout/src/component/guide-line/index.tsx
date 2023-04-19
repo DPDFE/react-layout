@@ -1,5 +1,9 @@
 import { DirectionType, GuideLineProps, RulerPointer } from '@/interfaces';
-import { addEvent, formatFloatNumber, removeEvent } from '@dpdfe/event-utils';
+import {
+    addEvent,
+    formatFloatNumber,
+    removeEvent
+} from '@dpdfe/event-utils/dist/utils';
 import React, { memo, useEffect, useState } from 'react';
 import Menus, { MenuItem } from '../menus';
 import styles from './styles.module.css';

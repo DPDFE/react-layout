@@ -8,7 +8,7 @@ import {
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import styles from './styles.module.css';
-import { addEvent, removeEvent } from '@dpdfe/event-utils';
+import { addEvent, removeEvent } from '@dpdfe/event-utils/dist/utils';
 
 const HorizontalRuler = (props: HorizontalRulerProps) => {
     const [x_offset, setXOffset] = useState<number[]>([]); // 尺子水平间隔

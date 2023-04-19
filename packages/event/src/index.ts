@@ -11,6 +11,8 @@ export { default as LocalStorage } from './localstorage';
 
 export { default as Events } from './eventbus';
 
+export { genAutoId, genAutoIdInit, genAutoIdString } from './autoindex';
+
 export {
     isHex,
     isRgb,
@@ -34,7 +36,3 @@ export {
 } from './color/torgba';
 
 export { darken, lighten, range } from './color/computed';
-export { genAutoId, genAutoIdInit, genAutoIdString } from './autoindex';
-
-//color
-// autoindext

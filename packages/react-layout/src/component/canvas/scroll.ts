@@ -1,4 +1,4 @@
-import { addEvent, removeEvent } from '@dpdfe/event-utils';
+import { addEvent, removeEvent } from '@dpdfe/event-utils/dist/utils';
 import { useEffect, useState } from 'react';
 
 interface Position {

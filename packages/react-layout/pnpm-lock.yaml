@@ -1,0 +1,49 @@
+lockfileVersion: 5.4
+
+specifiers:
+  '@dpdfe/event-utils': ^0.0.14
+  '@types/lodash.isequal': ^4.5.5
+  '@types/resize-observer-browser': ^0.1.7
+  classnames: ^2.3.1
+  lodash.isequal: ^4.5.0
+  resize-observer-polyfill: ^1.5.1
+
+dependencies:
+  '@dpdfe/event-utils': 0.0.14
+  '@types/lodash.isequal': 4.5.6
+  '@types/resize-observer-browser': 0.1.7
+  classnames: 2.3.2
+  lodash.isequal: 4.5.0
+  resize-observer-polyfill: 1.5.1
+
+packages:
+
+  /@dpdfe/event-utils/0.0.14:
+    resolution: {integrity: sha512-fEE2JNrGWOx77zAnR33Xr5J+db99Yx37+c0GK+qQCM0/j8+QnzKKJo99qLgHxfOMbt/xDzbPc2Xvrmkt52C7aw==}
+    dev: false
+
+  /@types/lodash.isequal/4.5.6:
+    resolution: {integrity: sha512-Ww4UGSe3DmtvLLJm2F16hDwEQSv7U0Rr8SujLUA2wHI2D2dm8kPu6Et+/y303LfjTIwSBKXB/YTUcAKpem/XEg==}
+    dependencies:
+      '@types/lodash': 4.14.194
+    dev: false
+
+  /@types/lodash/4.14.194:
+    resolution: {integrity: sha512-r22s9tAS7imvBt2lyHC9B8AGwWnXaYb1tY09oyLkXDs4vArpYJzw09nj8MLx5VfciBPGIb+ZwG0ssYnEPJxn/g==}
+    dev: false
+
+  /@types/resize-observer-browser/0.1.7:
+    resolution: {integrity: sha512-G9eN0Sn0ii9PWQ3Vl72jDPgeJwRWhv2Qk/nQkJuWmRmOB4HX3/BhD5SE1dZs/hzPZL/WKnvF0RHdTSG54QJFyg==}
+    dev: false
+
+  /classnames/2.3.2:
+    resolution: {integrity: sha512-CSbhY4cFEJRe6/GQzIk5qXZ4Jeg5pcsP7b5peFSDpffpe1cqjASH/n9UTjBwOp6XpMSTwQ8Za2K5V02ueA7Tmw==}
+    dev: false
+
+  /lodash.isequal/4.5.0:
+    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
+    dev: false
+
+  /resize-observer-polyfill/1.5.1:
+    resolution: {integrity: sha512-LwZrotdHOo12nQuZlHEmtuXdqGoOD0OhaxopaNFxWzInpEgaLWoVuAMbTzixuosCx2nEG58ngzW3vxdWoxIgdg==}
+    dev: false
