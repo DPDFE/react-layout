@@ -32,6 +32,8 @@ import { useScroll } from './scroll';
 import { getDragMinBound } from './constants';
 import { resizeObserver } from '../layout/provider/resize-observer';
 
+const SCROLL_WAITING_TIME = 10000;
+
 const WidgetItem = (props: WidgetItemProps) => {
     const child = React.Children.only(props.children) as ReactElement;
     const item_ref = useRef<HTMLDivElement>(null);
@@ -40,6 +42,9 @@ const WidgetItem = (props: WidgetItemProps) => {
     const [is_init, setInit] = useState<boolean>(false);
     const [is_init_resize, setInitResize] = useState<boolean>(false);
     const [is_item_resize, setItemResize] = useState<number>(Math.random());
+
+    // 滚动状态
+    const [is_scrolling, setIsScrolling] = useState<boolean>(false);
 
     // useContext 会引发页面渲染
     const {
@@ -67,7 +72,14 @@ const WidgetItem = (props: WidgetItemProps) => {
         const viewport = props.canvas_viewport_ref.current;
 
         if (viewport && e.clientY < 100 && viewport.scrollTop > 10) {
-            viewport.scrollTo(0, viewport.scrollTop - viewport.scrollTop / 2);
+            setIsScrolling(true);
+            viewport.scrollTo(
+                0,
+                viewport.scrollTop - viewport.offsetHeight / 2
+            );
+            setTimeout(() => {
+                setIsScrolling(false);
+            }, SCROLL_WAITING_TIME);
         }
     };
 
@@ -78,16 +90,19 @@ const WidgetItem = (props: WidgetItemProps) => {
         if (
             viewport &&
             e.clientY - viewport.offsetHeight < 50 &&
-            e.clientY > viewport.offsetHeight
+            e.clientY > viewport.offsetHeight &&
+            viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight >
+                0
         ) {
+            setIsScrolling(true);
+            /** 处理为匀速滚动 */
             viewport.scrollTo(
                 0,
-                viewport.scrollTop +
-                    (viewport.scrollHeight -
-                        viewport.scrollTop -
-                        viewport.clientHeight) /
-                        2
+                viewport.scrollTop + viewport.offsetHeight / 2
             );
+            setTimeout(() => {
+                setIsScrolling(false);
+            }, SCROLL_WAITING_TIME);
         }
     };
 
@@ -540,10 +555,9 @@ const WidgetItem = (props: WidgetItemProps) => {
                         : []
                 }
                 onDrag={({ e, x, y }) => {
-                    scrollToBottom(e);
-                    scrollToTop(e);
-                    if (props.layout_type === LayoutType.DRAG) {
-                        moveToWindow(e);
+                    if (!is_scrolling) {
+                        scrollToBottom(e);
+                        scrollToTop(e);
                     }
 
                     props.onDrag?.(
@@ -614,10 +628,9 @@ const WidgetItem = (props: WidgetItemProps) => {
                             : props.cursors
                     }
                     onResize={({ e, x, y, w, h }) => {
-                        scrollToTop(e);
-                        scrollToBottom(e);
-                        if (props.layout_type === LayoutType.DRAG) {
-                            moveToWindow(e);
+                        if (!is_scrolling) {
+                            scrollToTop(e);
+                            scrollToBottom(e);
                         }
 
                         props.onResize?.(
@@ -695,7 +708,21 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                //-- !isEqual(prev[key], next[key]) &&
+                /** 如果正在拖拽，children 不进行比较 */
+                // const operator = prev['operator_type'].current;
+                // if (
+                //     operator &&
+                //     [
+                //         OperatorType.drag,
+                //         OperatorType.drop,
+                //         OperatorType.resize
+                //     ].includes(operator) &&
+                //     ['changeWidgetHeight', 'toXWpx', 'children'].includes(key)
+                // ) {
+                //     return true;
+                // }
+
+                // --!isEqual(prev[key], next[key]) &&
                 //     console.log(prev['i'], key, prev[key], next[key]);
                 return isEqual(prev[key], next[key]);
             }

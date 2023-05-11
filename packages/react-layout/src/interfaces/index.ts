@@ -253,6 +253,7 @@ export interface WidgetItemProps
     extends EventBaseProps,
         LayoutItem,
         GridScheme {
+    operator_type?: React.MutableRefObject<OperatorType | undefined>;
     cols: number;
     layout_type: LayoutType;
     canvas_viewport_ref: RefObject<HTMLDivElement>;

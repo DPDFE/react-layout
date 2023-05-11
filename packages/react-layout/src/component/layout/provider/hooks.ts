@@ -90,12 +90,10 @@ export const useLayoutHooks = (
     const margin_y = props.item_margin[0];
 
     /** 单元格宽度 */
-    const col_width = Math.max(
+    const col_width =
         (current_width -
             (margin_x * (props.cols - 1) + (padding.left + padding.right))) /
-            props.cols,
-        2
-    );
+        props.cols;
 
     /** 单元格高度 */
     const row_height = props.row_height;
