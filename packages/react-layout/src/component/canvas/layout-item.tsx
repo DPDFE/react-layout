@@ -69,6 +69,9 @@ const WidgetItem = (props: WidgetItemProps) => {
 
     // 滚动到顶
     const scrollToTop = (e: MouseEvent) => {
+        if (props.not_use_edge_scroll) {
+            return;
+        }
         const viewport = props.canvas_viewport_ref.current;
 
         if (viewport && e.clientY < 100 && viewport.scrollTop > 10) {
@@ -85,6 +88,9 @@ const WidgetItem = (props: WidgetItemProps) => {
 
     // 滚动到底
     const scrollToBottom = (e: MouseEvent) => {
+        if (props.not_use_edge_scroll) {
+            return;
+        }
         const viewport = props.canvas_viewport_ref.current;
 
         if (

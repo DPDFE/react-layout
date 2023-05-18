@@ -129,6 +129,7 @@ type LayoutBase = NodeProps & {
     need_grid_bound: boolean; // 需要grid边界
     need_drag_bound: boolean; // 需要drag边界
     use_max_bottom?: boolean; // 需要用元素的最大高度显示计算
+    not_use_edge_scroll?: boolean; // 不需要边界滚动
     item_margin: [number, number]; // 元素margin
     widgets: LayoutItem[]; // 元素列表
     children: ReactElement[]; // 子元素
@@ -266,6 +267,7 @@ export interface WidgetItemProps
     margin_x: number;
     mode: LayoutMode.edit | LayoutMode.view;
     is_placeholder: boolean;
+    not_use_edge_scroll?: boolean;
     toXWpx: (item: LayoutItem) => LayoutItem;
     setCurrentChecked?: (idx: string) => void;
     onDragStart?: (item: ItemPos, e: MouseEvent) => void;

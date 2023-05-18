@@ -725,6 +725,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     mode={props.mode}
                     cols={props.cols}
                     layout_type={props.layout_type}
+                    not_use_edge_scroll={props.not_use_edge_scroll}
                     // @ts-ignore
                     layout_id={props.layout_id}
                     col_width={col_width}
