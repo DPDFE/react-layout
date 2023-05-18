@@ -54,7 +54,7 @@ function Flex() {
                 is_draggable: true,
                 is_resizable: true,
                 min_h: 2,
-                min_w: 2,
+                min_w: 3,
                 type: 'grid',
                 refresh: 1
             },
@@ -70,7 +70,7 @@ function Flex() {
                 is_draggable: true,
                 is_resizable: true,
                 min_h: 2,
-                min_w: 2,
+                min_w: 4,
                 type: 'grid',
                 refresh: 1
             },
@@ -86,7 +86,7 @@ function Flex() {
                 is_draggable: true,
                 is_resizable: true,
                 min_h: 2,
-                min_w: 2,
+                min_w: 4,
                 type: 'grid',
                 refresh: 1
             }
