@@ -443,8 +443,8 @@ const WidgetItem = (props: WidgetItemProps) => {
                 min_h: props.min_h ?? minDragNumberY
             },
             [WidgetType.grid]: {
-                min_w: (props.min_w ?? 2) * col_width,
-                min_h: (props.min_h ?? 2) * row_height
+                min_w: (props.min_w ?? 2) * col_width + props.margin_x,
+                min_h: (props.min_h ?? 2) * row_height + props.margin_y
             }
         };
 
