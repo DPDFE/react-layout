@@ -545,11 +545,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     return {
                         source: {
                             layout_id: moving_droppable.current!.id,
-                            widgets: compact(
-                                copyObject(moved_layout).map((item) => {
-                                    return toYHcol(item);
-                                })
-                            )
+                            widgets: copyObject(moved_layout).map((item) => {
+                                return toYHcol(item);
+                            })
                         },
                         widget: toYHcol(copyObject(shadow)),
                         destination: undefined
@@ -577,12 +575,11 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     return {
                         source: {
                             layout_id: start_droppable.current!.id,
-                            widgets: compact(
+                            widgets:
                                 start_droppable.current!.getFilterLayoutById(
                                     shadow.i,
                                     true
                                 )
-                            )
                         },
                         widget: toYHcol(copyObject(shadow)),
                         destination: {
@@ -675,7 +672,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
             placeholder.current &&
             moving_droppable.current?.id === props.layout_id && (
                 <WidgetItem
-                    operator_type={operator_type}
                     {...placeholder.current}
                     layout_type={props.layout_type}
                     key='shadow'
@@ -719,7 +715,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
             return (
                 <WidgetItem
                     {...widget}
-                    operator_type={operator_type}
                     toXWpx={toXWpx}
                     key={widget.i}
                     mode={props.mode}
