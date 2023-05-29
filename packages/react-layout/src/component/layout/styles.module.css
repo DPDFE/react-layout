@@ -18,7 +18,6 @@
 .placeholder {
     background-color: #d9d9d9;
     position: absolute;
-    will-change: transform;
 }
 
 .canvas_wrapper {

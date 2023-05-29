@@ -7,7 +7,6 @@
     position: absolute;
     box-sizing: border-box;
     overflow: hidden;
-    will-change: transform;
     transition-property: transform;
 }
 

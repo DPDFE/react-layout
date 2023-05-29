@@ -254,9 +254,9 @@ Draggable.defaultProps = {
 export default memo(Draggable);
 
 export const setTransform = (x: number, y: number) => {
-    const translate = `translate(${x}px,${y}px)`;
+    const translate = `translate(${Math.floor(x)}px,${Math.floor(y)}px)`;
     return {
-        willChange: 'transform',
+        // willChange: 'transform',
         transform: translate,
         WebkitTransform: translate,
         MozTransform: translate,
