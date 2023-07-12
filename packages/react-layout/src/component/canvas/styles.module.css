@@ -14,6 +14,16 @@
     pointer-events: none;
 }
 
+.item_sticky {
+    /* position: -webkit-sticky; */
+    position: sticky;
+
+}
+
+.item_absolute {
+    position: absolute;
+}
+
 /* .layout_item:hover {
     box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px !important;
     transition: transition_time;

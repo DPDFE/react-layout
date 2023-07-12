@@ -4,7 +4,6 @@ import {
     LayoutItemEntry,
     LayoutItemDescriptor,
     WidgetType,
-    LayoutType,
     StickyTarget,
     CursorType,
     OperatorType
@@ -37,7 +36,6 @@ const SCROLL_WAITING_TIME = 10000;
 const WidgetItem = (props: WidgetItemProps) => {
     const child = React.Children.only(props.children) as ReactElement;
     const item_ref = useRef<HTMLDivElement>(null);
-    const all_item_ref = useRef<HTMLDivElement>(null);
 
     // 高度变化
     const [is_init, setInit] = useState<boolean>(false);
@@ -53,7 +51,9 @@ const WidgetItem = (props: WidgetItemProps) => {
         registry,
         sticky_target_queue,
         start_droppable,
-        moving_droppable
+        moving_droppable,
+        checked_index,
+        setCurrentChecked
     } = useContext(LayoutContext);
 
     const pos = useScroll(props.canvas_viewport_ref.current);
@@ -214,7 +214,10 @@ const WidgetItem = (props: WidgetItemProps) => {
 
         // 当前置顶的元素，是否处于置顶状态，如果处于置顶状态高度为滚动高度，否则是自身原来高度
         if (is_sticky_target && pos) {
-            out.y = pos.top;
+            out.y = 0;
+            if (checked_index === props.i) {
+                setCurrentChecked(undefined);
+            }
         }
 
         return out;
@@ -320,7 +323,7 @@ const WidgetItem = (props: WidgetItemProps) => {
     ]);
 
     const setTransition = () => {
-        const transition = 'all 0.1s linear';
+        const transition = 'all 0.2s cubic-bezier(.25,.1,.25,1)';
 
         if (props.is_placeholder) return transition;
 
@@ -415,7 +418,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                 props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'
                     : 'inherit',
-            position: is_sticky_target ? 'fixed' : 'absolute',
+            position: is_sticky_target ? 'sticky' : 'absolute',
             zIndex: is_sticky_target || is_dragging ? 1000 : 'auto',
             transition: setTransition()
         },
@@ -535,7 +538,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                 x={out.x}
                 y={out.y}
                 threshold={5}
-                use_css_transform
+                use_css_transform={false}
                 scale={props.scale}
                 is_draggable={is_draggable}
                 onDragStart={({ e, x, y }) => {
@@ -609,7 +612,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                     w={out.w}
                     h={out.inner_h}
                     scale={props.scale}
-                    use_css_transform
+                    use_css_transform={false}
                     is_resizable={is_resizable}
                     onResizeStart={({ e, x, y, h, w }) => {
                         props.onResizeStart?.(
@@ -702,6 +705,7 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
         .map((key) => {
             if (
                 [
+                    'moved',
                     'data-drag',
                     'setCurrentChecked',
                     'onDragStart',
@@ -724,10 +728,20 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                         OperatorType.drag,
                         OperatorType.drop,
                         OperatorType.resize
-                    ].includes(operator) &&
-                    ['changeWidgetHeight', 'toXWpx', 'children'].includes(key)
+                    ].includes(operator)
                 ) {
-                    return true;
+                    if (
+                        ['changeWidgetHeight', 'toXWpx', 'children'].includes(
+                            key
+                        )
+                    ) {
+                        return true;
+                    }
+
+                    /** 截流处理：如果前后两次的高度差小于3，不重绘 */
+                    if (Math.abs(prev[key] - next[key]) <= 3) {
+                        return true;
+                    }
                 }
 
                 // --!isEqual(prev[key], next[key]) &&
