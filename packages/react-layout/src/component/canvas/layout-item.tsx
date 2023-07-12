@@ -37,6 +37,7 @@ const SCROLL_WAITING_TIME = 10000;
 const WidgetItem = (props: WidgetItemProps) => {
     const child = React.Children.only(props.children) as ReactElement;
     const item_ref = useRef<HTMLDivElement>(null);
+    const all_item_ref = useRef<HTMLDivElement>(null);
 
     // 高度变化
     const [is_init, setInit] = useState<boolean>(false);
@@ -414,6 +415,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                 props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'
                     : 'inherit',
+            position: is_sticky_target ? 'fixed' : 'absolute',
             zIndex: is_sticky_target || is_dragging ? 1000 : 'auto',
             transition: setTransition()
         },
@@ -715,18 +717,18 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                 return true;
             } else {
                 /** 如果正在拖拽，children 不进行比较 */
-                // const operator = prev['operator_type'].current;
-                // if (
-                //     operator &&
-                //     [
-                //         OperatorType.drag,
-                //         OperatorType.drop,
-                //         OperatorType.resize
-                //     ].includes(operator) &&
-                //     ['changeWidgetHeight', 'toXWpx', 'children'].includes(key)
-                // ) {
-                //     return true;
-                // }
+                const operator = prev['operator_type'].current;
+                if (
+                    operator &&
+                    [
+                        OperatorType.drag,
+                        OperatorType.drop,
+                        OperatorType.resize
+                    ].includes(operator) &&
+                    ['changeWidgetHeight', 'toXWpx', 'children'].includes(key)
+                ) {
+                    return true;
+                }
 
                 // --!isEqual(prev[key], next[key]) &&
                 //     console.log(prev['i'], key, prev[key], next[key]);

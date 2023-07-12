@@ -673,6 +673,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             moving_droppable.current?.id === props.layout_id && (
                 <WidgetItem
                     {...placeholder.current}
+                    operator_type={operator_type}
                     layout_type={props.layout_type}
                     key='shadow'
                     cols={props.cols}
@@ -716,6 +717,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 <WidgetItem
                     {...widget}
                     toXWpx={toXWpx}
+                    operator_type={operator_type}
                     key={widget.i}
                     mode={props.mode}
                     cols={props.cols}
