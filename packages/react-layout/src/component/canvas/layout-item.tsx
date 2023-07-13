@@ -58,16 +58,6 @@ const WidgetItem = (props: WidgetItemProps) => {
 
     const pos = useScroll(props.canvas_viewport_ref.current);
 
-    // 移动到视窗
-    const moveToWindow = (e: MouseEvent) => {
-        if (start_droppable.current?.id === moving_droppable.current?.id) {
-            item_ref.current?.scrollIntoView({
-                block: 'nearest',
-                inline: 'nearest'
-            });
-        }
-    };
-
     // 滚动到顶
     const scrollToTop = (e: MouseEvent) => {
         if (props.not_use_edge_scroll) {
@@ -720,6 +710,13 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
+                if (
+                    !prev['is_flex'] &&
+                    ['changeWidgetHeight', 'toXWpx'].includes(key)
+                ) {
+                    return true;
+                }
+
                 /** 如果正在拖拽，children 不进行比较 */
                 const operator = prev['operator_type'].current;
                 if (
@@ -730,22 +727,18 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                         OperatorType.resize
                     ].includes(operator)
                 ) {
-                    if (
-                        ['changeWidgetHeight', 'toXWpx', 'children'].includes(
-                            key
-                        )
-                    ) {
+                    if (['children'].includes(key)) {
                         return true;
                     }
 
                     /** 截流处理：如果前后两次的高度差小于3，不重绘 */
-                    if (Math.abs(prev[key] - next[key]) <= 3) {
+                    if (Math.abs(prev[key] - next[key]) <= 1) {
                         return true;
                     }
                 }
 
                 // --!isEqual(prev[key], next[key]) &&
-                //     console.log(prev['i'], key, prev[key], next[key]);
+                //     console.log(prev, prev['i'], key, prev[key], next[key]);
                 return isEqual(prev[key], next[key]);
             }
         })

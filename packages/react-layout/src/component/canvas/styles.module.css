@@ -45,5 +45,6 @@
     border: none;
     position: absolute;
     cursor: grab;
-    pointer-events: all
+    pointer-events: all;
+    z-index: 1000
 }
