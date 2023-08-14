@@ -36,30 +36,46 @@ const LocalStorage = (
 
     /** 获取值 */
     const getStorageItem = (key: string) => {
-        const res = localStorage.getItem(getFormattedKey(key));
-        return res && res !== 'undefined' ? JSON.parse(res) : undefined;
+        try {
+            const res = localStorage.getItem(getFormattedKey(key));
+            return res && res !== 'undefined' ? JSON.parse(res) : undefined;
+        } catch (e) {
+            console.log(e);
+        }
     };
 
     /** 设置值 */
     const setStorageItem = (key: string, value: any) => {
-        localStorage.setItem(getFormattedKey(key), JSON.stringify(value));
+        try {
+            localStorage.setItem(getFormattedKey(key), JSON.stringify(value));
+        } catch (e) {
+            console.log(e);
+        }
     };
 
     /** 删除值 */
     const removeStorageItem = (key: string) => {
-        localStorage.removeItem(getFormattedKey(key));
+        try {
+            localStorage.removeItem(getFormattedKey(key));
+        } catch (e) {
+            console.log(e);
+        }
     };
 
     /** 初始化默认值 */
     const initStorage = () => {
-        Object.keys(storage).map((key) => {
-            const last_item = getStorageItem(key);
-            if (last_item !== undefined) {
-                storage[key] = last_item;
-            } else if (storage[key]) {
-                setStorageItem(key, storage[key]);
-            }
-        });
+        try {
+            Object.keys(storage).map((key) => {
+                const last_item = getStorageItem(key);
+                if (last_item !== undefined) {
+                    storage[key] = last_item;
+                } else if (storage[key]) {
+                    setStorageItem(key, storage[key]);
+                }
+            });
+        } catch (e) {
+            console.log(e);
+        }
     };
 
     initStorage();
