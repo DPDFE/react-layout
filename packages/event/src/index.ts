@@ -35,4 +35,6 @@ export {
     toRgbaByCanvas
 } from './color/torgba';
 
+export { gray, textColor, opacity } from './color/calc';
+
 export { darken, lighten, range } from './color/computed';
