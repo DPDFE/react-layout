@@ -14,3 +14,5 @@ export {
 } from './torgba';
 
 export { darken, lighten, range } from './computed';
+
+export { gray, textColor, opacity } from './calc';
