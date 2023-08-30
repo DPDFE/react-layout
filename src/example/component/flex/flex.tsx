@@ -7,7 +7,7 @@ import {
     WidgetType
 } from '@dpdfe/react-layout';
 import { Button, Input } from 'antd';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 
 // 目标，如果没有高度就获取子元素渲染完成以后的高度配置到h上
 /**
@@ -22,17 +22,20 @@ function Flex() {
     const [widgets, setWidgets] = useState<LayoutItem[]>([]);
     const [show_label, setShowLabel] = useState<boolean>(false);
     const [width, setWidth] = useState<number | undefined>(undefined);
+    const is_render_over = useRef<boolean>(false);
 
     function generateLayout() {
         return [
             {
                 w: 30,
-                h: 1,
+                h: 50,
+                inner_h: 50,
                 x: 0,
                 y: 0,
                 is_flex: true,
                 i: '0',
                 chart_id: 10086,
+                use_skeleton: true,
                 component_type: 'form_number',
                 is_draggable: true,
                 is_resizable: true,
@@ -41,64 +44,95 @@ function Flex() {
                 type: 'grid',
                 refresh: 1
             },
-
             {
                 w: 30,
-                h: 1,
+                h: 3,
+                inner_h: 3,
+                x: 0,
+                y: 0,
+                i: '1',
+                chart_id: 1,
+                component_type: 'form_number',
+                use_skeleton: true,
+                is_draggable: true,
+                is_resizable: true,
+                min_h: 5,
+                min_w: 8,
+                type: 'grid',
+                refresh: 1
+            },
+            {
+                w: 30,
+                h: 150,
+                inner_h: 150,
                 x: 0,
                 y: 15,
                 is_flex: true,
                 i: '10088',
                 chart_id: 10088,
                 component_type: 'form_text',
+                use_skeleton: true,
                 is_draggable: true,
                 is_resizable: true,
                 min_h: 2,
                 min_w: 3,
                 type: 'grid',
                 refresh: 1
-            },
-            {
-                w: 30,
-                h: 1,
-                x: 0,
-                y: 20,
-                is_flex: true,
-                i: '10089',
-                chart_id: 10089,
-                component_type: 'form_text',
-                is_draggable: true,
-                is_resizable: true,
-                min_h: 2,
-                min_w: 4,
-                type: 'grid',
-                refresh: 1
-            },
-            {
-                w: 30,
-                h: 1,
-                x: 0,
-                y: 25,
-                is_flex: true,
-                i: '10090',
-                chart_id: 10087,
-                component_type: 'form_btn',
-                is_draggable: true,
-                is_resizable: true,
-                min_h: 2,
-                min_w: 4,
-                type: 'grid',
-                refresh: 1
             }
+            // {
+            //     w: 30,
+            //     h: 150,
+            //     inner_h: 150,
+            //     x: 0,
+            //     y: 20,
+            //     is_flex: true,
+            //     i: '10089',
+            //     chart_id: 10089,
+            //     component_type: 'form_text',
+            //     is_draggable: true,
+            //     is_resizable: true,
+            //     min_h: 2,
+            //     min_w: 4,
+            //     type: 'grid',
+            //     refresh: 1
+            // },
+            // {
+            //     w: 30,
+            //     h: 150,
+            //     inner_h: 150,
+            //     x: 0,
+            //     y: 25,
+            //     is_flex: true,
+            //     i: '10090',
+            //     chart_id: 10087,
+            //     component_type: 'form_btn',
+            //     is_draggable: true,
+            //     is_resizable: true,
+            //     min_h: 2,
+            //     min_w: 4,
+            //     type: 'grid',
+            //     refresh: 1
+            // }
         ];
     }
 
     useEffect(() => {
-        setWidgets(generateLayout());
-
         setTimeout(() => {
-            setShowLabel(true);
+            if (!is_render_over.current && widgets.length) {
+                setShowLabel(true);
+                const _widgets = widgets.map((w) => {
+                    w.use_skeleton = false;
+                    return w;
+                });
+
+                setWidgets(_widgets);
+                is_render_over.current = true;
+            }
         }, 3000);
+    }, [widgets]);
+
+    useEffect(() => {
+        setWidgets(generateLayout());
     }, []);
 
     return (
@@ -156,28 +190,32 @@ function Flex() {
                                             color: 'red'
                                         }}
                                     ></span>
-                                    {show_label && <p>我是一行新字</p>}
-                                    我是第{w.i}
-                                    个div, x: {w.x}, y: {w.y}, height: {w.h},
-                                    width:
-                                    {w.w}
-                                    <button
-                                        onClick={() => {
-                                            setWidgets(
-                                                widgets.filter(
-                                                    (_w) => _w.i !== w.i
-                                                )
-                                            );
-                                        }}
-                                    >
-                                        删除
-                                    </button>
-                                    <div
-                                        style={{
-                                            background: '#096dd9',
-                                            height: 30
-                                        }}
-                                    ></div>
+                                    {show_label && (
+                                        <>
+                                            <p>我是一行新字</p>
+                                            我是第{w.i}
+                                            个div, x: {w.x}, y: {w.y}, height:{' '}
+                                            {w.h}, width:
+                                            {w.w}
+                                            <button
+                                                onClick={() => {
+                                                    setWidgets(
+                                                        widgets.filter(
+                                                            (_w) => _w.i !== w.i
+                                                        )
+                                                    );
+                                                }}
+                                            >
+                                                删除
+                                            </button>
+                                            <div
+                                                style={{
+                                                    background: '#096dd9',
+                                                    height: 70
+                                                }}
+                                            ></div>
+                                        </>
+                                    )}
                                 </div>
                             </div>
                         );

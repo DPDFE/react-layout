@@ -225,6 +225,7 @@ export interface CompactItem extends ItemPos {
     min_w?: number; //最小宽度
     min_h?: number; // 最小高度
     is_flex?: boolean; // 垂直方向flex
+    use_skeleton?: boolean; // 使用渲染展位和is_flex一起使用
     is_sticky?: boolean; // 置顶
     is_checked?: boolean; // 被选中
     is_dragging?: boolean; // 正在拖拽

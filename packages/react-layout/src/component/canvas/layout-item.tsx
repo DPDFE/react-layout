@@ -401,7 +401,10 @@ const WidgetItem = (props: WidgetItemProps) => {
             // 拷贝到shadow上的内部高度无法撑开,使用拷贝元素的计算值
             height:
                 props.is_flex && !props.is_placeholder
-                    ? 'unset'
+                    ? /** 骨架展位 */
+                      props.use_skeleton
+                        ? props.inner_h
+                        : 'unset'
                     : props.inner_h,
             ...child.props.style,
             cursor:
