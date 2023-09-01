@@ -29,7 +29,9 @@ import {
     EditLayoutProps,
     Droppable,
     LayoutItem,
-    Pos
+    Pos,
+    WidgetLocation,
+    LayoutResult
 } from '@/interfaces';
 import GuideLine from '../guide-line';
 import { copyObject, noop } from '@/utils/utils';
@@ -191,6 +193,29 @@ const ReactLayout = (props: ReactLayoutProps) => {
         };
     };
 
+    /** 将拖拽元素的layout_id更新为拖拽完成的layout */
+    const reCorrectLayoutId = (data: LayoutResult) => {
+        data.widget.layout_id = data.destination
+            ? data.destination.layout_id
+            : data.source.layout_id;
+
+        if (data.destination) {
+            data.destination.widgets = data.destination.widgets.map((w) => {
+                if (w.i === data.widget.i) {
+                    w.layout_id = data.widget.layout_id;
+                }
+                return w;
+            });
+        }
+
+        data.source.widgets = data.source.widgets.map((w) => {
+            if (w.i === data.widget.i) {
+                w.layout_id = data.widget.layout_id;
+            }
+            return w;
+        });
+    };
+
     /**
      * 返回值
      * @returns
@@ -223,10 +248,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             ...getCurrentCoveredLayout(e, current_widget, item_pos)
         };
 
-        /** 将拖拽元素的layout_id更新为拖拽完成的layout */
-        data.widget.layout_id = data.destination
-            ? data.destination.layout_id
-            : data.source.layout_id;
+        reCorrectLayoutId(data);
 
         const responders = getResponders();
         switch (operator) {
