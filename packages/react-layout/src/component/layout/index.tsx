@@ -222,6 +222,12 @@ const ReactLayout = (props: ReactLayoutProps) => {
             widget_id: current_widget.i,
             ...getCurrentCoveredLayout(e, current_widget, item_pos)
         };
+
+        /** 将拖拽元素的layout_id更新为拖拽完成的layout */
+        data.widget.layout_id = data.destination
+            ? data.destination.layout_id
+            : data.source.layout_id;
+
         const responders = getResponders();
         switch (operator) {
             case OperatorType.dragstart:
