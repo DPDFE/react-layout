@@ -713,12 +713,12 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
             ) {
                 return true;
             } else {
-                if (
-                    !prev['is_flex'] &&
-                    ['changeWidgetHeight', 'toXWpx'].includes(key)
-                ) {
-                    return true;
-                }
+                // if (
+                //     --!prev['is_flex'] &&
+                //     ['changeWidgetHeight', 'toXWpx'].includes(key)
+                // ) {
+                //     return true;
+                // }
 
                 /** 如果正在拖拽，children 不进行比较 */
                 const operator = prev['operator_type'].current;
