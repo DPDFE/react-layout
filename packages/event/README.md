@@ -31,6 +31,9 @@
 | getOpacity | 获取透明度，支持transparent |
 | getLuminance | 亮度 |
 | getGrayLevel | 灰度 |
+| opacity | 修改透明度 |
+| textColor | 根据灰度情况显示文本颜色 |
+| gray | 当前颜色灰度情况 |
 
 
 ## Usage
