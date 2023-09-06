@@ -403,7 +403,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                 props.is_flex && !props.is_placeholder
                     ? /** 骨架展位 */
                       props.use_skeleton
-                        ? props.inner_h
+                        ? props.skeleton_h ?? props.inner_h
                         : 'unset'
                     : props.inner_h,
             ...child.props.style,
