@@ -735,12 +735,12 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                     }
 
                     /** 截流处理：如果前后两次的高度差小于3，不重绘 */
-                    // if (
-                    //     --!prev['is_placeholder'] &&
-                    //     Math.abs(prev[key] - next[key]) <= 1
-                    // ) {
-                    //     return true;
-                    // }
+                    if (
+                        !prev['is_placeholder'] &&
+                        Math.abs(prev[key] - next[key]) <= 1
+                    ) {
+                        return true;
+                    }
                 }
 
                 // --!isEqual(prev[key], next[key]) &&
