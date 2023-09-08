@@ -193,29 +193,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
         };
     };
 
-    /** 将拖拽元素的layout_id更新为拖拽完成的layout */
-    const reCorrectLayoutId = (data: LayoutResult) => {
-        data.widget.layout_id = data.destination
-            ? data.destination.layout_id
-            : data.source.layout_id;
-
-        if (data.destination) {
-            data.destination.widgets = data.destination.widgets.map((w) => {
-                if (w.i === data.widget.i) {
-                    w.layout_id = data.widget.layout_id;
-                }
-                return w;
-            });
-        }
-
-        data.source.widgets = data.source.widgets.map((w) => {
-            if (w.i === data.widget.i) {
-                w.layout_id = data.widget.layout_id;
-            }
-            return w;
-        });
-    };
-
     /**
      * 返回值
      * @returns
@@ -247,8 +224,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
             widget_id: current_widget.i,
             ...getCurrentCoveredLayout(e, current_widget, item_pos)
         };
-
-        reCorrectLayoutId(data);
 
         const responders = getResponders();
         switch (operator) {
@@ -389,6 +364,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 }
             }
             moving_droppable.current = covered_layout;
+            widget.layout_id = moving_droppable.current.id;
         }
 
         // 移动到位
