@@ -12,7 +12,7 @@
 .canvas {
     position: absolute;
     background-color: transparent;
-    transition: height 200ms ease;
+    transition: height 500ms ease;
 }
 
 .placeholder {
