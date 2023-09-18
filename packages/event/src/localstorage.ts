@@ -84,7 +84,7 @@ const LocalStorage = (
     return new Proxy<typeof storage>(storage, {
         get(target: typeof storage, key: string): any {
             ensureKeyRegistered(key);
-            return storage[key];
+            return getStorageItem(key) ?? storage[key];
         },
 
         set: (target: typeof storage, key: string, value: any) => {
