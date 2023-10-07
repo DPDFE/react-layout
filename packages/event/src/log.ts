@@ -3,20 +3,18 @@
  * eg: log(type, name, {color: 'red'; background: 'blue'; version: '1.0.0'})
  **/
 export const log = (...args: any[]) => {
-    const style = args[args.length - 1] as {
+    const last_rest = args[args.length - 1];
+    const style: {
         color: string;
         background: string;
-    };
+    } = typeof last_rest === 'object' ? last_rest : {};
+
     const _style = `color:${style.color}; background: ${style.background}; font-size: 12px`;
 
     let version = 'v0.0.1';
-    if (
-        args[args.length - 1].color ||
-        args[args.length - 1].background ||
-        args[args.length - 1].version
-    ) {
-        if (args[args.length - 1].version) {
-            version = args[args.length - 1].version;
+    if (last_rest.color || last_rest.background || last_rest.version) {
+        if (last_rest.version) {
+            version = last_rest.version;
         }
         args.pop();
     }
