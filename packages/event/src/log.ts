@@ -10,11 +10,15 @@ export const log = (...args: any[]) => {
     const _style = `color:${style.color}; background: ${style.background}; font-size: 12px`;
 
     let version = 'v0.0.1';
-    if (args[args.length - 1].color || args[args.length - 1].background) {
+    if (
+        args[args.length - 1].color ||
+        args[args.length - 1].background ||
+        args[args.length - 1].version
+    ) {
+        if (args[args.length - 1].version) {
+            version = args[args.length - 1].version;
+        }
         args.pop();
-    }
-    if (args[args.length - 1].version) {
-        version = args[args.length - 1].version;
     }
 
     console.log(
