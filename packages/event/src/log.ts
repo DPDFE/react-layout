@@ -7,14 +7,19 @@ export const log = (...args: any[]) => {
     const style: {
         color: string;
         background: string;
+        version: string;
     } = typeof last_rest === 'object' ? last_rest : {};
 
-    const _style = `color:${style.color}; background: ${style.background}; font-size: 12px`;
+    const _style = `color:${style?.color}; background: ${style?.background}; font-size: 12px`;
 
     let version = 'v0.0.1';
-    if (last_rest.color || last_rest.background || last_rest.version) {
-        if (last_rest.version) {
-            version = last_rest.version;
+    if (
+        style.color != undefined ||
+        style.background != undefined ||
+        style.version != undefined
+    ) {
+        if (style.version != undefined) {
+            version = style.version;
         }
         args.pop();
     }
