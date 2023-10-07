@@ -38,3 +38,5 @@ export {
 export { gray, textColor, opacity } from './color/calc';
 
 export { darken, lighten, range } from './color/computed';
+
+export { log } from './log';
