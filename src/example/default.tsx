@@ -172,7 +172,7 @@ const DefaultLayout = () => {
                 w: 4,
                 h: 10,
                 i: '1',
-                // is_sticky: true,
+                is_sticky: true,
                 is_resizable: true,
                 is_draggable: true,
                 type: WidgetType.grid,
@@ -641,7 +641,7 @@ const DefaultLayout = () => {
                                                         LayoutType.GRID
                                                     }
                                                     mode={LayoutMode.edit}
-                                                    container_padding={[10]}
+                                                    container_padding={[0]}
                                                     row_height={50}
                                                     cols={8}
                                                     item_margin={[10, 10]}
