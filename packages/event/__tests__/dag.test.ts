@@ -18,4 +18,7 @@ test('dag', () => {
 
     console.log(dag.hasCycle());
     console.log(dag.findParents(5));
+    console.log(dag.findParents(5, { include_self: false }));
+    console.log(dag.findChildren(4));
+    console.log(dag.findChildren(4, { include_self: false }));
 });

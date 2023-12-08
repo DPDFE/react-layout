@@ -195,12 +195,69 @@ class DAG {
         return false;
     }
 
+    /** 找到所有的子节点 */
+    findChildren(
+        node: OriginGraphNodeType,
+        options: {
+            /** 包含自己 */
+            include_self: boolean;
+        } = { include_self: true }
+    ) {
+        const children: Set<OriginGraphNodeType> = new Set();
+        const stack: Set<OriginGraphNodeType> = new Set();
+
+        this.detectChild(node, children, stack);
+        if (!options.include_self) {
+            children.delete(node);
+        }
+        return children;
+    }
+
+    /** 获取子元素 */
+    detectChild(
+        node: OriginGraphNodeType,
+        visited: Set<OriginGraphNodeType>,
+        stack: Set<OriginGraphNodeType>
+    ) {
+        if (stack.has(node)) {
+            // 如果当前节点已经在递归栈中
+            return;
+        }
+        if (visited.has(node)) {
+            // 如果当前节点已经访问过，则不需要再继续探索
+            return;
+        }
+
+        visited.add(node);
+        stack.add(node);
+
+        const children = this.children.get(node)!;
+
+        for (const parent of children.values()) {
+            if (this.detectChild(parent, visited, stack)) {
+                return true;
+            }
+        }
+
+        stack.delete(node);
+        return;
+    }
+
     /** 找到所有的父节点 */
-    findParents(node: OriginGraphNodeType) {
+    findParents(
+        node: OriginGraphNodeType,
+        options: {
+            /** 包含自己 */
+            include_self: boolean;
+        } = { include_self: true }
+    ) {
         const parents: Set<OriginGraphNodeType> = new Set();
         const stack: Set<OriginGraphNodeType> = new Set();
 
         this.detectParent(node, parents, stack);
+        if (!options.include_self) {
+            parents.delete(node);
+        }
         return parents;
     }
 
