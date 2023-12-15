@@ -668,6 +668,8 @@ const ReactLayout = (props: ReactLayoutProps) => {
         }
     }, [height_change_item]);
 
+    const pos = useScroll(canvas_viewport_ref.current);
+
     /**
      * shadow dom
      * @returns
@@ -697,6 +699,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     padding={padding}
                     canvas_viewport_ref={canvas_viewport_ref}
                     shadow_ref={shadow_ref}
+                    pos={pos}
                     {...DEFAULT_BOUND}
                 >
                     <div
@@ -743,6 +746,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     cursors={(props as EditLayoutProps).cursors}
                     {...child.props}
                     children={child}
+                    pos={pos}
                     canvas_viewport_ref={canvas_viewport_ref}
                     setCurrentChecked={
                         props.mode === LayoutMode.edit
