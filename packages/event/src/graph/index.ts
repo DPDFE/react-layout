@@ -169,11 +169,13 @@ class DAG {
         visited.add(node);
         stack.add(node);
 
-        const children = this._children.links.get(node)!;
+        const children = this._children.links.get(node);
 
-        for (const child of children.target.values()) {
-            if (this.detectCycle(child, visited, stack)) {
-                return true;
+        if (children) {
+            for (const child of children.target.values()) {
+                if (this.detectCycle(child, visited, stack)) {
+                    return true;
+                }
             }
         }
 
@@ -217,11 +219,13 @@ class DAG {
         visited.add(node);
         stack.add(node);
 
-        const children = this._children.links.get(node)!;
+        const children = this._children.links.get(node);
 
-        for (const parent of children.target.values()) {
-            if (this.detectChild(parent, visited, stack)) {
-                return true;
+        if (children) {
+            for (const parent of children.target.values()) {
+                if (this.detectChild(parent, visited, stack)) {
+                    return true;
+                }
             }
         }
 
@@ -265,11 +269,13 @@ class DAG {
         visited.add(node);
         stack.add(node);
 
-        const parents = this._parents.links.get(node)!;
+        const parents = this._parents.links.get(node);
 
-        for (const parent of parents.target.values()) {
-            if (this.detectParent(parent, visited, stack)) {
-                return true;
+        if (parents) {
+            for (const parent of parents.target.values()) {
+                if (this.detectParent(parent, visited, stack)) {
+                    return true;
+                }
             }
         }
 
