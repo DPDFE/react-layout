@@ -48,6 +48,7 @@ import {
     DROP_OPERATOR,
     START_OPERATOR
 } from './constants';
+import { useScroll } from '../canvas/scroll';
 
 const ReactLayout = (props: ReactLayoutProps) => {
     const {
@@ -727,7 +728,6 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     cols={props.cols}
                     layout_type={props.layout_type}
                     not_use_edge_scroll={props.not_use_edge_scroll}
-                    // @ts-ignore
                     layout_id={props.layout_id}
                     col_width={col_width}
                     row_height={row_height}

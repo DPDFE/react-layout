@@ -251,11 +251,17 @@ interface EventBaseProps extends NodeProps {
     children: ReactElement;
 }
 
+export interface Position {
+    top: number;
+    left: number;
+}
+
 /** 子元素 */
 export interface WidgetItemProps
     extends EventBaseProps,
         LayoutItem,
         GridScheme {
+    pos?: Position;
     operator_type?: React.MutableRefObject<OperatorType | undefined>;
     cols: number;
     layout_type: LayoutType;

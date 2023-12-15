@@ -27,7 +27,6 @@ import styles from './styles.module.css';
 import './styles.module.css';
 import { LayoutContext } from '../layout/context';
 import { CHANGE_OPERATOR } from '../layout/constants';
-import { useScroll } from './scroll';
 import { getDragMinBound } from './constants';
 import { resizeObserver } from '../layout/provider/resize-observer';
 
@@ -56,7 +55,7 @@ const WidgetItem = (props: WidgetItemProps) => {
         setCurrentChecked
     } = useContext(LayoutContext);
 
-    const pos = useScroll(props.canvas_viewport_ref.current);
+    console.log(props.pos);
 
     // 滚动到顶
     const scrollToTop = (e: MouseEvent) => {
@@ -129,9 +128,9 @@ const WidgetItem = (props: WidgetItemProps) => {
     const calcItemPosition = () => {
         const out = toXWpx(props);
 
-        if (is_sticky && pos) {
+        if (is_sticky && props.pos) {
             // 页面滚动到当前元素位置
-            if (pos.top - out.y > 0) {
+            if (props.pos.top - out.y > 0) {
                 // 曾经被添加过后被挤掉的元素不允许重新添加，滚动到过的元素
                 const target = sticky_target_queue.current.find(
                     (q) => q.id === i
@@ -203,7 +202,7 @@ const WidgetItem = (props: WidgetItemProps) => {
         );
 
         // 当前置顶的元素，是否处于置顶状态，如果处于置顶状态高度为滚动高度，否则是自身原来高度
-        if (is_sticky_target && pos) {
+        if (is_sticky_target && props.pos) {
             out.y = 0;
             if (checked_index === props.i) {
                 setCurrentChecked(undefined);

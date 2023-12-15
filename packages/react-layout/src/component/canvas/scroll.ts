@@ -1,13 +1,13 @@
+import { Position } from '@/interfaces';
 import { addEvent, removeEvent } from '@dpdfe/event-utils/dist/utils';
-import { useEffect, useState } from 'react';
-
-interface Position {
-    top: number;
-    left: number;
-}
+import { useEffect, useMemo, useState } from 'react';
 
 export function useScroll(target: any) {
-    const [position, setPosition] = useState<Position>();
+    const [_position, setPosition] = useState<Position>();
+
+    const position = useMemo(() => {
+        return _position;
+    }, [_position]);
 
     useEffect(() => {
         const updatePosition = () => {
@@ -34,21 +34,21 @@ export function useScroll(target: any) {
                 }
             } else {
                 newPosition = {
-                    left: (target as Element).scrollLeft,
-                    top: (target as Element).scrollTop
+                    left: (target as Element)?.scrollLeft,
+                    top: (target as Element)?.scrollTop
                 };
             }
 
             setPosition(newPosition);
         };
 
-        updatePosition();
+        // updatePosition();
 
         addEvent(target, 'scroll', updatePosition);
         return () => {
             removeEvent(target, 'scroll', updatePosition);
         };
-    }, []);
+    }, [target]);
 
     return position;
 }
