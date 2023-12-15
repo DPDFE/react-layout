@@ -203,10 +203,7 @@ const WidgetItem = (props: WidgetItemProps) => {
 
         // 当前置顶的元素，是否处于置顶状态，如果处于置顶状态高度为滚动高度，否则是自身原来高度
         if (is_sticky_target && props.pos) {
-            out.y = 0;
-            if (checked_index === props.i) {
-                setCurrentChecked(undefined);
-            }
+            out.y = props.pos.top;
         }
 
         return out;
@@ -410,7 +407,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                 props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'
                     : 'inherit',
-            position: is_sticky_target ? 'sticky' : 'absolute',
+            position: is_sticky_target ? 'fixed' : 'absolute',
             zIndex: is_sticky_target || is_dragging ? 1000 : 'auto',
             transition: setTransition()
         },
