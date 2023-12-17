@@ -24,7 +24,7 @@
         "dev": "tsc -w",
         "build": "rm -rf dist && tsc --build",
         "test": "jest",
-        "test:single": "jest ./__tests__/url.test.ts",
+        "test:single": "jest ./__tests__/queue.test.ts",
         "prepublishOnly": "npm run build"
     },
     "bugs": {

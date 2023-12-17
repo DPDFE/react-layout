@@ -1,8 +1,9 @@
+import { Task, MessageQueue } from './queue';
 /**
  * 单向通信
  * 有接收方和发送方的概念
  */
-export class CommunicationFormatterManager {
+export class CommunicationFormatterMessage {
     /** 发送方 */
     sender: string;
     /** 接收方 */
@@ -12,27 +13,32 @@ export class CommunicationFormatterManager {
     /** 发送时间 */
     timestamp = new Date().getTime();
     /** 优先级 */
-    priority = 0;
+    priority = Infinity;
 
     constructor({
         sender,
         receiver,
-        data
+        data,
+        priority
     }: {
         sender: string;
         receiver: string;
         data: Record<string, any>;
+        priority?: number;
     }) {
         this.sender = sender;
         this.receiver = receiver;
         this.data = data;
+        if (priority !== undefined) {
+            this.priority = priority;
+        }
     }
 }
 
 /**
  * 双向通信 —— 信道和信息
  */
-export class ChannelFormatterManager {
+export class ChannelFormatterMessage {
     /** 管道 */
     channel: string;
     /** 行为 */
@@ -56,3 +62,5 @@ export class ChannelFormatterManager {
         this.data = data;
     }
 }
+
+export { Task, MessageQueue };
