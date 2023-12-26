@@ -1,0 +1,32 @@
+{
+  "name": "axios",
+  "version": "0.0.1",
+  "description": "axios strategy",
+  "keywords": [
+    "axios"
+  ],
+  "author": "pearone <1181019452@qq.com>",
+  "homepage": "https://github.com/DPDFE/react-layout#readme",
+  "license": "ISC",
+  "main": "lib/axios.js",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://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@github.com/DPDFE/react-layout.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/DPDFE/react-layout/issues"
+  },
+  "dependencies": {
+    "axios": "^1.6.2"
+  }
+}
