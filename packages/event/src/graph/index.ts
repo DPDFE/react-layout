@@ -20,7 +20,11 @@ export type OriginGraphNodeType = number | string;
 export const DEFAULT_START = 'start';
 export const DEFAULT_END = 'end';
 
-/** 有向无环图 */
+/**
+ * 处理复杂的关联场景【有向无环图】，
+ * 可以帮助快速找到当前节点的父节点、子节点、全量父节点、全量子节点，
+ * 处理删除和添加关系时候的同步逻辑、判断成环。
+ */
 class DAG {
     /** 所有节点 */
     nodes: Set<OriginGraphNodeType> = new Set();
