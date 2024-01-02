@@ -5,6 +5,8 @@
 | findParents | 获取一个节点的所有父元素 |
 | findChildren | 获取一个节点的所有子元素 |
 | removeNode | 删除一个节点以及它的关联关系 |
+| children | 所有节点的子节点的关联关系 |
+| parents | 所有节点的父节点的关联关系 |
 
 
 ## Usage

@@ -1,4 +1,6 @@
 ## Feature
+| 方法 | 作用 |
+| --- | --- |
 | LocalStorage | 封装localstorage方法 |
 | Events | 订阅发布 |
 | genAutoIdInit、genAutoId | 自增涨触发器 |
