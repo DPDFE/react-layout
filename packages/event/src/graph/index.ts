@@ -25,12 +25,12 @@ export const DEFAULT_END = 'end';
  * 可以帮助快速找到当前节点的父节点、子节点、全量父节点、全量子节点，
  * 处理删除和添加关系时候的同步逻辑、判断成环。
  */
-class DAG {
+class DAG<T extends OriginLink> {
     /** 所有节点 */
     nodes: Set<OriginGraphNodeType> = new Set();
 
     /** 所有关系 */
-    links: OriginLink[] = [];
+    links: T[] = [];
 
     link_key: OriginKey = { start: DEFAULT_START, end: DEFAULT_END };
 
@@ -56,17 +56,13 @@ class DAG {
         link_key
     }: {
         nodes: OriginGraphNodeType[];
-        links: OriginLink[];
+        links: T[];
         link_key: OriginKey;
     }) {
         this.init(nodes, links, link_key);
     }
 
-    init(
-        nodes: OriginGraphNodeType[],
-        links: OriginLink[],
-        link_key: OriginKey
-    ) {
+    init(nodes: OriginGraphNodeType[], links: T[], link_key: OriginKey) {
         this.fillNodes(nodes);
         this.fillLinks(links, link_key);
     }
@@ -84,7 +80,7 @@ class DAG {
     }
 
     /** 填充link */
-    fillLinks(links: OriginLink[], link_key: OriginKey) {
+    fillLinks(links: T[], link_key: OriginKey) {
         this.links = links;
         if (link_key) {
             this.link_key = link_key;
@@ -119,18 +115,13 @@ class DAG {
     }
 
     /** 添加一条边 */
-    addLink(
-        start: OriginGraphNodeType,
-        end: OriginGraphNodeType,
-        data: OriginLink
-    ) {
+    addLink(start: OriginGraphNodeType, end: OriginGraphNodeType, data: T) {
         this._children.addLink(start, end, data);
         this._parents.addLink(end, start, data);
     }
 
     /** 删除一条边 */
     removeLink(start: OriginGraphNodeType, end: OriginGraphNodeType) {
-        console.log(start, end);
         this._children.removeLink(start, end);
         this._parents.removeLink(end, start);
     }
@@ -176,7 +167,7 @@ class DAG {
         const children = this._children.links.get(node);
 
         if (children) {
-            for (const child of children.target.values()) {
+            for (const child of children.keys()) {
                 if (this.detectCycle(child, visited, stack)) {
                     return true;
                 }
@@ -223,10 +214,10 @@ class DAG {
         visited.add(node);
         stack.add(node);
 
-        const children = this._children.links.get(node);
+        const children = this.children.get(node);
 
         if (children) {
-            for (const parent of children.target.values()) {
+            for (const parent of children.keys()) {
                 if (this.detectChild(parent, visited, stack)) {
                     return true;
                 }
@@ -273,10 +264,10 @@ class DAG {
         visited.add(node);
         stack.add(node);
 
-        const parents = this._parents.links.get(node);
+        const parents = this.parents.get(node);
 
         if (parents) {
-            for (const parent of parents.target.values()) {
+            for (const parent of parents.keys()) {
                 if (this.detectParent(parent, visited, stack)) {
                     return true;
                 }
