@@ -2,7 +2,7 @@
 
 这是一个 js 的方法库，提供了一些基础的 js 方法。
 
-[utils方法]("./docs/utils.md")
+[utils方法](./docs/utils.md)
 
 | 颜色 | 作用 |
 | --- | --- |
