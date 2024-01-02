@@ -1,33 +1,22 @@
 import Link from './link';
 
-/** Link规则 */
-export interface OriginLink {
-    [key: string]: OriginGraphNodeType;
-}
-
-/** 所有Link key */
-export type OriginLinkKeys = keyof OriginLink;
+export const DEFAULT_START = 'start';
+export const DEFAULT_END = 'end';
 
 /** 映射key */
 export interface OriginKey {
-    start: OriginLinkKeys;
-    end: OriginLinkKeys;
+    start: string;
+    end: string;
 }
-
-/** 节点类型 */
-export type OriginGraphNodeType = number | string;
-
-export const DEFAULT_START = 'start';
-export const DEFAULT_END = 'end';
 
 /**
  * 处理复杂的关联场景【有向无环图】，
  * 可以帮助快速找到当前节点的父节点、子节点、全量父节点、全量子节点，
  * 处理删除和添加关系时候的同步逻辑、判断成环。
  */
-class DAG<T extends OriginLink> {
+class DAG<T extends Record<string, any>, P> {
     /** 所有节点 */
-    nodes: Set<OriginGraphNodeType> = new Set();
+    nodes: Set<P> = new Set();
 
     /** 所有关系 */
     links: T[] = [];
@@ -35,7 +24,7 @@ class DAG<T extends OriginLink> {
     link_key: OriginKey = { start: DEFAULT_START, end: DEFAULT_END };
 
     /** 所有边child关系 */
-    private _children: Link = new Link();
+    private _children: Link<P, T> = new Link();
 
     /** 所有边child关系 */
     get children() {
@@ -43,7 +32,7 @@ class DAG<T extends OriginLink> {
     }
 
     /** 所有边parent关系 */
-    private _parents: Link = new Link();
+    private _parents: Link<P, T> = new Link();
 
     get parents() {
         return this._parents.links;
@@ -55,20 +44,20 @@ class DAG<T extends OriginLink> {
         links,
         link_key
     }: {
-        nodes: OriginGraphNodeType[];
+        nodes: P[];
         links: T[];
         link_key: OriginKey;
     }) {
         this.init(nodes, links, link_key);
     }
 
-    init(nodes: OriginGraphNodeType[], links: T[], link_key: OriginKey) {
+    init(nodes: P[], links: T[], link_key: OriginKey) {
         this.fillNodes(nodes);
         this.fillLinks(links, link_key);
     }
 
     /** 填充node */
-    fillNodes(nodes: OriginGraphNodeType[]) {
+    fillNodes(nodes: P[]) {
         this.nodes = new Set(nodes);
 
         const iterator = this.nodes.values();
@@ -87,14 +76,14 @@ class DAG<T extends OriginLink> {
         }
 
         links.map((link) => {
-            const start_key = link[this.link_key.start];
-            const end_key = link[this.link_key.end];
+            const start_key = link[this.link_key.start] as P;
+            const end_key = link[this.link_key.end] as P;
             this.addLink(start_key, end_key, link);
         });
     }
 
     /** 删除节点 */
-    removeNode(node: OriginGraphNodeType) {
+    removeNode(node: P) {
         this.nodes.delete(node);
         this.links.map((link) => {
             const start_node = link[this.link_key.start];
@@ -108,20 +97,20 @@ class DAG<T extends OriginLink> {
     }
 
     /** 添加节点 */
-    addNode(node: OriginGraphNodeType) {
+    addNode(node: P) {
         this.nodes.add(node);
         this._children.addNode(node);
         this._parents.addNode(node);
     }
 
     /** 添加一条边 */
-    addLink(start: OriginGraphNodeType, end: OriginGraphNodeType, data: T) {
+    addLink(start: P, end: P, data: T) {
         this._children.addLink(start, end, data);
         this._parents.addLink(end, start, data);
     }
 
     /** 删除一条边 */
-    removeLink(start: OriginGraphNodeType, end: OriginGraphNodeType) {
+    removeLink(start: P, end: P) {
         this._children.removeLink(start, end);
         this._parents.removeLink(end, start);
     }
@@ -135,8 +124,8 @@ class DAG<T extends OriginLink> {
 
     /** 验证全图成环 */
     hasCycle() {
-        const visited: Set<OriginGraphNodeType> = new Set();
-        const stack: Set<OriginGraphNodeType> = new Set();
+        const visited: Set<P> = new Set();
+        const stack: Set<P> = new Set();
 
         for (const node of this.nodes.values()) {
             if (this.detectCycle(node, visited, stack)) {
@@ -147,11 +136,7 @@ class DAG<T extends OriginLink> {
     }
 
     /** 验证单图环 */
-    detectCycle(
-        node: OriginGraphNodeType,
-        visited: Set<OriginGraphNodeType>,
-        stack: Set<OriginGraphNodeType>
-    ) {
+    detectCycle(node: P, visited: Set<P>, stack: Set<P>) {
         if (stack.has(node)) {
             // 如果当前节点已经在递归栈中，则存在环
             return true;
@@ -180,14 +165,14 @@ class DAG<T extends OriginLink> {
 
     /** 找到所有的子节点 */
     findChildren(
-        node: OriginGraphNodeType,
+        node: P,
         options: {
             /** 包含自己 */
             include_self: boolean;
         } = { include_self: true }
     ) {
-        const children: Set<OriginGraphNodeType> = new Set();
-        const stack: Set<OriginGraphNodeType> = new Set();
+        const children: Set<P> = new Set();
+        const stack: Set<P> = new Set();
 
         this.detectChild(node, children, stack);
         if (!options.include_self) {
@@ -197,11 +182,7 @@ class DAG<T extends OriginLink> {
     }
 
     /** 获取子元素 */
-    detectChild(
-        node: OriginGraphNodeType,
-        visited: Set<OriginGraphNodeType>,
-        stack: Set<OriginGraphNodeType>
-    ) {
+    detectChild(node: P, visited: Set<P>, stack: Set<P>) {
         if (stack.has(node)) {
             // 如果当前节点已经在递归栈中
             return;
@@ -230,14 +211,14 @@ class DAG<T extends OriginLink> {
 
     /** 找到所有的父节点 */
     findParents(
-        node: OriginGraphNodeType,
+        node: P,
         options: {
             /** 包含自己 */
             include_self: boolean;
         } = { include_self: true }
     ) {
-        const parents: Set<OriginGraphNodeType> = new Set();
-        const stack: Set<OriginGraphNodeType> = new Set();
+        const parents: Set<P> = new Set();
+        const stack: Set<P> = new Set();
 
         this.detectParent(node, parents, stack);
         if (!options.include_self) {
@@ -247,11 +228,7 @@ class DAG<T extends OriginLink> {
     }
 
     /** 获取父元素 */
-    detectParent(
-        node: OriginGraphNodeType,
-        visited: Set<OriginGraphNodeType>,
-        stack: Set<OriginGraphNodeType>
-    ) {
+    detectParent(node: P, visited: Set<P>, stack: Set<P>) {
         if (stack.has(node)) {
             // 如果当前节点已经在递归栈中
             return;

@@ -1,24 +1,17 @@
-import { OriginGraphNodeType, OriginLink } from '.';
+class Link<P, T> {
+    links: Map<P, Map<P, T>> = new Map();
 
-class Link {
-    links: Map<OriginGraphNodeType, Map<OriginGraphNodeType, OriginLink>> =
-        new Map();
-
-    addNode(node: OriginGraphNodeType) {
+    addNode(node: P) {
         if (!this.links.get(node)) {
             this.links.set(node, new Map());
         }
     }
 
-    removeNode(node: OriginGraphNodeType) {
+    removeNode(node: P) {
         this.links.delete(node);
     }
 
-    addLink(
-        start: OriginGraphNodeType,
-        end: OriginGraphNodeType,
-        data: OriginLink
-    ) {
+    addLink(start: P, end: P, data: T) {
         const start_link = this.links.get(start);
         const end_link = this.links.get(end);
         if (start_link && end_link) {
@@ -27,7 +20,7 @@ class Link {
             console.warn(`有未知节点: ${start} 或 ${end}`);
         }
     }
-    removeLink(start: OriginGraphNodeType, end: OriginGraphNodeType) {
+    removeLink(start: P, end: P) {
         const start_link = this.links.get(start);
         const end_link = this.links.get(end);
         if (start_link && end_link) {
