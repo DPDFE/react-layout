@@ -891,7 +891,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                             props.layout_type === LayoutType.DRAG
                                 ? 'auto'
                                 : 'hidden',
-                        overflowY: props.use_max_bottom ? 'hidden' : 'auto',
+                        overflowY: props.use_viewport_hidden
+                            ? 'hidden'
+                            : 'auto',
                         position: 'relative',
                         scrollBehavior: 'smooth'
                     }}

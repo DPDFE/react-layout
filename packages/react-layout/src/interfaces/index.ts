@@ -129,6 +129,7 @@ type LayoutBase = NodeProps & {
     need_grid_bound: boolean; // 需要grid边界
     need_drag_bound: boolean; // 需要drag边界
     use_max_bottom?: boolean; // 需要用元素的最大高度显示计算
+    use_viewport_hidden?: boolean; // 需要用overflow-hidden
     not_use_edge_scroll?: boolean; // 不需要边界滚动
     item_margin: [number, number]; // 元素margin
     widgets: LayoutItem[]; // 元素列表
