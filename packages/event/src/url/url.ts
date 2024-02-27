@@ -1,70 +1,70 @@
 /**
- * 对URL上的参数增加加密参数
- * @param target_params 添加参数的URL对象
- * @param params 需要添加的参数
- * @returns
+ * 判断是否是url
+ * @description url-链接
  */
-export const setEncodeParams = (
-    target_params: URLSearchParams,
-    params: Record<string, any>
-) => {
-    Object.keys(params).forEach((p) => {
-        const append = window.btoa(
-            window.encodeURIComponent(JSON.stringify(params[p]))
-        );
-        target_params.set(p, append);
-    });
-    return target_params;
+export const isUrl = (url: string) => {
+    if (typeof url === 'string') {
+        const Expression = /http(s)?:\/\/([\w-]+\.)+[\w-]+(\/[\w- .\/?%&=]*)?/i;
+        const objExp = new RegExp(Expression);
+        return objExp.test(url);
+    }
+    return false;
 };
 
 /**
- * 保留原始没有加密过的参数，对加密过的参数进行解密
- * @param default_params 原始URL上的参数信息
- * @returns 解密后的结果
+ * 获取当前url上的hash参数
+ * @param key 查询key
+ * @returns value
  */
-export const getDecodeParams = (default_params: URLSearchParams) => {
-    const target_params: Record<string, any> = {};
-    for (const [key, value] of default_params.entries()) {
-        if (value) {
-            try {
-                const decode = JSON.parse(
-                    window.decodeURIComponent(window.atob(value))
-                );
-                target_params[key] = decode;
-            } catch (e) {
-                target_params[key] = value;
-            }
-        }
-    }
-    return target_params;
-};
-
-/** 给URL上添加加密的params属性 */
-export const encodeParamsURI = (uri: string, params: Record<string, any>) => {
-    const url = new URL(uri);
-    setEncodeParams(url.searchParams, params);
-    return url.toString();
-};
-
-/** 解密URL上params属性 */
-export const decodeParamsURI = (uri: string) => {
-    const default_params = new URL(uri).searchParams;
-    return getDecodeParams(default_params);
-};
-
-/** 给URL上添加加密的hash属性 */
-export const encodeHashURI = (uri: string, params: Record<string, any>) => {
-    const url = new URL(uri);
-    const hash = url.hash.slice(1);
+export const getURLHash = (key: string) => {
+    const hash = window.location.hash.slice(1);
     const hash_params = new URLSearchParams(hash);
-    setEncodeParams(hash_params, params);
+    return hash_params.get(key);
+};
+
+/**
+ * 设置当前url上的hash参数
+ */
+export const setURLHash = (key: string, value: any) => {
+    const url = new URL(window.location.href);
+    const hash = window.location.hash.slice(1);
+    const hash_params = new URLSearchParams(hash);
+    hash_params.set(key, value);
     url.hash = hash_params.toString();
-    return url.toString();
+    return params;
 };
 
-/** 解密URL上hash属性 */
-export const decodeHashURI = (uri: string) => {
-    const hash = new URL(uri).hash.slice(1);
-    const hash_params = new URLSearchParams(hash);
-    return getDecodeParams(hash_params);
+
+/**
+ * 获取当前url上的params参数
+ * @param key
+ * @returns
+ */
+export const getURLParams = (key: string) => {
+    const params =
+    return params.get(key);
+};
+
+/**
+ * 设置当前url上的params参数
+ */
+export const setURLParams = () => {
+    const params = new URLSearchParams(window.location.search);
+    return params;
+};
+
+/**
+ * 获取当前cookies
+ */
+export const setCookies = (key: string, value: any) => {
+    const params = new URLSearchParams(window.location.search);
+    return params;
+};
+
+/**
+ * 设置当前cookies
+ */
+export const getCookies = (key: string) => {
+    const params = new URLSearchParams(window.location.search);
+    return params;
 };

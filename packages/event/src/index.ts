@@ -1,11 +1,10 @@
 export {
-    formatFloatNumber,
     addEvent,
     removeEvent,
     isFunction,
     matchesSelector,
     matchesSelectorAndParentsTo
-} from './utils';
+} from './event';
 
 export { default as LocalStorage } from './localstorage';
 

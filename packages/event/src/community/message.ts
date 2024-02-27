@@ -1,4 +1,3 @@
-import { Task, MessageQueue } from './priority_queue';
 /**
  * 单向通信
  * 有接收方和发送方的概念
@@ -62,5 +61,3 @@ export class ChannelFormatterMessage {
         this.data = data;
     }
 }
-
-export { Task, MessageQueue };

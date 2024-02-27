@@ -1,71 +1,138 @@
 /**
- * 一个队列执行器：
- * 任务可以支持有优先级的任务，
- * 批量执行，清空任务列表
+ * 生产者、消费者、优先级队列
+ * 生产者生产到优先级任务，任务指定消费者消费
  */
-import { genAutoIdString } from '..';
+type Task = {
+    id: number;
+    priority: number;
+    consumerId: number;
+};
 
-/** 任务信息 */
-export class Task<T> {
-    message: T;
+class ProducerManager {
+    private producers: Map<number, Producer>;
 
-    constructor(message: T) {
-        this.message = message;
+    constructor() {
+        this.producers = new Map();
+    }
+
+    registerProducer(producerId: number) {
+        const producer = new Producer(producerId);
+        this.producers.set(producerId, producer);
+        return producer;
+    }
+
+    getProducer(producerId: number) {
+        return this.producers.get(producerId) || null;
     }
 }
 
-/** 任务优先级队列 */
-export class MessageQueue<T> {
-    /** 任务队列 */
-    queue: Map<string, Task<T>> = new Map();
-    /** 执行器 */
-    executor: (token: string, task: Task<T>) => void;
-    /** 是否是优先级队列 */
-    is_priority_queue: boolean = false;
+class ConsumerManager {
+    private consumers: Map<number, Consumer>;
 
-    constructor({
-        executor,
-        is_priority_queue
-    }: {
-        executor: (task: Task<T>) => void;
-        is_priority_queue?: boolean;
-    }) {
-        this.is_priority_queue = is_priority_queue ?? false;
-        this.queue = new Map();
-        this.executor = (token: string, task: Task<T>) => {
-            executor(task);
-            this.delete(token);
+    constructor() {
+        this.consumers = new Map();
+    }
+
+    registerConsumer(consumerId: number) {
+        const consumer = new Consumer(consumerId);
+        this.consumers.set(consumerId, consumer);
+        return consumer;
+    }
+
+    getConsumer(consumerId: number) {
+        return this.consumers.get(consumerId) || null;
+    }
+}
+
+class PriorityQueue {
+    private tasks: Task[];
+
+    constructor() {
+        this.tasks = [];
+    }
+
+    enqueue(task: Task) {
+        this.tasks.push(task);
+        this.tasks.sort((a, b) => b.priority - a.priority);
+    }
+
+    dequeue() {
+        return this.tasks.shift() || null;
+    }
+
+    isEmpty() {
+        return this.tasks.length === 0;
+    }
+}
+
+class Producer {
+    private producerId: number;
+    private queue: PriorityQueue;
+
+    constructor(producerId: number) {
+        this.producerId = producerId;
+        this.queue = new PriorityQueue();
+    }
+
+    produceTask(priority: number, consumerId: number) {
+        const task: Task = {
+            id: Date.now(),
+            priority,
+            consumerId
         };
+
+        this.queue.enqueue(task);
     }
 
-    /** 添加任务 */
-    add(task: Task<T>) {
-        const token = genAutoIdString();
-        this.queue.set(token, task);
-        return token;
-    }
-
-    /** 删除任务 */
-    delete(token: string) {
-        this.queue.delete(token);
-    }
-
-    /** 运行任务 */
-    run() {
-        let sort_queue = this.is_priority_queue
-            ? Array.from(this.queue.keys()).sort((a_token, b_token) => {
-                  const a = this.queue.get(a_token)!;
-                  const b = this.queue.get(b_token)!;
-                  const a_priority = (a.message as any)?.priority ?? 0;
-                  const b_priority = (b.message as any)?.priority ?? 0;
-                  return a_priority > b_priority ? -1 : 1;
-              })
-            : Array.from(this.queue.keys());
-
-        let token = sort_queue.shift();
-        while (token) {
-            this.executor(token, this.queue.get(token)!);
-            token = sort_queue.shift();
+    consumeTask() {
+        if (!this.queue.isEmpty()) {
+            return this.queue.dequeue();
         }
+
+        return null;
+    }
+}
+
+class Consumer {
+    private consumerId: number;
+
+    constructor(consumerId: number) {
+        this.consumerId = consumerId;
+    }
+
+    consumeTask(task: Task) {
+        console.log(`Consumer ${this.consumerId} is consuming task:`, task);
+        // 执行任务的消费逻辑
+    }
+}
+
+// 示例用法
+const producerManager = new ProducerManager();
+const consumerManager = new ConsumerManager();
+
+const producer1 = producerManager.registerProducer(1);
+const producer2 = producerManager.registerProducer(2);
+
+const consumer1 = consumerManager.registerConsumer(1);
+const consumer2 = consumerManager.registerConsumer(2);
+
+producer1.produceTask(2, consumer1.consumerId);
+producer2.produceTask(1, consumer2.consumerId);
+producer1.produceTask(3, consumer2.consumerId);
+producer2.produceTask(1, consumer1.consumerId);
+
+let task = producer1.consumeTask();
+if (task) {
+    const consumer = consumerManager.getConsumer(task.consumerId);
+    if (consumer) {
+        consumer.consumeTask(task);
+    }
+}
+
+task = producer2.consumeTask();
+if (task) {
+    const consumer = consumerManager.getConsumer(task.consumerId);
+    if (consumer) {
+        consumer.consumeTask(task);
     }
 }

@@ -1,6 +1,6 @@
 'use strict';
 
-import { isFunction } from "./utils";
+import { isFunction } from './event';
 
 class EE {
     fn: Function;
@@ -25,16 +25,16 @@ class EventEmitter {
 
     emit = (...rest: unknown[]) => {
         this.listeners.map((l) => {
-            l.fn(...rest)
-            l.once && this.removeListener(l.fn)
-        })
-    }
+            l.fn(...rest);
+            l.once && this.removeListener(l.fn);
+        });
+    };
 
     addListener = (listener: Function, once = false) => {
         if (isFunction(listener)) {
             if (this.listeners.length >= this.max_listener_size) {
                 console.error(
-                    `Number of listener cannot exceeds ${this.max_listener_size}`,
+                    `Number of listener cannot exceeds ${this.max_listener_size}`
                 );
                 return false;
             } else {
@@ -44,7 +44,6 @@ class EventEmitter {
         } else {
             throw new Error('callback must be a function');
         }
-
     };
 
     removeListener = (listener: Function) => {

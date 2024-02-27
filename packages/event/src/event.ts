@@ -1,9 +1,11 @@
 /** 统一处理浏览器兼容性问题 */
 'use strict';
 
-/** 格式化十进制四舍五入保留小数位 */
-export function formatFloatNumber(num: number, precision: number) {
-    return Math.round(num * Math.pow(10, precision)) / Math.pow(10, precision);
+export function isFunction(func: any): boolean {
+    return (
+        typeof func === 'function' ||
+        Object.prototype.toString.call(func) === '[object Function]'
+    );
 }
 
 /** 添加event */
@@ -43,13 +45,6 @@ export function removeEvent(
     } else {
         el['on' + event] = null;
     }
-}
-
-export function isFunction(func: any): boolean {
-    return (
-        typeof func === 'function' ||
-        Object.prototype.toString.call(func) === '[object Function]'
-    );
 }
 
 let matches_selector_func: string | undefined = undefined;

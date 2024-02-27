@@ -5,7 +5,7 @@ import {
     encodeParamsURI,
     setEncodeParams,
     getDecodeParams
-} from './url';
+} from './encode';
 
 declare global {
     interface URL {

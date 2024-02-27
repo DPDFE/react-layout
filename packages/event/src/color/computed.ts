@@ -1,4 +1,4 @@
-import { formatFloatNumber } from '../utils';
+import { formatFloatNumber } from '../event';
 import { clamp, sortColors } from './base';
 import { toHsl } from './tohsl';
 import { RGBFormatType, RGB, toRgb, toRgbaByCanvas } from './torgba';
