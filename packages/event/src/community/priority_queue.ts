@@ -27,7 +27,7 @@ class ProducerManager {
 }
 
 class ConsumerManager {
-    private consumers: Map<number, Consumer>;
+    consumers: Map<number, Consumer>;
 
     constructor() {
         this.consumers = new Map();
@@ -94,7 +94,7 @@ class Producer {
 }
 
 class Consumer {
-    private consumerId: number;
+    consumerId: number;
 
     constructor(consumerId: number) {
         this.consumerId = consumerId;
@@ -105,6 +105,8 @@ class Consumer {
         // 执行任务的消费逻辑
     }
 }
+
+export { ProducerManager, ConsumerManager };
 
 // 示例用法
 const producerManager = new ProducerManager();

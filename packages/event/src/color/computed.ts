@@ -1,6 +1,6 @@
-import { formatFloatNumber } from '../event';
-import { clamp, sortColors } from './base';
 import { toHsl } from './tohsl';
+import { clamp, sortColors } from './base';
+import { formatFloatNumber } from '../data/format';
 import { RGBFormatType, RGB, toRgb, toRgbaByCanvas } from './torgba';
 
 export interface ColorLineOptions {

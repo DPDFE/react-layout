@@ -1,4 +1,4 @@
-import { formatFloatNumber } from '../event';
+import { formatFloatNumber } from '../data/format';
 import { RGBA, RGBFormatType, toRgba } from './torgba';
 
 export interface HSLA {

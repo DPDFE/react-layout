@@ -31,9 +31,8 @@ export const setURLHash = (key: string, value: any) => {
     const hash_params = new URLSearchParams(hash);
     hash_params.set(key, value);
     url.hash = hash_params.toString();
-    return params;
+    return hash_params;
 };
-
 
 /**
  * 获取当前url上的params参数
@@ -41,7 +40,7 @@ export const setURLHash = (key: string, value: any) => {
  * @returns
  */
 export const getURLParams = (key: string) => {
-    const params =
+    const params = new URLSearchParams(window.location.search);
     return params.get(key);
 };
 

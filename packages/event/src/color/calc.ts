@@ -1,4 +1,5 @@
-import { formatFloatNumber, getLuminance, toRgb } from '..';
+import { getLuminance, toRgb } from '..';
+import { formatFloatNumber } from '../data/format';
 import { RGB, RGBFormatType, toRgba } from './torgba';
 
 /** 灰度 */

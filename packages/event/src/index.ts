@@ -43,3 +43,7 @@ export { log } from './log';
 import DAG from './graph';
 
 export { DAG };
+
+import WorkerWrapper from './webWorker';
+
+export { WorkerWrapper };

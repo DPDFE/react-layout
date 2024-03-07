@@ -22,16 +22,6 @@ export enum StatusType {
     Fail = 'fail'
 }
 
-/** 返回值 */
-export interface Result {
-    /** 状态 */
-    status: StatusType;
-    /** 行为 */
-    action: string;
-    /** 版本信息 */
-    current_version: number;
-}
-
 /** 版本管理器 */
 export default class VersionManager {
     versions: VersionContent[] = [];
@@ -53,23 +43,15 @@ export default class VersionManager {
             target_version = this.versions.length - 1;
         }
         while (this.current_version < target_version) {
-            this.doAction();
+            this.do();
         }
-        // return {
-        //     status:
-        // }
     }
 
-    /**  */
-    // rollback() {
-    //     if() {}
-    // }
-
-    replay() {}
-
-    async doAction() {
+    do() {
         this.versions[this.current_version].do();
     }
 
-    undoAction() {}
+    rollback() {
+        this.versions[this.current_version].undo?.();
+    }
 }

@@ -1,4 +1,4 @@
-import { formatFloatNumber } from '../event';
+import { formatFloatNumber } from '../data/format';
 import { isRgb } from './base';
 import { toHex } from './tohex';
 

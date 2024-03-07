@@ -1,8 +1,21 @@
+/**
+ * 封装worker方法
+ */
 class WorkerWrapper {
-    constructor(workerScript) {
+    worker: Worker;
+    promises: {
+        [id: number]: {
+            resolve: (value?: any) => void;
+            reject: (reason?: any) => void;
+        };
+    };
+
+    message_id: number;
+
+    constructor(workerScript: string) {
         this.worker = new Worker(workerScript);
         this.promises = {};
-        this.messageId = 0;
+        this.message_id = 0;
 
         this.worker.onmessage = (event) => {
             const { id, result, error } = event.data;
@@ -17,9 +30,9 @@ class WorkerWrapper {
         };
     }
 
-    postMessage(message) {
+    postMessage<T>(message: { action: string; data: T }) {
         return new Promise((resolve, reject) => {
-            const id = this.messageId++;
+            const id = this.message_id++;
             this.promises[id] = { resolve, reject };
             this.worker.postMessage({ id, message });
         });
@@ -30,36 +43,30 @@ class WorkerWrapper {
     }
 }
 
-// 创建 WorkerWrapper 实例
-const worker = new WorkerWrapper('worker.js');
+export default WorkerWrapper;
 
-// 向 Worker 发送消息并处理响应
-worker
-    .postMessage({ type: 'add', numbers: [1, 2, 3] })
+// 创建一个简单的 worker 脚本，该脚本会计算传入的数字的平方
+const workerScript = `
+    self.onmessage = function(event) {
+        const number = event.data;
+        const result = number * number;
+        self.postMessage(result);
+    };
+`;
+
+// 创建 WorkerWrapper 实例
+const workerWrapper = new WorkerWrapper(workerScript);
+
+// 发送消息到 worker 并等待结果
+workerWrapper
+    .postMessage({ action: 'calculate', data: 5 })
     .then((result) => {
-        console.log('Sum:', result);
+        console.log('Result:', result); // 输出: Result: 25
     })
     .catch((error) => {
         console.error('Error:', error);
     })
     .finally(() => {
-        // 终止 Worker
-        worker.terminate();
+        // 终止 worker
+        workerWrapper.terminate();
     });
-
-// worker.js
-// 监听主线程发送的消息
-self.onmessage = function (event) {
-    const message = event.data;
-    handleMessage(message);
-};
-
-// 处理接收到的消息
-function handleMessage(message) {
-    // 在这里处理接收到的消息
-    console.log('Received message:', message);
-
-    // 示例：向主线程发送响应
-    const response = 'Hello from worker.js';
-    self.postMessage(response);
-}
