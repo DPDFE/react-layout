@@ -55,8 +55,6 @@ const WidgetItem = (props: WidgetItemProps) => {
         setCurrentChecked
     } = useContext(LayoutContext);
 
-    console.log(props.pos);
-
     // 滚动到顶
     const scrollToTop = (e: MouseEvent) => {
         if (props.not_use_edge_scroll) {

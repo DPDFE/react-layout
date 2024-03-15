@@ -1,5 +1,5 @@
 import { Position } from '@/interfaces';
-import { addEvent, removeEvent } from '@dpdfe/event-utils/dist/utils';
+import { addEvent, removeEvent } from '@dpdfe/event-utils';
 import { useEffect, useMemo, useState } from 'react';
 
 export function useScroll(target: any) {

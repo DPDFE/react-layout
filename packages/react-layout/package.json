@@ -2,7 +2,7 @@
     "name": "@dpdfe/react-layout",
     "description": "react layout",
     "author": "pearone stefan-hui",
-    "version": "2.3.2",
+    "version": "2.4.0",
     "online_version": "2.0.27",
     "dev_version": "2.1.21",
     "license": "MIT",
@@ -39,7 +39,7 @@
         "pub": "npm publish"
     },
     "dependencies": {
-        "@dpdfe/event-utils": "^0.0.15",
+        "@dpdfe/event-utils": "^0.0.34",
         "@types/lodash.isequal": "^4.5.5",
         "@types/resize-observer-browser": "^0.1.7",
         "classnames": "^2.3.1",

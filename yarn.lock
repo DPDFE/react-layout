@@ -1449,11 +1449,6 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@dpdfe/event-utils@^0.0.15":
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/@dpdfe/event-utils/-/event-utils-0.0.15.tgz#7bcccda666120d72659ca392afd9e05082014f26"
-  integrity sha512-vxZO8jbFE9kIaZnbZgnTtt20/SGTGUGRS12jrZagsO8UmYZusniqTbeGNJI61xoAhXpW8fqvKPIVt8qFSJpcaQ==
-
 "@dpdfe/react-layout@link:./packages/react-layout":
   version "0.0.0"
   uid ""

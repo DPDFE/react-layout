@@ -3,7 +3,7 @@ import {
     addEvent,
     removeEvent,
     matchesSelectorAndParentsTo
-} from '@dpdfe/event-utils/dist/utils';
+} from '@dpdfe/event-utils';
 import classNames from 'classnames';
 import React, {
     DOMElement,

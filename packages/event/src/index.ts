@@ -6,6 +6,16 @@ export {
     matchesSelectorAndParentsTo
 } from './event';
 
+export {
+    isNumber,
+    formatFloatNumber,
+    toFixedNumber,
+    formatNumberToPercentString,
+    getThousandthSeparatedNumber,
+    formatNumberUnit,
+    readableNumbers
+} from './data';
+
 export { default as LocalStorage } from './localstorage';
 
 export { default as Events } from './eventbus';

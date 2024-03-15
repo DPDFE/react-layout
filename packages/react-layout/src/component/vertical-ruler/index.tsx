@@ -6,7 +6,7 @@ import {
 } from '@/component/layout/context/calc';
 import React, { useEffect, useState } from 'react';
 import styles from './styles.module.css';
-import { addEvent, removeEvent } from '@dpdfe/event-utils/dist/utils';
+import { addEvent, removeEvent } from '@dpdfe/event-utils';
 
 const VerticalRuler = (props: VerticalRulerProps) => {
     const [y_offset, setYOffset] = useState<number[]>([]); // 尺子垂直间隔
