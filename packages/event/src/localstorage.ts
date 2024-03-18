@@ -34,7 +34,7 @@ const LocalStorage = (
 
     // 检查 key 是不已经注册过，没注册过，则抛出异常
     const ensureKeyRegistered = (key: string): void => {
-        if (!storage.hasOwnProperty(key)) {
+        if (!global_local_storage.hasOwnProperty(key)) {
             throw new Error(
                 `未注册的 LocalStorage key：${key}。请先在 Storage 注册，统一管理。`
             );
@@ -94,6 +94,7 @@ const LocalStorage = (
                     setStorageItem(key, storage[key]);
                 }
             });
+            console.log('global_local_storage init', global_local_storage);
         } catch (e) {
             console.log(e);
         }
