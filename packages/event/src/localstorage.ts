@@ -16,6 +16,13 @@
  * @param key_prefix 前缀
  * @returns
  */
+
+/** iframe */
+const is_in_open_service_iframe = window.parent !== window;
+
+/** global local storage */
+const global_local_storage = {} as Record<string, any>;
+
 const LocalStorage = (
     storage: Record<string, any> = {},
     key_prefix: string = 'storage-'
@@ -37,7 +44,10 @@ const LocalStorage = (
     /** 获取值 */
     const getStorageItem = (key: string) => {
         try {
-            const res = localStorage.getItem(getFormattedKey(key));
+            const formatKey = getFormattedKey(key);
+            const res = is_in_open_service_iframe
+                ? global_local_storage[formatKey]
+                : localStorage.getItem(formatKey);
             return res && res !== 'undefined' ? JSON.parse(res) : undefined;
         } catch (e) {
             console.log(e);
@@ -47,7 +57,14 @@ const LocalStorage = (
     /** 设置值 */
     const setStorageItem = (key: string, value: any) => {
         try {
-            localStorage.setItem(getFormattedKey(key), JSON.stringify(value));
+            const formatKey = getFormattedKey(key);
+            const formatValue = JSON.stringify(value);
+            /** 处理iframe访问storage时，没有权限的情况 */
+            if (is_in_open_service_iframe) {
+                global_local_storage[formatKey] = formatValue;
+            } else {
+                localStorage.setItem(formatKey, formatValue);
+            }
         } catch (e) {
             console.log(e);
         }
@@ -56,7 +73,11 @@ const LocalStorage = (
     /** 删除值 */
     const removeStorageItem = (key: string) => {
         try {
-            localStorage.removeItem(getFormattedKey(key));
+            const formatKey = getFormattedKey(key);
+            if (is_in_open_service_iframe) {
+                delete global_local_storage[formatKey];
+            }
+            localStorage.removeItem(formatKey);
         } catch (e) {
             console.log(e);
         }

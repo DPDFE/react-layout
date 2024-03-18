@@ -144,3 +144,33 @@ export function readableNumbers(num: number, base = 1000): string {
 
     return (neg ? '-' : '') + num + unit;
 }
+
+/** 数字转中文 */
+export function number2Chinese(num: number) {
+    const units = ['', '十', '百', '千', '万', '亿'];
+    const digits = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九'];
+
+    if (num === 0) {
+        return '零';
+    }
+
+    let result = '';
+    let numStr = num.toString();
+
+    for (let i = 0; i < numStr.length; i++) {
+        let digit = parseInt(numStr[i]);
+        let unit = numStr.length - i - 1;
+
+        if (digit === 0) {
+            if (unit === 4 || unit === 8) {
+                result += units[unit];
+            } else if (result[result.length - 1] !== '零') {
+                result += digits[digit];
+            }
+        } else {
+            result += digits[digit] + units[unit];
+        }
+    }
+
+    return result;
+}

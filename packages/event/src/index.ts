@@ -13,7 +13,8 @@ export {
     formatNumberToPercentString,
     getThousandthSeparatedNumber,
     formatNumberUnit,
-    readableNumbers
+    readableNumbers,
+    number2Chinese
 } from './data';
 
 export { default as LocalStorage } from './localstorage';

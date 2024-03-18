@@ -5,5 +5,6 @@ export {
     formatNumberToPercentString,
     getThousandthSeparatedNumber,
     formatNumberUnit,
-    readableNumbers
+    readableNumbers,
+    number2Chinese
 } from './format';
