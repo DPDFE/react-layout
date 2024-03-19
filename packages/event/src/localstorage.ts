@@ -21,7 +21,12 @@
 const is_in_open_service_iframe = window.parent !== window;
 
 /** global local storage */
-const global_local_storage = {} as Record<string, any>;
+const global_local_storage =
+    // @ts-ignore
+    (window.global_local_storage ?? {}) as Record<string, any>;
+
+// @ts-ignore
+window.global_local_storage = global_local_storage;
 
 const LocalStorage = (
     storage: Record<string, any> = {},
@@ -45,9 +50,7 @@ const LocalStorage = (
     const getStorageItem = (key: string) => {
         try {
             const formatKey = getFormattedKey(key);
-            const res = is_in_open_service_iframe
-                ? global_local_storage[formatKey]
-                : localStorage.getItem(formatKey);
+            const res = localStorage.getItem(formatKey);
             return res && res !== 'undefined' ? JSON.parse(res) : undefined;
         } catch (e) {
             console.log(e);
@@ -59,12 +62,7 @@ const LocalStorage = (
         try {
             const formatKey = getFormattedKey(key);
             const formatValue = JSON.stringify(value);
-            /** 处理iframe访问storage时，没有权限的情况 */
-            if (is_in_open_service_iframe) {
-                global_local_storage[formatKey] = formatValue;
-            } else {
-                localStorage.setItem(formatKey, formatValue);
-            }
+            localStorage.setItem(formatKey, formatValue);
         } catch (e) {
             console.log(e);
         }
@@ -74,9 +72,6 @@ const LocalStorage = (
     const removeStorageItem = (key: string) => {
         try {
             const formatKey = getFormattedKey(key);
-            if (is_in_open_service_iframe) {
-                delete global_local_storage[formatKey];
-            }
             localStorage.removeItem(formatKey);
         } catch (e) {
             console.log(e);
@@ -88,11 +83,12 @@ const LocalStorage = (
         try {
             Object.keys(storage).map((key) => {
                 const last_item = getStorageItem(key);
-                if (last_item !== undefined) {
-                    storage[key] = last_item;
-                } else if (storage[key]) {
-                    setStorageItem(key, storage[key]);
+                const target = last_item ?? storage[key] ?? undefined;
+                if (target) {
+                    storage[key] = target;
+                    setStorageItem(key, target);
                 }
+                global_local_storage[key] = target;
             });
             console.log('global_local_storage init', global_local_storage);
         } catch (e) {
@@ -102,23 +98,34 @@ const LocalStorage = (
 
     initStorage();
 
-    // 注册所有 stroage 初始值
+    // 注册所有 storage 初始值
     return new Proxy<typeof storage>(storage, {
         get(target: typeof storage, key: string): any {
-            ensureKeyRegistered(key);
-            return getStorageItem(key) ?? storage[key];
+            // ensureKeyRegistered(key);
+            return is_in_open_service_iframe
+                ? global_local_storage[key]
+                : getStorageItem(key);
         },
 
         set: (target: typeof storage, key: string, value: any) => {
             ensureKeyRegistered(key);
             storage[key] = value;
-            setStorageItem(key, value);
+            /** 处理iframe访问storage时，没有权限的情况 */
+            if (is_in_open_service_iframe) {
+                global_local_storage[key] = value;
+            } else {
+                setStorageItem(key, value);
+            }
             return true;
         },
 
         deleteProperty(target: typeof storage, key: string): boolean {
             ensureKeyRegistered(key);
-            removeStorageItem(key);
+            if (is_in_open_service_iframe) {
+                delete global_local_storage[key];
+            } else {
+                removeStorageItem(key);
+            }
             return getStorageItem(key) ? false : true;
         }
     });
