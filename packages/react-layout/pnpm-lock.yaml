@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@dpdfe/event-utils': ^0.0.14
+  '@dpdfe/event-utils': ^0.0.44
   '@types/lodash.isequal': ^4.5.5
   '@types/resize-observer-browser': ^0.1.7
   classnames: ^2.3.1
@@ -9,7 +9,7 @@ specifiers:
   resize-observer-polyfill: ^1.5.1
 
 dependencies:
-  '@dpdfe/event-utils': 0.0.14
+  '@dpdfe/event-utils': 0.0.44
   '@types/lodash.isequal': 4.5.6
   '@types/resize-observer-browser': 0.1.7
   classnames: 2.3.2
@@ -18,8 +18,8 @@ dependencies:
 
 packages:
 
-  /@dpdfe/event-utils/0.0.14:
-    resolution: {integrity: sha512-fEE2JNrGWOx77zAnR33Xr5J+db99Yx37+c0GK+qQCM0/j8+QnzKKJo99qLgHxfOMbt/xDzbPc2Xvrmkt52C7aw==}
+  /@dpdfe/event-utils/0.0.44:
+    resolution: {integrity: sha512-Qz8mTWZDnVbUcIdcGXkRpMJT4mFKAFepR/DhAbJ1kDSd1bKHY3wcox9GiBeqh9yQEyGMQEk4VugRrdDLM/WCbw==}
     dev: false
 
   /@types/lodash.isequal/4.5.6:
