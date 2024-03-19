@@ -17,7 +17,7 @@ export {
     number2Chinese
 } from './data';
 
-export { default as LocalStorage } from './localstorage';
+export { default as LocalStorage, ExpireLocalStorage } from './localstorage';
 
 export { default as Events } from './eventbus';
 

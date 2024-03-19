@@ -101,7 +101,7 @@ const LocalStorage = (
     // 注册所有 storage 初始值
     return new Proxy<typeof storage>(storage, {
         get(target: typeof storage, key: string): any {
-            // ensureKeyRegistered(key);
+            ensureKeyRegistered(key);
             return is_in_open_service_iframe
                 ? global_local_storage[key]
                 : getStorageItem(key);
@@ -121,6 +121,7 @@ const LocalStorage = (
 
         deleteProperty(target: typeof storage, key: string): boolean {
             ensureKeyRegistered(key);
+            /** 处理iframe访问storage时，没有权限的情况 */
             if (is_in_open_service_iframe) {
                 delete global_local_storage[key];
             } else {
@@ -130,4 +131,46 @@ const LocalStorage = (
         }
     });
 };
+
+/** expire local storage */
+const expire_local_storage =
+    // @ts-ignore
+    (window.global_local_storage.expire_local_storage ?? {}) as Record<
+        string,
+        any
+    >;
+
+// @ts-ignore
+window.global_local_storage.expire_local_storage = expire_local_storage;
+
+// 设置携带过期时间的localStorage
+export const ExpireLocalStorage = {
+    setItem: function (key: string, value: any, expire: number) {
+        const data = {
+            value: value,
+            expire: new Date().getTime() + expire
+        };
+        if (is_in_open_service_iframe) {
+            expire_local_storage[key] = JSON.stringify(data);
+        } else {
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+    },
+
+    getItem: function (key: string) {
+        const res = is_in_open_service_iframe
+            ? expire_local_storage[key]
+            : localStorage.getItem(key);
+        if (res) {
+            const data: { value: any; expire: number } = JSON.parse(res);
+            // 如果没有超时的话
+            if (data.expire > new Date().getTime()) {
+                return data.value;
+            }
+        }
+
+        return undefined;
+    }
+};
+
 export default LocalStorage;
