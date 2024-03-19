@@ -28,3 +28,5 @@ function tryIt(func: Function) {
         console.error(e);
     }
 }
+
+export default addUserInfo;

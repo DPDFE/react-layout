@@ -20,13 +20,11 @@
 /** iframe */
 const is_in_open_service_iframe = window.parent !== window;
 
-/** global local storage */
-const global_local_storage =
-    // @ts-ignore
-    (window.global_local_storage ?? {}) as Record<string, any>;
-
 // @ts-ignore
-window.global_local_storage = global_local_storage;
+window.global_local_storage = (window.global_local_storage ?? {}) as Record<
+    string,
+    any
+>;
 
 const LocalStorage = (
     storage: Record<string, any> = {},
@@ -39,7 +37,8 @@ const LocalStorage = (
 
     // 检查 key 是不已经注册过，没注册过，则抛出异常
     const ensureKeyRegistered = (key: string): void => {
-        if (!global_local_storage.hasOwnProperty(key)) {
+        // @ts-ignore
+        if (!window.global_local_storage.hasOwnProperty(key)) {
             throw new Error(
                 `未注册的 LocalStorage key：${key}。请先在 Storage 注册，统一管理。`
             );
@@ -88,9 +87,12 @@ const LocalStorage = (
                     storage[key] = target;
                     setStorageItem(key, target);
                 }
-                global_local_storage[key] = target;
+                //@ts-ignore
+                if (!window.global_local_storage[key]) {
+                    //@ts-ignore
+                    window.global_local_storage[key] = target;
+                }
             });
-            console.log('global_local_storage init', global_local_storage);
         } catch (e) {
             console.log(e);
         }
@@ -103,7 +105,8 @@ const LocalStorage = (
         get(target: typeof storage, key: string): any {
             ensureKeyRegistered(key);
             return is_in_open_service_iframe
-                ? global_local_storage[key]
+                ? // @ts-ignore
+                  window.global_local_storage[key]
                 : getStorageItem(key);
         },
 
@@ -112,7 +115,8 @@ const LocalStorage = (
             storage[key] = value;
             /** 处理iframe访问storage时，没有权限的情况 */
             if (is_in_open_service_iframe) {
-                global_local_storage[key] = value;
+                // @ts-ignore
+                window.global_local_storage[key] = value;
             } else {
                 setStorageItem(key, value);
             }
@@ -123,7 +127,8 @@ const LocalStorage = (
             ensureKeyRegistered(key);
             /** 处理iframe访问storage时，没有权限的情况 */
             if (is_in_open_service_iframe) {
-                delete global_local_storage[key];
+                // @ts-ignore
+                delete window.global_local_storage[key];
             } else {
                 removeStorageItem(key);
             }
