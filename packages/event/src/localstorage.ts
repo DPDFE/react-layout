@@ -37,6 +37,7 @@ const LocalStorage = (
 
     // 检查 key 是不已经注册过，没注册过，则抛出异常
     const ensureKeyRegistered = (key: string): void => {
+        /** 需要检查是否有key，而不是undefined判等 */
         // @ts-ignore
         if (!window.global_local_storage.hasOwnProperty(key)) {
             throw new Error(
@@ -83,10 +84,18 @@ const LocalStorage = (
             Object.keys(storage).map((key) => {
                 const last_item = getStorageItem(key);
                 const target = last_item ?? storage[key] ?? undefined;
+
+                /** 上次存储在localstorage中的默认值的优先级大于用户配置的默认值 */
+
                 if (target) {
                     storage[key] = target;
                     setStorageItem(key, target);
                 }
+
+                /** 如果没有值就会进入默认值赋值流程，
+                 * 所以在多配置单元的时候，
+                 * 相关默认值只能有一个值，或者其他是undefined */
+
                 //@ts-ignore
                 if (!window.global_local_storage[key]) {
                     //@ts-ignore
