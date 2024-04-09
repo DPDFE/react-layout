@@ -45,28 +45,28 @@ class WorkerWrapper {
 
 export default WorkerWrapper;
 
-// 创建一个简单的 worker 脚本，该脚本会计算传入的数字的平方
-const workerScript = `
-    self.onmessage = function(event) {
-        const number = event.data;
-        const result = number * number;
-        self.postMessage(result);
-    };
-`;
+// // 创建一个简单的 worker 脚本，该脚本会计算传入的数字的平方
+// const workerScript = `
+//     self.onmessage = function(event) {
+//         const number = event.data;
+//         const result = number * number;
+//         self.postMessage(result);
+//     };
+// `;
 
-// 创建 WorkerWrapper 实例
-const workerWrapper = new WorkerWrapper(workerScript);
+// // 创建 WorkerWrapper 实例
+// const workerWrapper = new WorkerWrapper(workerScript);
 
-// 发送消息到 worker 并等待结果
-workerWrapper
-    .postMessage({ action: 'calculate', data: 5 })
-    .then((result) => {
-        console.log('Result:', result); // 输出: Result: 25
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-    })
-    .finally(() => {
-        // 终止 worker
-        workerWrapper.terminate();
-    });
+// // 发送消息到 worker 并等待结果
+// workerWrapper
+//     .postMessage({ action: 'calculate', data: 5 })
+//     .then((result) => {
+//         console.log('Result:', result); // 输出: Result: 25
+//     })
+//     .catch((error) => {
+//         console.error('Error:', error);
+//     })
+//     .finally(() => {
+//         // 终止 worker
+//         workerWrapper.terminate();
+//     });
