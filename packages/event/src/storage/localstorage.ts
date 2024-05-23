@@ -17,10 +17,15 @@
  * @returns
  */
 
+declare global {
+    interface Window {
+        global_local_storage: Record<string, any>;
+    }
+}
+
 /** iframe */
 const is_in_open_service_iframe = window.parent !== window;
 
-// @ts-ignore
 window.global_local_storage = (window.global_local_storage ?? {}) as Record<
     string,
     any
@@ -38,7 +43,6 @@ const LocalStorage = (
     // 检查 key 是不已经注册过，没注册过，则抛出异常
     const ensureKeyRegistered = (key: string): void => {
         /** 需要检查是否有key，而不是undefined判等 */
-        // @ts-ignore
         if (!window.global_local_storage.hasOwnProperty(key)) {
             throw new Error(
                 `未注册的 LocalStorage key：${key}。请先在 Storage 注册，统一管理。`
@@ -87,7 +91,7 @@ const LocalStorage = (
 
                 /** 上次存储在localstorage中的默认值的优先级大于用户配置的默认值 */
 
-                if (target) {
+                if (target != null) {
                     storage[key] = target;
                     setStorageItem(key, target);
                 }
@@ -96,9 +100,7 @@ const LocalStorage = (
                  * 所以在多配置单元的时候，
                  * 相关默认值只能有一个值，或者其他是undefined */
 
-                //@ts-ignore
                 if (!window.global_local_storage[key]) {
-                    //@ts-ignore
                     window.global_local_storage[key] = target;
                 }
             });
@@ -114,8 +116,7 @@ const LocalStorage = (
         get(target: typeof storage, key: string): any {
             ensureKeyRegistered(key);
             return is_in_open_service_iframe
-                ? // @ts-ignore
-                  window.global_local_storage[key]
+                ? window.global_local_storage[key]
                 : getStorageItem(key);
         },
 
@@ -124,7 +125,6 @@ const LocalStorage = (
             storage[key] = value;
             /** 处理iframe访问storage时，没有权限的情况 */
             if (is_in_open_service_iframe) {
-                // @ts-ignore
                 window.global_local_storage[key] = value;
             } else {
                 setStorageItem(key, value);
@@ -136,7 +136,6 @@ const LocalStorage = (
             ensureKeyRegistered(key);
             /** 处理iframe访问storage时，没有权限的情况 */
             if (is_in_open_service_iframe) {
-                // @ts-ignore
                 delete window.global_local_storage[key];
             } else {
                 removeStorageItem(key);
@@ -144,47 +143,6 @@ const LocalStorage = (
             return getStorageItem(key) ? false : true;
         }
     });
-};
-
-/** expire local storage */
-const expire_local_storage =
-    // @ts-ignore
-    (window.global_local_storage.expire_local_storage ?? {}) as Record<
-        string,
-        any
-    >;
-
-// @ts-ignore
-window.global_local_storage.expire_local_storage = expire_local_storage;
-
-// 设置携带过期时间的localStorage
-export const ExpireLocalStorage = {
-    setItem: function (key: string, value: any, expire: number) {
-        const data = {
-            value: value,
-            expire: new Date().getTime() + expire
-        };
-        if (is_in_open_service_iframe) {
-            expire_local_storage[key] = JSON.stringify(data);
-        } else {
-            localStorage.setItem(key, JSON.stringify(data));
-        }
-    },
-
-    getItem: function (key: string) {
-        const res = is_in_open_service_iframe
-            ? expire_local_storage[key]
-            : localStorage.getItem(key);
-        if (res) {
-            const data: { value: any; expire: number } = JSON.parse(res);
-            // 如果没有超时的话
-            if (data.expire > new Date().getTime()) {
-                return data.value;
-            }
-        }
-
-        return undefined;
-    }
 };
 
 export default LocalStorage;
