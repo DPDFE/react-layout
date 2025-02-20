@@ -313,6 +313,7 @@ export interface DraggableProps extends EventBaseProps {
     }) => void;
     onDrag?: ({ e, x, y }: { e: MouseEvent; x: number; y: number }) => void;
     onDragStop?: ({ e, x, y }: { e: MouseEvent; x: number; y: number }) => void;
+    onMouseDown?: () => void;
 }
 
 export interface CursorProps extends Omit<DraggableProps, 'children'> {

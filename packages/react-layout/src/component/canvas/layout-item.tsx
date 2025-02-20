@@ -254,7 +254,7 @@ const WidgetItem = (props: WidgetItemProps) => {
         <React.Fragment key={'draggable_handler'}>
             <div
                 key={'top_draggable_handler'}
-                className={`draggable_handler ${styles.draggable_handler}`}
+                className={`draggable_handler ${styles.draggable_handler} layout-item-mask`}
                 style={{
                     width: '100%',
                     height: 10,
@@ -526,10 +526,22 @@ const WidgetItem = (props: WidgetItemProps) => {
             <Draggable
                 x={out.x}
                 y={out.y}
+                key={i}
                 threshold={5}
                 use_css_transform={false}
                 scale={props.scale}
                 is_draggable={is_draggable}
+                onMouseDown={() => {
+                    if (checked_index) {
+                        if (checked_index !== i) {
+                            return false;
+                        }
+                        return true;
+                    } else {
+                        props.setCurrentChecked?.(i);
+                        return true;
+                    }
+                }}
                 onDragStart={({ e, x, y }) => {
                     props.onDragStart?.(
                         {
@@ -546,7 +558,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                 }}
                 draggable_handler={
                     need_border_draggable_handler
-                        ? '.draggable_handler'
+                        ? `.draggable_handler`
                         : undefined
                 }
                 draggable_cancel_handler={

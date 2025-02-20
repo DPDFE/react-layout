@@ -225,7 +225,10 @@ const Draggable = (props: DraggableProps) => {
         onMouseDown: (e: React.MouseEvent) => {
             e.stopPropagation();
             child.props.onMouseDown?.(e);
-            handleDragStart(e as unknown as MouseEvent);
+            const is_ready = props.onMouseDown?.();
+            if (is_ready) {
+                handleDragStart(e as unknown as MouseEvent);
+            }
         },
         className: classNames(props.className, child.props.className),
         style: {
