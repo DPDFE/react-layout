@@ -358,7 +358,9 @@ const WidgetItem = (props: WidgetItemProps) => {
         tabIndex: i,
         onClick: (e: React.MouseEvent) => {
             e.stopPropagation();
-            props.setCurrentChecked?.(i);
+            if (operator_type.current == undefined) {
+                props.setCurrentChecked?.(i);
+            }
         },
         onKeyDown: (e: React.KeyboardEvent) => {
             if (type === WidgetType.drag && props.need_position_change) {
