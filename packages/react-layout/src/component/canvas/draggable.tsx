@@ -225,7 +225,8 @@ const Draggable = (props: DraggableProps) => {
         onMouseDown: (e: React.MouseEvent) => {
             e.stopPropagation();
             child.props.onMouseDown?.(e);
-            const is_ready = props.onMouseDown?.();
+            const is_ready = props.onMouseDown ? props.onMouseDown?.() : true;
+            console.log('is_ready', is_ready);
             if (is_ready) {
                 handleDragStart(e as unknown as MouseEvent);
             }
