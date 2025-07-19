@@ -4,7 +4,7 @@ import React, { memo, useEffect, useState } from 'react';
 import Menus, { MenuItem } from '../menus';
 import styles from './styles.module.css';
 
-const GuideLine = (props: GuideLineProps) => {
+const GuideLine = ({ guide_lines = [], ...props }: GuideLineProps) => {
     const GUIDE_OFFSET = 6,
         WORD_OFFSET = 50;
 
@@ -13,7 +13,6 @@ const GuideLine = (props: GuideLineProps) => {
         l_offset,
         t_offset,
         canvas_viewport_ref,
-        guide_lines,
         removeGuideLine
     } = props;
 
@@ -25,15 +24,15 @@ const GuideLine = (props: GuideLineProps) => {
     const viewport_pos = canvas_viewport_ref.current?.getBoundingClientRect()
         ? canvas_viewport_ref.current?.getBoundingClientRect()
         : ({
-              height: 0,
-              width: 0,
-              x: 0,
-              y: 0,
-              bottom: 0,
-              left: 0,
-              right: 0,
-              top: 0
-          } as DOMRect);
+            height: 0,
+            width: 0,
+            x: 0,
+            y: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+            top: 0
+        } as DOMRect);
 
     const calcGuidePose = () => {
         const scroll_left =
@@ -184,9 +183,9 @@ const GuideLine = (props: GuideLineProps) => {
                             borderStyle: 'solid',
                             display:
                                 scroll_left + x < viewport_pos!.x ||
-                                x + l_offset >
+                                    x + l_offset >
                                     viewport_pos!.width +
-                                        canvas_viewport_ref.current!.scrollLeft
+                                    canvas_viewport_ref.current!.scrollLeft
                                     ? 'none'
                                     : 'block'
                         }
@@ -211,9 +210,9 @@ const GuideLine = (props: GuideLineProps) => {
                             borderStyle: 'solid',
                             display:
                                 scroll_top + y < viewport_pos!.y ||
-                                y + t_offset >
+                                    y + t_offset >
                                     viewport_pos!.height +
-                                        canvas_viewport_ref.current!.scrollTop
+                                    canvas_viewport_ref.current!.scrollTop
                                     ? 'none'
                                     : 'block'
                         }
@@ -250,8 +249,6 @@ const GuideLine = (props: GuideLineProps) => {
     );
 };
 
-GuideLine.defaultProps = {
-    guide_lines: []
-};
+
 
 export default memo(GuideLine);

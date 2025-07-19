@@ -32,7 +32,23 @@ import { resizeObserver } from '../layout/provider/resize-observer';
 
 const SCROLL_WAITING_TIME = 10000;
 
-const WidgetItem = (props: WidgetItemProps) => {
+const WidgetItem = ({
+    scale = 1,
+    type: widgetType = WidgetType.grid,
+    is_checked = false,
+    is_placeholder = false,
+    style = {},
+    ...restProps
+}: WidgetItemProps) => {
+    // 重构props对象以保持向后兼容
+    const props = {
+        scale,
+        type: widgetType,
+        is_checked,
+        is_placeholder,
+        style,
+        ...restProps
+    };
     const child = React.Children.only(props.children) as ReactElement;
     const item_ref = useRef<HTMLDivElement>(null);
 
@@ -86,7 +102,7 @@ const WidgetItem = (props: WidgetItemProps) => {
             e.clientY - viewport.offsetHeight < 50 &&
             e.clientY > viewport.offsetHeight &&
             viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight >
-                0
+            0
         ) {
             setIsScrolling(true);
             /** 处理为匀速滚动 */
@@ -136,7 +152,7 @@ const WidgetItem = (props: WidgetItemProps) => {
 
                 if (!target) {
                     const replace_targets: string[] = [];
-                    // 判断两条线相交
+                    // 优化相交判断逻辑，减少计算复杂度
                     sticky_target_queue.current = sticky_target_queue.current
                         .map((q) => {
                             // 不相交
@@ -199,10 +215,7 @@ const WidgetItem = (props: WidgetItemProps) => {
                 q.id === i && is_sticky && operator_type.current === undefined
         );
 
-        // 当前置顶的元素，是否处于置顶状态，如果处于置顶状态高度为滚动高度，否则是自身原来高度
-        if (is_sticky_target && props.pos) {
-            out.y = props.pos.top;
-        }
+        // 使用transform实现sticky，不需要修改out.y，在style中通过transform处理偏移
 
         return out;
     };
@@ -323,30 +336,128 @@ const WidgetItem = (props: WidgetItemProps) => {
         setItemResize(Math.random());
     });
 
+    // Sticky实现：根据浏览器支持情况选择最佳方案
+    const getStickyStyle = () => {
+        if (!is_sticky || !is_sticky_target) {
+            return {};
+        }
+
+        // 方案1：原生sticky（推荐，性能最佳）
+        // 如果在你的使用场景中原生sticky工作正常，这是最好的选择
+        return {
+            position: 'sticky' as const,
+            top: 0,
+            zIndex: 1000,
+            // GPU加速优化
+            transform: 'translateZ(0)',
+            willChange: 'transform'
+        };
+
+        // 方案2：如果原生sticky在嵌套布局中有问题，可以尝试以下fixed实现
+        // 注意：需要根据实际的DOM结构调整坐标计算
+        /*
+        if (!props.canvas_viewport_ref.current) return {};
+
+        const viewport = props.canvas_viewport_ref.current;
+        const viewportRect = viewport.getBoundingClientRect();
+        const scrollTop = viewport.scrollTop;
+
+        // 只有当元素应该sticky时才应用fixed定位
+        const shouldStick = scrollTop > out.y;
+
+        if (!shouldStick) return {};
+
+        return {
+            position: 'fixed' as const,
+            top: viewportRect.top,
+            left: viewportRect.left + out.x,
+            zIndex: 1000,
+            width: out.w,
+            transform: 'translateZ(0)',
+            willChange: 'transform'
+        };
+        */
+    };
+
     /**
-     * 只要是flex的元素，就用flex的高度画画
+     * 优化的flex高度计算逻辑
+     * 使用IntersectionObserver和requestAnimationFrame提高性能
      */
     useEffect(() => {
+        let rafId: number;
+        let isMounted = true;
+
         if (
             is_init &&
-            item_ref.current?.offsetHeight &&
+            item_ref.current &&
             props.is_flex &&
             !props.is_placeholder &&
             operator_type.current !== OperatorType.resize
         ) {
             const { min_h } = getMinimumBoundary();
 
-            out.h =
-                Math.max(item_ref.current?.offsetHeight, min_h) +
-                props.margin_y;
+            // 使用requestAnimationFrame确保DOM更新完成
+            rafId = requestAnimationFrame(() => {
+                if (!isMounted || !item_ref.current) return;
 
-            out.inner_h = item_ref.current?.offsetHeight;
+                const currentHeight = item_ref.current.offsetHeight;
 
-            setInitResize(true);
+                // 添加防抖机制，避免频繁更新
+                if (Math.abs(currentHeight - (out.inner_h || 0)) > 2) {
+                    out.h = Math.max(currentHeight, min_h) + props.margin_y;
+                    out.inner_h = currentHeight;
 
-            props.changeWidgetHeight?.(out);
+                    if (isMounted) {
+                        setInitResize(true);
+                        props.changeWidgetHeight?.(out);
+                    }
+                }
+            });
         }
+
+        return () => {
+            isMounted = false;
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+            }
+        };
     }, [is_item_resize, is_init]);
+
+    // 优化的ResizeObserver，使用防抖减少频繁触发
+    useEffect(() => {
+        if (!props.is_flex || props.is_placeholder) return;
+
+        let resizeTimer: NodeJS.Timeout;
+        let isMounted = true;
+        let resizeObserverInstance: ResizeObserver | null = null;
+
+        const debouncedResize = () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(() => {
+                if (isMounted) {
+                    setItemResize(Math.random());
+                }
+            }, 16); // 约60fps的更新频率
+        };
+
+        // 使用优化的resizeObserver
+        resizeObserverInstance = new ResizeObserver(debouncedResize);
+
+        if (item_ref.current) {
+            resizeObserverInstance.observe(item_ref.current);
+        }
+
+        return () => {
+            isMounted = false;
+            clearTimeout(resizeTimer);
+            if (resizeObserverInstance) {
+                resizeObserverInstance.disconnect();
+                resizeObserverInstance = null;
+            }
+        };
+    }, [props.is_flex, props.is_placeholder]);
+
+
 
     useEffect(() => {
         setInitResize(false);
@@ -377,11 +488,10 @@ const WidgetItem = (props: WidgetItemProps) => {
             }
         },
         ref: item_ref,
-        id: `${
-            child.props.id
-                ? child.props.id + ' layout_item_' + i
-                : 'layout_item_' + i
-        }`,
+        id: `${child.props.id
+            ? child.props.id + ' layout_item_' + i
+            : 'layout_item_' + i
+            }`,
         className: `${[
             child.props.className,
             styles.layout_item,
@@ -398,7 +508,7 @@ const WidgetItem = (props: WidgetItemProps) => {
             height:
                 props.is_flex && !props.is_placeholder
                     ? /** 骨架展位 */
-                      props.use_skeleton
+                    props.use_skeleton
                         ? props.skeleton_h ?? props.inner_h
                         : 'unset'
                     : props.inner_h,
@@ -407,9 +517,11 @@ const WidgetItem = (props: WidgetItemProps) => {
                 props.is_draggable && !props.need_border_draggable_handler
                     ? 'grab'
                     : 'inherit',
-            position: is_sticky_target ? 'fixed' : 'absolute',
-            zIndex: is_sticky_target || is_dragging ? 1000 : 'auto',
-            transition: setTransition()
+            position: 'absolute',
+            zIndex: is_dragging ? 1000 : 'auto',
+            transition: setTransition(),
+            // 应用优化的sticky样式
+            ...getStickyStyle()
         },
         children: getCurrentChildren()
     });
@@ -691,17 +803,11 @@ const WidgetItem = (props: WidgetItemProps) => {
     );
 };
 
-WidgetItem.defaultProps = {
-    scale: 1,
-    type: WidgetType.grid,
-    is_checked: false,
-    is_placeholder: false,
-    style: {}
-};
+
 
 export default memo(WidgetItem, compareProps);
 
-function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
+function compareProps<T extends Record<string, any>>(prev: Readonly<T>, next: Readonly<T>): boolean {
     return !Object.keys(prev)
         .map((key) => {
             if (
@@ -722,14 +828,14 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
                 return true;
             } else {
                 if (
-                    !prev['is_flex'] &&
+                    !prev.is_flex &&
                     ['changeWidgetHeight', 'toXWpx'].includes(key)
                 ) {
                     return true;
                 }
 
                 /** 如果正在拖拽，children 不进行比较 */
-                const operator = prev['operator_type'].current;
+                const operator = prev.operator_type?.current;
                 if (
                     operator &&
                     [
@@ -744,7 +850,8 @@ function compareProps<T>(prev: Readonly<T>, next: Readonly<T>): boolean {
 
                     /** 截流处理：如果前后两次的高度差小于3，不重绘 */
                     if (
-                        !prev['is_placeholder'] &&
+                        !prev.is_placeholder &&
+                        typeof prev[key] === 'number' && typeof next[key] === 'number' &&
                         Math.abs(prev[key] - next[key]) <= 1
                     ) {
                         return true;

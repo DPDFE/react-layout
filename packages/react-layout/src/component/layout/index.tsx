@@ -51,6 +51,7 @@ import {
 import { useScroll } from '../canvas/scroll';
 
 const ReactLayout = (props: ReactLayoutProps) => {
+    // 为了避免defaultProps警告，我们直接使用props，并在使用时提供默认值
     const {
         checked_index,
         setCurrentChecked,
@@ -174,15 +175,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
             ...drop_item,
             ...(layout_type === LayoutType.GRID
                 ? {
-                      w: drop_item?.w ?? 2,
-                      h: drop_item?.h ?? 2,
-                      inner_h: drop_item?.h ?? 2
-                  }
+                    w: drop_item?.w ?? 2,
+                    h: drop_item?.h ?? 2,
+                    inner_h: drop_item?.h ?? 2
+                }
                 : {
-                      w: drop_item ? drop_item.w : 100,
-                      h: drop_item ? drop_item.h : 100,
-                      inner_h: drop_item ? drop_item?.h : 100
-                  }),
+                    w: drop_item ? drop_item.w : 100,
+                    h: drop_item ? drop_item.h : 100,
+                    inner_h: drop_item ? drop_item?.h : 100
+                }),
             i: drop_item ? drop_item.i : '__dropping_item__',
             x: (e.clientX + current.scrollLeft - left) / scale,
             y: (e.clientY + current.scrollTop - top) / scale,
@@ -339,7 +340,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
                         return (
                             clamp(e.clientX, left, left + width) ===
-                                e.clientX &&
+                            e.clientX &&
                             clamp(e.clientY, top, top + height) === e.clientY
                         );
                     }
@@ -456,6 +457,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     moving_droppable.current?.id !== start_droppable.current?.id
                 ) {
                     /**
+                     * 优化嵌套布局坐标变换逻辑
                      * 画布元素相对于实际画布[0,0]进行坐标变换，不针对视窗变化处理
                      */
                     const moving_pos = moving_droppable.current
@@ -466,8 +468,24 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         ?.getBoundingClientRect();
 
                     if (start_pos && moving_pos) {
-                        shadow.x -= moving_pos.left - start_pos.left;
-                        shadow.y -= moving_pos.top - start_pos.top;
+                        // 获取缩放比例，避免在嵌套布局中坐标计算错误
+                        const start_ref = start_droppable.current?.getRef() as HTMLElement | null;
+                        const moving_ref = moving_droppable.current?.getRef() as HTMLElement | null;
+                        const start_scale = start_ref?.style?.transform?.match(/scale\(([^)]+)\)/)?.[1] || '1';
+                        const moving_scale = moving_ref?.style?.transform?.match(/scale\(([^)]+)\)/)?.[1] || '1';
+
+                        const scaleRatio = parseFloat(start_scale) / parseFloat(moving_scale);
+
+                        // 改进坐标变换计算，考虑嵌套层级和缩放
+                        const deltaX = (moving_pos.left - start_pos.left) / parseFloat(moving_scale);
+                        const deltaY = (moving_pos.top - start_pos.top) / parseFloat(moving_scale);
+
+                        shadow.x = (shadow.x * scaleRatio) - deltaX;
+                        shadow.y = (shadow.y * scaleRatio) - deltaY;
+
+                        // 确保坐标不会超出边界
+                        shadow.x = Math.max(0, shadow.x);
+                        shadow.y = Math.max(0, shadow.y);
                     }
                 }
 
@@ -475,18 +493,20 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 // 所以将计算的定位，转化为：x grid | y px
                 toXWcol(shadow);
 
+                // 优化碰撞检测缓存，避免重复计算
+                const shadow_key = `${shadow.x}_${shadow.y}`;
+                const cached_key = shadow_pos ? `${shadow_pos.x}_${shadow_pos.y}` : '';
+
                 const compact_layout =
-                    shadow_pos &&
-                    shadow_pos.x == shadow.x &&
-                    shadow_pos.y == shadow.y
+                    shadow_key === cached_key
                         ? filter_layout
                         : moveElement(
-                              filter_layout,
-                              shadow,
-                              shadow.x,
-                              shadow.y,
-                              true
-                          );
+                            filter_layout,
+                            shadow,
+                            shadow.x,
+                            shadow.y,
+                            true
+                        );
 
                 setShadowPos(shadow);
 
@@ -535,7 +555,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
             } else {
                 if (
                     start_droppable.current!.id ===
-                        moving_droppable.current!.id &&
+                    moving_droppable.current!.id &&
                     operator_type.current
                 ) {
                     // 同一个布局
@@ -688,7 +708,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     margin_y={margin_y}
                     margin_x={margin_x}
                     layout_id={props.layout_id}
-                    scale={props.scale}
+                    scale={props.scale ?? 1}
                     mode={LayoutMode.view}
                     is_checked={false}
                     is_placeholder={true}
@@ -734,7 +754,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     layout_id={props.layout_id}
                     col_width={col_width}
                     row_height={row_height}
-                    scale={props.scale}
+                    scale={props.scale ?? 1}
                     padding={padding}
                     margin_y={margin_y}
                     margin_x={margin_x}
@@ -901,83 +921,83 @@ const ReactLayout = (props: ReactLayoutProps) => {
                     /** 只有根节点注册监听释放事件，计算位置按照根节点相对位置计算 */
                     onDrop={
                         props.mode === LayoutMode.edit &&
-                        props.is_droppable &&
-                        registry.droppable.getFirstRegister()?.id ===
+                            props.is_droppable &&
+                            registry.droppable.getFirstRegister()?.id ===
                             props.layout_id
                             ? (e) => {
-                                  drop_enter_counter.current = 0;
-                                  const item = getDropItem(e);
+                                drop_enter_counter.current = 0;
+                                const item = getDropItem(e);
 
-                                  handleResponder(
-                                      e,
-                                      OperatorType.dropover,
-                                      toYHpx(item)
-                                  );
-                                  drag_item.current = undefined;
-                              }
+                                handleResponder(
+                                    e,
+                                    OperatorType.dropover,
+                                    toYHpx(item)
+                                );
+                                drag_item.current = undefined;
+                            }
                             : noop
                     }
                     onDragOver={
                         props.mode === LayoutMode.edit &&
-                        props.is_droppable &&
-                        registry.droppable.getFirstRegister()?.id ===
+                            props.is_droppable &&
+                            registry.droppable.getFirstRegister()?.id ===
                             props.layout_id
                             ? (e) => {
-                                  e.preventDefault();
-                                  const item = getDropItem(e);
+                                e.preventDefault();
+                                const item = getDropItem(e);
 
-                                  const widget = toYHpx(item);
-                                  delete drag_item.current?.is_dragging;
+                                const widget = toYHpx(item);
+                                delete drag_item.current?.is_dragging;
 
-                                  if (!drag_item.current) {
-                                      handleResponder(
-                                          e,
-                                          OperatorType.dragstart,
-                                          widget
-                                      );
-                                  }
-                                  if (!isEqual(drag_item.current, widget)) {
-                                      //  不要开火太多次
-                                      handleResponder(
-                                          e,
-                                          OperatorType.drop,
-                                          widget
-                                      );
-                                  }
-                                  drag_item.current = widget;
-                              }
+                                if (!drag_item.current) {
+                                    handleResponder(
+                                        e,
+                                        OperatorType.dragstart,
+                                        widget
+                                    );
+                                }
+                                if (!isEqual(drag_item.current, widget)) {
+                                    //  不要开火太多次
+                                    handleResponder(
+                                        e,
+                                        OperatorType.drop,
+                                        widget
+                                    );
+                                }
+                                drag_item.current = widget;
+                            }
                             : noop
                     }
                     onDragEnter={
                         props.mode === LayoutMode.edit &&
-                        registry.droppable.getFirstRegister()?.id ===
+                            registry.droppable.getFirstRegister()?.id ===
                             props.layout_id
                             ? () => {
-                                  drop_enter_counter.current += 1;
-                              }
+                                drop_enter_counter.current += 1;
+                            }
                             : noop
                     }
                     onDragLeave={
                         props.mode === LayoutMode.edit &&
-                        registry.droppable.getFirstRegister()?.id ===
+                            registry.droppable.getFirstRegister()?.id ===
                             props.layout_id
                             ? () => {
-                                  drop_enter_counter.current -= 1;
+                                drop_enter_counter.current -= 1;
 
-                                  if (drop_enter_counter.current == 0) {
-                                      if (moving_droppable.current) {
-                                          registry.droppable
-                                              .getById(
-                                                  moving_droppable.current.id
-                                              )
-                                              .cleanShadow();
+                                if (drop_enter_counter.current == 0) {
+                                    if (moving_droppable.current) {
+                                        registry.droppable
+                                            .getById(
+                                                moving_droppable.current.id
+                                            )
+                                            .cleanShadow();
 
-                                          operator_type.current = undefined;
-                                          start_droppable.current = undefined;
-                                          moving_droppable.current = undefined;
-                                      }
-                                  }
-                              }
+                                        operator_type.current = undefined;
+                                        start_droppable.current = undefined;
+                                        moving_droppable.current = undefined;
+                                    }
+                                }
+                            }
                             : noop
                     }
                 >
@@ -988,9 +1008,9 @@ const ReactLayout = (props: ReactLayoutProps) => {
                         style={{
                             ...(props.layout_type === LayoutType.DRAG
                                 ? {
-                                      width: wrapper_width,
-                                      height: wrapper_height
-                                  }
+                                    width: wrapper_width,
+                                    height: wrapper_height
+                                }
                                 : { height: '100%' })
                         }}
                     >
@@ -1014,15 +1034,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
                                     ?.id !== props.layout_id
                                     ? {}
                                     : {
-                                          transform: `scale(${props.scale})`,
-                                          transformOrigin: '0 0'
-                                      })
+                                        transform: `scale(${props.scale ?? 1})`,
+                                        transformOrigin: '0 0'
+                                    })
                             }}
                         >
                             {/* 网格线 */}
                             {props.mode === LayoutMode.edit &&
                                 registry.droppable.getFirstRegister()?.id ===
-                                    props.layout_id &&
+                                props.layout_id &&
                                 props.need_grid_lines && (
                                     <canvas
                                         width={current_width}
@@ -1052,15 +1072,15 @@ const ReactLayout = (props: ReactLayoutProps) => {
                 </div>
             </div>
 
-            {props.mode === LayoutMode.edit && canvas_viewport_ref.current && (
+            {(props.mode ?? LayoutMode.view) === LayoutMode.edit && canvas_viewport_ref.current && (
                 <GuideLine
-                    scale={props.scale}
+                    scale={props.scale ?? 1}
                     t_offset={t_offset}
                     l_offset={l_offset}
-                    guide_lines={props.guide_lines}
+                    guide_lines={(props as any).guide_lines ?? []}
                     canvas_viewport_ref={canvas_viewport_ref}
                     ruler_hover_pos={ruler_hover_pos}
-                    removeGuideLine={props.removeGuideLine}
+                    removeGuideLine={(props as any).removeGuideLine}
                 ></GuideLine>
             )}
         </div>
@@ -1069,21 +1089,7 @@ const ReactLayout = (props: ReactLayoutProps) => {
 
 ReactLayout.displayName = 'ReactLayout';
 
-ReactLayout.defaultProps = {
-    scale: 1,
-    cols: 10,
-    width: undefined,
-    height: undefined,
-    row_height: 20,
-    container_padding: [0] as [number],
-    item_margin: [0, 0] as [number, number],
-    mode: LayoutMode.view,
-    need_ruler: false,
-    guide_lines: [],
-    need_grid_lines: false,
-    need_grid_bound: true,
-    need_drag_bound: true
-};
+
 
 export default memo(ReactLayout, compareProps);
 

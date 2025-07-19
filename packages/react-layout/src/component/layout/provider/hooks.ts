@@ -8,7 +8,7 @@ import {
     WidgetType,
     Pos
 } from '@/interfaces';
-import { useEffect, useMemo, useState, useContext } from 'react';
+import { useEffect, useMemo, useState, useContext, useCallback } from 'react';
 import {
     calcOffset,
     calcWH,
@@ -69,8 +69,8 @@ export const useLayoutHooks = (
         return props.layout_type === LayoutType.DRAG
             ? (props as DragLayoutProps).width
             : props.width
-            ? Math.min(container_width, props.width)
-            : container_width;
+                ? Math.min(container_width, props.width)
+                : container_width;
     }, [
         props.layout_type,
         is_window_resize,
@@ -102,7 +102,7 @@ export const useLayoutHooks = (
      * 边界范围
      */
     const bound = (l: LayoutItem) => {
-        const { type, is_dragging, is_resizing, is_dropping } = l;
+        const { type, is_dragging, is_resizing, is_dropping, is_flex } = l;
         if (is_dragging || is_resizing || is_dropping) {
             return DEFAULT_BOUND;
         }
@@ -117,14 +117,24 @@ export const useLayoutHooks = (
                     : Infinity
             };
         }
-        // grid
+        // grid - flex模式需要特殊处理水平边界
         else if (type === WidgetType.grid && props.need_grid_bound) {
-            return {
-                min_x: 0,
-                max_x: props.cols,
-                min_y: 0,
-                max_y: Infinity
-            };
+            if (is_flex) {
+                // flex模式下，水平方向需要限制在画布内，但以像素为单位
+                return {
+                    min_x: 0,
+                    max_x: props.cols, // 列数限制
+                    min_y: 0,
+                    max_y: Infinity
+                };
+            } else {
+                return {
+                    min_x: 0,
+                    max_x: props.cols,
+                    min_y: 0,
+                    max_y: Infinity
+                };
+            }
         }
         //
         return DEFAULT_BOUND;
@@ -134,9 +144,22 @@ export const useLayoutHooks = (
     const calcBound = (item: LayoutItem) => {
         const { max_x, min_x, max_y, min_y } = bound(item);
 
-        item.w = clamp(item.w, min_x, max_x);
+        // flex模式下需要特殊处理水平边界
+        if (item.is_flex && item.type === WidgetType.grid) {
+            // 限制元素宽度不超过总列数
+            item.w = clamp(item.w, item.min_w || 1, max_x);
+            // 限制元素x坐标 + 宽度不超过总列数
+            item.x = clamp(item.x, min_x, Math.max(min_x, max_x - item.w));
+            // 确保元素不会超出右边界
+            if (item.x + item.w > max_x) {
+                item.x = Math.max(min_x, max_x - item.w);
+            }
+        } else {
+            item.w = clamp(item.w, min_x, max_x);
+            item.x = clamp(item.x, min_x, max_x - item.w);
+        }
+
         item.h = clamp(item.h, min_y, max_y);
-        item.x = clamp(item.x, min_x, max_x - item.w);
         item.y = clamp(item.y, min_y, max_y - item.h);
 
         return item;
@@ -153,8 +176,18 @@ export const useLayoutHooks = (
             item.x = calcXY(item.x, col_width, margin_x, padding.left);
         }
 
-        if (is_resizing || is_dragging) {
+        // flex模式下也需要对宽度进行转换和边界检查
+        if (is_flex || is_resizing || is_dragging) {
             item.w = calcWH(item.w, col_width, margin_x);
+
+            // flex模式下确保宽度不超过总列数
+            if (is_flex && item.type === WidgetType.grid) {
+                item.w = Math.min(item.w, props.cols);
+                // 确保 x + w 不超过总列数
+                if (item.x + item.w > props.cols) {
+                    item.x = Math.max(0, props.cols - item.w);
+                }
+            }
         }
 
         delete item.is_dragging;
@@ -285,10 +318,10 @@ export const useLayoutHooks = (
         const calc_layout =
             moving_droppable.current?.id === props.layout_id && shadow_widget
                 ? layout.concat({
-                      ...shadow_widget!,
-                      i: 'placeholder',
-                      layout_id: ''
-                  })
+                    ...shadow_widget!,
+                    i: 'placeholder',
+                    layout_id: ''
+                })
                 : layout;
 
         calc_layout.forEach((out) => {
@@ -326,8 +359,8 @@ export const useLayoutHooks = (
         return props.layout_type === LayoutType.DRAG
             ? (props as DragLayoutProps).height
             : props.use_max_bottom
-            ? max_bottom
-            : Math.max(max_bottom, container_height);
+                ? max_bottom
+                : Math.max(max_bottom, container_height);
     }, [props.layout_type, (props as DragLayoutProps).height, max_bottom]);
 
     /**
@@ -443,14 +476,36 @@ export const useLayoutHooks = (
         }
     };
 
-    /** 碰撞 */
+    /**
+     * 优化的碰撞检测，使用缓存减少重复计算
+     */
+    const collisionCache = useMemo(() => new Map<string, boolean>(), []);
+
+    /** 碰撞检测优化版本 */
     function collides(item_1: ItemPos, item_2: ItemPos): boolean {
         if (item_1.i === item_2.i) return false; // 相同节点
-        if (item_1.x + item_1.w <= item_2.x) return false; // 👈
-        if (item_1.x >= item_2.x + item_2.w) return false; // 👉
-        if (item_1.y + item_1.h <= item_2.y) return false; // 👆
-        if (item_1.y >= item_2.y + item_2.h) return false; // 👇
-        return true;
+
+        // 使用缓存减少重复计算
+        const cacheKey = `${item_1.i}_${item_2.i}_${item_1.x}_${item_1.y}_${item_1.w}_${item_1.h}_${item_2.x}_${item_2.y}_${item_2.w}_${item_2.h}`;
+        if (collisionCache.has(cacheKey)) {
+            return collisionCache.get(cacheKey)!;
+        }
+
+        const result = !(
+            item_1.x + item_1.w <= item_2.x || // 👈
+            item_1.x >= item_2.x + item_2.w || // 👉
+            item_1.y + item_1.h <= item_2.y || // 👆
+            item_1.y >= item_2.y + item_2.h    // 👇
+        );
+
+        // 限制缓存大小，避免内存泄漏
+        if (collisionCache.size > 1000) {
+            const firstKey = collisionCache.keys().next().value;
+            collisionCache.delete(firstKey);
+        }
+        collisionCache.set(cacheKey, result);
+
+        return result;
     }
 
     /** 检测碰撞 */
@@ -460,25 +515,27 @@ export const useLayoutHooks = (
         });
     }
 
-    /** 最大边界 */
+    /** 最大边界优化 */
     function bottom(layout: LayoutItem[]) {
         let max = 0;
         layout.forEach((item) => {
             const out = toYHpx(item);
-
             max = Math.max(max, out.y + out.h);
         });
         return max;
     }
 
     /**
-     * 碰撞排序
+     * 优化的碰撞排序，使用批量更新
      * @param layout
      * @returns
      */
-    const compact = (layout: LayoutItem[]) => {
+    const compact = useCallback((layout: LayoutItem[]) => {
         const compare_with: LayoutItem[] = [];
         const sorted = sortGridLayoutItems(layout);
+
+        // 清理碰撞缓存，确保新布局计算的准确性
+        collisionCache.clear();
 
         sorted.map((l) => {
             l.moved = false;
@@ -487,7 +544,7 @@ export const useLayoutHooks = (
         });
 
         return compare_with;
-    };
+    }, [layout, row_height, col_width, margin_y, padding]);
 
     /**
      * 过滤grid类型

@@ -30,7 +30,25 @@ export enum DragStates {
     dragged = 'dragged'
 }
 
-const Draggable = (props: DraggableProps) => {
+const Draggable = ({
+    threshold = 0,
+    is_draggable = false,
+    use_css_transform = true,
+    scale = 1,
+    style = {},
+    bound = DEFAULT_BOUND,
+    ...restProps
+}: DraggableProps) => {
+    // 重构props对象以保持向后兼容
+    const props = {
+        threshold,
+        is_draggable,
+        use_css_transform,
+        scale,
+        style,
+        bound,
+        ...restProps
+    };
     const child = React.Children.only(props.children) as DOMElement<
         React.HTMLAttributes<Element>,
         Element
@@ -246,14 +264,7 @@ const Draggable = (props: DraggableProps) => {
     return new_child;
 };
 
-Draggable.defaultProps = {
-    threshold: 0,
-    is_draggable: false,
-    use_css_transform: true,
-    scale: 1,
-    style: {},
-    bound: DEFAULT_BOUND
-};
+
 
 export default memo(Draggable);
 

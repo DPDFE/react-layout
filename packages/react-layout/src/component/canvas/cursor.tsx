@@ -3,7 +3,10 @@ import React, { memo, useRef } from 'react';
 import Draggable, { DEFAULT_BOUND } from './draggable';
 import styles from './styles.module.css';
 
-const Cursor = (props: CursorProps) => {
+const Cursor = ({
+    bound = DEFAULT_BOUND,
+    ...props
+}: CursorProps) => {
     const cursor_ref = useRef<HTMLDivElement>(null);
 
     const CURSOR_TRIGGER_TARGET = 20 * (props.scale ?? 1);
@@ -24,7 +27,7 @@ const Cursor = (props: CursorProps) => {
             onDragStop={({ e, x, y }) => {
                 props.onDragStop?.({ e, x, y, cursor: props.cursor });
             }}
-            bound={props.bound}
+            bound={bound}
             onContextMenu={(e) => {
                 e.preventDefault();
                 return false;
@@ -56,8 +59,6 @@ const Cursor = (props: CursorProps) => {
     );
 };
 
-Cursor.defaultProps = {
-    bound: DEFAULT_BOUND
-};
+
 
 export default memo(Cursor);

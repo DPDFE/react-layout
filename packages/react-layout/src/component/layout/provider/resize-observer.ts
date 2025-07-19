@@ -10,21 +10,34 @@ export function resizeObserver(
     func: () => void
 ) {
     useLayoutEffect(() => {
+        let isMounted = true;
+        let rafId: number;
+
         /**
          * 缩放容器触发器
          */
         const resizeObserverInstance = new ResizeObserver(() => {
-            requestAnimationFrame(func);
+            rafId = requestAnimationFrame(() => {
+                if (isMounted) {
+                    func();
+                }
+            });
         });
 
-        if (ref.current) {
-            resizeObserverInstance.observe(ref.current);
+        const currentRef = ref.current;
+        if (currentRef) {
+            resizeObserverInstance.observe(currentRef);
         }
+
         return () => {
-            if (ref.current) {
-                resizeObserverInstance.unobserve(ref.current);
-                resizeObserverInstance.disconnect();
+            isMounted = false;
+            if (rafId) {
+                cancelAnimationFrame(rafId);
             }
+            if (currentRef) {
+                resizeObserverInstance.unobserve(currentRef);
+            }
+            resizeObserverInstance.disconnect();
         };
     }, []);
 }
